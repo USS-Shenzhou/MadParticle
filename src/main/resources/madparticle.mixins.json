@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "cn.ussshenzhou.madparticle.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "madparticle.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

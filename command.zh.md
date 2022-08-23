@@ -23,6 +23,7 @@ friction, afterCollisionFriction (float) //阻力，碰撞后阻力
 gravity, afterCollisionGravity (float) //重力，碰撞后重力
 interactWithEntity (boolean) //是否被玩家带动
 horizontalInteractFactor, verticalInteractFactor (double) //水平扰动系数，垂直扰动系数
+//显示相关
 renderType (int) //渲染模式
 r, g, b (float) //颜色
 beginAlpha, endAlpha (float) //初始/结束不透明度

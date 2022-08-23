@@ -1,8 +1,14 @@
 package cn.ussshenzhou.madparticle.particle;
 
+import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.util.MathHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
+import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,11 +29,11 @@ public class MadParticle extends TextureSheetParticle {
     private final float beginGravity;
     private final boolean collision;
     private final int bounceTime;
-    private final double horizontalRelativeCollisionDiffuse,verticalRelativeCollisionBounce;
+    private final double horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce;
     private final float afterCollisionFriction;
     private final float afterCollisionGravity;
     private final boolean interactWithEntity;
-    private final double horizontalInteractFactor,verticalInteractFactor;
+    private final double horizontalInteractFactor, verticalInteractFactor;
     private final ParticleRenderType particleRenderType;
     private final float beginAlpha, endAlpha;
     private final ChangeMode alphaMode;
@@ -38,6 +44,7 @@ public class MadParticle extends TextureSheetParticle {
     private float scale;
     private static final double MAXIMUM_COLLISION_VELOCITY_SQUARED = Mth.square(100.0D);
     private static final float MAX_DIRECTIONAL_LOSS = 0.65f;
+    private static final int BASE = 10;
 
     @SuppressWarnings("AlibabaSwitchStatement")
     public MadParticle(ClientLevel pLevel, SpriteSet spriteSet, SpriteFrom spriteFrom,
@@ -219,11 +226,11 @@ public class MadParticle extends TextureSheetParticle {
         }),
         INDEX((begin, end, age, life) -> {
             float x = age / (float) life;
-            return begin * (float) Math.pow(end / begin, x);
+            return begin + (float) ((end - begin) * (Math.pow(BASE, x) - 1) / (BASE - 1));
         }),
         SIN((begin, end, age, life) -> {
             float x = age / (float) life;
-            return begin + (end - begin) * (float) Math.sin(x * Math.PI / 2);
+            return begin + (end - begin) * (1 + (float) Math.sin(x * Math.PI - Math.PI / 2)) * 0.5f;
         });
 
         @FunctionalInterface
@@ -253,8 +260,25 @@ public class MadParticle extends TextureSheetParticle {
         @Nullable
         @Override
         public Particle createParticle(MadParticleOption op, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
-            int target = ;
-            return new MadParticle(pLevel,);
+            int target = op.targetParticle();
+            ParticleType<?> particleType = Registry.PARTICLE_TYPE.byId(target);
+            if (particleType != null) {
+                ParticleEngineAccessor particleEngineAccessor = (ParticleEngineAccessor) Minecraft.getInstance().particleEngine;
+                SpriteSet spriteSet = particleEngineAccessor.getSpriteSets().get(particleType.getRegistryName());
+                if (spriteSet != null) {
+                    return new MadParticle(pLevel, spriteSet, op.spriteFrom(),
+                            op.px(), op.py(), op.pz(), op.vx(), op.vy(), op.vz(),
+                            op.friction(), op.gravity(), op.collision(), op.bounceTime(),
+                            op.horizontalRelativeCollisionDiffuse(), op.verticalRelativeCollisionBounce(), op.afterCollisionFriction(), op.afterCollisionGravity(),
+                            op.interactWithEntity(), op.horizontalInteractFactor(), op.verticalInteractFactor(),
+                            op.lifeTime(), ParticleRenderTypeHelper.fromInt(op.targetParticle()),
+                            op.r(), op.g(), op.b(),
+                            op.beginAlpha(), op.endAlpha(), op.alphaMode(),
+                            op.beginScale(), op.endScale(), op.scaleMode()
+                    );
+                }
+            }
+            return null;
         }
     }
 }

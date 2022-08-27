@@ -79,7 +79,7 @@ public record MadParticleOption(int targetParticle, MadParticle.SpriteFrom sprit
         buf.writeDouble(zDiffuse);
         buf.writeDouble(vx);
         buf.writeDouble(vy);
-        buf.writeDouble(vy);
+        buf.writeDouble(vz);
         buf.writeDouble(vxDiffuse);
         buf.writeDouble(vyDiffuse);
         buf.writeDouble(vzDiffuse);

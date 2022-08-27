@@ -21,23 +21,18 @@ import java.util.function.Supplier;
  */
 public class MadParticlePacket {
     private final MadParticleOption particleOption;
-    private final boolean alwaysRender;
 
-    public MadParticlePacket(MadParticleOption particleOption, boolean alwaysRender) {
+    public MadParticlePacket(MadParticleOption particleOption) {
         this.particleOption = particleOption;
-        this.alwaysRender = alwaysRender;
     }
 
     public MadParticlePacket(FriendlyByteBuf buf) {
         ParticleType<MadParticleOption> particleType = ModParticleRegistry.MAD_PARTICLE.get();
         this.particleOption = particleType.getDeserializer().fromNetwork(particleType, buf);
-        this.alwaysRender = buf.readBoolean();
     }
 
     public void write(FriendlyByteBuf buffer) {
-        buffer.writeInt(Registry.PARTICLE_TYPE.getId(particleOption.getType()));
         particleOption.writeToNetwork(buffer);
-        buffer.writeBoolean(alwaysRender);
     }
 
     public void handler(Supplier<NetworkEvent.Context> context) {

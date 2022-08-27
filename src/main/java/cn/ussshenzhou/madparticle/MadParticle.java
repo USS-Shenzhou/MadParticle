@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle;
 
+import cn.ussshenzhou.madparticle.command.MadParticleCommand;
 import cn.ussshenzhou.madparticle.network.MadParticlePacketSend;
 import cn.ussshenzhou.madparticle.particle.ModParticleRegistry;
 import com.mojang.logging.LogUtils;
@@ -29,14 +30,6 @@ public class MadParticle {
 
     private void setup(final FMLCommonSetupEvent event) {
         LOGGER.info("WelCome to the world of MadParticle!");
-    }
-
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class RegistryEvents {
-        @SubscribeEvent
-        public static void onCommonSetup(FMLCommonSetupEvent event) {
-            event.enqueueWork(MadParticlePacketSend::registerMessage);
-        }
     }
 
 }

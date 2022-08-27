@@ -6,9 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.Registry;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -61,8 +59,8 @@ public class MadParticle extends TextureSheetParticle {
         this.sprites = spriteSet;
         this.spriteFrom = spriteFrom;
         switch (spriteFrom) {
-            case AGE -> this.pickSprite(spriteSet);
-            case RANDOM -> this.setSpriteFromAge(spriteSet);
+            case AGE -> this.setSpriteFromAge(spriteSet);
+            case RANDOM -> this.pickSprite(spriteSet);
         }
         this.xd = vx;
         this.yd = vy;
@@ -267,11 +265,11 @@ public class MadParticle extends TextureSheetParticle {
                 SpriteSet spriteSet = particleEngineAccessor.getSpriteSets().get(particleType.getRegistryName());
                 if (spriteSet != null) {
                     return new MadParticle(pLevel, spriteSet, op.spriteFrom(),
-                            op.px(), op.py(), op.pz(), op.vx(), op.vy(), op.vz(),
+                            pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed,
                             op.friction(), op.gravity(), op.collision(), op.bounceTime(),
                             op.horizontalRelativeCollisionDiffuse(), op.verticalRelativeCollisionBounce(), op.afterCollisionFriction(), op.afterCollisionGravity(),
                             op.interactWithEntity(), op.horizontalInteractFactor(), op.verticalInteractFactor(),
-                            op.lifeTime(), ParticleRenderTypeHelper.fromInt(op.targetParticle()),
+                            op.lifeTime(), op.renderType().getType(),
                             op.r(), op.g(), op.b(),
                             op.beginAlpha(), op.endAlpha(), op.alphaMode(),
                             op.beginScale(), op.endScale(), op.scaleMode()

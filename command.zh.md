@@ -1,6 +1,6 @@
 # MadParticle命令使用指南
 
-以下是`/madparticle`（或`/mp`）指令的所有参数和部分说明。
+以下是`/madparticle`（或`/mp`）指令的所有参数和部分说明。参数名称可能与游戏中略有不同。
 
 ```
 /madparticle /mp
@@ -24,15 +24,21 @@ gravity, afterCollisionGravity (float) //重力，碰撞后重力
 interactWithEntity (boolean) //是否被玩家带动
 horizontalInteractFactor, verticalInteractFactor (double) //水平扰动系数，垂直扰动系数
 //显示相关
-renderType (int) //渲染模式
-r, g, b (float) //颜色
+renderType (renderType) //渲染模式
+r, g, b (double > float) //颜色
 beginAlpha, endAlpha (float) //初始/结束不透明度
 alphaMode (MadParticle.ChangeMode) //不透明度变化模式（线性|指数|正弦）
 eginScale, endScale (float) //初始/结束缩放
 scaleMode (MadParticle.ChangeMode) //缩放变化模式（线性|指数|正弦）
+//附加内容
+whoCanSee (entity) //能够看到此粒子的玩家
+expireThen (madParticle command)//粒子消失时产生新粒子
 ```
 
-> 注意：下列给出的参考值没有经过交叉验证，可能并不准确。
+> 注意：
+>
+> - 下列给出的参考值没有经过交叉验证，可能并不准确。
+> - 当double或float类型的参数需要为0时，请填入`0.0`，而不是`0`。`0`在一些情况下会被补充为0.5，这是原版特性。
 
 ## targetParticle
 
@@ -104,11 +110,15 @@ scaleMode (MadParticle.ChangeMode) //缩放变化模式（线性|指数|正弦�
 
 决定粒子的渲染模式。如果你并不熟悉此项，建议你选择自动填入的值。无自动填入值时建议选择`PARTICLE_SHEET_OPAQUE`或`PARTICLE_SHEET_TRANSLUCENT`。
 
+## r, g, b
+
+决定粒子的贴图会被作何种颜色变化。范围为0-1。
+
 ## beginAlpha, endAlpha, alphaMode
 
 `beginAlpha`决定粒子生成时的不透明度。
 
-`endAlpha`决定粒子消失时的不透明度。如果不需要不透明度变化，填入与`beginAlpha`相同值即可。
+`endAlpha`决定粒子消失时的不透明度。如果不需要不透明度变化，填入与`beginAlpha`相同值即可。范围均为0-1。
 
 `alphaMode`决定粒子的不透明度如何变化。`linear`指线性变化，`index`指指数变化，`sin`指正弦变化。如果不需要不透明度变化，填入`linear`即可。
 
@@ -130,4 +140,17 @@ scaleMode (MadParticle.ChangeMode) //缩放变化模式（线性|指数|正弦�
 >
 > ![image](https://user-images.githubusercontent.com/57312492/186139910-e44f0008-fe3b-4f2c-a4c0-eb541d2cfcdc.png)
 
+> 以下内容都是可选的，而非必填的。
+
+## whoCanSee
+
+`whoCanSee`决定粒子数据会被发往哪些玩家。使用实体目标选择器。不填写时默认粒子被发往维度内的所有玩家。
+
+## expireThen
+
+`expireThen`决定粒子消失时会变为其他什么粒子。后接一条完整的`madparticle`指令。这意味着这一整条指令可以嵌套式地延伸，一个父粒子可以有一串子粒子。
+
+> 与第一条`mp`指令生成父粒子稍有不同的是，在子粒子指令中，你可以在各参数处填写短横线`-`，这表示子粒子的参数将会继承其父粒子。
+>
+> 请注意，子粒子的`whoCanSee`参数将会被忽略，保持与最上层父粒子相同的值。
 

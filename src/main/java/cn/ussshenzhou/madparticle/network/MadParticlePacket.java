@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Random;
 import java.util.function.Supplier;
@@ -27,12 +28,13 @@ public class MadParticlePacket {
     }
 
     public MadParticlePacket(FriendlyByteBuf buf) {
-        ParticleType<MadParticleOption> particleType = ModParticleRegistry.MAD_PARTICLE.get();
-        this.particleOption = particleType.getDeserializer().fromNetwork(particleType, buf);
+        this.particleOption = MadParticleOption.DESERIALIZER.fromNetwork(ModParticleRegistry.MAD_PARTICLE.get(), buf);
+        LogManager.getLogger().warn("get "+particleOption.vx() + " " + particleOption.vy() + " " + particleOption.vz());
     }
 
     public void write(FriendlyByteBuf buffer) {
         particleOption.writeToNetwork(buffer);
+        LogManager.getLogger().warn("send "+particleOption.vx() + " " + particleOption.vy() + " " + particleOption.vz());
     }
 
     public void handler(Supplier<NetworkEvent.Context> context) {

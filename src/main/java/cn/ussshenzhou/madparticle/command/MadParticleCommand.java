@@ -14,9 +14,9 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
-import net.minecraft.commands.arguments.coordinates.WorldCoordinate;
 import net.minecraft.commands.arguments.coordinates.WorldCoordinates;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
@@ -25,9 +25,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.command.EnumArgument;
-import org.apache.logging.log4j.LogManager;
 
-import java.util.function.Predicate;
+import java.util.Collection;
 
 /**
  * @author USS_Shenzhou
@@ -62,13 +61,16 @@ public class MadParticleCommand {
                                                                                                                                                                                                                 .then(Commands.argument("r", FloatArgumentType.floatArg(0, 1))
                                                                                                                                                                                                                         .then(Commands.argument("g", FloatArgumentType.floatArg(0, 1))
                                                                                                                                                                                                                                 .then(Commands.argument("b", FloatArgumentType.floatArg(0, 1))
-                                                                                                                                                                                                                                        .then(Commands.argument("beginAlpha", FloatArgumentType.floatArg(0,1))
-                                                                                                                                                                                                                                                .then(Commands.argument("endAlpha", FloatArgumentType.floatArg(0,1))
+                                                                                                                                                                                                                                        .then(Commands.argument("beginAlpha", FloatArgumentType.floatArg(0, 1))
+                                                                                                                                                                                                                                                .then(Commands.argument("endAlpha", FloatArgumentType.floatArg(0, 1))
                                                                                                                                                                                                                                                         .then(Commands.argument("alphaMode", EnumArgument.enumArgument(MadParticle.ChangeMode.class))
                                                                                                                                                                                                                                                                 .then(Commands.argument("beginScale", FloatArgumentType.floatArg(0))
                                                                                                                                                                                                                                                                         .then(Commands.argument("endScale", FloatArgumentType.floatArg(0))
                                                                                                                                                                                                                                                                                 .then(Commands.argument("scaleMode", EnumArgument.enumArgument(MadParticle.ChangeMode.class))
                                                                                                                                                                                                                                                                                         .executes(MadParticleCommand::sendAll)
+                                                                                                                                                                                                                                                                                        .then(Commands.argument("whoCanSee", EntityArgument.players())
+                                                                                                                                                                                                                                                                                                .executes((ct) -> sendToPlayer(ct, EntityArgument.getPlayers(ct,"whoCanSee")))
+                                                                                                                                                                                                                                                                                        )
                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                 )
@@ -106,11 +108,15 @@ public class MadParticleCommand {
 
     private static int sendAll(CommandContext<CommandSourceStack> ct) {
         ServerLevel level = ct.getSource().getLevel();
+        return sendToPlayer(ct,level.getPlayers(serverPlayer -> true));
+    }
+
+    private static int sendToPlayer(CommandContext<CommandSourceStack> ct, Collection<ServerPlayer> players) {
         Vec3 pos = ct.getArgument("spawnPos", WorldCoordinates.class).getPosition(ct.getSource());
         Vec3 posDiffuse = ct.getArgument("spawnDiffuse", WorldCoordinates.class).getPosition(ct.getSource());
         Vec3 speed = ct.getArgument("spawnSpeed", WorldCoordinates.class).getPosition(ct.getSource());
         Vec3 speedDiffuse = ct.getArgument("speedDiffuse", WorldCoordinates.class).getPosition(ct.getSource());
-        for (ServerPlayer player : level.getPlayers(serverPlayer -> true)) {
+        for (ServerPlayer player : players) {
             MadParticlePacketSend.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> player),
                     new MadParticlePacket(new MadParticleOption(
@@ -142,8 +148,6 @@ public class MadParticleCommand {
                             ct.getArgument("beginScale", Float.class),
                             ct.getArgument("endScale", Float.class),
                             ct.getArgument("scaleMode", MadParticle.ChangeMode.class)
-
-
                     ))
             );
         }

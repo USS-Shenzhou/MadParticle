@@ -13,6 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -86,6 +87,7 @@ public class MadParticle extends TextureSheetParticle {
         this.endAlpha = endAlpha;
         this.alphaMode = alphaMode;
         this.beginScale = beginScale;
+        this.setSize(0.2f,0.2f);
         this.scale(beginScale);
         this.scale = beginScale;
         this.endScale = endScale;

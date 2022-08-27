@@ -5,16 +5,17 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
+import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author USS_Shenzhou
  */
-public record MadParticleOption(int targetParticle, MadParticle.SpriteFrom spriteFrom, int lifeTime, boolean alwaysRender, int amount,
+public record MadParticleOption(int targetParticle, MadParticle.SpriteFrom spriteFrom, int lifeTime,
+                                boolean alwaysRender, int amount,
                                 double px, double py, double pz, double xDiffuse, double yDiffuse, double zDiffuse,
-                                double vx, double vy,
-                                double vz, double vxDiffuse, double vyDiffuse, double vzDiffuse, float friction,
-                                float gravity, boolean collision, int bounceTime,
+                                double vx, double vy, double vz, double vxDiffuse, double vyDiffuse, double vzDiffuse,
+                                float friction, float gravity, boolean collision, int bounceTime,
                                 double horizontalRelativeCollisionDiffuse, double verticalRelativeCollisionBounce,
                                 float afterCollisionFriction, float afterCollisionGravity, boolean interactWithEntity,
                                 double horizontalInteractFactor, double verticalInteractFactor,
@@ -54,7 +55,12 @@ public record MadParticleOption(int targetParticle, MadParticle.SpriteFrom sprit
             MadParticle.ChangeMode alphaMode = buf.readEnum(MadParticle.ChangeMode.class);
             float beginScale = buf.readFloat(), endScale = buf.readFloat();
             MadParticle.ChangeMode scaleMode = buf.readEnum(MadParticle.ChangeMode.class);
-            return new MadParticleOption(targetParticle, spriteFrom,lifeTime,alwaysRender, amount,
+            /*LogManager.getLogger().warn(targetParticle + "  " + spriteFrom + "  " + lifeTime + "  " + alwaysRender + "  " + amount + "  "
+                    + px + "  " + py + "  " + pz + "  " + xDiffuse + "  " + yDiffuse + "  " + zDiffuse + "  " + vx + "  " + vy + "  " + vz + "  " + vxDiffuse + "  " + vyDiffuse + "  " + vzDiffuse + "  "
+                    + friction + "  " + gravity + "  " + collision + "  " + bounceTime + "  " + horizontalRelativeCollisionDiffuse + "  " + verticalRelativeCollisionBounce + "  " + afterCollisionFriction + "  " + afterCollisionGravity + "  "
+                    + interactWithEntity + "  " + horizontalInteractFactor + "  " + verticalInteractFactor + "  "
+                    + renderType + "  " + r + "  " + g + "  " + b + "  " + beginAlpha + "  " + endAlpha + "  " + alphaMode + "  " + beginScale + "  " + endScale + "  " + scaleMode);*/
+            return new MadParticleOption(targetParticle, spriteFrom, lifeTime, alwaysRender, amount,
                     px, py, pz, xDiffuse, yDiffuse, zDiffuse, vx, vy, vz, vxDiffuse, vyDiffuse, vzDiffuse,
                     friction, gravity, collision, bounceTime, horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce, afterCollisionFriction, afterCollisionGravity,
                     interactWithEntity, horizontalInteractFactor, verticalInteractFactor,
@@ -103,7 +109,7 @@ public record MadParticleOption(int targetParticle, MadParticle.SpriteFrom sprit
         buf.writeFloat(beginScale);
         buf.writeFloat(endScale);
         buf.writeEnum(scaleMode);
-    }
+        }
 
     @Override
     public @NotNull ParticleType<?> getType() {

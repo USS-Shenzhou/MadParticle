@@ -29,12 +29,12 @@ public class MadParticlePacket {
 
     public MadParticlePacket(FriendlyByteBuf buf) {
         this.particleOption = MadParticleOption.DESERIALIZER.fromNetwork(ModParticleRegistry.MAD_PARTICLE.get(), buf);
-        LogManager.getLogger().warn("get "+particleOption.vx() + " " + particleOption.vy() + " " + particleOption.vz());
+        LogManager.getLogger().warn("get"+particleOption.vx() + " " + particleOption.vy() + " " + particleOption.vz());
     }
 
-    public void write(FriendlyByteBuf buffer) {
-        particleOption.writeToNetwork(buffer);
-        LogManager.getLogger().warn("send "+particleOption.vx() + " " + particleOption.vy() + " " + particleOption.vz());
+    public void write(FriendlyByteBuf buf) {
+        particleOption.writeToNetwork(buf);
+        LogManager.getLogger().warn("send"+particleOption.vx() + " " + particleOption.vy() + " " + particleOption.vz());
     }
 
     public void handler(Supplier<NetworkEvent.Context> context) {

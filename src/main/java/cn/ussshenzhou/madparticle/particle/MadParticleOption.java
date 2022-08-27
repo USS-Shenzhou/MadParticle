@@ -55,11 +55,6 @@ public record MadParticleOption(int targetParticle, MadParticle.SpriteFrom sprit
             MadParticle.ChangeMode alphaMode = buf.readEnum(MadParticle.ChangeMode.class);
             float beginScale = buf.readFloat(), endScale = buf.readFloat();
             MadParticle.ChangeMode scaleMode = buf.readEnum(MadParticle.ChangeMode.class);
-            /*LogManager.getLogger().warn(targetParticle + "  " + spriteFrom + "  " + lifeTime + "  " + alwaysRender + "  " + amount + "  "
-                    + px + "  " + py + "  " + pz + "  " + xDiffuse + "  " + yDiffuse + "  " + zDiffuse + "  " + vx + "  " + vy + "  " + vz + "  " + vxDiffuse + "  " + vyDiffuse + "  " + vzDiffuse + "  "
-                    + friction + "  " + gravity + "  " + collision + "  " + bounceTime + "  " + horizontalRelativeCollisionDiffuse + "  " + verticalRelativeCollisionBounce + "  " + afterCollisionFriction + "  " + afterCollisionGravity + "  "
-                    + interactWithEntity + "  " + horizontalInteractFactor + "  " + verticalInteractFactor + "  "
-                    + renderType + "  " + r + "  " + g + "  " + b + "  " + beginAlpha + "  " + endAlpha + "  " + alphaMode + "  " + beginScale + "  " + endScale + "  " + scaleMode);*/
             return new MadParticleOption(targetParticle, spriteFrom, lifeTime, alwaysRender, amount,
                     px, py, pz, xDiffuse, yDiffuse, zDiffuse, vx, vy, vz, vxDiffuse, vyDiffuse, vzDiffuse,
                     friction, gravity, collision, bounceTime, horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce, afterCollisionFriction, afterCollisionGravity,

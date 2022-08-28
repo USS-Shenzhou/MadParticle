@@ -29,12 +29,10 @@ public class MadParticlePacket {
 
     public MadParticlePacket(FriendlyByteBuf buf) {
         this.particleOption = MadParticleOption.DESERIALIZER.fromNetwork(ModParticleRegistry.MAD_PARTICLE.get(), buf);
-        LogManager.getLogger().warn("get"+particleOption.vx() + " " + particleOption.vy() + " " + particleOption.vz());
     }
 
     public void write(FriendlyByteBuf buf) {
         particleOption.writeToNetwork(buf);
-        LogManager.getLogger().warn("send"+particleOption.vx() + " " + particleOption.vy() + " " + particleOption.vz());
     }
 
     public void handler(Supplier<NetworkEvent.Context> context) {
@@ -58,7 +56,7 @@ public class MadParticlePacket {
             for (int i = 0; i < particleOption.amount(); i++) {
                 level.addParticle(
                         particleOption,
-                        particleOption.alwaysRender(),
+                        particleOption.alwaysRender().get(),
                         particleOption.px() + MathHelper.signedRandom(r) * particleOption.xDiffuse(),
                         particleOption.py() + MathHelper.signedRandom(r) * particleOption.yDiffuse(),
                         particleOption.pz() + MathHelper.signedRandom(r) * particleOption.zDiffuse(),

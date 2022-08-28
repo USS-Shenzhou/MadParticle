@@ -8,7 +8,7 @@
 targetParticle (Particle) //要模仿的粒子
 spriteFrom (MadParticle.SpriteFrom) //贴图选择方式（随机|按时间变化）
 lifeTime (int) //持续时间
-alwaysRender (boolean) //是否忽略最大粒子距离（默认为32格）
+alwaysRender (InheritableBoolean) //是否忽略最大粒子距离（默认为32格）
 amount (int) //单次生成数量
 //生成相关
 px, py, pz (double) //生成位置
@@ -16,19 +16,19 @@ xDiffuse, yDiffuse, zDiffuse (double) //生成位置误差
 vx, vy, vz (double) //生成速度
 vxDiffuse, vyDiffuse, vzDiffuse (double) //生成速度误差
 //运动相关
-collision (boolean) //是否与方块碰撞
+collision (InheritableBoolean) //是否与方块碰撞
 bounceTime (int) //最大碰撞次数
 horizontalRelativeCollisionDiffuse,verticalRelativeCollisionBounce (double) //碰撞时水平扩散/垂直反弹系数
 friction, afterCollisionFriction (float) //阻力，碰撞后阻力
 gravity, afterCollisionGravity (float) //重力，碰撞后重力
-interactWithEntity (boolean) //是否被玩家带动
+interactWithEntity (InheritableBoolean) //是否被玩家带动
 horizontalInteractFactor, verticalInteractFactor (double) //水平扰动系数，垂直扰动系数
 //显示相关
 renderType (renderType) //渲染模式
 r, g, b (double > float) //颜色
 beginAlpha, endAlpha (float) //初始/结束不透明度
 alphaMode (MadParticle.ChangeMode) //不透明度变化模式（线性|指数|正弦）
-eginScale, endScale (float) //初始/结束缩放
+beginScale, endScale (float) //初始/结束缩放
 scaleMode (MadParticle.ChangeMode) //缩放变化模式（线性|指数|正弦）
 //附加内容
 whoCanSee (entity) //能够看到此粒子的玩家
@@ -39,6 +39,8 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 >
 > - 下列给出的参考值没有经过交叉验证，可能并不准确。
 > - 当double或float类型的参数需要为0时，请填入`0.0`，而不是`0`。`0`在一些情况下会被补充为0.5，这是原版特性。
+> -  `InheritableBoolean`是对bool的包装，除`TRUE`和`FALSE`外，还可以填写`INHERIT`。具体内容参见下文`expireThen`。
+> 
 
 ## targetParticle
 
@@ -50,7 +52,7 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 
 ## lifeTime, alwaysRender, amount
 
-`lifeTime`决定粒子的持续时间，单位为tick。
+`lifeTime`决定粒子的持续时间，单位为tick。生成粒子时有10%误差。
 
 `alwaysRender`决定粒子是否无视最大生成距离。MC原版的最大生成距离为32格。在[Extinguish](https://www.curseforge.com/minecraft/mc-mods/extinguish-by-uss_shenzhou)中，此值被改为了64格。
 
@@ -112,7 +114,7 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 
 ## r, g, b
 
-决定粒子的贴图会被作何种颜色变化。范围为0-1。
+决定粒子的贴图会被作何种颜色变化。一般情况下范围为0-1。尚未探究超过1之后的颜色变化规律，但不会产生其他错误。
 
 ## beginAlpha, endAlpha, alphaMode
 
@@ -123,10 +125,12 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 `alphaMode`决定粒子的不透明度如何变化。`linear`指线性变化，`index`指指数变化，`sin`指正弦变化。如果不需要不透明度变化，填入`linear`即可。
 
 > 假设`beginAlpha`为1，`endAlpha`为0.1（即一个逐渐变淡的粒子），粒子存活时间为100tick（5秒），则三种变化模式曲线如图：
+>
 > 
-> ![image](https://user-images.githubusercontent.com/57312492/186139543-20efe1cb-768e-47df-8318-43a9bc5def15.png)
 >
 > 注意，为了更好地突出与其他方式的差异，指数变化时的底数规定为10。
+>
+> 正弦变化使用`sin`函数的`3/5`次方以突出与`linear`的差异，同时为简化运算，使用查表法计算。
 
 ## beginScale, endScale, scaleMode
 
@@ -138,19 +142,61 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 
 > 假设`beginScale`为0.3，`endScale`为4.5（即一个不断变大的粒子），粒子存活时间为100tick（5秒），则三种变化模式曲线如图：
 >
-> ![image](https://user-images.githubusercontent.com/57312492/186139910-e44f0008-fe3b-4f2c-a4c0-eb541d2cfcdc.png)
+> 
 
 > 以下内容都是可选的，而非必填的。
 
 ## whoCanSee
 
+> 感谢`@MalayP`的建议。
+
 `whoCanSee`决定粒子数据会被发往哪些玩家。使用实体目标选择器。不填写时默认粒子被发往维度内的所有玩家。
 
 ## expireThen
 
+> 感谢`@MalayP`的建议。
+
 `expireThen`决定粒子消失时会变为其他什么粒子。后接一条完整的`madparticle`指令。这意味着这一整条指令可以嵌套式地延伸，一个父粒子可以有一串子粒子。
 
-> 与第一条`mp`指令生成父粒子稍有不同的是，在子粒子指令中，你可以在各参数处填写短横线`-`，这表示子粒子的参数将会继承其父粒子。
+> - 与第一条`mp`指令生成父粒子稍有不同的是，在子粒子指令中，你可以在一些参数处填写等于号`=`（数值参数），或`INHERIT`（布尔（被枚举替代）和枚举），这表示子粒子的这个参数将会继承于其父粒子。
+> - `=`和通常的`~`、`^`相似，但不同之处在于，`=`拥有最高优先级，其存在将会覆盖这个参数下的所有其他数字。因此，不仅`=`能够表示`此参数继承于父粒子`，`=-1=`、`3=`、`=1=2=3=4=5=6=`也表示相同的含义。
+> - 请不要在最父粒子
+> - 子粒子的`amount`参数将会被忽略，即保持为1。
+> - 父粒子的`whoCanSee`参数将会被忽略，以最后一个`whoCanSee`（即最子粒子）为准。
 >
-> 请注意，子粒子的`whoCanSee`参数将会被忽略，保持与最上层父粒子相同的值。
+> ---
+>
+> - 以下参数，有`√`代表其可以被继承，可以使用`=`或`INHERIT`；`×`代表其不能被继承，您必须显式地写明值；`〇`代表其值将会被忽略。
+>
+> ```
+> ... expireThen
+> //基本信息
+> × targetParticle (Particle) //要模仿的粒子
+> √ spriteFrom (MadParticle.SpriteFrom) //贴图选择方式（随机|按时间变化）
+> √ lifeTime (int) //持续时间
+> × alwaysRender (InheritableBoolean) //是否忽略最大粒子距离（默认为32格）
+> 〇 amount (int) //单次生成数量
+> //生成相关
+> √ px, py, pz (double) //生成位置
+> √〇 xDiffuse, yDiffuse, zDiffuse (double) //生成位置误差 <如果选择继承位置则忽略误差>
+> √ vx, vy, vz (double) //生成速度
+> √〇 vxDiffuse, vyDiffuse, vzDiffuse (double) //生成速度误差 <如果选择继承速度则忽略误差>
+> //运动相关
+> √ collision (InheritableBoolean) //是否与方块碰撞
+> √ bounceTime (int) //最大碰撞次数
+> √ horizontalRelativeCollisionDiffuse,verticalRelativeCollisionBounce (double) //碰撞时水平扩散/垂直反弹系数
+> × friction, afterCollisionFriction (float) //阻力，碰撞后阻力 <有歧义而不允许继承>
+> × gravity, afterCollisionGravity (float) //重力，碰撞后重力 <有歧义而不允许继承>
+> √ interactWithEntity (InheritableBoolean) //是否被玩家带动
+> √ horizontalInteractFactor, verticalInteractFactor (double) //水平扰动系数，垂直扰动系数
+> //显示相关
+> × renderType (renderType) //渲染模式
+> √ r, g, b (double > float) //颜色
+> × beginAlpha, endAlpha (float) //初始/结束不透明度 <有歧义而不允许继承>
+> √ alphaMode (MadParticle.ChangeMode) //不透明度变化模式（线性|指数|正弦）
+> × beginScale, endScale (float) //初始/结束缩放 <有歧义而不允许继承>
+> √ scaleMode (MadParticle.ChangeMode) //缩放变化模式（线性|指数|正弦）
+> //附加内容
+> 〇 whoCanSee (entity) //能够看到此粒子的玩家
+> expireThen ...
 

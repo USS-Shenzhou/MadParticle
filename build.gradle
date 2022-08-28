@@ -41,8 +41,7 @@ minecraft {
     // Use non-default mappings at your own risk. They may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
     mappings channel: 'parchment', version: '2022.08.07-1.18.2'
-
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    //accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
@@ -171,6 +170,7 @@ dependencies {
 jar {
     manifest {
         attributes([
+                //'FMLAT': 'madparticle_at.cfg',
                 "Specification-Title"     : "madparticle",
                 //"Specification-Vendor": "madparticle authors",
                 "Specification-Version"   : "1", // We are version 1 of ourselves

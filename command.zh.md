@@ -124,9 +124,10 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 
 `alphaMode`决定粒子的不透明度如何变化。`linear`指线性变化，`index`指指数变化，`sin`指正弦变化。如果不需要不透明度变化，填入`linear`即可。
 
-> 假设`beginAlpha`为1，`endAlpha`为0.1（即一个逐渐变淡的粒子），粒子存活时间为100tick（5秒），则三种变化模式曲线如图：
+> 假设`beginAlpha`为1，`endAlpha`为0.1（即一个逐渐变淡的粒子），粒子存活时间为100tick（5秒），则三种变化模式曲线模拟如图：
 >
-> 
+> ![image](https://user-images.githubusercontent.com/57312492/187078262-1a8b4737-b721-4df4-b092-2ca51bd0279d.png)
+
 >
 > 注意，为了更好地突出与其他方式的差异，指数变化时的底数规定为10。
 >
@@ -140,9 +141,10 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 
 `scaleMode`决定粒子的缩放如何变化。三种选项与上文alpha变化模式相同。
 
-> 假设`beginScale`为0.3，`endScale`为4.5（即一个不断变大的粒子），粒子存活时间为100tick（5秒），则三种变化模式曲线如图：
+> 假设`beginScale`为0.3，`endScale`为4.5（即一个不断变大的粒子），粒子存活时间为100tick（5秒），则三种变化模式曲线模拟如图：
 >
-> 
+> ![image](https://user-images.githubusercontent.com/57312492/187078284-8321bc4f-5250-49bd-b16b-443b840f02c4.png)
+
 
 > 以下内容都是可选的，而非必填的。
 

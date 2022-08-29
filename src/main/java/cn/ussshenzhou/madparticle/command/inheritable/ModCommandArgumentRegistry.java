@@ -15,7 +15,9 @@ public class ModCommandArgumentRegistry {
     public static void onCommandArgumentReg(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             ArgumentTypes.register("madparticle:inheritable_integer", InheritableIntegerArgument.class, new EmptyArgumentSerializer<>(InheritableIntegerArgument::inheritableInteger));
-            ArgumentTypes.register("madparticle:inheritable_float", InheritableFloatArgument.class,new EmptyArgumentSerializer<>(InheritableFloatArgument::inheritableFloat));
+            ArgumentTypes.register("madparticle:inheritable_float", InheritableFloatArgument.class, new EmptyArgumentSerializer<>(InheritableFloatArgument::inheritableFloat));
+            ArgumentTypes.register("madparticle:inheritable_double", InheritableDoubleArgument.class, new EmptyArgumentSerializer<>(InheritableDoubleArgument::inheritableDouble));
+            ArgumentTypes.register("madparticle:inheritable_vec3",InheritableVec3Argument.class,new EmptyArgumentSerializer<>(InheritableVec3Argument::inheritableVec3));
         });
     }
 }

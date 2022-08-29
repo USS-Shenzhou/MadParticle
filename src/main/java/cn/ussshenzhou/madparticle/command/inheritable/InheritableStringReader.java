@@ -45,7 +45,7 @@ public class InheritableStringReader extends StringReader {
     @Override
     public float readFloat() throws CommandSyntaxException {
         final int start = getCursor();
-        while (canRead() && isAllowedNumber(peek())) {
+        while (canRead() && isAllowedInheritableNumber(peek())) {
             skip();
         }
         final String number = getString().substring(start, getCursor());
@@ -60,6 +60,27 @@ public class InheritableStringReader extends StringReader {
         } catch (final NumberFormatException ex) {
             setCursor(start);
             throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidFloat().createWithContext(this, number);
+        }
+    }
+
+    @Override
+    public double readDouble() throws CommandSyntaxException {
+        final int start = getCursor();
+        while (canRead() && isAllowedInheritableNumber(peek())) {
+            skip();
+        }
+        final String number = getString().substring(start, getCursor());
+        if (number.contains("=")) {
+            return Double.MAX_VALUE;
+        }
+        if (number.isEmpty()) {
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedDouble().createWithContext(this);
+        }
+        try {
+            return Double.parseDouble(number);
+        } catch (final NumberFormatException ex) {
+            setCursor(start);
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidDouble().createWithContext(this, number);
         }
     }
 }

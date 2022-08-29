@@ -4,6 +4,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author USS_Shenzhou
@@ -26,11 +27,11 @@ public class InheritableFloatArgument implements ArgumentType<Float> {
     }
 
     public static InheritableFloatArgument inheritableFloat(int fatherCommandParameterAmount) {
-        return new InheritableFloatArgument(Float.MIN_VALUE, Float.MAX_VALUE, fatherCommandParameterAmount);
+        return new InheritableFloatArgument(-Float.MAX_VALUE, Float.MAX_VALUE, fatherCommandParameterAmount);
     }
 
     public static InheritableFloatArgument inheritableFloat() {
-        return new InheritableFloatArgument(Float.MIN_VALUE, Float.MAX_VALUE, 0);
+        return new InheritableFloatArgument(-Float.MAX_VALUE, Float.MAX_VALUE, 0);
     }
 
     @Override
@@ -41,7 +42,7 @@ public class InheritableFloatArgument implements ArgumentType<Float> {
         if (cut.length > fatherCommandParameterAmount) {
             int l = 0;
             for (int i = 0; i < cut.length; i++) {
-                l += cut[i].length();
+                l = l + cut[i].length() + 1;
                 if (l >= start) {
                     if (i > fatherCommandParameterAmount) {
                         return inheritableParse(reader);
@@ -49,9 +50,8 @@ public class InheritableFloatArgument implements ArgumentType<Float> {
                     break;
                 }
             }
-            return floatArgumentType.parse(reader);
         }
-        return inheritableParse(reader);
+        return floatArgumentType.parse(reader);
     }
 
     private float inheritableParse(StringReader reader) throws CommandSyntaxException {
@@ -63,7 +63,7 @@ public class InheritableFloatArgument implements ArgumentType<Float> {
 
     @Override
     public int hashCode() {
-        return (int)(31 * minimum + maximum + 20010116 * fatherCommandParameterAmount);
+        return (int) (31 * minimum + maximum + 20010116 * fatherCommandParameterAmount);
     }
 
     @Override

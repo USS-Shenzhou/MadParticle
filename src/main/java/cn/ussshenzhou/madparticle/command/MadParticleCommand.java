@@ -1,13 +1,11 @@
 package cn.ussshenzhou.madparticle.command;
 
-import cn.ussshenzhou.madparticle.command.inheritable.InheritableIntegerArgument;
-import cn.ussshenzhou.madparticle.command.inheritable.InheritableStringReader;
+import cn.ussshenzhou.madparticle.command.inheritable.*;
 import cn.ussshenzhou.madparticle.network.MadParticlePacket;
 import cn.ussshenzhou.madparticle.network.MadParticlePacketSend;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
-import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
@@ -36,6 +34,7 @@ import java.util.Collection;
  * @author USS_Shenzhou
  */
 public class MadParticleCommand {
+    private static final int COMMAND_LENGTH = 40;
     //TODO:add particle roll
 
     public MadParticleCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -44,28 +43,29 @@ public class MadParticleCommand {
                         .redirect(dispatcher.register(Commands.literal("mp")
                                         .then(Commands.argument("targetParticle", ParticleArgument.particle())
                                                 .then(Commands.argument("spriteFrom", EnumArgument.enumArgument(MadParticle.SpriteFrom.class))
-                                                        .then(Commands.argument("lifeTime", InheritableIntegerArgument.inheritableInteger(40))
+                                                        .then(Commands.argument("lifeTime", InheritableIntegerArgument.inheritableInteger(COMMAND_LENGTH))
                                                                 .then(Commands.argument("alwaysRender", EnumArgument.enumArgument(InheritableBoolean.class))
                                                                         .then(Commands.argument("amount", IntegerArgumentType.integer())
+                                                                                //TODO Vec3
                                                                                 .then(Commands.argument("spawnPos", Vec3Argument.vec3())
                                                                                         .then(Commands.argument("spawnDiffuse", Vec3Argument.vec3())
                                                                                                 .then(Commands.argument("spawnSpeed", Vec3Argument.vec3())
                                                                                                         .then(Commands.argument("speedDiffuse", Vec3Argument.vec3())
                                                                                                                 .then(Commands.argument("collision", EnumArgument.enumArgument(InheritableBoolean.class))
-                                                                                                                        .then(Commands.argument("bounceTime", InheritableIntegerArgument.inheritableInteger(40))
-                                                                                                                                .then(Commands.argument("horizontalRelativeCollisionDiffuse", DoubleArgumentType.doubleArg())
-                                                                                                                                        .then(Commands.argument("verticalRelativeCollisionBounce", DoubleArgumentType.doubleArg())
+                                                                                                                        .then(Commands.argument("bounceTime", InheritableIntegerArgument.inheritableInteger(COMMAND_LENGTH))
+                                                                                                                                .then(Commands.argument("horizontalRelativeCollisionDiffuse", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
+                                                                                                                                        .then(Commands.argument("verticalRelativeCollisionBounce", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
                                                                                                                                                 .then(Commands.argument("friction", FloatArgumentType.floatArg())
                                                                                                                                                         .then(Commands.argument("afterCollisionFriction", FloatArgumentType.floatArg())
                                                                                                                                                                 .then(Commands.argument("gravity", FloatArgumentType.floatArg())
                                                                                                                                                                         .then(Commands.argument("afterCollisionGravity", FloatArgumentType.floatArg())
                                                                                                                                                                                 .then(Commands.argument("interactWithEntity", EnumArgument.enumArgument(InheritableBoolean.class))
-                                                                                                                                                                                        .then(Commands.argument("horizontalInteractFactor", DoubleArgumentType.doubleArg())
-                                                                                                                                                                                                .then(Commands.argument("verticalInteractFactor", DoubleArgumentType.doubleArg())
+                                                                                                                                                                                        .then(Commands.argument("horizontalInteractFactor", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
+                                                                                                                                                                                                .then(Commands.argument("verticalInteractFactor", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
                                                                                                                                                                                                         .then(Commands.argument("renderType", EnumArgument.enumArgument(ParticleRenderTypes.class))
-                                                                                                                                                                                                                .then(Commands.argument("r", FloatArgumentType.floatArg())
-                                                                                                                                                                                                                        .then(Commands.argument("g", FloatArgumentType.floatArg())
-                                                                                                                                                                                                                                .then(Commands.argument("b", FloatArgumentType.floatArg())
+                                                                                                                                                                                                                .then(Commands.argument("r", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
+                                                                                                                                                                                                                        .then(Commands.argument("g", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
+                                                                                                                                                                                                                                .then(Commands.argument("b", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
                                                                                                                                                                                                                                         .then(Commands.argument("beginAlpha", FloatArgumentType.floatArg(0, 1))
                                                                                                                                                                                                                                                 .then(Commands.argument("endAlpha", FloatArgumentType.floatArg(0, 1))
                                                                                                                                                                                                                                                         .then(Commands.argument("alphaMode", EnumArgument.enumArgument(MadParticle.ChangeMode.class))

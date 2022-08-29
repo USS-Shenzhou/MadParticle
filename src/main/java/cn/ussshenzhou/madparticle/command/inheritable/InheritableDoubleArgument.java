@@ -2,40 +2,39 @@ package cn.ussshenzhou.madparticle.command.inheritable;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import org.apache.logging.log4j.LogManager;
 
 /**
  * @author USS_Shenzhou
  */
-public class InheritableIntegerArgument implements ArgumentType<Integer> {
-    private final int minimum;
-    private final int maximum;
+public class InheritableDoubleArgument implements ArgumentType<Double> {
+    private final double minimum;
+    private final double maximum;
     private final int fatherCommandParameterAmount;
-    private final IntegerArgumentType integerArgumentType;
+    private final DoubleArgumentType doubleArgumentType;
 
-    public InheritableIntegerArgument(int minimum, int maximum, int fatherCommandParameterAmount) {
+    public InheritableDoubleArgument(double minimum, double maximum, int fatherCommandParameterAmount) {
         this.minimum = minimum;
         this.maximum = maximum;
         this.fatherCommandParameterAmount = fatherCommandParameterAmount;
-        this.integerArgumentType = IntegerArgumentType.integer(minimum, maximum);
+        this.doubleArgumentType = DoubleArgumentType.doubleArg(minimum, maximum);
     }
 
-    public static InheritableIntegerArgument inheritableInteger(int minimum, int maximum) {
-        return new InheritableIntegerArgument(minimum, maximum, 0);
+    public static InheritableDoubleArgument inheritableDouble(double minimum, double maximum) {
+        return new InheritableDoubleArgument(minimum, maximum, 0);
     }
 
-    public static InheritableIntegerArgument inheritableInteger(int fatherCommandParameterAmount) {
-        return new InheritableIntegerArgument(Integer.MIN_VALUE, Integer.MAX_VALUE, fatherCommandParameterAmount);
+    public static InheritableDoubleArgument inheritableDouble(int fatherCommandParameterAmount) {
+        return new InheritableDoubleArgument(-Double.MAX_VALUE, Double.MAX_VALUE, fatherCommandParameterAmount);
     }
 
-    public static InheritableIntegerArgument inheritableInteger() {
-        return new InheritableIntegerArgument(Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
+    public static InheritableDoubleArgument inheritableDouble() {
+        return new InheritableDoubleArgument(-Double.MAX_VALUE, Double.MAX_VALUE, 0);
     }
 
     @Override
-    public Integer parse(StringReader reader) throws CommandSyntaxException {
+    public Double parse(StringReader reader) throws CommandSyntaxException {
         int start = reader.getCursor();
         String command = reader.getString();
         String[] cut = command.split(" ");
@@ -51,19 +50,19 @@ public class InheritableIntegerArgument implements ArgumentType<Integer> {
                 }
             }
         }
-        return integerArgumentType.parse(reader);
+        return doubleArgumentType.parse(reader);
     }
 
-    private int inheritableParse(StringReader reader) throws CommandSyntaxException {
+    private double inheritableParse(StringReader reader) throws CommandSyntaxException {
         InheritableStringReader inheritableStringReader = new InheritableStringReader(reader);
-        int result = integerArgumentType.parse(inheritableStringReader);
+        double result = doubleArgumentType.parse(inheritableStringReader);
         reader.setCursor(inheritableStringReader.getCursor());
         return result;
     }
 
     @Override
     public int hashCode() {
-        return 31 * minimum + maximum + 20010116 * fatherCommandParameterAmount;
+        return (int)(31 * minimum + maximum + 20010116 * fatherCommandParameterAmount);
     }
 
     @Override
@@ -71,7 +70,7 @@ public class InheritableIntegerArgument implements ArgumentType<Integer> {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof final InheritableIntegerArgument that)) {
+        if (!(o instanceof final InheritableDoubleArgument that)) {
             return false;
         }
         return maximum == that.maximum && minimum == that.minimum && fatherCommandParameterAmount == that.fatherCommandParameterAmount;

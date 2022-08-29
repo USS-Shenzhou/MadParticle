@@ -38,7 +38,7 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 > 注意：
 >
 > - 下列给出的参考值没有经过交叉验证，可能并不准确。
-> - 当double或float类型的参数需要为0时，请填入`0.0`，而不是`0`。`0`在一些情况下会被补充为0.5，这是原版特性。
+> - ~~当double或float类型的参数为整数时，请补齐后面的`.0`，而不是只填写整数部分。`0`在一些情况下会被补充为0.5，这是原版特性。~~
 > -  `InheritableBoolean`是对bool的包装，除`TRUE`和`FALSE`外，还可以填写`INHERIT`。具体内容参见下文`expireThen`。
 > 
 
@@ -52,7 +52,7 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 
 ## lifeTime, alwaysRender, amount
 
-`lifeTime`决定粒子的持续时间，单位为tick。生成粒子时有10%误差。
+`lifeTime`决定粒子的持续时间，单位为tick。生成粒子时有随机的10%误差。
 
 `alwaysRender`决定粒子是否无视最大生成距离。MC原版的最大生成距离为32格。在[Extinguish](https://www.curseforge.com/minecraft/mc-mods/extinguish-by-uss_shenzhou)中，此值被改为了64格。
 
@@ -114,13 +114,13 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 
 ## r, g, b
 
-决定粒子的贴图会被作何种颜色变化。一般情况下范围为0-1。尚未探究超过1之后的颜色变化规律，但不会产生其他错误。
+决定粒子的贴图会被作何种颜色变化。一般情况下范围应当是0-1，但不作强制规定。尚不明确在范围外的颜色变化规律，但不会产生其他错误。
 
 ## beginAlpha, endAlpha, alphaMode
 
 `beginAlpha`决定粒子生成时的不透明度。
 
-`endAlpha`决定粒子消失时的不透明度。如果不需要不透明度变化，填入与`beginAlpha`相同值即可。范围均为0-1。
+`endAlpha`决定粒子消失时的不透明度。如果不需要不透明度变化，填入与`beginAlpha`相同值即可。范围均限定在0-1。
 
 `alphaMode`决定粒子的不透明度如何变化。`linear`指线性变化，`index`指指数变化，`sin`指正弦变化。如果不需要不透明度变化，填入`linear`即可。
 
@@ -131,7 +131,7 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 >
 > 注意，为了更好地突出与其他方式的差异，指数变化时的底数规定为10。
 >
-> 正弦变化使用`sin`函数的`3/5`次方以突出与`linear`的差异，同时为简化运算，使用查表法计算。
+> 正弦变化使用`sin`函数的`3/5`次方以突出与`linear`的差异，同时为简化运算，使用查表法和线性插值计算。
 
 ## beginScale, endScale, scaleMode
 
@@ -160,8 +160,8 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 
 `expireThen`决定粒子消失时会变为其他什么粒子。后接一条完整的`madparticle`指令。这意味着这一整条指令可以嵌套式地延伸，一个父粒子可以有一串子粒子。
 
-> - 与第一条`mp`指令生成父粒子稍有不同的是，在子粒子指令中，你可以在一些参数处填写等于号`=`（数值参数），或`INHERIT`（布尔（被枚举替代）和枚举），这表示子粒子的这个参数将会继承于其父粒子。
-> - `=`和通常的`~`、`^`相似，但不同之处在于，`=`拥有最高优先级，其存在将会覆盖这个参数下的所有其他数字。因此，不仅`=`能够表示“此参数继承于父粒子”，`=-1=`、`3=`、`=1=2=3=4=5=6=`也表示相同的含义。
+> - 与第一条`mp`指令生成父粒子稍有不同的是，在子粒子指令中，你可以在一些参数处填写等于号`=`（对于数值参数），或`INHERIT`（对于布尔（被枚举替代）和枚举），这表示子粒子的这个参数将会继承于其父粒子。
+> - `=`和通常的`~`、`^`相似，但不同之处在于，`=`拥有最高优先级，其存在将会覆盖这个参数下的所有其他数字。因此，不仅`=`能够表示“此参数继承于父粒子”，`=-1=`、`3=`、`==1==2==3==`也表示相同的含义。
 > - 请不要在最父粒子的参数处使用`=`和`INHERIT`，这可能会导致意外的行为。
 > - 子粒子的`amount`参数将会被忽略，即保持为1。
 > - 父粒子的`whoCanSee`参数将会被忽略，以最后一个`whoCanSee`（即最子粒子）为准。
@@ -176,7 +176,7 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 > × targetParticle (Particle) //要模仿的粒子
 > √ spriteFrom (MadParticle.SpriteFrom) //贴图选择方式（随机|按时间变化）
 > √ lifeTime (int) //持续时间
-> × alwaysRender (InheritableBoolean) //是否忽略最大粒子距离（默认为32格）
+> √ alwaysRender (InheritableBoolean) //是否忽略最大粒子距离（默认为32格）
 > 〇 amount (int) //单次生成数量
 > //生成相关
 > √ px, py, pz (double) //生成位置

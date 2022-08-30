@@ -4,10 +4,11 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import org.apache.logging.log4j.LogManager;
 
 /**
  * @author USS_Shenzhou
+ * @see com.mojang.brigadier.arguments.IntegerArgumentType
+ * This class is modified from IntegerArgumentType in Brigadier by Mojang under MIT license.
  */
 public class InheritableIntegerArgument implements ArgumentType<Integer> {
     private final int minimum;

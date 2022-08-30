@@ -5,6 +5,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 /**
  * @author USS_Shenzhou
+ * @see com.mojang.brigadier.StringReader
+ * This class is modified from StringReader in Brigadier by Mojang under MIT license.
  */
 public class InheritableStringReader extends StringReader {
 

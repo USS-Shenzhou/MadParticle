@@ -9,7 +9,6 @@ import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -46,7 +45,6 @@ public class MadParticleCommand {
                                                         .then(Commands.argument("lifeTime", InheritableIntegerArgument.inheritableInteger(COMMAND_LENGTH))
                                                                 .then(Commands.argument("alwaysRender", EnumArgument.enumArgument(InheritableBoolean.class))
                                                                         .then(Commands.argument("amount", IntegerArgumentType.integer())
-                                                                                //TODO Vec3
                                                                                 .then(Commands.argument("spawnPos", Vec3Argument.vec3())
                                                                                         .then(Commands.argument("spawnDiffuse", Vec3Argument.vec3())
                                                                                                 .then(Commands.argument("spawnSpeed", Vec3Argument.vec3())
@@ -131,7 +129,8 @@ public class MadParticleCommand {
             if (!s.startsWith("mp") && !s.startsWith("madparticle")) {
                 s = "mp " + s;
             }
-            ParseResults<CommandSourceStack> parseResults = dispatcher.parse(s, context.getSource());
+            InheritableCommandDispatcher<CommandSourceStack> inheritableCommandDispatcher = new InheritableCommandDispatcher<>(dispatcher.getRoot());
+            ParseResults<CommandSourceStack> parseResults = inheritableCommandDispatcher.parse(new InheritableStringReader(s), context.getSource());
             CommandContext<CommandSourceStack> ct = parseResults.getContext().build(s);
             Vec3 pos = ct.getArgument("spawnPos", Coordinates.class).getPosition(ct.getSource());
             Vec3 posDiffuse = ct.getArgument("spawnDiffuse", WorldCoordinates.class).getPosition(ct.getSource());

@@ -4,10 +4,11 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import org.apache.logging.log4j.LogManager;
 
 /**
  * @author USS_Shenzhou
+ * @see com.mojang.brigadier.arguments.FloatArgumentType
+ * This class is modified from FloatArgumentType in Brigadier by Mojang under MIT license.
  */
 public class InheritableFloatArgument implements ArgumentType<Float> {
     private final float minimum;

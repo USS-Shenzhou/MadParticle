@@ -7,6 +7,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 /**
  * @author USS_Shenzhou
+ * @see com.mojang.brigadier.arguments.DoubleArgumentType
+ * This class is modified from DoubleArgumentType in Brigadier by Mojang under MIT license.
  */
 public class InheritableDoubleArgument implements ArgumentType<Double> {
     private final double minimum;

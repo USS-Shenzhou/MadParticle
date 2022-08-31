@@ -17,7 +17,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.commands.arguments.coordinates.Coordinates;
-import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.arguments.coordinates.WorldCoordinates;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
@@ -45,10 +44,10 @@ public class MadParticleCommand {
                                                         .then(Commands.argument("lifeTime", InheritableIntegerArgument.inheritableInteger(COMMAND_LENGTH))
                                                                 .then(Commands.argument("alwaysRender", EnumArgument.enumArgument(InheritableBoolean.class))
                                                                         .then(Commands.argument("amount", IntegerArgumentType.integer())
-                                                                                .then(Commands.argument("spawnPos", Vec3Argument.vec3())
-                                                                                        .then(Commands.argument("spawnDiffuse", Vec3Argument.vec3())
-                                                                                                .then(Commands.argument("spawnSpeed", Vec3Argument.vec3())
-                                                                                                        .then(Commands.argument("speedDiffuse", Vec3Argument.vec3())
+                                                                                .then(Commands.argument("spawnPos", InheritableVec3Argument.inheritableVec3(COMMAND_LENGTH))
+                                                                                        .then(Commands.argument("spawnDiffuse", InheritableVec3Argument.inheritableVec3(COMMAND_LENGTH))
+                                                                                                .then(Commands.argument("spawnSpeed", InheritableVec3Argument.inheritableVec3(COMMAND_LENGTH))
+                                                                                                        .then(Commands.argument("speedDiffuse", InheritableVec3Argument.inheritableVec3(COMMAND_LENGTH))
                                                                                                                 .then(Commands.argument("collision", EnumArgument.enumArgument(InheritableBoolean.class))
                                                                                                                         .then(Commands.argument("bounceTime", InheritableIntegerArgument.inheritableInteger(COMMAND_LENGTH))
                                                                                                                                 .then(Commands.argument("horizontalRelativeCollisionDiffuse", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))

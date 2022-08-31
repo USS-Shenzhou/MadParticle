@@ -44,7 +44,6 @@ public class MadParticle extends TextureSheetParticle {
     private float scale;
     private static final double MAXIMUM_COLLISION_VELOCITY_SQUARED = Mth.square(100.0D);
     private static final float MAX_DIRECTIONAL_LOSS = 0.65f;
-    private static final int BASE = 10;
 
     @SuppressWarnings("AlibabaSwitchStatement")
     public MadParticle(ClientLevel pLevel, SpriteSet spriteSet, SpriteFrom spriteFrom,
@@ -247,45 +246,6 @@ public class MadParticle extends TextureSheetParticle {
     }
 
 
-    public enum SpriteFrom {
-        RANDOM,
-        AGE,
-        INHERIT;
-    }
-    public enum ChangeMode {
-
-        LINEAR((begin, end, age, life) -> {
-            float x = age / (float) life;
-            return begin + (end - begin) * x;
-        }),
-        INDEX((begin, end, age, life) -> {
-            float x = age / (float) life;
-            return begin + (float) ((end - begin) * (Math.pow(BASE, x) - 1) / (BASE - 1));
-        }),
-        SIN((begin, end, age, life) -> {
-            float x = age / (float) life;
-            return begin + (end - begin) * MathHelper.getSin01(x);
-        }),
-        INHERIT((begin, end, age, life) -> 0.0f);
-
-        @FunctionalInterface
-        interface LerpFunction<A, B, C, D, R> {
-            @SuppressWarnings("AlibabaAbstractMethodOrInterfaceMethodMustUseJavadoc")
-            public R apply(A begin, B end, C age, D lifeTime);
-        }
-
-        private final LerpFunction<Float, Float, Integer, Integer, Float> lerp;
-
-        ChangeMode(LerpFunction<Float, Float, Integer, Integer, Float> lerpFunction) {
-            this.lerp = lerpFunction;
-        }
-
-        public float lerp(float begin, float end, int age, int life) {
-            return this.lerp.apply(begin, end, age, life);
-        }
-
-    }
-
     public static class Provider implements ParticleProvider<MadParticleOption> {
         private final SpriteSet sprites;
 
@@ -307,7 +267,7 @@ public class MadParticle extends TextureSheetParticle {
                             op.friction(), op.gravity(), op.collision().get(), op.bounceTime(),
                             op.horizontalRelativeCollisionDiffuse(), op.verticalRelativeCollisionBounce(), op.afterCollisionFriction(), op.afterCollisionGravity(),
                             op.interactWithEntity().get(), op.horizontalInteractFactor(), op.verticalInteractFactor(),
-                            op.lifeTime(), op.renderType().getType(),
+                            op.lifeTime(), ParticleRenderTypes.getType(op.renderType()),
                             op.r(), op.g(), op.b(),
                             op.beginAlpha(), op.endAlpha(), op.alphaMode(),
                             op.beginScale(), op.endScale(), op.scaleMode(),

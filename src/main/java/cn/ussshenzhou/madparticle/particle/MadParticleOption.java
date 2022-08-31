@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author USS_Shenzhou
  */
-public record MadParticleOption(int targetParticle, MadParticle.SpriteFrom spriteFrom, int lifeTime,
+public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int lifeTime,
                                 InheritableBoolean alwaysRender, int amount,
                                 double px, double py, double pz, double xDiffuse, double yDiffuse, double zDiffuse,
                                 double vx, double vy, double vz, double vxDiffuse, double vyDiffuse, double vzDiffuse,
@@ -21,8 +21,8 @@ public record MadParticleOption(int targetParticle, MadParticle.SpriteFrom sprit
                                 InheritableBoolean interactWithEntity,
                                 double horizontalInteractFactor, double verticalInteractFactor,
                                 ParticleRenderTypes renderType, float r, float g, float b,
-                                float beginAlpha, float endAlpha, MadParticle.ChangeMode alphaMode,
-                                float beginScale, float endScale, MadParticle.ChangeMode scaleMode,
+                                float beginAlpha, float endAlpha, ChangeMode alphaMode,
+                                float beginScale, float endScale, ChangeMode scaleMode,
                                 boolean haveChild, MadParticleOption child) implements ParticleOptions {
     public static final Deserializer<MadParticleOption> DESERIALIZER = new Deserializer<MadParticleOption>() {
         @Override
@@ -33,7 +33,7 @@ public record MadParticleOption(int targetParticle, MadParticle.SpriteFrom sprit
         @Override
         public MadParticleOption fromNetwork(ParticleType<MadParticleOption> pParticleType, FriendlyByteBuf buf) {
             int targetParticle = buf.readInt();
-            MadParticle.SpriteFrom spriteFrom = buf.readEnum(MadParticle.SpriteFrom.class);
+            SpriteFrom spriteFrom = buf.readEnum(SpriteFrom.class);
             int lifeTime = buf.readInt();
             InheritableBoolean alwaysRender = buf.readEnum(InheritableBoolean.class);
             int amount = buf.readInt();
@@ -53,9 +53,9 @@ public record MadParticleOption(int targetParticle, MadParticle.SpriteFrom sprit
             ParticleRenderTypes renderType = buf.readEnum(ParticleRenderTypes.class);
             float r = buf.readFloat(), g = buf.readFloat(), b = buf.readFloat();
             float beginAlpha = buf.readFloat(), endAlpha = buf.readFloat();
-            MadParticle.ChangeMode alphaMode = buf.readEnum(MadParticle.ChangeMode.class);
+            ChangeMode alphaMode = buf.readEnum(ChangeMode.class);
             float beginScale = buf.readFloat(), endScale = buf.readFloat();
-            MadParticle.ChangeMode scaleMode = buf.readEnum(MadParticle.ChangeMode.class);
+            ChangeMode scaleMode = buf.readEnum(ChangeMode.class);
             boolean haveChild = buf.readBoolean();
             MadParticleOption child = haveChild ? MadParticleOption.DESERIALIZER.fromNetwork(ModParticleRegistry.MAD_PARTICLE.get(), buf) : null;
             return new MadParticleOption(targetParticle, spriteFrom, lifeTime, alwaysRender, amount,
@@ -136,7 +136,7 @@ public record MadParticleOption(int targetParticle, MadParticle.SpriteFrom sprit
     public MadParticleOption inheritOrContinue(MadParticle fatherParticle) {
         return new MadParticleOption(
                 targetParticle,
-                spriteFrom == MadParticle.SpriteFrom.INHERIT ? fatherParticle.spriteFrom : spriteFrom,
+                spriteFrom == SpriteFrom.INHERIT ? fatherParticle.spriteFrom : spriteFrom,
                 lifeTime == Integer.MAX_VALUE ? fatherParticle.getLifetime() : lifeTime,
                 alwaysRender,
                 1,
@@ -166,9 +166,9 @@ public record MadParticleOption(int targetParticle, MadParticle.SpriteFrom sprit
                 g == Float.MAX_VALUE ? fatherParticle.getColor().y() : g,
                 b == Float.MAX_VALUE ? fatherParticle.getColor().z() : b,
                 beginAlpha, endAlpha,
-                alphaMode == MadParticle.ChangeMode.INHERIT ? fatherParticle.alphaMode : alphaMode,
+                alphaMode == ChangeMode.INHERIT ? fatherParticle.alphaMode : alphaMode,
                 beginScale, endScale,
-                scaleMode == MadParticle.ChangeMode.INHERIT ? fatherParticle.scaleMode : scaleMode,
+                scaleMode == ChangeMode.INHERIT ? fatherParticle.scaleMode : scaleMode,
                 haveChild,
                 child
         );

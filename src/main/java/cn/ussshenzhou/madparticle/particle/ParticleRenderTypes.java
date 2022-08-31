@@ -1,28 +1,44 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import net.minecraft.client.particle.ParticleRenderType;
-
-import java.util.ArrayList;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
  * @author USS_Shenzhou
  */
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
 public enum ParticleRenderTypes {
-    TERRAIN_SHEET(ParticleRenderType.TERRAIN_SHEET),
-    PARTICLE_SHEET_OPAQUE(ParticleRenderType.PARTICLE_SHEET_OPAQUE),
-    PARTICLE_SHEET_LIT(ParticleRenderType.PARTICLE_SHEET_LIT),
-    PARTICLE_SHEET_TRANSLUCENT(ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT),
-    CUSTOM(ParticleRenderType.CUSTOM),
-    NO_RENDER(ParticleRenderType.NO_RENDER);
+    TERRAIN_SHEET,
+    PARTICLE_SHEET_OPAQUE,
+    PARTICLE_SHEET_LIT,
+    PARTICLE_SHEET_TRANSLUCENT,
+    CUSTOM,
+    NO_RENDER;
 
-    private final ParticleRenderType type;
 
-    private ParticleRenderTypes(ParticleRenderType type){
-        this.type = type;
-    }
-
-    public ParticleRenderType getType() {
-        return type;
+    @SuppressWarnings("AlibabaSwitchStatement")
+    @OnlyIn(Dist.CLIENT)
+    public static ParticleRenderType getType(ParticleRenderTypes enumType) {
+        switch (enumType){
+            case TERRAIN_SHEET -> {
+                return ParticleRenderType.TERRAIN_SHEET;
+            }
+            case PARTICLE_SHEET_OPAQUE -> {
+                return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
+            }
+            case PARTICLE_SHEET_LIT -> {
+                return ParticleRenderType.PARTICLE_SHEET_LIT;
+            }
+            case PARTICLE_SHEET_TRANSLUCENT -> {
+                return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+            }
+            case CUSTOM -> {
+                return ParticleRenderType.CUSTOM;
+            }
+            default -> {
+                return ParticleRenderType.NO_RENDER;
+            }
+        }
     }
 }

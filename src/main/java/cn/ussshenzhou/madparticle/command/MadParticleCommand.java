@@ -3,9 +3,7 @@ package cn.ussshenzhou.madparticle.command;
 import cn.ussshenzhou.madparticle.command.inheritable.*;
 import cn.ussshenzhou.madparticle.network.MadParticlePacket;
 import cn.ussshenzhou.madparticle.network.MadParticlePacketSend;
-import cn.ussshenzhou.madparticle.particle.MadParticle;
-import cn.ussshenzhou.madparticle.particle.MadParticleOption;
-import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.*;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
@@ -40,7 +38,7 @@ public class MadParticleCommand {
                 Commands.literal("madparticle")
                         .redirect(dispatcher.register(Commands.literal("mp")
                                         .then(Commands.argument("targetParticle", ParticleArgument.particle())
-                                                .then(Commands.argument("spriteFrom", EnumArgument.enumArgument(MadParticle.SpriteFrom.class))
+                                                .then(Commands.argument("spriteFrom", EnumArgument.enumArgument(SpriteFrom.class))
                                                         .then(Commands.argument("lifeTime", InheritableIntegerArgument.inheritableInteger(COMMAND_LENGTH))
                                                                 .then(Commands.argument("alwaysRender", EnumArgument.enumArgument(InheritableBoolean.class))
                                                                         .then(Commands.argument("amount", IntegerArgumentType.integer())
@@ -65,10 +63,10 @@ public class MadParticleCommand {
                                                                                                                                                                                                                                 .then(Commands.argument("b", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
                                                                                                                                                                                                                                         .then(Commands.argument("beginAlpha", FloatArgumentType.floatArg(0, 1))
                                                                                                                                                                                                                                                 .then(Commands.argument("endAlpha", FloatArgumentType.floatArg(0, 1))
-                                                                                                                                                                                                                                                        .then(Commands.argument("alphaMode", EnumArgument.enumArgument(MadParticle.ChangeMode.class))
+                                                                                                                                                                                                                                                        .then(Commands.argument("alphaMode", EnumArgument.enumArgument(ChangeMode.class))
                                                                                                                                                                                                                                                                 .then(Commands.argument("beginScale", FloatArgumentType.floatArg(0))
                                                                                                                                                                                                                                                                         .then(Commands.argument("endScale", FloatArgumentType.floatArg(0))
-                                                                                                                                                                                                                                                                                .then(Commands.argument("scaleMode", EnumArgument.enumArgument(MadParticle.ChangeMode.class))
+                                                                                                                                                                                                                                                                                .then(Commands.argument("scaleMode", EnumArgument.enumArgument(ChangeMode.class))
                                                                                                                                                                                                                                                                                         .executes(ct1 -> sendToAll(ct1,dispatcher))
                                                                                                                                                                                                                                                                                         .then(Commands.argument("whoCanSee", EntityArgument.players())
                                                                                                                                                                                                                                                                                                 .executes((ct) -> sendToPlayer(ct, EntityArgument.getPlayers(ct, "whoCanSee"), dispatcher))
@@ -138,7 +136,7 @@ public class MadParticleCommand {
             boolean haveChild = i != commandStrings.length - 1;
             MadParticleOption father = new MadParticleOption(
                     Registry.PARTICLE_TYPE.getId(ct.getArgument("targetParticle", ParticleOptions.class).getType()),
-                    ct.getArgument("spriteFrom", MadParticle.SpriteFrom.class),
+                    ct.getArgument("spriteFrom", SpriteFrom.class),
                     ct.getArgument("lifeTime", Integer.class),
                     ct.getArgument("alwaysRender", InheritableBoolean.class),
                     ct.getArgument("amount", Integer.class),
@@ -161,10 +159,10 @@ public class MadParticleCommand {
                     ct.getArgument("r", Float.class), ct.getArgument("g", Float.class), ct.getArgument("b", Float.class),
                     ct.getArgument("beginAlpha", Float.class),
                     ct.getArgument("endAlpha", Float.class),
-                    ct.getArgument("alphaMode", MadParticle.ChangeMode.class),
+                    ct.getArgument("alphaMode", ChangeMode.class),
                     ct.getArgument("beginScale", Float.class),
                     ct.getArgument("endScale", Float.class),
-                    ct.getArgument("scaleMode", MadParticle.ChangeMode.class),
+                    ct.getArgument("scaleMode", ChangeMode.class),
                     haveChild,
                     haveChild ? child : null
             );

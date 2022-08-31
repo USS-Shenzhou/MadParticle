@@ -106,7 +106,7 @@ expireThen (madParticle command)//粒子消失时产生新粒子
 
 > 作为参考，[Extinguish](https://www.curseforge.com/minecraft/mc-mods/extinguish-by-uss_shenzhou)的干粉粒子扰动系数分别为0.3和0.12。
 >
-> 请注意，由于客户端和服务端的数据差异，由本客户端玩家产生的扰动效果往往比其他玩家产生的效果更弱。
+> 请注意，由于客户端和服务端的数据差异，由本客户端玩家产生的扰动效果往往和其他玩家产生的效果相比有强弱差异。
 
 ## renderType
 

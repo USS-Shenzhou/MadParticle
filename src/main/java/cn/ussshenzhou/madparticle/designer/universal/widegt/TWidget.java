@@ -27,6 +27,8 @@ public interface TWidget extends Widget, GuiEventListener {
 
     Size getPreferredSize();
 
+    Size getSize();
+
     void tick();
     //int getX();
 

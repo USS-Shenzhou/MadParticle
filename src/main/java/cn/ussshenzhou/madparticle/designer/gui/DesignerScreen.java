@@ -23,7 +23,7 @@ public class DesignerScreen extends TScreen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    protected void renderBackGround(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        fill(pPoseStack, 0, 0, width, height, 0x80000000);
     }
 }

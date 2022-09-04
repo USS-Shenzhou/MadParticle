@@ -80,6 +80,11 @@ public abstract class TComponent extends GuiComponent implements TWidget {
         return new Size(width, height);
     }
 
+    @Override
+    public Size getSize() {
+        return new Size(width, height);
+    }
+
     public void add(TWidget child) {
         children.add(child);
         child.setParent(this);
@@ -87,7 +92,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        for(TWidget tWidget : children) {
+        for (TWidget tWidget : children) {
             if (tWidget.mouseClicked(pMouseX, pMouseY, pButton)) {
                 return true;
             }
@@ -97,7 +102,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
 
     @Override
     public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
-        for(TWidget tWidget : children) {
+        for (TWidget tWidget : children) {
             if (tWidget.mouseReleased(pMouseX, pMouseY, pButton)) {
                 return true;
             }
@@ -112,7 +117,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
 
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
-        for(TWidget tWidget : children) {
+        for (TWidget tWidget : children) {
             if (tWidget.mouseScrolled(pMouseX, pMouseY, pDelta)) {
                 return true;
             }
@@ -122,7 +127,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
 
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
-        for(TWidget tWidget : children) {
+        for (TWidget tWidget : children) {
             if (tWidget.keyPressed(pKeyCode, pScanCode, pModifiers)) {
                 return true;
             }
@@ -132,7 +137,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
 
     @Override
     public boolean keyReleased(int pKeyCode, int pScanCode, int pModifiers) {
-        for(TWidget tWidget : children) {
+        for (TWidget tWidget : children) {
             if (tWidget.keyReleased(pKeyCode, pScanCode, pModifiers)) {
                 return true;
             }
@@ -142,7 +147,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
 
     @Override
     public boolean charTyped(char pCodePoint, int pModifiers) {
-        for(TWidget tWidget : children) {
+        for (TWidget tWidget : children) {
             if (tWidget.charTyped(pCodePoint, pModifiers)) {
                 return true;
             }

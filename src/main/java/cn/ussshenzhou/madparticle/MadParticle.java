@@ -1,13 +1,9 @@
 package cn.ussshenzhou.madparticle;
 
-import cn.ussshenzhou.madparticle.command.MadParticleCommand;
-import cn.ussshenzhou.madparticle.network.MadParticlePacketSend;
 import cn.ussshenzhou.madparticle.particle.ModParticleRegistry;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -15,7 +11,7 @@ import org.slf4j.Logger;
 
 /**
  * @author USS_Shenzhou
- */ // The value here should match an entry in the META-INF/mods.toml file
+ */
 @Mod("madparticle")
 public class MadParticle {
     public static final String MOD_ID = "madparticle";

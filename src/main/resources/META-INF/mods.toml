@@ -31,7 +31,7 @@ logoFile="madparticle.png" #optional
 # A text field displayed in the mod UI
 #credits="Thanks for this example mod goes to Java" #optional
 # A text field displayed in the mod UI
-#authors="Love, Cheese and small house plants" #optional
+authors="USS_Shenzhou" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description = '''
 

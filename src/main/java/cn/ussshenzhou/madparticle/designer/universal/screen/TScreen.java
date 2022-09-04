@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.universal.screen;
 
+import cn.ussshenzhou.madparticle.designer.universal.widegt.TComponent;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TWidget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -29,7 +30,7 @@ public abstract class TScreen extends Screen {
     public void tick() {
         super.tick();
         if (needRelayout) {
-            layout(this.width, this.height);
+            layout();
             needRelayout = false;
         }
     }
@@ -53,7 +54,13 @@ public abstract class TScreen extends Screen {
     }
 
 
-    protected abstract void layout(int width, int height);
+    public void layout() {
+        for (TWidget w : this.tChildren) {
+            if (w instanceof TComponent t) {
+                t.layout();
+            }
+        }
+    }
 
     protected void renderBackGround(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         renderBackground(pPoseStack);
@@ -61,7 +68,7 @@ public abstract class TScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        for(TWidget tWidget : tChildren) {
+        for (TWidget tWidget : tChildren) {
             if (tWidget.mouseClicked(pMouseX, pMouseY, pButton)) {
                 this.setFocused(tWidget);
                 if (pButton == 0) {
@@ -76,7 +83,7 @@ public abstract class TScreen extends Screen {
     @Override
     public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
         this.setDragging(false);
-        for(TWidget tWidget : tChildren) {
+        for (TWidget tWidget : tChildren) {
             if (tWidget.mouseReleased(pMouseX, pMouseY, pButton)) {
                 return true;
             }
@@ -91,7 +98,7 @@ public abstract class TScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
-        for(TWidget tWidget : tChildren) {
+        for (TWidget tWidget : tChildren) {
             if (tWidget.mouseScrolled(pMouseX, pMouseY, pDelta)) {
                 return true;
             }

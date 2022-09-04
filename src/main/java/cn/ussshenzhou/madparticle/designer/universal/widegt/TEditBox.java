@@ -35,4 +35,9 @@ public class TEditBox extends EditBox implements TWidget {
     public Size getPreferredSize() {
         return new Size(this.width, 20);
     }
+
+    @Override
+    public Size getSize() {
+        return new Size(width,height);
+    }
 }

@@ -1,6 +1,10 @@
 {
   "key.categories.madparticle": "Mad Particle",
-  "key.madparticle.designer": "Call out MadParticle Designer",
+  "key.mp.call_de": "Call out MadParticle Designer",
+  "key.mp.clear_de": "Clear MadParticle Designer",
 
-  "gui.mp.designer.title": "Mad Particle Command Designer"
+  "gui.mp.designer.title": "Mad Particle Command Designer",
+  "gui.mp.de.mode.title": "模式选择",
+  "gui.mp.de.mode.helper": "参数辅助",
+  "gui.mp.de.mode.line": "直线绘制"
 }

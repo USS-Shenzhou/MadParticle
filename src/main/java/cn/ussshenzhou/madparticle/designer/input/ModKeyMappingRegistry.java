@@ -13,6 +13,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 public class ModKeyMappingRegistry {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> ClientRegistry.registerKeyBinding(DesignerKeyInput.CALL_OUT_DESIGNER));
+        event.enqueueWork(() -> {
+            ClientRegistry.registerKeyBinding(DesignerKeyInput.CALL_OUT_DESIGNER);
+            ClientRegistry.registerKeyBinding(DesignerKeyInput.CLEAR_DESIGNER);
+        });
     }
 }

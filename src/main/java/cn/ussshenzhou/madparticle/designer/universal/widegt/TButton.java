@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
 public class TButton extends Button implements TWidget {
+    public static final Size RECOMMEND_SIZE = new Size(52, 20);
     private boolean visible = true;
     TComponent parent = null;
     private OnPress onPress;
@@ -66,6 +67,11 @@ public class TButton extends Button implements TWidget {
     @Override
     public Size getPreferredSize() {
         return new Size(this.width, 20);
+    }
+
+    @Override
+    public Size getSize() {
+        return new Size(width, height);
     }
 
     @Override

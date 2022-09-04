@@ -18,14 +18,32 @@ import org.lwjgl.glfw.GLFW;
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class DesignerKeyInput {
     public static final KeyMapping CALL_OUT_DESIGNER = new KeyMapping(
-            "key.madparticle.designer", KeyConflictContext.UNIVERSAL, KeyModifier.ALT,
-            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M,"key.categories.madparticle"
-            );
+            "key.mp.call_de", KeyConflictContext.UNIVERSAL, KeyModifier.ALT,
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, "key.categories.madparticle"
+    );
+    public static final KeyMapping CLEAR_DESIGNER = new KeyMapping(
+            "key.mp.clear_de", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL,
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, "key.categories.madparticle"
+    );
+
+    public static DesignerScreen designerScreen = null;
 
     @SubscribeEvent
-    public static void onKeyInput(InputEvent.KeyInputEvent event){
-        if (CALL_OUT_DESIGNER.consumeClick()){
-            Minecraft.getInstance().setScreen(new DesignerScreen());
+    public static void onKeyInput(InputEvent.KeyInputEvent event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (CALL_OUT_DESIGNER.consumeClick()) {
+            if (designerScreen == null) {
+                designerScreen = new DesignerScreen();
+            }
+            minecraft.setScreen(designerScreen);
+        } else if (CLEAR_DESIGNER.consumeClick()) {
+            if (minecraft.screen instanceof DesignerScreen) {
+                minecraft.setScreen(null);
+                designerScreen = new DesignerScreen();
+                minecraft.setScreen(designerScreen);
+            } else {
+                designerScreen = new DesignerScreen();
+            }
         }
     }
 }

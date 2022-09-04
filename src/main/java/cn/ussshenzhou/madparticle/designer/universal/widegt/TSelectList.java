@@ -11,13 +11,16 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * @author USS_Shenzhou
  */
 public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> implements TWidget {
+    public static final int SCROLLBAR_WIDTH = 6;
     TComponent parent = null;
     int foreground = 0xffffffff;
     boolean visible = true;
@@ -33,11 +36,15 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
     }
 
     public TSelectList() {
-        this(20, 6);
+        this(20, 0);
     }
 
     public void addElement(E element) {
         this.addEntry(new Entry(element));
+    }
+
+    public void addElement(E element, Consumer<TSelectList<E>> onSelected) {
+        this.addEntry(new Entry(element, onSelected));
     }
 
     public void addElement(Collection<E> elements) {
@@ -66,6 +73,14 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
                 return true;
             }
             return false;
+        }
+    }
+
+    @Override
+    public void setSelected(@Nullable TSelectList<E>.Entry pSelected) {
+        super.setSelected(pSelected);
+        if (pSelected != null) {
+            pSelected.onSelected();
         }
     }
 
@@ -158,6 +173,10 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
         this.scrollbarGap = scrollbarGap;
     }
 
+    public int getScrollbarGap() {
+        return scrollbarGap;
+    }
+
     public void setForeground(int foreground) {
         this.foreground = foreground;
     }
@@ -178,14 +197,31 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
     }
 
     @Override
+    public Size getSize() {
+        return new Size(width, height);
+    }
+
+    @Override
     public void tick() {
+    }
+
+    private TSelectList<E> get() {
+        return this;
     }
 
     public class Entry extends ObjectSelectionList.Entry<Entry> {
         E content;
+        Consumer<TSelectList<E>> consumer;
+
+        public Entry(E content, Consumer<TSelectList<E>> consumer) {
+            this.content = content;
+            this.consumer = consumer;
+        }
 
         public Entry(E content) {
             this.content = content;
+            this.consumer = list -> {
+            };
         }
 
         @Override
@@ -201,12 +237,21 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
         @Override
         public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
             Font font = Minecraft.getInstance().font;
+            //TODO
             drawCenteredString(pPoseStack, font, getNarration(), pLeft + pWidth / 2, pTop + (pHeight - font.lineHeight) / 2, foreground);
         }
 
         @Override
         public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
             return true;
+        }
+
+        public void onSelected() {
+            consumer.accept(get());
+        }
+
+        public void setConsumer(Consumer<TSelectList<E>> consumer) {
+            this.consumer = consumer;
         }
     }
 

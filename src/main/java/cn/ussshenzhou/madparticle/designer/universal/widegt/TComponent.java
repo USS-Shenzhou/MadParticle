@@ -12,7 +12,8 @@ import java.util.LinkedList;
  * @author USS_Shenzhou
  */
 public abstract class TComponent extends GuiComponent implements TWidget {
-    int x, y, width, height;
+    protected int x, y, width, height;
+    protected int relativeX, relativeY;
     boolean visible = true;
     //argb
     int background = 0x00000000;
@@ -23,6 +24,8 @@ public abstract class TComponent extends GuiComponent implements TWidget {
 
     @Override
     public void setBounds(int x, int y, int width, int height) {
+        this.relativeX = x;
+        this.relativeY = y;
         if (parent != null) {
             this.x = x + parent.x;
             this.y = y + parent.y;
@@ -32,6 +35,14 @@ public abstract class TComponent extends GuiComponent implements TWidget {
         }
         this.width = width;
         this.height = height;
+    }
+
+    public void layout() {
+        for (TWidget tWidget : children) {
+            if (tWidget instanceof TComponent tComponent) {
+                tComponent.layout();
+            }
+        }
     }
 
     @Override
@@ -189,6 +200,14 @@ public abstract class TComponent extends GuiComponent implements TWidget {
 
     public int getY() {
         return y;
+    }
+
+    public int getRelativeX() {
+        return relativeX;
+    }
+
+    public int getRelativeY() {
+        return relativeY;
     }
 
     public int getWidth() {

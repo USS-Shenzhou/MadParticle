@@ -5,21 +5,22 @@ import cn.ussshenzhou.madparticle.designer.universal.util.Size;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
 
 /**
  * @author USS_Shenzhou
  */
 public class TLabel extends TComponent {
-    private final String text;
+    private final Component text;
     Font font = Minecraft.getInstance().font;
     private int size = 7;
     private HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
 
-    public TLabel(String s) {
+    public TLabel(Component s) {
         this.text = s;
     }
 
-    public TLabel(String s, int foreground) {
+    public TLabel(Component s, int foreground) {
         this(s);
         this.setForeground(foreground);
     }
@@ -30,6 +31,11 @@ public class TLabel extends TComponent {
 
     public void setHorizontalAlignment(HorizontalAlignment horizontalAlignment) {
         this.horizontalAlignment = horizontalAlignment;
+    }
+
+    @Override
+    public void layout() {
+
     }
 
     @Override

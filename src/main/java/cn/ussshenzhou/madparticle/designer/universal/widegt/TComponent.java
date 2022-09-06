@@ -37,6 +37,14 @@ public abstract class TComponent extends GuiComponent implements TWidget {
         this.height = height;
     }
 
+    @Override
+    public void setAbsBounds(int x, int y, int width, int height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
     public void layout() {
         for (TWidget tWidget : children) {
             if (tWidget instanceof TComponent tComponent) {
@@ -194,20 +202,14 @@ public abstract class TComponent extends GuiComponent implements TWidget {
         this.visible = visible;
     }
 
+    @Override
     public int getX() {
         return x;
     }
 
+    @Override
     public int getY() {
         return y;
-    }
-
-    public int getRelativeX() {
-        return relativeX;
-    }
-
-    public int getRelativeY() {
-        return relativeY;
     }
 
     public int getWidth() {

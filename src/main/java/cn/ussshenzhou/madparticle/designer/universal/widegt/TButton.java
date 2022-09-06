@@ -54,6 +54,18 @@ public class TButton extends Button implements TWidget {
         MWidget2TComponentHelper.setBounds(x, y, width, height, this);
     }
 
+    public void setBounds(int x, int y) {
+        this.setBounds(x, y, getPreferredSize().x, getPreferredSize().y);
+    }
+
+    @Override
+    public void setAbsBounds(int x, int y, int width, int height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
     @Override
     public void setParent(TComponent parent) {
         this.parent = parent;
@@ -65,8 +77,18 @@ public class TButton extends Button implements TWidget {
     }
 
     @Override
+    public int getX() {
+        return x;
+    }
+
+    @Override
+    public int getY() {
+        return y;
+    }
+
+    @Override
     public Size getPreferredSize() {
-        return new Size(this.width, 20);
+        return new Size(52, 20);
     }
 
     @Override

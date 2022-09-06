@@ -22,13 +22,31 @@ public class TEditBox extends EditBox implements TWidget {
     }
 
     @Override
+    public void setAbsBounds(int x, int y, int width, int height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
+    @Override
     public void setParent(TComponent parent) {
-        this.parent= parent;
+        this.parent = parent;
     }
 
     @Override
     public TComponent getParent() {
         return parent;
+    }
+
+    @Override
+    public int getX() {
+        return x;
+    }
+
+    @Override
+    public int getY() {
+        return y;
     }
 
     @Override
@@ -38,6 +56,6 @@ public class TEditBox extends EditBox implements TWidget {
 
     @Override
     public Size getSize() {
-        return new Size(width,height);
+        return new Size(width, height);
     }
 }

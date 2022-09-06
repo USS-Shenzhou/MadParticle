@@ -84,6 +84,10 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
         }
     }
 
+    public void setSelected(int index) {
+        this.setSelected(this.getEntry(index));
+    }
+
     @Override
     protected int getScrollbarPosition() {
         return width + x0 - 6;
@@ -130,6 +134,16 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
     }
 
     @Override
+    public void setAbsBounds(int x, int y, int width, int height) {
+        this.x0 = x;
+        this.y0 = y;
+        this.x1 = x0 + width - scrollbarGap - 6;
+        this.y1 = y0 + height;
+        this.width = width;
+        this.height = height;
+    }
+
+    @Override
     protected void renderList(PoseStack pPoseStack, int pX, int pY, int pMouseX, int pMouseY, float pPartialTick) {
         int i = this.getItemCount();
         Tesselator tesselator = Tesselator.getInstance();
@@ -167,6 +181,14 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
             }
         }
         super.renderList(pPoseStack, pX, pY, pMouseX, pMouseY, pPartialTick);
+    }
+    @Override
+    public int getX(){
+        return x0;
+    }
+    @Override
+    public int getY(){
+        return y0;
     }
 
     public void setScrollbarGap(int scrollbarGap) {
@@ -220,8 +242,7 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
 
         public Entry(E content) {
             this.content = content;
-            this.consumer = list -> {
-            };
+            this.consumer = list -> {};
         }
 
         @Override

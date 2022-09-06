@@ -6,5 +6,8 @@
   "gui.mp.designer.title": "Mad Particle Command Designer",
   "gui.mp.de.mode.title": "模式选择",
   "gui.mp.de.mode.helper": "参数辅助",
-  "gui.mp.de.mode.line": "直线绘制"
+  "gui.mp.de.mode.line": "直线绘制",
+  "gui.mp.de.helper.command_string": "命令串",
+  "gui.mp.de.helper.command": "命令",
+  "gui.mp.de.helper.copy": "复制"
 }

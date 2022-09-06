@@ -26,23 +26,23 @@ public class DesignerKeyInput {
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, "key.categories.madparticle"
     );
 
-    public static DesignerScreen designerScreen = null;
+
 
     @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event) {
         Minecraft minecraft = Minecraft.getInstance();
         if (CALL_OUT_DESIGNER.consumeClick()) {
-            if (designerScreen == null) {
-                designerScreen = new DesignerScreen();
+            if (DesignerScreen.getInstance() == null) {
+                minecraft.setScreen(DesignerScreen.newInstance());
+            } else {
+                minecraft.setScreen(DesignerScreen.getInstance());
             }
-            minecraft.setScreen(designerScreen);
         } else if (CLEAR_DESIGNER.consumeClick()) {
             if (minecraft.screen instanceof DesignerScreen) {
                 minecraft.setScreen(null);
-                designerScreen = new DesignerScreen();
-                minecraft.setScreen(designerScreen);
+                minecraft.setScreen(DesignerScreen.newInstance());
             } else {
-                designerScreen = new DesignerScreen();
+                DesignerScreen.newInstance();
             }
         }
     }

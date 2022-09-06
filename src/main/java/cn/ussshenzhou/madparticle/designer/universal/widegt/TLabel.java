@@ -6,15 +6,21 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 /**
  * @author USS_Shenzhou
  */
 public class TLabel extends TComponent {
-    private final Component text;
-    Font font = Minecraft.getInstance().font;
+    private Component text;
     private int size = 7;
     private HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
+
+    Font font = Minecraft.getInstance().font;
+
+    public TLabel() {
+        this.text = new TextComponent("");
+    }
 
     public TLabel(Component s) {
         this.text = s;
@@ -23,6 +29,14 @@ public class TLabel extends TComponent {
     public TLabel(Component s, int foreground) {
         this(s);
         this.setForeground(foreground);
+    }
+
+    public Component getText() {
+        return text;
+    }
+
+    public void setText(Component text) {
+        this.text = text;
     }
 
     public void setFontSize(int size) {

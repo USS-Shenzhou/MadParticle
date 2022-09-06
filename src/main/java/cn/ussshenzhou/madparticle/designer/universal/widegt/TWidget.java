@@ -17,13 +17,22 @@ public interface TWidget extends Widget, GuiEventListener {
 
     void setBounds(int x, int y, int width, int height);
 
-    void setParent(TComponent parent);
-
-    TComponent getParent();
+    void setAbsBounds(int x, int y, int width, int height);
 
     default void setBounds(int x, int y, Size size) {
         setBounds(x, y, size.x, size.y);
     }
+
+    default void setAbsBounds(int x,int y,Size size){
+        setAbsBounds(x, y, size.x, size.y);
+    }
+    void setParent(TComponent parent);
+
+    TComponent getParent();
+
+    int getX();
+
+    int getY();
 
     Size getPreferredSize();
 

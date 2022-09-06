@@ -55,7 +55,7 @@ public class TButton extends Button implements TWidget {
     }
 
     public void setBounds(int x, int y) {
-        this.setBounds(x, y, getPreferredSize().x, getPreferredSize().y);
+        this.setBounds(x, y, RECOMMEND_SIZE.x, RECOMMEND_SIZE.y);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class TButton extends Button implements TWidget {
 
     @Override
     public Size getPreferredSize() {
-        return new Size(52, 20);
+        return new Size(this.width, 20);
     }
 
     @Override

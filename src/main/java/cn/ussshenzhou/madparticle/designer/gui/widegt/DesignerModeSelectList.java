@@ -22,6 +22,7 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
             DesignerScreen.getInstance().setVisibleMode(DesignerMode.LINE);
         });
         this.getList().setSelected(0);
+        this.setLabelHeight(16);
     }
 
     @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
@@ -44,6 +45,7 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        //This is a bad example. You should use panels instead of direct fill() to draw split lines.
         fill(pPoseStack, x - 1, y + height + DesignerScreen.GAP, x + width + 1, y + height + 1 + DesignerScreen.GAP, 0x80ffffff);
         fill(pPoseStack, x + width, y, x + width + 1, y + height+ DesignerScreen.GAP, 0x80ffffff);
     }

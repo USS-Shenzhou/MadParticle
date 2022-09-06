@@ -69,6 +69,9 @@ public abstract class TScreen extends Screen {
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         for (TWidget tWidget : tChildren) {
+            if (!tWidget.isVisible()) {
+                continue;
+            }
             if (tWidget.mouseClicked(pMouseX, pMouseY, pButton)) {
                 this.setFocused(tWidget);
                 if (pButton == 0) {
@@ -84,6 +87,9 @@ public abstract class TScreen extends Screen {
     public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
         this.setDragging(false);
         for (TWidget tWidget : tChildren) {
+            if (!tWidget.isVisible()) {
+                continue;
+            }
             if (tWidget.mouseReleased(pMouseX, pMouseY, pButton)) {
                 return true;
             }
@@ -99,6 +105,9 @@ public abstract class TScreen extends Screen {
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
         for (TWidget tWidget : tChildren) {
+            if (!tWidget.isVisible()) {
+                continue;
+            }
             if (tWidget.mouseScrolled(pMouseX, pMouseY, pDelta)) {
                 return true;
             }

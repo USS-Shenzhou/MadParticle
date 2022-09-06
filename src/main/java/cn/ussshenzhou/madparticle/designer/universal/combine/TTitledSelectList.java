@@ -6,6 +6,7 @@ import cn.ussshenzhou.madparticle.designer.universal.widegt.TLabel;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TPanel;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TSelectList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -17,6 +18,7 @@ public class TTitledSelectList<E> extends TPanel {
     private final TLabel title = new TLabel();
     private final TSelectList<E> list = new TSelectList<>();
     int gap = 0;
+    int labelHeight = 20;
 
     public TTitledSelectList(Component titleText) {
         title.setText(titleText);
@@ -25,10 +27,14 @@ public class TTitledSelectList<E> extends TPanel {
         this.add(list);
     }
 
+    public TTitledSelectList() {
+        this(new TextComponent(""));
+    }
+
     @Override
     public void layout() {
-        title.setBounds(0, 0, this.width - list.getScrollbarGap() - TSelectList.SCROLLBAR_WIDTH, 20);
-        LayoutHelper.BBottomOfA(title, gap, list, width, height - title.getHeight() - gap);
+        title.setBounds(0, 0, this.width - list.getScrollbarGap() - TSelectList.SCROLLBAR_WIDTH, labelHeight);
+        LayoutHelper.BBottomOfA(list, gap, title, width, height - title.getHeight() - gap);
         super.layout();
     }
 
@@ -54,6 +60,14 @@ public class TTitledSelectList<E> extends TPanel {
 
     public TLabel getTitle() {
         return title;
+    }
+
+    public int getLabelHeight() {
+        return labelHeight;
+    }
+
+    public void setLabelHeight(int labelHeight) {
+        this.labelHeight = labelHeight;
     }
 
     public TSelectList<E> getList() {

@@ -19,7 +19,7 @@ import java.util.Arrays;
  */
 public class DesignerScreen extends TScreen {
     public static final int GAP = 5;
-    public static DesignerScreen designerScreen = null;
+    private static DesignerScreen designerScreen = null;
 
     private final DesignerModeSelectList designerModeSelectList = new DesignerModeSelectList();
     private final HelperModePanel helperModePanel = new HelperModePanel();
@@ -30,6 +30,9 @@ public class DesignerScreen extends TScreen {
         this.add(designerModeSelectList);
         this.add(helperModePanel);
         this.add(lineModePanel);
+        if (designerScreen == null) {
+            designerScreen = this;
+        }
     }
 
     public static @Nullable DesignerScreen getInstance() {
@@ -46,10 +49,10 @@ public class DesignerScreen extends TScreen {
         designerModeSelectList.setBounds(GAP, GAP,
                 TButton.RECOMMEND_SIZE.x + designerModeSelectList.getList().getScrollbarGap() + TSelectList.SCROLLBAR_WIDTH,
                 height - GAP * 4 - 1 - 20);
-        LayoutHelper.BRightOfA(designerModeSelectList, GAP + 1, helperModePanel,
+        LayoutHelper.BRightOfA(helperModePanel, GAP + 1, designerModeSelectList,
                 width - designerModeSelectList.getWidth() - 3 * GAP - 1,
                 height - 2 * GAP);
-        LayoutHelper.BSameAsA(helperModePanel, lineModePanel);
+        LayoutHelper.BSameAsA(lineModePanel, helperModePanel);
         super.layout();
     }
 
@@ -76,5 +79,9 @@ public class DesignerScreen extends TScreen {
     @Override
     protected void renderBackGround(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         fill(pPoseStack, 0, 0, width, height, 0x80000000);
+    }
+
+    public DesignerModeSelectList getDesignerModeSelectList() {
+        return designerModeSelectList;
     }
 }

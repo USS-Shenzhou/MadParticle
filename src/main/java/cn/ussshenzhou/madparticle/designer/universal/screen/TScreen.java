@@ -99,7 +99,15 @@ public abstract class TScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
-        return this.getFocused() != null && this.isDragging() && pButton == 0 && this.getFocused().mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+        for (TWidget tWidget : tChildren) {
+            if (!tWidget.isVisible()) {
+                continue;
+            }
+            if (tWidget.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

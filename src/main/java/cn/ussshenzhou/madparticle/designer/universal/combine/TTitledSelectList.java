@@ -15,8 +15,8 @@ import java.util.function.Consumer;
  * @author USS_Shenzhou
  */
 public class TTitledSelectList<E> extends TPanel {
-    private final TLabel title = new TLabel();
-    private final TSelectList<E> list = new TSelectList<>();
+    protected final TLabel title = new TLabel();
+    protected final TSelectList<E> list = new TSelectList<>();
     int gap = 0;
     int labelHeight = 20;
 

@@ -137,6 +137,14 @@ public abstract class TComponent extends GuiComponent implements TWidget {
 
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
+        for (TWidget tWidget : children) {
+            if (!tWidget.isVisible()) {
+                continue;
+            }
+            if (tWidget.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY)) {
+                return true;
+            }
+        }
         return false;
     }
 

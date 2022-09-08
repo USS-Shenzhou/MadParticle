@@ -21,10 +21,10 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
         this.add(delete);
 
         newCommand.setOnPress(pButton -> {
-            //TODO
+            list.addElement(new SubCommand());
         });
         delete.setOnPress(pButton -> {
-            //TODO
+            list.removeElement(list.getSelected());
         });
     }
 
@@ -51,5 +51,9 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
 
     public class SubCommand {
 
+        @Override
+        public String toString() {
+            return "null";
+        }
     }
 }

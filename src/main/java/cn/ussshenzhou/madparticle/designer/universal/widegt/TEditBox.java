@@ -58,4 +58,12 @@ public class TEditBox extends EditBox implements TWidget {
     public Size getSize() {
         return new Size(width, height);
     }
+
+    @Override
+    public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
+        if (isInRange(pMouseX,pMouseY)){
+            return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+        }
+        return false;
+    }
 }

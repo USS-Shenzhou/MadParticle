@@ -14,6 +14,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -53,6 +54,10 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
         }
     }
 
+    public void removeElement(Entry entry) {
+        this.removeEntry(entry);
+    }
+
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         this.updateScrollingState(pMouseX, pMouseY, pButton);
@@ -72,6 +77,24 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
                 this.clickedHeader((int) (pMouseX - (double) (this.x0 + this.width / 2 - this.getRowWidth() / 2)), (int) (pMouseY - (double) this.y0) + (int) this.getScrollAmount() - 4);
                 return true;
             }
+            return false;
+        }
+    }
+
+    @Override
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
+        if (isInRange(pMouseX, pMouseY)) {
+            return super.mouseScrolled(pMouseX, pMouseY, pDelta);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
+        if (isInRange(pMouseX, pMouseY, 8, 8)) {
+            return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+        } else {
             return false;
         }
     }
@@ -148,12 +171,17 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
         int i = this.getItemCount();
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tesselator.getBuilder();
+
         for (int j = 0; j < i; ++j) {
             int k = this.getRowTop(j);
-            int l = this.getRowTop(j) + this.itemHeight;
-            if (l >= this.y0 && k <= this.y1) {
+            int l = k + this.itemHeight;
+            //modified not to render oust of box
+            float up = k + (itemHeight - 10) / 2f;
+            float low = k + 10;
+            if (up >= this.y0 && low <= this.y1) {
                 int i1 = pY + j * this.itemHeight + this.headerHeight;
                 int j1 = this.itemHeight - 4;
+                Entry e = this.getEntry(j);
                 int k1 = this.getRowWidth();
                 if (this.isSelectedItem(j)) {
                     //modified due to scrollbarGap
@@ -178,16 +206,21 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
                     tesselator.end();
                     RenderSystem.enableTexture();
                 }
+
+                int j2 = this.getRowLeft();
+                e.render(pPoseStack, j, k, j2, k1, j1, pMouseX, pMouseY, Objects.equals(getHovered(), e), pPartialTick);
             }
         }
-        super.renderList(pPoseStack, pX, pY, pMouseX, pMouseY, pPartialTick);
+        //super.renderList(pPoseStack, pX, pY, pMouseX, pMouseY, pPartialTick);
     }
+
     @Override
-    public int getX(){
+    public int getX() {
         return x0;
     }
+
     @Override
-    public int getY(){
+    public int getY() {
         return y0;
     }
 
@@ -242,7 +275,8 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
 
         public Entry(E content) {
             this.content = content;
-            this.consumer = list -> {};
+            this.consumer = list -> {
+            };
         }
 
         @Override

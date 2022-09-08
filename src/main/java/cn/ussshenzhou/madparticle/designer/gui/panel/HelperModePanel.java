@@ -24,6 +24,7 @@ public class HelperModePanel extends TPanel {
         this.add(copy);
         this.add(command);
         this.add(commandStringSelectList);
+
         copy.setOnPress(pButton -> {
             //TODO
         });
@@ -38,5 +39,10 @@ public class HelperModePanel extends TPanel {
                 height - command.getY() - command.getHeight() - DesignerScreen.GAP * 2 - TButton.RECOMMEND_SIZE.y - 1
         );
         super.layout();
+    }
+
+    @Override
+    public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
+        return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
     }
 }

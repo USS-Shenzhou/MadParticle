@@ -23,9 +23,10 @@ public interface TWidget extends Widget, GuiEventListener {
         setBounds(x, y, size.x, size.y);
     }
 
-    default void setAbsBounds(int x,int y,Size size){
+    default void setAbsBounds(int x, int y, Size size) {
         setAbsBounds(x, y, size.x, size.y);
     }
+
     void setParent(TComponent parent);
 
     TComponent getParent();
@@ -39,7 +40,12 @@ public interface TWidget extends Widget, GuiEventListener {
     Size getSize();
 
     void tick();
-    //int getX();
 
-    //int getY();
+    default boolean isInRange(double pMouseX, double pMouseY) {
+        return isInRange(pMouseX, pMouseY, 0, 0);
+    }
+
+    default boolean isInRange(double pMouseX, double pMouseY, double xPadding, double yPadding) {
+        return pMouseX >= getX() - xPadding && pMouseX <= getX() + getSize().x + xPadding && pMouseY >= getY() - yPadding && pMouseY <= getY() + getSize().y + yPadding;
+    }
 }

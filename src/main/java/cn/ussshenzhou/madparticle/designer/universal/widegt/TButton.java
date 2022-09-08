@@ -35,6 +35,14 @@ public class TButton extends Button implements TWidget {
     }
 
     @Override
+    public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
+        if (isInRange(pMouseX, pMouseY)){
+            return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+        }
+        return false;
+    }
+
+    @Override
     public void onPress() {
         this.onPress.onPress(this);
     }

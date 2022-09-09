@@ -1,6 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
-import cn.ussshenzhou.madparticle.designer.universal.util.Size;
+import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
@@ -247,13 +247,13 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
     }
 
     @Override
-    public Size getPreferredSize() {
+    public Vec2i getPreferredSize() {
         return null;
     }
 
     @Override
-    public Size getSize() {
-        return new Size(width, height);
+    public Vec2i getSize() {
+        return new Vec2i(width, height);
     }
 
     @Override

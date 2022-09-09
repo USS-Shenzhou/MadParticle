@@ -1,12 +1,12 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.MWidget2TComponentHelper;
-import cn.ussshenzhou.madparticle.designer.universal.util.Size;
+import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
 public class TButton extends Button implements TWidget {
-    public static final Size RECOMMEND_SIZE = new Size(52, 20);
+    public static final Vec2i RECOMMEND_SIZE = new Vec2i(52, 20);
     private boolean visible = true;
     TComponent parent = null;
     private OnPress onPress;
@@ -95,13 +95,13 @@ public class TButton extends Button implements TWidget {
     }
 
     @Override
-    public Size getPreferredSize() {
-        return new Size(this.width, 20);
+    public Vec2i getPreferredSize() {
+        return new Vec2i(this.width, 20);
     }
 
     @Override
-    public Size getSize() {
-        return new Size(width, height);
+    public Vec2i getSize() {
+        return new Vec2i(width, height);
     }
 
     @Override

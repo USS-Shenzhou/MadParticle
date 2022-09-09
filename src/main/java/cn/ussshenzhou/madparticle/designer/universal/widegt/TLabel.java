@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.HorizontalAlignment;
-import cn.ussshenzhou.madparticle.designer.universal.util.Size;
+import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -81,8 +81,8 @@ public class TLabel extends TComponent {
     }
 
     @Override
-    public Size getPreferredSize() {
-        return new Size(font.width(text), font.lineHeight);
+    public Vec2i getPreferredSize() {
+        return new Vec2i(font.width(text), font.lineHeight);
     }
 
 }

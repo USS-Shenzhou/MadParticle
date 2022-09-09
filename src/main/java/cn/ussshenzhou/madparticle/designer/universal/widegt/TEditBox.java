@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.MWidget2TComponentHelper;
-import cn.ussshenzhou.madparticle.designer.universal.util.Size;
+import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -50,13 +50,13 @@ public class TEditBox extends EditBox implements TWidget {
     }
 
     @Override
-    public Size getPreferredSize() {
-        return new Size(this.width, 20);
+    public Vec2i getPreferredSize() {
+        return new Vec2i(this.width, 20);
     }
 
     @Override
-    public Size getSize() {
-        return new Size(width, height);
+    public Vec2i getSize() {
+        return new Vec2i(width, height);
     }
 
     @Override

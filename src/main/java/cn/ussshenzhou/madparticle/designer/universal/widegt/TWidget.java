@@ -1,6 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
-import cn.ussshenzhou.madparticle.designer.universal.util.Size;
+import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 
@@ -19,11 +19,11 @@ public interface TWidget extends Widget, GuiEventListener {
 
     void setAbsBounds(int x, int y, int width, int height);
 
-    default void setBounds(int x, int y, Size size) {
+    default void setBounds(int x, int y, Vec2i size) {
         setBounds(x, y, size.x, size.y);
     }
 
-    default void setAbsBounds(int x, int y, Size size) {
+    default void setAbsBounds(int x, int y, Vec2i size) {
         setAbsBounds(x, y, size.x, size.y);
     }
 
@@ -35,9 +35,9 @@ public interface TWidget extends Widget, GuiEventListener {
 
     int getY();
 
-    Size getPreferredSize();
+    Vec2i getPreferredSize();
 
-    Size getSize();
+    Vec2i getSize();
 
     void tick();
 

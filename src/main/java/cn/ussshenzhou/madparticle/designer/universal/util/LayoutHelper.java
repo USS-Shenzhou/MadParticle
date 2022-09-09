@@ -13,7 +13,7 @@ public class LayoutHelper {
         b.setAbsBounds(a.getX() + a.getSize().x + gap, a.getY(), width, height);
     }
 
-    public static void BRightOfA(TWidget b, int gap, TWidget a, Size size) {
+    public static void BRightOfA(TWidget b, int gap, TWidget a, Vec2i size) {
         b.setAbsBounds(a.getX() + a.getSize().x + gap, a.getY(), size);
     }
 
@@ -25,7 +25,7 @@ public class LayoutHelper {
         b.setAbsBounds(a.getX() - gap - width, a.getY(), width, height);
     }
 
-    public static void BLeftOfA(TWidget b, int gap, TWidget a, Size size) {
+    public static void BLeftOfA(TWidget b, int gap, TWidget a, Vec2i size) {
         b.setAbsBounds(a.getX() - gap - size.x, a.getY(), size);
     }
 
@@ -37,7 +37,7 @@ public class LayoutHelper {
         b.setAbsBounds(a.getX(), a.getY() - height - gap, width, height);
     }
 
-    public static void BTopOfA(TWidget b, int gap, TWidget a, Size size) {
+    public static void BTopOfA(TWidget b, int gap, TWidget a, Vec2i size) {
         b.setAbsBounds(a.getX(), a.getY() - size.x - gap, size);
     }
 
@@ -49,7 +49,7 @@ public class LayoutHelper {
         b.setAbsBounds(a.getX(), a.getY() + a.getSize().y + gap, width, height);
     }
 
-    public static void BBottomOfA(TWidget b, int gap, TWidget a, Size size) {
+    public static void BBottomOfA(TWidget b, int gap, TWidget a, Vec2i size) {
         b.setAbsBounds(a.getX(), a.getY() + a.getSize().y + gap, size);
     }
 

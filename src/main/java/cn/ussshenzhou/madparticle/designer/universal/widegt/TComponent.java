@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.Border;
-import cn.ussshenzhou.madparticle.designer.universal.util.Size;
+import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiComponent;
@@ -95,13 +95,13 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     }
 
     @Override
-    public Size getPreferredSize() {
-        return new Size(width, height);
+    public Vec2i getPreferredSize() {
+        return new Vec2i(width, height);
     }
 
     @Override
-    public Size getSize() {
-        return new Size(width, height);
+    public Vec2i getSize() {
+        return new Vec2i(width, height);
     }
 
     public void add(TWidget child) {

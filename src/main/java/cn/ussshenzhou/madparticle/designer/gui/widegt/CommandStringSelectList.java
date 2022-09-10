@@ -4,6 +4,7 @@ import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSelectList;
 import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
+import cn.ussshenzhou.madparticle.designer.universal.widegt.TSelectList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.TranslatableComponent;
 
@@ -15,16 +16,15 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
     private final TButton delete = new TButton(new TranslatableComponent("gui.mp.de.helper.delete"));
 
     public CommandStringSelectList() {
-        super(new TranslatableComponent("gui.mp.de.helper.command_string"));
-        this.setLabelHeight(16);
+        super(new TranslatableComponent("gui.mp.de.helper.command_string"),new TSelectList<>());
         this.add(newCommand);
         this.add(delete);
 
         newCommand.setOnPress(pButton -> {
-            list.addElement(new SubCommand());
+            getWidget().addElement(new SubCommand());
         });
         delete.setOnPress(pButton -> {
-            list.removeElement(list.getSelected());
+            getWidget().removeElement(getWidget().getSelected());
         });
     }
 

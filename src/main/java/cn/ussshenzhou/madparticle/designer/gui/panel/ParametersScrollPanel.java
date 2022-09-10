@@ -1,6 +1,5 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
-import cn.ussshenzhou.madparticle.designer.universal.util.Border;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TScrollPanel;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -11,7 +10,6 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     public ParametersScrollPanel() {
         super();
-        this.setBorder(new Border(0xff00ff00, 1));
     }
 
     @Override

@@ -2,6 +2,7 @@ package cn.ussshenzhou.madparticle.designer.gui.widegt;
 
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSelectList;
+import cn.ussshenzhou.madparticle.designer.universal.widegt.TSelectList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.TranslatableComponent;
 
@@ -11,7 +12,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelectList.DesignerMode> {
 
     public DesignerModeSelectList() {
-        super(new TranslatableComponent("gui.mp.de.mode.title"));
+        super(new TranslatableComponent("gui.mp.de.mode.title"),new TSelectList<>());
         this.addElement(DesignerMode.HELPER, list -> {
             if (DesignerScreen.getInstance() != null) {
                 DesignerScreen.getInstance().setVisibleMode(DesignerMode.HELPER);
@@ -21,8 +22,7 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
             assert DesignerScreen.getInstance() != null;
             DesignerScreen.getInstance().setVisibleMode(DesignerMode.LINE);
         });
-        this.getList().setSelected(0);
-        this.setLabelHeight(16);
+        this.getWidget().setSelected(0);
     }
 
     @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")

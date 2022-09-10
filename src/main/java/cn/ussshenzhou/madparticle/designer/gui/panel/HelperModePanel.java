@@ -17,6 +17,8 @@ public class HelperModePanel extends TPanel {
     private final TEditBox command = new TEditBox(new TranslatableComponent("gui.mp.de.helper.command"));
     private final CommandStringSelectList commandStringSelectList = new CommandStringSelectList();
 
+    ParametersScrollPanel parametersScrollPanel = new ParametersScrollPanel();
+
     public HelperModePanel() {
         super();
         command.setFocus(false);
@@ -24,6 +26,7 @@ public class HelperModePanel extends TPanel {
         this.add(copy);
         this.add(command);
         this.add(commandStringSelectList);
+        this.add(parametersScrollPanel);
 
         copy.setOnPress(pButton -> {
             //TODO
@@ -38,11 +41,10 @@ public class HelperModePanel extends TPanel {
                 TButton.RECOMMEND_SIZE.x + commandStringSelectList.getList().getScrollbarGap() + TSelectList.SCROLLBAR_WIDTH,
                 height - command.getY() - command.getHeight() - DesignerScreen.GAP * 2 - TButton.RECOMMEND_SIZE.y - 1
         );
+        LayoutHelper.BRightOfA(parametersScrollPanel,
+                DesignerScreen.GAP + 2, commandStringSelectList,
+                width - commandStringSelectList.getWidth() - DesignerScreen.GAP * 2,
+                commandStringSelectList.getHeight() + DesignerScreen.GAP * 2 + 1 + TButton.RECOMMEND_SIZE.y);
         super.layout();
-    }
-
-    @Override
-    public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
-        return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
     }
 }

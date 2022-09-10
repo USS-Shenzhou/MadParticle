@@ -31,8 +31,6 @@ import java.util.Collection;
  */
 public class MadParticleCommand {
     private static final int COMMAND_LENGTH = 40;
-    //TODO:add particle roll
-
     public MadParticleCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("madparticle")

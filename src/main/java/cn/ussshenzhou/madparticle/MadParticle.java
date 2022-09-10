@@ -10,6 +10,11 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
 /**
+ * TODO:
+ * <p>x, y, z deflection</p>
+ * <p>particle roll</p>
+ * <p>Designer: translocation-priority mode</p>
+ *
  * @author USS_Shenzhou
  */
 @Mod("madparticle")

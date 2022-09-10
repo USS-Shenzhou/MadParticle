@@ -18,7 +18,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     //argb
     int background = 0x00000000;
     int foreground = 0xffffffff;
-    LinkedList<TWidget> children = new LinkedList<>();
+    protected LinkedList<TWidget> children = new LinkedList<>();
     Border border = null;
     TComponent parent = null;
 

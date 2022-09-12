@@ -18,10 +18,6 @@ public class TTitledSelectList<E> extends TTitledComponent<TSelectList<E>> {
         super(titleText, component);
     }
 
-    public TTitledSelectList(TSelectList<E> component) {
-        super(component);
-    }
-
     @Override
     public void defaultLayout() {
         title.setBounds(0, 0, this.width - widget.getScrollbarGap() - TSelectList.SCROLLBAR_WIDTH, labelHeight);

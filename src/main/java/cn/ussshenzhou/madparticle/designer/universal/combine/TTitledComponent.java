@@ -6,7 +6,6 @@ import cn.ussshenzhou.madparticle.designer.universal.widegt.TLabel;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TPanel;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TWidget;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 /**
  * @author USS_Shenzhou
@@ -25,18 +24,14 @@ public abstract class TTitledComponent<T extends TWidget> extends TPanel {
         this.add(widget);
     }
 
-    public TTitledComponent(T component) {
-        this(new TextComponent(""), component);
-    }
-
     @Override
     public void layout() {
         defaultLayout();
         super.layout();
     }
 
-    public void defaultLayout(){
-        title.setBounds(0, 0, title.getPreferredSize().x, labelHeight);
+    public void defaultLayout() {
+        title.setBounds(0, 0, width, labelHeight);
         LayoutHelper.BBottomOfA(widget, gap, title, width, height - title.getHeight() - gap);
     }
 

@@ -47,7 +47,7 @@ public class DesignerScreen extends TScreen {
     @Override
     public void layout() {
         designerModeSelectList.setBounds(GAP, GAP,
-                TButton.RECOMMEND_SIZE.x + designerModeSelectList.getWidget().getScrollbarGap() + TSelectList.SCROLLBAR_WIDTH,
+                TButton.RECOMMEND_SIZE.x + designerModeSelectList.getComponent().getScrollbarGap() + TSelectList.SCROLLBAR_WIDTH,
                 height - GAP * 4 - 1 - 20);
         LayoutHelper.BRightOfA(helperModePanel, GAP + 1, designerModeSelectList,
                 width - designerModeSelectList.getWidth() - 3 * GAP - 1,

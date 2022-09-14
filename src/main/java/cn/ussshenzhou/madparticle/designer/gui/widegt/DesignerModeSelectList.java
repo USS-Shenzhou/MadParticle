@@ -22,7 +22,7 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
             assert DesignerScreen.getInstance() != null;
             DesignerScreen.getInstance().setVisibleMode(DesignerMode.LINE);
         });
-        this.getWidget().setSelected(0);
+        this.getComponent().setSelected(0);
     }
 
     @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")

@@ -1,18 +1,18 @@
 package cn.ussshenzhou.madparticle.designer.universal.combine;
 
-import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
-import net.minecraft.client.gui.components.Button;
+import cn.ussshenzhou.madparticle.designer.universal.widegt.TEditBox;
 import net.minecraft.network.chat.Component;
 
-/**
- * @author USS_Shenzhou
- */
-public class TTitledEditBox extends TTitledComponent<TButton> {
-    public TTitledEditBox(Component titleText, Component buttonText) {
-        super(titleText, new TButton(buttonText));
+public class TTitledEditBox extends TTitledComponent<TEditBox> {
+    public TTitledEditBox(Component titleText, TEditBox component) {
+        super(titleText, component);
     }
 
-    public TTitledEditBox(Component titleText, Component buttonText, Button.OnPress onPress) {
-        super(titleText, new TButton(buttonText, onPress));
+    public TTitledEditBox(Component titleText, Component editBoxText) {
+        this(titleText, new TEditBox(editBoxText));
+    }
+
+    public TTitledEditBox(Component titleText) {
+        super(titleText, new TEditBox());
     }
 }

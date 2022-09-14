@@ -5,12 +5,17 @@ import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 /**
  * @author USS_Shenzhou
  */
 public class TEditBox extends EditBox implements TWidget {
     TComponent parent = null;
+
+    public TEditBox() {
+        super(Minecraft.getInstance().font, 0, 0, 0, 0, new TextComponent(""));
+    }
 
     public TEditBox(Component tipText) {
         super(Minecraft.getInstance().font, 0, 0, 0, 0, tipText);

@@ -21,10 +21,10 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
         this.add(delete);
 
         newCommand.setOnPress(pButton -> {
-            getWidget().addElement(new SubCommand());
+            getComponent().addElement(new SubCommand());
         });
         delete.setOnPress(pButton -> {
-            getWidget().removeElement(getWidget().getSelected());
+            getComponent().removeElement(getComponent().getSelected());
         });
     }
 

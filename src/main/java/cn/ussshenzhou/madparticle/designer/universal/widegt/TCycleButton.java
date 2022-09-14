@@ -5,14 +5,14 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.util.Mth;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
 public class TCycleButton<E> extends TButton {
-    LinkedList<Entry> cycleValues = new LinkedList<>();
+    LinkedList<Entry> values = new LinkedList<>();
     int cycleIndex = 0;
 
     public TCycleButton() {
@@ -30,10 +30,25 @@ public class TCycleButton<E> extends TButton {
     }
 
     public void addElement(Entry e) {
-        cycleValues.add(e);
+        values.add(e);
         if (getMessage().getString().equals("")) {
             this.setMessage(e.getNarration());
         }
+    }
+
+    public int getSelectedIndex() {
+        return cycleIndex;
+    }
+
+    public LinkedList<Entry> getValues() {
+        return values;
+    }
+
+    public @Nullable Entry getSelected(){
+        if (values.isEmpty()){
+            return null;
+        }
+        return values.get(cycleIndex);
     }
 
     @Override
@@ -49,14 +64,14 @@ public class TCycleButton<E> extends TButton {
     }
 
     private void cycleOnce(int i) {
-        if (cycleValues.size() != 0) {
+        if (values.size() != 0) {
             this.cycleIndex = cycleIndex + i;
             if (cycleIndex < 0) {
-                cycleIndex = cycleValues.size() - 1;
-            } else if (cycleIndex > cycleValues.size() - 1) {
+                cycleIndex = values.size() - 1;
+            } else if (cycleIndex > values.size() - 1) {
                 cycleIndex = 0;
             }
-            this.setMessage(cycleValues.get(cycleIndex).getNarration());
+            this.setMessage(values.get(cycleIndex).getNarration());
         } else {
             this.cycleIndex = 0;
             this.setMessage(new TextComponent(""));

@@ -19,7 +19,7 @@ public abstract class TTitledComponent<T extends TWidget> extends TPanel {
     public TTitledComponent(Component titleText, T component) {
         widget = component;
         title.setText(titleText);
-        title.setHorizontalAlignment(HorizontalAlignment.CENTER);
+        title.setHorizontalAlignment(HorizontalAlignment.LEFT);
         this.add(title);
         this.add(widget);
     }
@@ -47,7 +47,7 @@ public abstract class TTitledComponent<T extends TWidget> extends TPanel {
         return title;
     }
 
-    public T getWidget() {
+    public T getComponent() {
         return widget;
     }
 

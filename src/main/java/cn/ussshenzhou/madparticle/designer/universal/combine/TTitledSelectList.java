@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.universal.combine;
 
+import cn.ussshenzhou.madparticle.designer.universal.util.HorizontalAlignment;
 import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TSelectList;
 import net.minecraft.network.chat.Component;
@@ -16,6 +17,7 @@ public class TTitledSelectList<E> extends TTitledComponent<TSelectList<E>> {
 
     public TTitledSelectList(Component titleText, TSelectList<E> component) {
         super(titleText, component);
+        this.getTitle().setHorizontalAlignment(HorizontalAlignment.CENTER);
     }
 
     @Override

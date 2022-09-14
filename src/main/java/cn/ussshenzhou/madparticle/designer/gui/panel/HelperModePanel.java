@@ -43,7 +43,7 @@ public class HelperModePanel extends TPanel {
         );
         LayoutHelper.BRightOfA(parametersScrollPanel,
                 DesignerScreen.GAP + 2, commandStringSelectList,
-                width - commandStringSelectList.getWidth() - DesignerScreen.GAP * 2,
+                width - commandStringSelectList.getWidth() - DesignerScreen.GAP - 2,
                 commandStringSelectList.getHeight() + DesignerScreen.GAP * 2 + 1 + TButton.RECOMMEND_SIZE.y);
         super.layout();
     }

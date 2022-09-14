@@ -2,6 +2,7 @@ package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.MWidget2TComponentHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
@@ -36,7 +37,7 @@ public class TButton extends Button implements TWidget {
 
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
-        if (isInRange(pMouseX, pMouseY)){
+        if (isInRange(pMouseX, pMouseY)) {
             return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
         }
         return false;

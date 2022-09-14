@@ -58,8 +58,17 @@ public class TScrollPanel extends TPanel {
 
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        renderBackground(pPoseStack, pMouseX, pMouseY, pPartialTick);
         renderScrollBar();
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    }
+
+    public void renderBackground(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick){
+        if(getMaxScroll()>0){
+            fill(pPoseStack, x, y, x + width - getScrollbarGap() - 6, y + height, 0x80000000);
+        } else {
+            fill(pPoseStack, x, y, x + width, y + height, 0x80000000);
+        }
     }
 
     /**

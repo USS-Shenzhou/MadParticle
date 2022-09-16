@@ -28,6 +28,9 @@ public class TCycleButton<E> extends TButton {
     public void addElement(E e) {
         addElement(new Entry(e));
     }
+    public void addElement(E e, Consumer<TCycleButton<E>> consumer) {
+        addElement(new Entry(e, consumer));
+    }
 
     public void addElement(Entry e) {
         values.add(e);
@@ -44,8 +47,8 @@ public class TCycleButton<E> extends TButton {
         return values;
     }
 
-    public @Nullable Entry getSelected(){
-        if (values.isEmpty()){
+    public @Nullable Entry getSelected() {
+        if (values.isEmpty()) {
             return null;
         }
         return values.get(cycleIndex);
@@ -72,6 +75,7 @@ public class TCycleButton<E> extends TButton {
                 cycleIndex = 0;
             }
             this.setMessage(values.get(cycleIndex).getNarration());
+            values.get(cycleIndex).onSwitched.accept(this);
         } else {
             this.cycleIndex = 0;
             this.setMessage(new TextComponent(""));
@@ -80,7 +84,7 @@ public class TCycleButton<E> extends TButton {
 
     public class Entry {
         E content;
-        Consumer<E> onSwitched;
+        Consumer<TCycleButton<E>> onSwitched;
 
         public Entry(E content) {
             this.content = content;
@@ -88,7 +92,7 @@ public class TCycleButton<E> extends TButton {
             };
         }
 
-        public Entry(E content, Consumer<E> onSwitched) {
+        public Entry(E content, Consumer<TCycleButton<E>> onSwitched) {
             this.content = content;
             this.onSwitched = onSwitched;
         }
@@ -110,11 +114,11 @@ public class TCycleButton<E> extends TButton {
             this.content = content;
         }
 
-        public Consumer<E> getOnSwitched() {
+        public Consumer<TCycleButton<E>> getOnSwitched() {
             return onSwitched;
         }
 
-        public void setOnSwitched(Consumer<E> onSwitched) {
+        public void setOnSwitched(Consumer<TCycleButton<E>> onSwitched) {
             this.onSwitched = onSwitched;
         }
     }

@@ -97,7 +97,7 @@ public class TButton extends Button implements TWidget {
 
     @Override
     public Vec2i getPreferredSize() {
-        return new Vec2i(this.width, 20);
+        return RECOMMEND_SIZE;
     }
 
     @Override

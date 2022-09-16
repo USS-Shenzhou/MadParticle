@@ -2,6 +2,7 @@ package cn.ussshenzhou.madparticle.designer.universal.combine;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.HorizontalAlignment;
 import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
+import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TLabel;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TPanel;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TWidget;
@@ -20,6 +21,7 @@ public abstract class TTitledComponent<T extends TWidget> extends TPanel {
         widget = component;
         title.setText(titleText);
         title.setHorizontalAlignment(HorizontalAlignment.LEFT);
+        title.setBounds(0,0,0,labelHeight);
         this.add(title);
         this.add(widget);
     }
@@ -33,6 +35,13 @@ public abstract class TTitledComponent<T extends TWidget> extends TPanel {
     public void defaultLayout() {
         title.setBounds(0, 0, width, labelHeight);
         LayoutHelper.BBottomOfA(widget, gap, title, width, height - title.getHeight() - gap);
+    }
+
+    @Override
+    public Vec2i getPreferredSize() {
+        return new Vec2i(Math.max(title.getWidth(), widget.getSize().x),
+                title.getHeight() + widget.getSize().y
+        );
     }
 
     public int getGap() {

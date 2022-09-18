@@ -8,6 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * @author USS_Shenzhou
  */
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
+
 public enum ParticleRenderTypes {
     TERRAIN_SHEET,
     PARTICLE_SHEET_OPAQUE,

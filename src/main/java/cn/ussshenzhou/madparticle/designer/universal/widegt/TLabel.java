@@ -59,7 +59,7 @@ public class TLabel extends TComponent {
         float scaleFactor = size / 7f;
         pPoseStack.scale(scaleFactor, scaleFactor, 1);
         drawString(pPoseStack, font, text,
-                getAlignedX(),
+                (int) (getAlignedX()/scaleFactor),
                 (int) ((y + (height - size) / 2) / scaleFactor),
                 foreground);
         pPoseStack.popPose();

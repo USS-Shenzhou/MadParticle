@@ -7,6 +7,7 @@ import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TPanel;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TSelectList;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.TranslatableComponent;
 
 /**
@@ -22,14 +23,15 @@ public class HelperModePanel extends TPanel {
     public HelperModePanel() {
         super();
         command.setFocus(false);
-
+        command.setMaxLength(32500);
         this.add(copy);
         this.add(command);
         this.add(commandStringSelectList);
         this.add(parametersScrollPanel);
 
         copy.setOnPress(pButton -> {
-            //TODO
+            Minecraft.getInstance().keyboardHandler.setClipboard(command.getValue());
+            //TODO: copied!
         });
     }
 

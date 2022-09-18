@@ -23,7 +23,12 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                                 ParticleRenderTypes renderType, float r, float g, float b,
                                 float beginAlpha, float endAlpha, ChangeMode alphaMode,
                                 float beginScale, float endScale, ChangeMode scaleMode,
-                                boolean haveChild, MadParticleOption child) implements ParticleOptions {
+                                boolean haveChild, MadParticleOption child,
+                                float rollSpeed,
+                                float xDeflection, float zDeflection, float xDeflectionAfterCollision,
+                                float zDeflectionAfterCollision
+
+) implements ParticleOptions {
     public static final Deserializer<MadParticleOption> DESERIALIZER = new Deserializer<MadParticleOption>() {
         @Override
         public MadParticleOption fromCommand(ParticleType<MadParticleOption> pParticleType, StringReader pReader) throws CommandSyntaxException {
@@ -58,12 +63,19 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
             ChangeMode scaleMode = buf.readEnum(ChangeMode.class);
             boolean haveChild = buf.readBoolean();
             MadParticleOption child = haveChild ? MadParticleOption.DESERIALIZER.fromNetwork(ModParticleRegistry.MAD_PARTICLE.get(), buf) : null;
+            float rollSpeed = buf.readFloat();
+            float xDeflection = buf.readFloat();
+            float zDeflection = buf.readFloat();
+            float xDeflectionAfterCollision = buf.readFloat();
+            float zDeflectionAfterCollision = buf.readFloat();
             return new MadParticleOption(targetParticle, spriteFrom, lifeTime, alwaysRender, amount,
                     px, py, pz, xDiffuse, yDiffuse, zDiffuse, vx, vy, vz, vxDiffuse, vyDiffuse, vzDiffuse,
                     friction, gravity, collision, bounceTime, horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce, afterCollisionFriction, afterCollisionGravity,
                     interactWithEntity, horizontalInteractFactor, verticalInteractFactor,
                     renderType, r, g, b, beginAlpha, endAlpha, alphaMode, beginScale, endScale, scaleMode,
-                    haveChild, child
+                    haveChild, child,
+                    rollSpeed,
+                    xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision
             );
         }
     };
@@ -112,6 +124,11 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
         if (haveChild) {
             child.writeToNetwork(buf);
         }
+        buf.writeFloat(rollSpeed);
+        buf.writeFloat(xDeflection);
+        buf.writeFloat(xDeflectionAfterCollision);
+        buf.writeFloat(zDeflection);
+        buf.writeFloat(zDeflectionAfterCollision);
     }
 
     @Override
@@ -170,7 +187,9 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                 beginScale, endScale,
                 scaleMode == ChangeMode.INHERIT ? fatherParticle.scaleMode : scaleMode,
                 haveChild,
-                child
+                child,
+                rollSpeed == Float.MAX_VALUE ? fatherParticle.rollSpeed : rollSpeed,
+                xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision
         );
     }
 }

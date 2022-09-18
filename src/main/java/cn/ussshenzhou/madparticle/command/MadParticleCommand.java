@@ -31,6 +31,7 @@ import java.util.Collection;
  */
 public class MadParticleCommand {
     private static final int COMMAND_LENGTH = 40;
+
     public MadParticleCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("madparticle")
@@ -52,24 +53,34 @@ public class MadParticleCommand {
                                                                                                                                                         .then(Commands.argument("afterCollisionFriction", FloatArgumentType.floatArg())
                                                                                                                                                                 .then(Commands.argument("gravity", FloatArgumentType.floatArg())
                                                                                                                                                                         .then(Commands.argument("afterCollisionGravity", FloatArgumentType.floatArg())
-                                                                                                                                                                                .then(Commands.argument("interactWithEntity", EnumArgument.enumArgument(InheritableBoolean.class))
-                                                                                                                                                                                        .then(Commands.argument("horizontalInteractFactor", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
-                                                                                                                                                                                                .then(Commands.argument("verticalInteractFactor", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
-                                                                                                                                                                                                        .then(Commands.argument("renderType", EnumArgument.enumArgument(ParticleRenderTypes.class))
-                                                                                                                                                                                                                .then(Commands.argument("r", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
-                                                                                                                                                                                                                        .then(Commands.argument("g", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
-                                                                                                                                                                                                                                .then(Commands.argument("b", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
-                                                                                                                                                                                                                                        .then(Commands.argument("beginAlpha", FloatArgumentType.floatArg(0, 1))
-                                                                                                                                                                                                                                                .then(Commands.argument("endAlpha", FloatArgumentType.floatArg(0, 1))
-                                                                                                                                                                                                                                                        .then(Commands.argument("alphaMode", EnumArgument.enumArgument(ChangeMode.class))
-                                                                                                                                                                                                                                                                .then(Commands.argument("beginScale", FloatArgumentType.floatArg(0))
-                                                                                                                                                                                                                                                                        .then(Commands.argument("endScale", FloatArgumentType.floatArg(0))
-                                                                                                                                                                                                                                                                                .then(Commands.argument("scaleMode", EnumArgument.enumArgument(ChangeMode.class))
-                                                                                                                                                                                                                                                                                        .executes(ct1 -> sendToAll(ct1,dispatcher))
-                                                                                                                                                                                                                                                                                        .then(Commands.argument("whoCanSee", EntityArgument.players())
-                                                                                                                                                                                                                                                                                                .executes((ct) -> sendToPlayer(ct, EntityArgument.getPlayers(ct, "whoCanSee"), dispatcher))
-                                                                                                                                                                                                                                                                                                .then(Commands.literal("expireThen")
-                                                                                                                                                                                                                                                                                                        .redirect(dispatcher.register(Commands.literal("mp")))
+                                                                                                                                                                                .then(Commands.argument("xDeflection", FloatArgumentType.floatArg())
+                                                                                                                                                                                        .then(Commands.argument("xDeflectionAfterCollision", FloatArgumentType.floatArg())
+                                                                                                                                                                                                .then(Commands.argument("zDeflection", FloatArgumentType.floatArg())
+                                                                                                                                                                                                        .then(Commands.argument("zDeflectionAfterCollision", FloatArgumentType.floatArg())
+                                                                                                                                                                                                                .then(Commands.argument("rollSpeed", InheritableFloatArgument.inheritableFloat())
+                                                                                                                                                                                                                        .then(Commands.argument("interactWithEntity", EnumArgument.enumArgument(InheritableBoolean.class))
+                                                                                                                                                                                                                                .then(Commands.argument("horizontalInteractFactor", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
+                                                                                                                                                                                                                                        .then(Commands.argument("verticalInteractFactor", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
+                                                                                                                                                                                                                                                .then(Commands.argument("renderType", EnumArgument.enumArgument(ParticleRenderTypes.class))
+                                                                                                                                                                                                                                                        .then(Commands.argument("r", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                .then(Commands.argument("g", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                        .then(Commands.argument("b", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                                .then(Commands.argument("beginAlpha", FloatArgumentType.floatArg(0, 1))
+                                                                                                                                                                                                                                                                                        .then(Commands.argument("endAlpha", FloatArgumentType.floatArg(0, 1))
+                                                                                                                                                                                                                                                                                                .then(Commands.argument("alphaMode", EnumArgument.enumArgument(ChangeMode.class))
+                                                                                                                                                                                                                                                                                                        .then(Commands.argument("beginScale", FloatArgumentType.floatArg(0))
+                                                                                                                                                                                                                                                                                                                .then(Commands.argument("endScale", FloatArgumentType.floatArg(0))
+                                                                                                                                                                                                                                                                                                                        .then(Commands.argument("scaleMode", EnumArgument.enumArgument(ChangeMode.class))
+                                                                                                                                                                                                                                                                                                                                .executes(ct1 -> sendToAll(ct1, dispatcher))
+                                                                                                                                                                                                                                                                                                                                .then(Commands.argument("whoCanSee", EntityArgument.players())
+                                                                                                                                                                                                                                                                                                                                        .executes((ct) -> sendToPlayer(ct, EntityArgument.getPlayers(ct, "whoCanSee"), dispatcher))
+                                                                                                                                                                                                                                                                                                                                        .then(Commands.literal("expireThen")
+                                                                                                                                                                                                                                                                                                                                                .redirect(dispatcher.register(Commands.literal("mp")))
+                                                                                                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                                                                        )
                                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                 )
@@ -109,7 +120,7 @@ public class MadParticleCommand {
 
     private static int sendToAll(CommandContext<CommandSourceStack> ct, CommandDispatcher<CommandSourceStack> dispatcher) {
         ServerLevel level = ct.getSource().getLevel();
-        return sendToPlayer(ct, level.getPlayers(serverPlayer -> true),dispatcher);
+        return sendToPlayer(ct, level.getPlayers(serverPlayer -> true), dispatcher);
     }
 
     private static int sendToPlayer(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -118,8 +129,8 @@ public class MadParticleCommand {
         MadParticleOption child = null;
         for (int i = commandStrings.length - 1; i >= 0; i--) {
             String s = commandStrings[i];
-            if (s.startsWith("/")){
-                s = s.replaceFirst("/","");
+            if (s.startsWith("/")) {
+                s = s.replaceFirst("/", "");
             }
             if (!s.startsWith("mp") && !s.startsWith("madparticle")) {
                 s = "mp " + s;
@@ -162,7 +173,12 @@ public class MadParticleCommand {
                     ct.getArgument("endScale", Float.class),
                     ct.getArgument("scaleMode", ChangeMode.class),
                     haveChild,
-                    haveChild ? child : null
+                    haveChild ? child : null,
+                    ct.getArgument("rollSpeed", Float.class),
+                    ct.getArgument("xDeflection", Float.class),
+                    ct.getArgument("zDeflection", Float.class),
+                    ct.getArgument("xDeflectionAfterCollision", Float.class),
+                    ct.getArgument("zDeflectionAfterCollision", Float.class)
             );
             child = father;
         }

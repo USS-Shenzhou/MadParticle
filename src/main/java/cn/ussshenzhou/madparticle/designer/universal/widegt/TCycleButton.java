@@ -8,6 +8,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
@@ -28,15 +29,25 @@ public class TCycleButton<E> extends TButton {
     public void addElement(E e) {
         addElement(new Entry(e));
     }
+
     public void addElement(E e, Consumer<TCycleButton<E>> consumer) {
         addElement(new Entry(e, consumer));
     }
 
     public void addElement(Entry e) {
+        int index = values.indexOf(e);
+        if (index >= 0) {
+            this.values.remove(index);
+        }
         values.add(e);
         if (getMessage().getString().equals("")) {
             this.setMessage(e.getNarration());
         }
+    }
+
+    public void removeElement(E e) {
+        //this.values.removeIf(entry -> entry.content.toString().equals(e.toString()));
+        this.values.remove(new Entry(e));
     }
 
     public int getSelectedIndex() {
@@ -75,7 +86,10 @@ public class TCycleButton<E> extends TButton {
                 cycleIndex = 0;
             }
             this.setMessage(values.get(cycleIndex).getNarration());
-            values.get(cycleIndex).onSwitched.accept(this);
+            Consumer<TCycleButton<E>> c = values.get(cycleIndex).onSwitched;
+            if (c != null) {
+                c.accept(this);
+            }
         } else {
             this.cycleIndex = 0;
             this.setMessage(new TextComponent(""));
@@ -88,8 +102,7 @@ public class TCycleButton<E> extends TButton {
 
         public Entry(E content) {
             this.content = content;
-            this.onSwitched = e -> {
-            };
+            this.onSwitched = null;
         }
 
         public Entry(E content, Consumer<TCycleButton<E>> onSwitched) {
@@ -99,11 +112,23 @@ public class TCycleButton<E> extends TButton {
 
         public Component getNarration() {
             Language language = Language.getInstance();
-            if (language.has(content.toString())) {
-                return new TranslatableComponent(content.toString());
+            String s = content.toString();
+            if (language.has(s)) {
+                return new TranslatableComponent(s);
             } else {
-                return new TextComponent(content.toString());
+                return new TextComponent(s);
             }
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (obj instanceof TCycleButton<?>.Entry entry) {
+                return entry.content.toString().equals(this.content.toString());
+            }
+            return false;
         }
 
         public E getContent() {

@@ -23,4 +23,6 @@ public class TTitledCycleButton<E> extends TTitledComponent<TCycleButton<E>> {
                 title.getHeight() + TButton.RECOMMEND_SIZE.y
         );
     }
+
+
 }

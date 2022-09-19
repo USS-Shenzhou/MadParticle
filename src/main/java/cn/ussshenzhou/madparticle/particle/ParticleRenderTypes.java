@@ -10,18 +10,23 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
 
 public enum ParticleRenderTypes {
-    TERRAIN_SHEET,
-    PARTICLE_SHEET_OPAQUE,
-    PARTICLE_SHEET_LIT,
-    PARTICLE_SHEET_TRANSLUCENT,
-    CUSTOM,
-    NO_RENDER;
+    TERRAIN_SHEET("gui.mp.de.helper.render_type.terrain"),
+    PARTICLE_SHEET_OPAQUE("gui.mp.de.helper.render_type.opaque"),
+    PARTICLE_SHEET_LIT("gui.mp.de.helper.render_type.lit"),
+    PARTICLE_SHEET_TRANSLUCENT("gui.mp.de.helper.render_type.translucent"),
+    CUSTOM("gui.mp.de.helper.render_type.custom"),
+    NO_RENDER("gui.mp.de.helper.render_type.no_render");
 
+    private final String translateKey;
+
+    ParticleRenderTypes(String translateKey) {
+        this.translateKey = translateKey;
+    }
 
     @SuppressWarnings("AlibabaSwitchStatement")
     @OnlyIn(Dist.CLIENT)
     public static ParticleRenderType getType(ParticleRenderTypes enumType) {
-        switch (enumType){
+        switch (enumType) {
             case TERRAIN_SHEET -> {
                 return ParticleRenderType.TERRAIN_SHEET;
             }
@@ -41,5 +46,10 @@ public enum ParticleRenderTypes {
                 return ParticleRenderType.NO_RENDER;
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return translateKey;
     }
 }

@@ -30,7 +30,7 @@
   "gui.mp.de.helper.render_type.lit": "lit",
   "gui.mp.de.helper.render_type.translucent": "半透明",
   "gui.mp.de.helper.render_type.custom": "自定义",
-  "gui.mp.de.helper.render_type.no": "不渲染",
+  "gui.mp.de.helper.render_type.no_render": "不渲染",
   "gui.mp.de.helper.who_see": "可见者",
   "gui.mp.de.helper.x_diffuse": "X误差",
   "gui.mp.de.helper.y_diffuse": "Y误差",

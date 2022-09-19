@@ -45,7 +45,7 @@ public class InheritableDoubleArgument implements ArgumentType<Double> {
             for (int i = 0; i < cut.length; i++) {
                 l = l + cut[i].length() + 1;
                 if (l >= start) {
-                    if (i > fatherCommandParameterAmount) {
+                    if (i >= fatherCommandParameterAmount) {
                         return inheritableParse(reader);
                     }
                     break;

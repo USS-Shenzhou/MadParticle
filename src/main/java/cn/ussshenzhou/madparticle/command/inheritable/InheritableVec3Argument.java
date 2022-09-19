@@ -36,7 +36,7 @@ public class InheritableVec3Argument extends Vec3Argument {
             for (int i = 0; i < cut.length; i++) {
                 l = l + cut[i].length() + 1;
                 if (l >= start) {
-                    if (i > fatherCommandParameterAmount) {
+                    if (i >= fatherCommandParameterAmount) {
                         return inheritableParse(reader);
                     }
                     break;

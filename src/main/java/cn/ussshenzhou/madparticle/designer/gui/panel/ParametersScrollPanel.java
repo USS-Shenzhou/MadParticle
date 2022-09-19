@@ -1,13 +1,15 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
+import cn.ussshenzhou.madparticle.command.inheritable.InheritableIntegerArgument;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledCycleButton;
-import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledEditBox;
+import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSimpleConstrainedEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
-import cn.ussshenzhou.madparticle.designer.universal.widegt.TCycleButton;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TScrollPanel;
 import cn.ussshenzhou.madparticle.particle.SpriteFrom;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.stream.Stream;
@@ -20,10 +22,12 @@ public class ParametersScrollPanel extends TScrollPanel {
     public static final Vec2i BUTTON_SIZE = TButton.RECOMMEND_SIZE;
     private boolean isChild;
 
-    public final TTitledEditBox target = new TTitledEditBox(new TranslatableComponent("gui.mp.de.helper.target"));
+    public final TTitledSimpleConstrainedEditBox target = new TTitledSimpleConstrainedEditBox(
+            new TranslatableComponent("gui.mp.de.helper.target"), ParticleArgument.particle());
     public final TButton tryDefault = new TButton(new TranslatableComponent("gui.mp.de.helper.try_default"));
     public final TTitledCycleButton<SpriteFrom> spriteFrom = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.sprite"));
-    public final TTitledEditBox lifeTime = new TTitledEditBox(new TranslatableComponent("gui.mp.de.helper.life"));
+    public final TTitledSimpleConstrainedEditBox lifeTime = new TTitledSimpleConstrainedEditBox(
+            new TranslatableComponent("gui.mp.de.helper.life"), IntegerArgumentType.integer(0));
 
     public ParametersScrollPanel() {
         super();
@@ -47,7 +51,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         Vec2i buttonSize = BUTTON_SIZE.copy();
         Vec2i stdTitledEditBox = calculateStdTitledEditBox(buttonSize, gap);
         while (stdTitledEditBox.x < 35) {
-            if (gap > 3) {
+            if (gap > 2) {
                 gap--;
             } else if (buttonSize.x > 35) {
                 buttonSize.add(-1, 0);
@@ -83,8 +87,10 @@ public class ParametersScrollPanel extends TScrollPanel {
         isChild = child;
         if (child) {
             spriteFrom.getComponent().addElement(SpriteFrom.INHERIT);
+            lifeTime.getComponent().setArgument(InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE));
         } else {
             spriteFrom.getComponent().removeElement(SpriteFrom.INHERIT);
+            lifeTime.getComponent().setArgument(IntegerArgumentType.integer(0));
         }
     }
 }

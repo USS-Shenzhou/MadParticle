@@ -66,7 +66,7 @@ public class TEditBox extends EditBox implements TWidget {
 
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
-        if (isInRange(pMouseX,pMouseY)){
+        if (isInRange(pMouseX, pMouseY)) {
             return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
         }
         return false;

@@ -1,7 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.universal.combine;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
-import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TEditBox;
 import net.minecraft.network.chat.Component;
 
@@ -15,7 +14,7 @@ public class TTitledEditBox extends TTitledComponent<TEditBox> {
     }
 
     public TTitledEditBox(Component titleText) {
-        super(titleText, new TEditBox());
+        this(titleText, new TEditBox());
     }
 
     @Override

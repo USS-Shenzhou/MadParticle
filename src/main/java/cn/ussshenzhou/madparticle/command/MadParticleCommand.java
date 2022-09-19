@@ -41,7 +41,7 @@ public class MadParticleCommand {
                         .redirect(dispatcher.register(Commands.literal("mp")
                                         .then(Commands.argument("targetParticle", ParticleArgument.particle())
                                                 .then(Commands.argument("spriteFrom", EnumArgument.enumArgument(SpriteFrom.class))
-                                                        .then(Commands.argument("lifeTime", InheritableIntegerArgument.inheritableInteger(COMMAND_LENGTH))
+                                                        .then(Commands.argument("lifeTime", new InheritableIntegerArgument(0, Integer.MAX_VALUE, COMMAND_LENGTH))
                                                                 .then(Commands.argument("alwaysRender", EnumArgument.enumArgument(InheritableBoolean.class))
                                                                         .then(Commands.argument("amount", IntegerArgumentType.integer())
                                                                                 .then(Commands.argument("spawnPos", InheritableVec3Argument.inheritableVec3(COMMAND_LENGTH))

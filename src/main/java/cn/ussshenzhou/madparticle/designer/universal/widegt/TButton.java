@@ -2,7 +2,7 @@ package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.MWidget2TComponentHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
-import com.mojang.logging.LogUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
@@ -108,5 +108,17 @@ public class TButton extends Button implements TWidget {
     @Override
     public void tick() {
 
+    }
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (isInRange(
+                minecraft.mouseHandler.xpos() * minecraft.getWindow().getGuiScaledWidth() / minecraft.getWindow().getScreenWidth(),
+                minecraft.mouseHandler.ypos() * minecraft.getWindow().getGuiScaledHeight() / minecraft.getWindow().getScreenHeight()
+        )){
+            return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+        }
+        return false;
     }
 }

@@ -22,6 +22,7 @@ public abstract class TTitledComponent<T extends TWidget> extends TPanel {
         title.setText(titleText);
         title.setHorizontalAlignment(HorizontalAlignment.LEFT);
         title.setBounds(0,0,0,labelHeight);
+        title.setForeground(0xff9e9e9e);
         this.add(title);
         this.add(widget);
     }

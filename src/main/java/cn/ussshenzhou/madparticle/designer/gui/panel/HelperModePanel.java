@@ -1,10 +1,11 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
+import cn.ussshenzhou.madparticle.command.MadParticleCommand;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.CommandStringSelectList;
+import cn.ussshenzhou.madparticle.designer.universal.advanced.TCommandConstrainedEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
-import cn.ussshenzhou.madparticle.designer.universal.widegt.TEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TPanel;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TSelectList;
 import net.minecraft.client.Minecraft;
@@ -15,7 +16,7 @@ import net.minecraft.network.chat.TranslatableComponent;
  */
 public class HelperModePanel extends TPanel {
     private final TButton copy = new TButton(new TranslatableComponent("gui.mp.de.helper.copy"));
-    private final TEditBox command = new TEditBox(new TranslatableComponent("gui.mp.de.helper.command"));
+    private final TCommandConstrainedEditBox command = new TCommandConstrainedEditBox(MadParticleCommand::new);
     private final CommandStringSelectList commandStringSelectList = new CommandStringSelectList();
 
     ParametersScrollPanel parametersScrollPanel = new ParametersScrollPanel();

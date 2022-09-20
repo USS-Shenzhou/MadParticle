@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.particle;
 
+import cn.ussshenzhou.madparticle.designer.universal.util.ToTranslatableString;
 import cn.ussshenzhou.madparticle.util.MathHelper;
 
 /**
@@ -7,7 +8,7 @@ import cn.ussshenzhou.madparticle.util.MathHelper;
  */
 
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
-public enum ChangeMode {
+public enum ChangeMode implements ToTranslatableString {
 
     LINEAR((begin, end, age, life) -> {
         float x = age / (float) life;
@@ -25,7 +26,6 @@ public enum ChangeMode {
 
     private static final int BASE = 10;
     private final String translateKey;
-
 
     @FunctionalInterface
     interface LerpFunction<A, B, C, D, R> {
@@ -45,7 +45,7 @@ public enum ChangeMode {
     }
 
     @Override
-    public String toString() {
+    public String toTranslateKey() {
         return translateKey;
     }
 

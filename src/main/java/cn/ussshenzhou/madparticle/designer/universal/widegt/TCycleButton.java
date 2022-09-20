@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
+import cn.ussshenzhou.madparticle.designer.universal.util.ToTranslatableString;
 import net.minecraft.client.Minecraft;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -8,7 +9,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
@@ -112,7 +112,12 @@ public class TCycleButton<E> extends TButton {
 
         public Component getNarration() {
             Language language = Language.getInstance();
-            String s = content.toString();
+            String s;
+            if (content instanceof ToTranslatableString translatable) {
+                s = translatable.toTranslateKey();
+            } else {
+                s = content.toString();
+            }
             if (language.has(s)) {
                 return new TranslatableComponent(s);
             } else {

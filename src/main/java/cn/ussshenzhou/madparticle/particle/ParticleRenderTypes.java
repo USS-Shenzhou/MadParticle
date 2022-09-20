@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.particle;
 
+import cn.ussshenzhou.madparticle.designer.universal.util.ToTranslatableString;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -9,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
 
-public enum ParticleRenderTypes {
+public enum ParticleRenderTypes implements ToTranslatableString {
     TERRAIN_SHEET("gui.mp.de.helper.render_type.terrain"),
     PARTICLE_SHEET_OPAQUE("gui.mp.de.helper.render_type.opaque"),
     PARTICLE_SHEET_LIT("gui.mp.de.helper.render_type.lit"),
@@ -49,7 +50,7 @@ public enum ParticleRenderTypes {
     }
 
     @Override
-    public String toString() {
+    public String toTranslateKey() {
         return translateKey;
     }
 }

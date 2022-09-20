@@ -1,7 +1,9 @@
 package cn.ussshenzhou.madparticle.particle;
 
+import cn.ussshenzhou.madparticle.designer.universal.util.ToTranslatableString;
+
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
-public enum SpriteFrom {
+public enum SpriteFrom implements ToTranslatableString {
     RANDOM("gui.mp.de.helper.sprite.random"),
     AGE("gui.mp.de.helper.sprite.age"),
     INHERIT("gui.mp.de.helper.inherit");
@@ -13,7 +15,7 @@ public enum SpriteFrom {
     }
 
     @Override
-    public String toString() {
+    public String toTranslateKey() {
         return translateKey;
     }
 }

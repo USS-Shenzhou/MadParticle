@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.universal.combine;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
-import cn.ussshenzhou.madparticle.designer.universal.widegt.TSimpleConstrainedEditBox;
+import cn.ussshenzhou.madparticle.designer.universal.advanced.TSimpleConstrainedEditBox;
 import com.mojang.brigadier.arguments.ArgumentType;
 import net.minecraft.network.chat.Component;
 

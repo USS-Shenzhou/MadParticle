@@ -128,7 +128,6 @@ minecraft {
 
 mixin {
     add sourceSets.main, "madparticle.refmap.json"
-
     config "madparticle.mixins.json"
 }
 

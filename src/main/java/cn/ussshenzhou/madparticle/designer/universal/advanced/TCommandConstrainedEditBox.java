@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 
 public class TCommandConstrainedEditBox extends TConstrainedEditBox {
 
-    CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
+    protected CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
 
     public TCommandConstrainedEditBox(Consumer<CommandDispatcher<CommandSourceStack>> consumer) {
         super();

@@ -3,7 +3,7 @@ package cn.ussshenzhou.madparticle.designer.gui.panel;
 import cn.ussshenzhou.madparticle.command.MadParticleCommand;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.CommandStringSelectList;
-import cn.ussshenzhou.madparticle.designer.universal.advanced.TCommandConstrainedEditBox;
+import cn.ussshenzhou.madparticle.designer.universal.advanced.TCommandSuggestedEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TPanel;
@@ -16,22 +16,22 @@ import net.minecraft.network.chat.TranslatableComponent;
  */
 public class HelperModePanel extends TPanel {
     private final TButton copy = new TButton(new TranslatableComponent("gui.mp.de.helper.copy"));
-    private final TCommandConstrainedEditBox command = new TCommandConstrainedEditBox(MadParticleCommand::new);
+    private final TCommandSuggestedEditBox command = new TCommandSuggestedEditBox(MadParticleCommand::new);
     private final CommandStringSelectList commandStringSelectList = new CommandStringSelectList();
 
     ParametersScrollPanel parametersScrollPanel = new ParametersScrollPanel();
 
     public HelperModePanel() {
         super();
-        command.setFocus(false);
-        command.setMaxLength(32500);
+        command.getEditBox().setFocus(false);
+        command.getEditBox().setMaxLength(32500);
         this.add(copy);
         this.add(command);
         this.add(commandStringSelectList);
         this.add(parametersScrollPanel);
 
         copy.setOnPress(pButton -> {
-            Minecraft.getInstance().keyboardHandler.setClipboard(command.getValue());
+            Minecraft.getInstance().keyboardHandler.setClipboard(command.getEditBox().getValue());
             //TODO: copied!
         });
     }

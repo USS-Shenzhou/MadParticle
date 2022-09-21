@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
+import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
 import cn.ussshenzhou.madparticle.designer.universal.util.MWidget2TComponentHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import net.minecraft.client.Minecraft;
@@ -19,6 +20,10 @@ public class TEditBox extends EditBox implements TWidget {
 
     public TEditBox(Component tipText) {
         super(Minecraft.getInstance().font, 0, 0, 0, 0, tipText);
+    }
+
+    public int getCursorX() {
+        return getX() + 5 + 9 * (getCursorPosition() - ((EditBoxAccessor) this).getDisplayPos());
     }
 
     @Override

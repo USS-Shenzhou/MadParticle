@@ -58,6 +58,14 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
         this.removeEntry(entry);
     }
 
+    public void clearElement() {
+        super.children().clear();
+    }
+
+    public int getItemHeight(){
+        return itemHeight;
+    }
+
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         this.updateScrollingState(pMouseX, pMouseY, pButton);

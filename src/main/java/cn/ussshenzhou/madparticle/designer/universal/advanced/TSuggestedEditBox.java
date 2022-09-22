@@ -80,16 +80,18 @@ public class TSuggestedEditBox extends TPanel {
     public void updateSuggestion(String value) {
         CommandSourceStack sourceStack = Minecraft.getInstance().player.createCommandSourceStack();
         ParseResults<CommandSourceStack> parseResults = editBox.dispatcher.parse(value, sourceStack);
-        CompletableFuture<Suggestions> suggestions = editBox.dispatcher.getCompletionSuggestions(parseResults, editBox.getCursorPosition());
-        suggestions.thenRun(() -> {
-            if (suggestions.isDone()) {
-                try {
-                    List<Suggestion> list = suggestions.get().getList();
-                    updateSuggestionList(list);
-                } catch (InterruptedException | ExecutionException ignored) {
+        try {
+            CompletableFuture<Suggestions> suggestions = editBox.dispatcher.getCompletionSuggestions(parseResults, editBox.getCursorPosition());
+            suggestions.thenRun(() -> {
+                if (suggestions.isDone()) {
+                    try {
+                        List<Suggestion> list = suggestions.get().getList();
+                        updateSuggestionList(list);
+                    } catch (InterruptedException | ExecutionException ignored) {
+                    }
                 }
-            }
-        });
+            });
+        } catch (NullPointerException ignored) {}
     }
 
     private void updateSuggestionList(List<Suggestion> list) {

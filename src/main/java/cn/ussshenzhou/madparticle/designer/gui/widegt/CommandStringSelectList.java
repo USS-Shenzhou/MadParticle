@@ -3,6 +3,7 @@ package cn.ussshenzhou.madparticle.designer.gui.widegt;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSelectList;
 import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
+import cn.ussshenzhou.madparticle.designer.universal.util.MouseHelper;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TSelectList;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -16,7 +17,7 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
     private final TButton delete = new TButton(new TranslatableComponent("gui.mp.de.helper.delete"));
 
     public CommandStringSelectList() {
-        super(new TranslatableComponent("gui.mp.de.helper.command_string"),new TSelectList<>());
+        super(new TranslatableComponent("gui.mp.de.helper.command_string"), new TSelectList<>());
         this.add(newCommand);
         this.add(delete);
 
@@ -47,6 +48,14 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
                 delete.y + delete.getHeight(),
                 0x80ffffff
         );
+    }
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        if (isInRange(MouseHelper.getMouseX(), MouseHelper.getMouseY(), 4, 4)) {
+            return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+        }
+        return false;
     }
 
     public class SubCommand {

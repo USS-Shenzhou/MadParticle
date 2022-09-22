@@ -3,13 +3,18 @@ package cn.ussshenzhou.madparticle.designer.gui.panel;
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableIntegerArgument;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledCycleButton;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSimpleConstrainedEditBox;
+import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSuggestedEditBox;
+import cn.ussshenzhou.madparticle.designer.universal.util.ArgumentSuggestionsDispatcher;
 import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TScrollPanel;
 import cn.ussshenzhou.madparticle.particle.SpriteFrom;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ParticleArgument;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.stream.Stream;
@@ -22,8 +27,9 @@ public class ParametersScrollPanel extends TScrollPanel {
     public static final Vec2i BUTTON_SIZE = TButton.RECOMMEND_SIZE;
     private boolean isChild;
 
-    public final TTitledSimpleConstrainedEditBox target = new TTitledSimpleConstrainedEditBox(
-            new TranslatableComponent("gui.mp.de.helper.target"), ParticleArgument.particle());
+    public final TTitledSuggestedEditBox target = new TTitledSuggestedEditBox(new TranslatableComponent("gui.mp.de.helper.target"),
+            new ArgumentSuggestionsDispatcher<CommandSourceStack, ParticleOptions>()
+    );
     public final TButton tryDefault = new TButton(new TranslatableComponent("gui.mp.de.helper.try_default"));
     public final TTitledCycleButton<SpriteFrom> spriteFrom = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.sprite"));
     public final TTitledSimpleConstrainedEditBox lifeTime = new TTitledSimpleConstrainedEditBox(
@@ -31,11 +37,13 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     public ParametersScrollPanel() {
         super();
+        ((ArgumentSuggestionsDispatcher<CommandSourceStack, ParticleOptions>) target.getComponent().getEditBox().getDispatcher())
+                .register(Commands.argument("p", ParticleArgument.particle()));
+
         tryDefault.setOnPress(pButton -> {
             //TODO
         });
         Stream.of(SpriteFrom.values()).forEach(s -> spriteFrom.getComponent().addElement(s));
-
 
         this.add(target);
         this.add(tryDefault);
@@ -92,5 +100,10 @@ public class ParametersScrollPanel extends TScrollPanel {
             spriteFrom.getComponent().removeElement(SpriteFrom.INHERIT);
             lifeTime.getComponent().setArgument(IntegerArgumentType.integer(0));
         }
+    }
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        return super.keyPressed(pKeyCode, pScanCode, pModifiers);
     }
 }

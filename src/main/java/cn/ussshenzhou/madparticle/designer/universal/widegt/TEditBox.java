@@ -1,12 +1,14 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
-import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
+import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.MWidget2TComponentHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.util.Mth;
 
 /**
  * @author USS_Shenzhou
@@ -23,7 +25,18 @@ public class TEditBox extends EditBox implements TWidget {
     }
 
     public int getCursorX() {
-        return getX() + 5 + 9 * (getCursorPosition() - ((EditBoxAccessor) this).getDisplayPos());
+        return getX() + Minecraft.getInstance().font.width(getValue().substring(LayoutHelper.getEditBoxCursorX(this), getCursorPosition()));
+    }
+
+    public int getCurrentWordBeginX() {
+        String s = getValue();
+        int b = s.lastIndexOf(" ", getCursorPosition());
+        if (b == getCursorPosition()) {
+            b = s.lastIndexOf(" ", Mth.clamp(getCursorPosition() - 1, 0, Integer.MAX_VALUE));
+        }
+        b++;
+        Font font = Minecraft.getInstance().font;
+        return getX() + font.width(s.substring(LayoutHelper.getEditBoxCursorX(this), b)) + font.width(" ");
     }
 
     @Override

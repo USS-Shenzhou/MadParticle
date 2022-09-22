@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+/**
+ * @author USS_Shenzhou
+ */
 public class TCommandConstrainedEditBox extends TConstrainedEditBox {
 
     protected CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
@@ -17,6 +20,11 @@ public class TCommandConstrainedEditBox extends TConstrainedEditBox {
     public TCommandConstrainedEditBox(Consumer<CommandDispatcher<CommandSourceStack>> consumer) {
         super();
         consumer.accept(dispatcher);
+    }
+
+    public TCommandConstrainedEditBox(CommandDispatcher<CommandSourceStack> dispatcher) {
+        super();
+        this.dispatcher = dispatcher;
     }
 
     @Override
@@ -35,5 +43,13 @@ public class TCommandConstrainedEditBox extends TConstrainedEditBox {
                 throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().create();
             }
         }
+    }
+
+    public CommandDispatcher<CommandSourceStack> getDispatcher() {
+        return dispatcher;
+    }
+
+    public void setDispatcher(CommandDispatcher<CommandSourceStack> dispatcher) {
+        this.dispatcher = dispatcher;
     }
 }

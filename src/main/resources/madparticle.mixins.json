@@ -5,8 +5,8 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "madparticle.refmap.json",
   "mixins": [
-    "ParticleEngineAccessor",
-    "EditBoxAccessor"
+    "EditBoxAccessor",
+    "ParticleEngineAccessor"
   ],
   "client": [
   ],

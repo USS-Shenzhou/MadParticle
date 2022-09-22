@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 
@@ -40,6 +41,8 @@ public interface TWidget extends Widget, GuiEventListener {
     Vec2i getSize();
 
     void tick();
+
+    default void renderTop(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick){}
 
     default boolean isInRange(double pMouseX, double pMouseY) {
         return isInRange(pMouseX, pMouseY, 0, 0);

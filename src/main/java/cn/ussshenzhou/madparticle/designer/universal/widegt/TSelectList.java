@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
+import cn.ussshenzhou.madparticle.designer.universal.util.HorizontalAlignment;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -24,8 +25,11 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
     public static final int SCROLLBAR_WIDTH = 6;
     TComponent parent = null;
     int foreground = 0xffffffff;
+    int background = 0x80000000;
+    int selectedForeGround = foreground;
     boolean visible = true;
     int scrollbarGap;
+    private HorizontalAlignment horizontalAlignment = HorizontalAlignment.CENTER;
 
     public TSelectList(int pItemHeight, int scrollbarGap) {
         super(Minecraft.getInstance(), 0, 0, 0, 0, pItemHeight);
@@ -62,7 +66,7 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
         super.children().clear();
     }
 
-    public int getItemHeight(){
+    public int getItemHeight() {
         return itemHeight;
     }
 
@@ -136,7 +140,7 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
 
     @Override
     protected void renderBackground(PoseStack pPoseStack) {
-        fill(pPoseStack, x0, y0, x0 + width - scrollbarGap - 6, y0 + height, 0x80000000);
+        fill(pPoseStack, x0, y0, x0 + width - scrollbarGap - 6, y0 + height, background);
     }
 
     @Override
@@ -240,10 +244,6 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
         return scrollbarGap;
     }
 
-    public void setForeground(int foreground) {
-        this.foreground = foreground;
-    }
-
     @Override
     public void setParent(TComponent parent) {
         this.parent = parent;
@@ -266,6 +266,38 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
 
     @Override
     public void tick() {
+    }
+
+    public int getForeground() {
+        return foreground;
+    }
+
+    public void setForeground(int foreground) {
+        this.foreground = foreground;
+    }
+
+    public int getBackground() {
+        return background;
+    }
+
+    public void setBackground(int background) {
+        this.background = background;
+    }
+
+    public int getSelectedForeGround() {
+        return selectedForeGround;
+    }
+
+    public void setSelectedForeGround(int selectedForeGround) {
+        this.selectedForeGround = selectedForeGround;
+    }
+
+    public HorizontalAlignment getHorizontalAlignment() {
+        return horizontalAlignment;
+    }
+
+    public void setHorizontalAlignment(HorizontalAlignment horizontalAlignment) {
+        this.horizontalAlignment = horizontalAlignment;
     }
 
     private TSelectList<E> get() {
@@ -300,8 +332,17 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
         @Override
         public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
             Font font = Minecraft.getInstance().font;
-            //TODO
-            drawCenteredString(pPoseStack, font, getNarration(), pLeft + pWidth / 2, pTop + (pHeight - font.lineHeight) / 2, foreground);
+            int color = getSelected() == this ? selectedForeGround : foreground;
+            switch (horizontalAlignment) {
+                case LEFT:
+                    drawString(pPoseStack, font, getNarration(), pLeft + 1, pTop + (pHeight - font.lineHeight) / 2, color);
+                    break;
+                case RIGHT:
+                    drawString(pPoseStack, font, getNarration(), pLeft + width - font.width(getNarration()) - 1, pTop + (pHeight - font.lineHeight) / 2, color);
+                    break;
+                default:
+                    drawCenteredString(pPoseStack, font, getNarration(), pLeft + pWidth / 2, pTop + (pHeight - font.lineHeight) / 2, color);
+            }
         }
 
         @Override
@@ -315,6 +356,10 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
 
         public void setConsumer(Consumer<TSelectList<E>> consumer) {
             this.consumer = consumer;
+        }
+
+        public E getContent() {
+            return content;
         }
     }
 

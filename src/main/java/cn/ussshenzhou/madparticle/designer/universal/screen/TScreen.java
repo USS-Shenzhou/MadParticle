@@ -2,8 +2,10 @@ package cn.ussshenzhou.madparticle.designer.universal.screen;
 
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TComponent;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TWidget;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -37,10 +39,20 @@ public abstract class TScreen extends Screen {
 
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
         renderBackGround(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        LinkedList<Widget> renderTop = new LinkedList<>();
         for (TWidget w : this.tChildren) {
             if (w.isVisible()) {
                 w.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+            }
+        }
+        for (TWidget w : this.tChildren) {
+            if (w.isVisible()) {
+                w.renderTop(pPoseStack, pMouseX, pMouseY, pPartialTick);
             }
         }
     }
@@ -128,13 +140,6 @@ public abstract class TScreen extends Screen {
         if (pKeyCode == 256 && this.shouldCloseOnEsc()) {
             this.onClose();
             return true;
-        } else if (pKeyCode == 258) {
-            boolean flag = !hasShiftDown();
-            if (!this.changeFocus(flag)) {
-                this.changeFocus(flag);
-            }
-
-            return false;
         } else {
             return this.getFocused() != null && this.getFocused().keyPressed(pKeyCode, pScanCode, pModifiers);
         }

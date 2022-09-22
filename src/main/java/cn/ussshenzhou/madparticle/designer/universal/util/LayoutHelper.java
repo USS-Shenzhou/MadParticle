@@ -1,6 +1,8 @@
 package cn.ussshenzhou.madparticle.designer.universal.util;
 
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TWidget;
+import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
+import net.minecraft.client.gui.components.EditBox;
 
 /**
  * @author USS_Shenzhou
@@ -59,5 +61,9 @@ public class LayoutHelper {
 
     public static void BSameAsA(TWidget b, TWidget a) {
         b.setAbsBounds(a.getX(), a.getY(), a.getSize());
+    }
+
+    public static int getEditBoxCursorX(EditBox editBox) {
+        return ((EditBoxAccessor) editBox).getDisplayPos();
     }
 }

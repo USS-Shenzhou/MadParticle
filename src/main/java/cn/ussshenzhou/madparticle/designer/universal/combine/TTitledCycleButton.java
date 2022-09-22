@@ -7,6 +7,9 @@ import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
 
+/**
+ * @author USS_Shenzhou
+ */
 public class TTitledCycleButton<E> extends TTitledComponent<TCycleButton<E>> {
     public TTitledCycleButton(Component titleText) {
         super(titleText, new TCycleButton<>());

@@ -3,7 +3,7 @@ package cn.ussshenzhou.madparticle.designer.gui.panel;
 import cn.ussshenzhou.madparticle.command.MadParticleCommand;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.CommandStringSelectList;
-import cn.ussshenzhou.madparticle.designer.universal.advanced.TCommandSuggestedEditBox;
+import cn.ussshenzhou.madparticle.designer.universal.advanced.TSuggestedEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TPanel;
@@ -16,7 +16,7 @@ import net.minecraft.network.chat.TranslatableComponent;
  */
 public class HelperModePanel extends TPanel {
     private final TButton copy = new TButton(new TranslatableComponent("gui.mp.de.helper.copy"));
-    private final TCommandSuggestedEditBox command = new TCommandSuggestedEditBox(MadParticleCommand::new);
+    private final TSuggestedEditBox command = new TSuggestedEditBox(MadParticleCommand::new);
     private final CommandStringSelectList commandStringSelectList = new CommandStringSelectList();
 
     ParametersScrollPanel parametersScrollPanel = new ParametersScrollPanel();
@@ -49,5 +49,10 @@ public class HelperModePanel extends TPanel {
                 width - commandStringSelectList.getWidth() - DesignerScreen.GAP - 2,
                 commandStringSelectList.getHeight() + DesignerScreen.GAP * 2 + 1 + TButton.RECOMMEND_SIZE.y);
         super.layout();
+    }
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        return super.keyPressed(pKeyCode, pScanCode, pModifiers);
     }
 }

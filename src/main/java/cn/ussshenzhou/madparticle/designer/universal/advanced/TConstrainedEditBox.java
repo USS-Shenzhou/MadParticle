@@ -3,6 +3,9 @@ package cn.ussshenzhou.madparticle.designer.universal.advanced;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TEditBox;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
+/**
+ * @author USS_Shenzhou
+ */
 public abstract class TConstrainedEditBox extends TEditBox {
 
     public TConstrainedEditBox() {

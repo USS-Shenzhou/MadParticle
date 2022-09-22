@@ -2,7 +2,6 @@ package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.Border;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiComponent;
 
@@ -55,10 +54,6 @@ public abstract class TComponent extends GuiComponent implements TWidget {
 
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
         if (border != null) {
             renderBorder(pPoseStack, pMouseX, pMouseY, pPartialTick);
         }
@@ -66,7 +61,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
         renderChildren(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 
-    private void renderBorder(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    protected void renderBorder(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         int thickness = border.getThickness();
         int color = border.getColor();
         fill(pPoseStack, x - thickness, y - thickness, x + width + thickness, y, color);
@@ -75,14 +70,23 @@ public abstract class TComponent extends GuiComponent implements TWidget {
         fill(pPoseStack, x + width, y, x + width + thickness, y + height, color);
     }
 
-    private void renderBackground(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    protected void renderBackground(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         fill(pPoseStack, x, y, x + width, y + height, background);
     }
 
-    private void renderChildren(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    protected void renderChildren(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         for (TWidget tWidget : children) {
             if (tWidget.isVisible()) {
                 tWidget.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+            }
+        }
+    }
+
+    @Override
+    public void renderTop(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        for (TWidget w : children) {
+            if (w.isVisible()) {
+                w.renderTop(pPoseStack, pMouseX, pMouseY, pPartialTick);
             }
         }
     }

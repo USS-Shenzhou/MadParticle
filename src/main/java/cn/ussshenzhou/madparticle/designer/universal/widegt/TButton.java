@@ -1,11 +1,15 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.MWidget2TComponentHelper;
+import cn.ussshenzhou.madparticle.designer.universal.util.MouseHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
+/**
+ * @author USS_Shenzhou
+ */
 public class TButton extends Button implements TWidget {
     public static final Vec2i RECOMMEND_SIZE = new Vec2i(52, 20);
     private boolean visible = true;
@@ -113,10 +117,7 @@ public class TButton extends Button implements TWidget {
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (isInRange(
-                minecraft.mouseHandler.xpos() * minecraft.getWindow().getGuiScaledWidth() / minecraft.getWindow().getScreenWidth(),
-                minecraft.mouseHandler.ypos() * minecraft.getWindow().getGuiScaledHeight() / minecraft.getWindow().getScreenHeight()
-        )){
+        if (isInRange(MouseHelper.getMouseX(), MouseHelper.getMouseY())) {
             return super.keyPressed(pKeyCode, pScanCode, pModifiers);
         }
         return false;

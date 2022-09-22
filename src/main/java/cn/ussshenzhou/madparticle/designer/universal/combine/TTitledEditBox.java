@@ -4,6 +4,9 @@ import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TEditBox;
 import net.minecraft.network.chat.Component;
 
+/**
+ * @author USS_Shenzhou
+ */
 public class TTitledEditBox extends TTitledComponent<TEditBox> {
     public TTitledEditBox(Component titleText, TEditBox component) {
         super(titleText, component);

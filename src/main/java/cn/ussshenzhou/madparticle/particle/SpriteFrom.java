@@ -2,6 +2,10 @@ package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.ToTranslatableString;
 
+/**
+ * @author USS_Shenzhou
+ */
+
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
 public enum SpriteFrom implements ToTranslatableString {
     RANDOM("gui.mp.de.helper.sprite.random"),

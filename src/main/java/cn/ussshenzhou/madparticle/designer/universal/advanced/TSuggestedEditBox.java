@@ -10,7 +10,6 @@ import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -111,7 +110,7 @@ public class TSuggestedEditBox extends TPanel {
                 } else {
                     listY = y - 1;
                 }
-                int width = Minecraft.getInstance().font.width(l) + TSelectList.SCROLLBAR_WIDTH+2;
+                int width = Minecraft.getInstance().font.width(l) + TSelectList.SCROLLBAR_WIDTH + 2;
                 suggestionList.setAbsBounds(
                         calculateSuggestionX(width),
                         listY,
@@ -139,29 +138,20 @@ public class TSuggestedEditBox extends TPanel {
         if (e != null) {
             String suggestion = suggestionList.getSelected().getContent();
             String s = editBox.getValue();
-            int a = s.lastIndexOf(" ", editBox.getCursorPosition());
-            int b = s.indexOf(" ", editBox.getCursorPosition());
-            if (b == editBox.getCursorPosition()) {
-                b = s.indexOf(" ", Mth.clamp(editBox.getCursorPosition() - 1, 0, Integer.MAX_VALUE));
-            }
-            if (b == -1) {
-                b = s.length() - 1;
-            }
-            if (b == -1) {
-                b = 0;
-            }
-            a = Mth.clamp(a, 0, s.length() - 1);
             if (s.isEmpty()) {
-                editBox.setValue(suggestion + " ");
+                editBox.setValue(suggestion);
             } else {
-                editBox.setValue(s.substring(0, a)
-                        + " "
-                        + suggestion
-                        //+ " "
-                        + s.substring(
-                        Mth.clamp(b + 1, 0, s.length() - 1)));
+                int a = s.lastIndexOf(" ", editBox.getCursorPosition());
+                int b = s.indexOf(" ", editBox.getCursorPosition());
+                if (a == -1) {
+                    editBox.setValue(b == -1 ? suggestion : suggestion + s.substring(b));
+                } else if (b == -1) {
+                    editBox.setValue(s.substring(0, a + 1) + suggestion);
+                } else {
+                    editBox.setValue(s.substring(0, a + 1) + suggestion + s.substring(b));
+                }
+                editBox.moveCursorTo(a + 1 + suggestion.length());
             }
-            editBox.moveCursorTo(a + suggestion.length() + 2);
         }
     }
 

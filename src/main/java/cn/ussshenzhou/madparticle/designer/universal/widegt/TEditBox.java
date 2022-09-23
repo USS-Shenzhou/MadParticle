@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.event.EditBoxFocusedEvent;
-import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
+import cn.ussshenzhou.madparticle.designer.universal.util.EditBoxAccessorProxy;
 import cn.ussshenzhou.madparticle.designer.universal.util.MWidget2TComponentHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import net.minecraft.client.Minecraft;
@@ -29,7 +29,7 @@ public class TEditBox extends EditBox implements TWidget {
     }
 
     public int getCursorX() {
-        return getX() + Minecraft.getInstance().font.width(getValue().substring(LayoutHelper.getEditBoxCursorX(this), getCursorPosition()));
+        return getX() + Minecraft.getInstance().font.width(getValue().substring(EditBoxAccessorProxy.getDisplayPos(this), getCursorPosition()));
     }
 
     public int getCurrentWordBeginX() {
@@ -40,7 +40,7 @@ public class TEditBox extends EditBox implements TWidget {
         }
         b++;
         Font font = Minecraft.getInstance().font;
-        return getX() + font.width(s.substring(LayoutHelper.getEditBoxCursorX(this), b)) + font.width(" ");
+        return getX() + font.width(s.substring(EditBoxAccessorProxy.getDisplayPos(this), b)) + font.width(" ");
     }
 
     @Override
@@ -113,5 +113,14 @@ public class TEditBox extends EditBox implements TWidget {
             return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
         }
         return false;
+    }
+
+    @Override
+    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+        if (EditBoxAccessorProxy.isEdible(this)) {
+            return super.mouseClicked(pMouseX, pMouseY, pButton);
+        } else {
+            return false;
+        }
     }
 }

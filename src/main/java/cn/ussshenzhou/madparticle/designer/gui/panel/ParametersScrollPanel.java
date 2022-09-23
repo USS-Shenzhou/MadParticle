@@ -1,5 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
+import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
+import cn.ussshenzhou.madparticle.command.inheritable.InheritableDoubleArgument;
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableIntegerArgument;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledCycleButton;
@@ -13,6 +15,7 @@ import cn.ussshenzhou.madparticle.designer.universal.widegt.TScrollPanel;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.SpriteFrom;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.Commands;
@@ -32,7 +35,7 @@ import java.util.stream.Stream;
 public class ParametersScrollPanel extends TScrollPanel {
     //public static final Vec2i EDITBOX_SIZE = new Vec2i(35, 36);
     public static final Vec2i BUTTON_SIZE = TButton.RECOMMEND_SIZE;
-    private boolean isChild;
+    private boolean isChild=false;
 
     //lane 1
     public final TTitledSuggestedEditBox target = new TTitledSuggestedEditBox(
@@ -42,7 +45,7 @@ public class ParametersScrollPanel extends TScrollPanel {
     public final TTitledCycleButton<SpriteFrom> spriteFrom = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.sprite"));
     public final TTitledSimpleConstrainedEditBox lifeTime = new TTitledSimpleConstrainedEditBox(
             new TranslatableComponent("gui.mp.de.helper.life"), IntegerArgumentType.integer(0));
-    public final TTitledCycleButton<String> alwaysRender = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.always"));
+    public final TTitledCycleButton<InheritableBoolean> alwaysRender = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.always"));
     public final TTitledSimpleConstrainedEditBox amount = new TTitledSimpleConstrainedEditBox(
             new TranslatableComponent("gui.mp.de.helper.amount"), IntegerArgumentType.integer(0));
     public final TTitledCycleButton<ParticleRenderTypes> renderType = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.render_type"));
@@ -64,6 +67,11 @@ public class ParametersScrollPanel extends TScrollPanel {
             vxD = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.vx_diffuse"), DoubleArgumentType.doubleArg()),
             vyD = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.vy_diffuse"), DoubleArgumentType.doubleArg()),
             vzD = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.vz_diffuse"), DoubleArgumentType.doubleArg());
+    //lane 5
+    public final TTitledSimpleConstrainedEditBox
+            r = new TTitledSimpleConstrainedEditBox(new TextComponent("R"), FloatArgumentType.floatArg()),
+            g = new TTitledSimpleConstrainedEditBox(new TextComponent("G"), FloatArgumentType.floatArg()),
+            b = new TTitledSimpleConstrainedEditBox(new TextComponent("B"), FloatArgumentType.floatArg());
 
     public ParametersScrollPanel() {
         super();
@@ -71,7 +79,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         init2();
         init3();
         init4();
-        this.setChild(false);
+        init5();
     }
 
     public void init1() {
@@ -82,12 +90,12 @@ public class ParametersScrollPanel extends TScrollPanel {
             //TODO
         });
         this.addAll(target, tryDefault);
+        target.getComponent().getEditBox().setEditable(false);
     }
 
     public void init2() {
         Stream.of(SpriteFrom.values()).forEach(spriteFrom::addElement);
-        alwaysRender.addElement("gui.mp.de.helper.false");
-        alwaysRender.addElement("gui.mp.de.helper.true");
+        Stream.of(InheritableBoolean.values()).forEach(alwaysRender::addElement);
         Stream.of(ParticleRenderTypes.values()).forEach(renderType::addElement);
         ((ArgumentSuggestionsDispatcher<EntitySelector>) whoCanSee.getComponent().getEditBox().getDispatcher())
                 .register(Commands.argument("p", EntityArgument.players()));
@@ -100,6 +108,10 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     public void init4() {
         this.addAll(vx, vy, vz, vxD, vyD, vzD);
+    }
+
+    public void init5() {
+        this.addAll(r);
     }
 
     @Override
@@ -146,6 +158,8 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BRightOfA(vxD, xGap, vz);
         LayoutHelper.BRightOfA(vyD, xGap, vxD);
         LayoutHelper.BRightOfA(vzD, xGap, vyD);
+        //lane 5
+        LayoutHelper.BBottomOfA(r, yGap, vx);
         super.layout();
     }
 
@@ -163,11 +177,19 @@ public class ParametersScrollPanel extends TScrollPanel {
     public void setChild(boolean child) {
         isChild = child;
         if (child) {
-            spriteFrom.getComponent().addElement(SpriteFrom.INHERIT);
+            spriteFrom.addElement(SpriteFrom.INHERIT);
             lifeTime.getComponent().setArgument(InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE));
+            alwaysRender.addElement(InheritableBoolean.INHERIT);
+            xPos.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
+            yPos.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
+            zPos.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
+            vx.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
+            vy.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
+            vz.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
         } else {
-            spriteFrom.getComponent().removeElement(SpriteFrom.INHERIT);
+            spriteFrom.removeElement(SpriteFrom.INHERIT);
             lifeTime.getComponent().setArgument(IntegerArgumentType.integer(0));
+            alwaysRender.removeElement(InheritableBoolean.INHERIT);
         }
     }
 

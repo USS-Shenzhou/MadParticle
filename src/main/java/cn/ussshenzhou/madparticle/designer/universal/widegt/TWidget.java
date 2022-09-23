@@ -51,4 +51,6 @@ public interface TWidget extends Widget, GuiEventListener {
     default boolean isInRange(double pMouseX, double pMouseY, double xPadding, double yPadding) {
         return pMouseX >= getX() - xPadding && pMouseX <= getX() + getSize().x + xPadding && pMouseY >= getY() - yPadding && pMouseY <= getY() + getSize().y + yPadding;
     }
+
+    default void onClose(){}
 }

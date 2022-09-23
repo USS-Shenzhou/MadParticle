@@ -5,7 +5,9 @@ import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiComponent;
 
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.stream.Stream;
 
 /**
  * @author USS_Shenzhou
@@ -108,6 +110,14 @@ public abstract class TComponent extends GuiComponent implements TWidget {
         return new Vec2i(width, height);
     }
 
+    public void addAll(TWidget... children) {
+        Stream.of(children).forEach(this::add);
+    }
+
+    public void addAll(Collection<TWidget> children) {
+        children.forEach(this::add);
+    }
+
     public void add(TWidget child) {
         children.add(child);
         child.setParent(this);
@@ -202,6 +212,11 @@ public abstract class TComponent extends GuiComponent implements TWidget {
             }
         }
         return false;
+    }
+
+    @Override
+    public void onClose() {
+        children.forEach(TWidget::onClose);
     }
 
     @Override

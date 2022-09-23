@@ -154,4 +154,10 @@ public abstract class TScreen extends Screen {
     public boolean charTyped(char pCodePoint, int pModifiers) {
         return this.getFocused() != null && this.getFocused().charTyped(pCodePoint, pModifiers);
     }
+
+    @Override
+    public void onClose() {
+        tChildren.forEach(TWidget::onClose);
+        super.onClose();
+    }
 }

@@ -1,7 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
-import cn.ussshenzhou.madparticle.command.inheritable.InheritableDoubleArgument;
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableIntegerArgument;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledCycleButton;
@@ -90,7 +89,6 @@ public class ParametersScrollPanel extends TScrollPanel {
             //TODO
         });
         this.addAll(target, tryDefault);
-        target.getComponent().getEditBox().setEditable(false);
     }
 
     public void init2() {
@@ -180,12 +178,12 @@ public class ParametersScrollPanel extends TScrollPanel {
             spriteFrom.addElement(SpriteFrom.INHERIT);
             lifeTime.getComponent().setArgument(InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE));
             alwaysRender.addElement(InheritableBoolean.INHERIT);
-            xPos.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
+            /*xPos.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
             yPos.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
             zPos.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
             vx.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
             vy.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
-            vz.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
+            vz.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());*/
         } else {
             spriteFrom.removeElement(SpriteFrom.INHERIT);
             lifeTime.getComponent().setArgument(IntegerArgumentType.integer(0));

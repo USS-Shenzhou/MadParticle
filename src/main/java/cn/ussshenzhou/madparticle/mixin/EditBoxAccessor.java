@@ -14,4 +14,7 @@ public interface EditBoxAccessor {
 
     @Accessor
     boolean isIsEditable();
+
+    @Accessor
+    void setDisplayPos(int pos);
 }

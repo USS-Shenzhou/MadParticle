@@ -7,6 +7,7 @@ import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
@@ -122,5 +123,15 @@ public class TEditBox extends EditBox implements TWidget {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public void setEditable(boolean pEnabled) {
+        if (!pEnabled && "".equals(getValue())) {
+            String s = Language.getInstance().getOrDefault("invalid");
+            setValue(s);
+            EditBoxAccessorProxy.setDisplayPos(this, 0);
+        }
+        super.setEditable(pEnabled);
     }
 }

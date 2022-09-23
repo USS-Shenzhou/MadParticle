@@ -8,6 +8,10 @@ public class EditBoxAccessorProxy {
         return ((EditBoxAccessor) editBox).getDisplayPos();
     }
 
+    public static void setDisplayPos(EditBox editBox, int pos) {
+        ((EditBoxAccessor) editBox).setDisplayPos(pos);
+    }
+
     public static boolean isEdible(EditBox editBox) {
         return ((EditBoxAccessor) editBox).isIsEditable();
     }

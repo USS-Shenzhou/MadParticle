@@ -40,6 +40,7 @@ public class DesignerScreen extends TScreen {
     }
 
     public static DesignerScreen newInstance() {
+        designerScreen.onClose(true);
         designerScreen = new DesignerScreen();
         return designerScreen;
     }
@@ -83,5 +84,15 @@ public class DesignerScreen extends TScreen {
 
     public DesignerModeSelectList getDesignerModeSelectList() {
         return designerModeSelectList;
+    }
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        if (pKeyCode == 256 && this.shouldCloseOnEsc()) {
+            this.onClose(false);
+            return true;
+        } else {
+            return this.getFocused() != null && this.getFocused().keyPressed(pKeyCode, pScanCode, pModifiers);
+        }
     }
 }

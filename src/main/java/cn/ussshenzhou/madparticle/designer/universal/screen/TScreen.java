@@ -138,7 +138,7 @@ public abstract class TScreen extends Screen {
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         if (pKeyCode == 256 && this.shouldCloseOnEsc()) {
-            this.onClose();
+            this.onClose(true);
             return true;
         } else {
             return this.getFocused() != null && this.getFocused().keyPressed(pKeyCode, pScanCode, pModifiers);
@@ -157,7 +157,13 @@ public abstract class TScreen extends Screen {
 
     @Override
     public void onClose() {
-        tChildren.forEach(TWidget::onClose);
+        onClose(false);
+    }
+
+    public void onClose(boolean isFinal) {
+        if (isFinal) {
+            tChildren.forEach(TWidget::onClose);
+        }
         super.onClose();
     }
 }

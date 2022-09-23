@@ -13,11 +13,11 @@ import java.util.function.Consumer;
  */
 public class TTitledSelectList<E> extends TTitledComponent<TSelectList<E>> {
     int gap = 0;
-    int labelHeight = 20;
 
     public TTitledSelectList(Component titleText, TSelectList<E> component) {
         super(titleText, component);
         this.getTitle().setHorizontalAlignment(HorizontalAlignment.CENTER);
+        this.setLabelHeight(20);
     }
 
     @Override

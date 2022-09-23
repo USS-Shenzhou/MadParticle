@@ -15,7 +15,7 @@ public abstract class TTitledComponent<T extends TWidget> extends TPanel {
     protected final TLabel title = new TLabel();
     protected final T widget;
     int gap = 0;
-    int labelHeight = 16;
+    int labelHeight = 12;
 
     public TTitledComponent(Component titleText, T component) {
         widget = component;

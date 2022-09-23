@@ -157,7 +157,7 @@ public abstract class TScreen extends Screen {
 
     @Override
     public void onClose() {
-        onClose(false);
+        onClose(true);
     }
 
     public void onClose(boolean isFinal) {

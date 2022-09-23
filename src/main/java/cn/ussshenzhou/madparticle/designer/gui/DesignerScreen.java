@@ -40,7 +40,9 @@ public class DesignerScreen extends TScreen {
     }
 
     public static DesignerScreen newInstance() {
-        designerScreen.onClose(true);
+        if (designerScreen!=null){
+            designerScreen.onClose(true);
+        }
         designerScreen = new DesignerScreen();
         return designerScreen;
     }

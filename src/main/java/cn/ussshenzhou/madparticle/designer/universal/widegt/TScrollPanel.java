@@ -25,11 +25,6 @@ public class TScrollPanel extends TPanel {
     }
 
     @Override
-    public void add(TWidget child) {
-        super.add(child);
-    }
-
-    @Override
     public void layout() {
         initPos();
         prevScrollAmount = -1;

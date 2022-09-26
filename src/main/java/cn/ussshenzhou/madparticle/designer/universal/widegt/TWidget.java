@@ -65,11 +65,19 @@ public interface TWidget extends Widget, GuiEventListener {
         while (son.getParent() != null) {
             TWidget parent = son.getParent();
             if (c.isInstance(parent)) {
-                return (T)parent;
+                return (T) parent;
             } else {
                 son = parent;
             }
         }
         return null;
+    }
+
+    default double getParentScrollAmountIfExist() {
+        TScrollPanel tScrollPanel = this.getParentInstanceOf(TScrollPanel.class);
+        if (tScrollPanel != null) {
+            return tScrollPanel.getScrollAmount();
+        }
+        return 0;
     }
 }

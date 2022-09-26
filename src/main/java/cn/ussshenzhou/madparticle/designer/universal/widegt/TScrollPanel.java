@@ -34,7 +34,7 @@ public class TScrollPanel extends TPanel {
                 bottomY = y;
             }
         }
-        bottomY+=5;
+        bottomY += 5;
     }
 
     @Override
@@ -50,8 +50,8 @@ public class TScrollPanel extends TPanel {
         pPoseStack.pushPose();
         RenderSystem.disableScissor();
     }
+
     //TODO why not top?
-    //TODO mouse fix
     /*@Override
     public void renderTop(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         prepareRender(pPoseStack);
@@ -66,8 +66,8 @@ public class TScrollPanel extends TPanel {
         RenderSystem.enableScissor(
                 (int) (x * scale),
                 (int) (minecraft.getWindow().getHeight() - (y + height) * scale),
-                (int) (width*scale),
-                (int) (height*scale));
+                (int) (width * scale),
+                (int) (height * scale));
         pPoseStack.pushPose();
         pPoseStack.translate(0, -scrollAmount, 0);
     }
@@ -156,6 +156,22 @@ public class TScrollPanel extends TPanel {
             return true;
         }
         return super.mouseScrolled(pMouseX, pMouseY, pDelta);
+    }
+
+    @Override
+    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+        if (isInRange(pMouseX, pMouseY)) {
+            return super.mouseClicked(pMouseX, pMouseY + scrollAmount, pButton);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
+        if (isInRange(pMouseX, pMouseY)) {
+            return super.mouseReleased(pMouseX, pMouseY + scrollAmount, pButton);
+        }
+        return false;
     }
 
     public int getMaxScroll() {

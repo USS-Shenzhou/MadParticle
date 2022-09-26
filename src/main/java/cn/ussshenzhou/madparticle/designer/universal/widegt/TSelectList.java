@@ -263,11 +263,7 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
                 i2 = this.y0;
             }
             //modified for compatibility with TScrollPanel
-            double scrollAmount = 0;
-            TScrollPanel tScrollPanel = getParentInstanceOf(TScrollPanel.class);
-            if (tScrollPanel != null) {
-                scrollAmount = -tScrollPanel.getScrollAmount();
-            }
+            double scrollAmount = -getParentScrollAmountIfExist();
 
             bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             bufferbuilder.vertex((double) i, scrollAmount + (double) this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
@@ -309,11 +305,7 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
                 int k1 = this.getRowWidth();
                 if (this.isSelectedItem(j)) {
                     //modified for compatibility with TScrollPanel
-                    double scrollAmount = 0;
-                    TScrollPanel tScrollPanel = getParentInstanceOf(TScrollPanel.class);
-                    if (tScrollPanel != null) {
-                        scrollAmount = -tScrollPanel.getScrollAmount();
-                    }
+                    double scrollAmount = -getParentScrollAmountIfExist();
                     //modified due to scrollbarGap
                     int l1 = this.x0 + (this.width - 6 - scrollbarGap) / 2 - k1 / 2;
                     int i2 = this.x0 + (this.width - 6 - scrollbarGap) / 2 + k1 / 2;

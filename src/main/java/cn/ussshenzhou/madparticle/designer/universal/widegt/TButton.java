@@ -3,6 +3,7 @@ package cn.ussshenzhou.madparticle.designer.universal.widegt;
 import cn.ussshenzhou.madparticle.designer.universal.util.MWidget2TComponentHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.MouseHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -37,6 +38,16 @@ public class TButton extends Button implements TWidget {
 
     public void setOnPress(OnPress onPress) {
         this.onPress = onPress;
+    }
+
+    @Override
+    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        if (this.visible) {
+            //modified for compatibility with TScrollPanel
+            double y = getParentScrollAmountIfExist() + pMouseY;
+            this.isHovered = pMouseX >= this.x && y >= this.y && pMouseX < this.x + this.width && y < this.y + this.height;
+            this.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        }
     }
 
     @Override

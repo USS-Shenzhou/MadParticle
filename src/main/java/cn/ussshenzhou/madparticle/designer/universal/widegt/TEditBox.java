@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.event.EditBoxFocusedEvent;
-import cn.ussshenzhou.madparticle.designer.universal.util.EditBoxAccessorProxy;
+import cn.ussshenzhou.madparticle.designer.universal.util.AccessorProxy;
 import cn.ussshenzhou.madparticle.designer.universal.util.MWidget2TComponentHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import net.minecraft.client.Minecraft;
@@ -30,7 +30,7 @@ public class TEditBox extends EditBox implements TWidget {
     }
 
     public int getCursorX() {
-        return getX() + Minecraft.getInstance().font.width(getValue().substring(EditBoxAccessorProxy.getDisplayPos(this), getCursorPosition()));
+        return getX() + Minecraft.getInstance().font.width(getValue().substring(AccessorProxy.EditBoxProxy.getDisplayPos(this), getCursorPosition()));
     }
 
     public int getCurrentWordBeginX() {
@@ -41,7 +41,7 @@ public class TEditBox extends EditBox implements TWidget {
         }
         b++;
         Font font = Minecraft.getInstance().font;
-        return getX() + font.width(s.substring(EditBoxAccessorProxy.getDisplayPos(this), b)) + font.width(" ");
+        return getX() + font.width(s.substring(AccessorProxy.EditBoxProxy.getDisplayPos(this), b)) + font.width(" ");
     }
 
     @Override
@@ -118,7 +118,7 @@ public class TEditBox extends EditBox implements TWidget {
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        if (EditBoxAccessorProxy.isEdible(this)) {
+        if (AccessorProxy.EditBoxProxy.isEditBoxEdible(this)) {
             return super.mouseClicked(pMouseX, pMouseY, pButton);
         } else {
             return false;
@@ -130,7 +130,7 @@ public class TEditBox extends EditBox implements TWidget {
         if (!pEnabled && "".equals(getValue())) {
             String s = Language.getInstance().getOrDefault("invalid");
             setValue(s);
-            EditBoxAccessorProxy.setDisplayPos(this, 0);
+            AccessorProxy.EditBoxProxy.setDisplayPos(this, 0);
         }
         super.setEditable(pEnabled);
     }

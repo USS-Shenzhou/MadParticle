@@ -1,17 +1,21 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
+import cn.ussshenzhou.madparticle.designer.universal.util.AccessorProxy;
 import cn.ussshenzhou.madparticle.designer.universal.util.HorizontalAlignment;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -178,6 +182,114 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
         this.height = height;
     }
 
+    /**
+     * modified for compatibility with TScrollPanel
+     *
+     * @see net.minecraft.client.gui.components.AbstractSelectionList#render(PoseStack, int, int, float)
+     */
+    @Override
+    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        this.renderBackground(pPoseStack);
+        int i = this.getScrollbarPosition();
+        int j = i + 6;
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tesselator.getBuilder();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        AccessorProxy.AbstractSelectionListProxy.setHovered(this,
+                this.isMouseOver((double) pMouseX, (double) pMouseY) ? this.getEntryAtPosition((double) pMouseX, (double) pMouseY) : null);
+        if (AccessorProxy.AbstractSelectionListProxy.isRenderBackground(this)) {
+            RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            float f = 32.0F;
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.vertex((double) this.x0, (double) this.y1, 0.0D).uv((float) this.x0 / 32.0F, (float) (this.y1 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double) this.x1, (double) this.y1, 0.0D).uv((float) this.x1 / 32.0F, (float) (this.y1 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double) this.x1, (double) this.y0, 0.0D).uv((float) this.x1 / 32.0F, (float) (this.y0 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double) this.x0, (double) this.y0, 0.0D).uv((float) this.x0 / 32.0F, (float) (this.y0 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            tesselator.end();
+        }
+
+        int j1 = this.getRowLeft();
+        int k = this.y0 + 4 - (int) this.getScrollAmount();
+        if (AccessorProxy.AbstractSelectionListProxy.isRenderHeader(this)) {
+            this.renderHeader(pPoseStack, j1, k, tesselator);
+        }
+
+        this.renderList(pPoseStack, j1, k, pMouseX, pMouseY, pPartialTick);
+        if (AccessorProxy.AbstractSelectionListProxy.isRenderTopAndBottom(this)) {
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthFunc(519);
+            float f1 = 32.0F;
+            int l = -100;
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.vertex((double) this.x0, (double) this.y0, -100.0D).uv(0.0F, (float) this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) (this.x0 + this.width), (double) this.y0, -100.0D).uv((float) this.width / 32.0F, (float) this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) (this.x0 + this.width), 0.0D, -100.0D).uv((float) this.width / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) this.x0, 0.0D, -100.0D).uv(0.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) this.x0, (double) this.height, -100.0D).uv(0.0F, (float) this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) (this.x0 + this.width), (double) this.height, -100.0D).uv((float) this.width / 32.0F, (float) this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) (this.x0 + this.width), (double) this.y1, -100.0D).uv((float) this.width / 32.0F, (float) this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) this.x0, (double) this.y1, -100.0D).uv(0.0F, (float) this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+            tesselator.end();
+            RenderSystem.depthFunc(515);
+            RenderSystem.disableDepthTest();
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+            RenderSystem.disableTexture();
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            int i1 = 4;
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            bufferbuilder.vertex((double) this.x0, (double) (this.y0 + 4), 0.0D).color(0, 0, 0, 0).endVertex();
+            bufferbuilder.vertex((double) this.x1, (double) (this.y0 + 4), 0.0D).color(0, 0, 0, 0).endVertex();
+            bufferbuilder.vertex((double) this.x1, (double) this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double) this.x0, (double) this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double) this.x0, (double) this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double) this.x1, (double) this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double) this.x1, (double) (this.y1 - 4), 0.0D).color(0, 0, 0, 0).endVertex();
+            bufferbuilder.vertex((double) this.x0, (double) (this.y1 - 4), 0.0D).color(0, 0, 0, 0).endVertex();
+            tesselator.end();
+        }
+
+        int k1 = this.getMaxScroll();
+        if (k1 > 0) {
+            RenderSystem.disableTexture();
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            int l1 = (int) ((float) ((this.y1 - this.y0) * (this.y1 - this.y0)) / (float) this.getMaxPosition());
+            l1 = Mth.clamp(l1, 32, this.y1 - this.y0 - 8);
+            int i2 = (int) this.getScrollAmount() * (this.y1 - this.y0 - l1) / k1 + this.y0;
+            if (i2 < this.y0) {
+                i2 = this.y0;
+            }
+            //modified for compatibility with TScrollPanel
+            double scrollAmount = 0;
+            TScrollPanel tScrollPanel = getParentInstanceOf(TScrollPanel.class);
+            if (tScrollPanel != null) {
+                scrollAmount = -tScrollPanel.getScrollAmount();
+            }
+
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            bufferbuilder.vertex((double) i, scrollAmount + (double) this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double) j, scrollAmount + (double) this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double) j, scrollAmount + (double) this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double) i, scrollAmount + (double) this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double) i, scrollAmount + (double) (i2 + l1), 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferbuilder.vertex((double) j, scrollAmount + (double) (i2 + l1), 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferbuilder.vertex((double) j, scrollAmount + (double) i2, 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferbuilder.vertex((double) i, scrollAmount + (double) i2, 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferbuilder.vertex((double) i, scrollAmount + (double) (i2 + l1 - 1), 0.0D).color(192, 192, 192, 255).endVertex();
+            bufferbuilder.vertex((double) (j - 1), scrollAmount + (double) (i2 + l1 - 1), 0.0D).color(192, 192, 192, 255).endVertex();
+            bufferbuilder.vertex((double) (j - 1), scrollAmount + (double) i2, 0.0D).color(192, 192, 192, 255).endVertex();
+            bufferbuilder.vertex((double) i, scrollAmount + (double) i2, 0.0D).color(192, 192, 192, 255).endVertex();
+            tesselator.end();
+        }
+
+        this.renderDecorations(pPoseStack, pMouseX, pMouseY);
+        RenderSystem.enableTexture();
+        RenderSystem.disableBlend();
+    }
+
     @Override
     protected void renderList(PoseStack pPoseStack, int pX, int pY, int pMouseX, int pMouseY, float pPartialTick) {
         int i = this.getItemCount();
@@ -196,6 +308,12 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
                 Entry e = this.getEntry(j);
                 int k1 = this.getRowWidth();
                 if (this.isSelectedItem(j)) {
+                    //modified for compatibility with TScrollPanel
+                    double scrollAmount = 0;
+                    TScrollPanel tScrollPanel = getParentInstanceOf(TScrollPanel.class);
+                    if (tScrollPanel != null) {
+                        scrollAmount = -tScrollPanel.getScrollAmount();
+                    }
                     //modified due to scrollbarGap
                     int l1 = this.x0 + (this.width - 6 - scrollbarGap) / 2 - k1 / 2;
                     int i2 = this.x0 + (this.width - 6 - scrollbarGap) / 2 + k1 / 2;
@@ -204,17 +322,17 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
                     float f = this.isFocused() ? 1.0F : 0.5F;
                     RenderSystem.setShaderColor(f, f, f, 1.0F);
                     bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-                    bufferbuilder.vertex((double) l1, (double) (i1 + j1 + 2), 0.0D).endVertex();
-                    bufferbuilder.vertex((double) i2, (double) (i1 + j1 + 2), 0.0D).endVertex();
-                    bufferbuilder.vertex((double) i2, (double) (i1 - 2), 0.0D).endVertex();
-                    bufferbuilder.vertex((double) l1, (double) (i1 - 2), 0.0D).endVertex();
+                    bufferbuilder.vertex((double) l1, scrollAmount + (double) (i1 + j1 + 2), 0.0D).endVertex();
+                    bufferbuilder.vertex((double) i2, scrollAmount + (double) (i1 + j1 + 2), 0.0D).endVertex();
+                    bufferbuilder.vertex((double) i2, scrollAmount + (double) (i1 - 2), 0.0D).endVertex();
+                    bufferbuilder.vertex((double) l1, scrollAmount + (double) (i1 - 2), 0.0D).endVertex();
                     tesselator.end();
                     RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
                     bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-                    bufferbuilder.vertex((double) (l1 + 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
-                    bufferbuilder.vertex((double) (i2 - 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
-                    bufferbuilder.vertex((double) (i2 - 1), (double) (i1 - 1), 0.0D).endVertex();
-                    bufferbuilder.vertex((double) (l1 + 1), (double) (i1 - 1), 0.0D).endVertex();
+                    bufferbuilder.vertex((double) (l1 + 1), scrollAmount + (double) (i1 + j1 + 1), 0.0D).endVertex();
+                    bufferbuilder.vertex((double) (i2 - 1), scrollAmount + (double) (i1 + j1 + 1), 0.0D).endVertex();
+                    bufferbuilder.vertex((double) (i2 - 1), scrollAmount + (double) (i1 - 1), 0.0D).endVertex();
+                    bufferbuilder.vertex((double) (l1 + 1), scrollAmount + (double) (i1 - 1), 0.0D).endVertex();
                     tesselator.end();
                     RenderSystem.enableTexture();
                 }

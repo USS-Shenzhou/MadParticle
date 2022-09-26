@@ -1,20 +1,15 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
-import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.logging.LogUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
-
-import java.util.HashMap;
 
 /**
  * @author USS_Shenzhou
  */
 public class TScrollPanel extends TPanel {
-    private final HashMap<TWidget, Vec2i> originalPos = new HashMap<>();
-    private double prevScrollAmount = -1;
     private double scrollAmount = 0;
     private int bottomY = 0;
     private static int speedFactor = 6;
@@ -28,35 +23,18 @@ public class TScrollPanel extends TPanel {
     @Override
     public void layout() {
         initPos();
-        prevScrollAmount = -1;
         super.layout();
     }
 
     private void initPos() {
-        //originalPos.clear();
         for (TWidget tWidget : children) {
             int y = tWidget.getY() + tWidget.getSize().y;
             bottomY = 0;
             if (bottomY < y) {
                 bottomY = y;
             }
-            originalPos.put(tWidget, new Vec2i(tWidget.getX(), tWidget.getY()));
         }
-    }
-
-    private void reLayout() {
-        for (TWidget tWidget : children) {
-            if (originalPos.containsKey(tWidget)) {
-                tWidget.setAbsBounds(originalPos.get(tWidget).x, (int) (originalPos.get(tWidget).y - scrollAmount), tWidget.getSize());
-                if (tWidget.getY() < this.getY() || tWidget.getY() + tWidget.getSize().y > this.getY() + this.height) {
-                    tWidget.setVisible(false);
-                } else {
-                    tWidget.setVisible(true);
-                }
-            } else {
-                LogUtils.getLogger().error("{} is not registered into this scroll panel.", tWidget);
-            }
-        }
+        bottomY+=5;
     }
 
     @Override
@@ -65,14 +43,34 @@ public class TScrollPanel extends TPanel {
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 
-    /*@Override
+    @Override
     protected void renderChildren(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        pPoseStack.pushPose();
-        pPoseStack.translate(0,-scrollAmount,0);
+        prepareRender(pPoseStack);
         super.renderChildren(pPoseStack, pMouseX, pMouseY, pPartialTick);
-
         pPoseStack.pushPose();
+        RenderSystem.disableScissor();
+    }
+    //TODO why not top?
+    //TODO mouse fix
+    /*@Override
+    public void renderTop(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        prepareRender(pPoseStack);
+        super.renderTop(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        pPoseStack.pushPose();
+        RenderSystem.disableScissor();
     }*/
+
+    private void prepareRender(PoseStack pPoseStack) {
+        Minecraft minecraft = Minecraft.getInstance();
+        double scale = minecraft.getWindow().getGuiScale();
+        RenderSystem.enableScissor(
+                (int) (x * scale),
+                (int) (minecraft.getWindow().getHeight() - (y + height) * scale),
+                (int) (width*scale),
+                (int) (height*scale));
+        pPoseStack.pushPose();
+        pPoseStack.translate(0, -scrollAmount, 0);
+    }
 
     @Override
     protected void renderBackground(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
@@ -132,10 +130,6 @@ public class TScrollPanel extends TPanel {
     @SuppressWarnings("AlibabaAvoidDoubleOrFloatEqualCompare")
     @Override
     public void tick() {
-        if (scrollAmount != prevScrollAmount) {
-            reLayout();
-            prevScrollAmount = scrollAmount;
-        }
         super.tick();
     }
 

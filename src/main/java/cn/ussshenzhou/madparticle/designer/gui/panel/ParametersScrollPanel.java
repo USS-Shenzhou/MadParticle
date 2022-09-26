@@ -196,7 +196,7 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     private Vec2i calculateStdTitledEditBox(Vec2i size, int gap) {
         return new Vec2i(
-                (getUsableWidth() - size.x - 7 * gap) / 7,
+                (getUsableWidth() - size.x - 8 * gap) / 7,
                 20 + 12
         );
     }

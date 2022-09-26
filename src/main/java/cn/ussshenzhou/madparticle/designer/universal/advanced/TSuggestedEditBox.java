@@ -23,12 +23,7 @@ import java.util.function.Consumer;
  */
 public class TSuggestedEditBox extends TPanel {
     private final TCommandConstrainedEditBox editBox;
-    private final TSelectList<String> suggestionList = new TSelectList<>(12, 0) {
-        @Override
-        protected void renderBackground(PoseStack pPoseStack) {
-            super.renderBackground(pPoseStack);
-        }
-    };
+    private final TSelectList<String> suggestionList = new TSelectList<>(12, 0);
 
     public TSuggestedEditBox(Consumer<CommandDispatcher<CommandSourceStack>> consumer) {
         super();
@@ -91,7 +86,8 @@ public class TSuggestedEditBox extends TPanel {
                     }
                 }
             });
-        } catch (NullPointerException ignored) {}
+        } catch (NullPointerException ignored) {
+        }
     }
 
     private void updateSuggestionList(List<Suggestion> list) {

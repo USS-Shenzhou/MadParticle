@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 
+import javax.annotation.Nullable;
+
 
 /**
  * @author USS_Shenzhou
@@ -30,6 +32,7 @@ public interface TWidget extends Widget, GuiEventListener {
 
     void setParent(TComponent parent);
 
+    @Nullable
     TComponent getParent();
 
     int getX();
@@ -42,7 +45,8 @@ public interface TWidget extends Widget, GuiEventListener {
 
     void tick();
 
-    default void renderTop(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick){}
+    default void renderTop(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    }
 
     default boolean isInRange(double pMouseX, double pMouseY) {
         return isInRange(pMouseX, pMouseY, 0, 0);
@@ -52,5 +56,20 @@ public interface TWidget extends Widget, GuiEventListener {
         return pMouseX >= getX() - xPadding && pMouseX <= getX() + getSize().x + xPadding && pMouseY >= getY() - yPadding && pMouseY <= getY() + getSize().y + yPadding;
     }
 
-    default void onClose(){}
+    default void onClose() {
+    }
+
+    @SuppressWarnings("unchecked")
+    default @Nullable <T extends TWidget> T getParentInstanceOf(Class<T> c) {
+        TWidget son = this;
+        while (son.getParent() != null) {
+            TWidget parent = son.getParent();
+            if (c.isInstance(parent)) {
+                return (T)parent;
+            } else {
+                son = parent;
+            }
+        }
+        return null;
+    }
 }

@@ -22,6 +22,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     protected LinkedList<TWidget> children = new LinkedList<>();
     Border border = null;
     TComponent parent = null;
+    final int id = (int) (Math.random() * Integer.MAX_VALUE);
 
     @Override
     public void setBounds(int x, int y, int width, int height) {
@@ -279,5 +280,24 @@ public abstract class TComponent extends GuiComponent implements TWidget {
 
     public void setForeground(int foreground) {
         this.foreground = foreground;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this){
+            return true;
+        }
+        if (obj instanceof TComponent component) {
+            return (component.id == id);
+        }
+        return false;
     }
 }

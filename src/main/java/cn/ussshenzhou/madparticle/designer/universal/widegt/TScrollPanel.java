@@ -3,6 +3,7 @@ package cn.ussshenzhou.madparticle.designer.universal.widegt;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 
@@ -32,6 +33,7 @@ public class TScrollPanel extends TPanel {
     }
 
     private void initPos() {
+        //originalPos.clear();
         for (TWidget tWidget : children) {
             int y = tWidget.getY() + tWidget.getSize().y;
             bottomY = 0;
@@ -44,11 +46,15 @@ public class TScrollPanel extends TPanel {
 
     private void reLayout() {
         for (TWidget tWidget : children) {
-            tWidget.setAbsBounds(originalPos.get(tWidget).x, (int) (originalPos.get(tWidget).y - scrollAmount), tWidget.getSize());
-            if (tWidget.getY() < this.getY() || tWidget.getY() + tWidget.getSize().y > this.getY() + this.height) {
-                tWidget.setVisible(false);
+            if (originalPos.containsKey(tWidget)) {
+                tWidget.setAbsBounds(originalPos.get(tWidget).x, (int) (originalPos.get(tWidget).y - scrollAmount), tWidget.getSize());
+                if (tWidget.getY() < this.getY() || tWidget.getY() + tWidget.getSize().y > this.getY() + this.height) {
+                    tWidget.setVisible(false);
+                } else {
+                    tWidget.setVisible(true);
+                }
             } else {
-                tWidget.setVisible(true);
+                LogUtils.getLogger().error("{} is not registered into this scroll panel.", tWidget);
             }
         }
     }
@@ -58,6 +64,15 @@ public class TScrollPanel extends TPanel {
         renderScrollBar();
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
+
+    /*@Override
+    protected void renderChildren(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        pPoseStack.pushPose();
+        pPoseStack.translate(0,-scrollAmount,0);
+        super.renderChildren(pPoseStack, pMouseX, pMouseY, pPartialTick);
+
+        pPoseStack.pushPose();
+    }*/
 
     @Override
     protected void renderBackground(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {

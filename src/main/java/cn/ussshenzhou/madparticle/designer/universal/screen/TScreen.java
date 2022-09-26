@@ -30,11 +30,11 @@ public abstract class TScreen extends Screen {
 
     @Override
     public void tick() {
-        super.tick();
         if (needRelayout) {
             layout();
             needRelayout = false;
         }
+        super.tick();
     }
 
     @Override

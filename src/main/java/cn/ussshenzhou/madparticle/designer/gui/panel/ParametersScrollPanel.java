@@ -2,7 +2,6 @@ package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableIntegerArgument;
-import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledCycleButton;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSimpleConstrainedEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSuggestedEditBox;
@@ -34,7 +33,7 @@ import java.util.stream.Stream;
 public class ParametersScrollPanel extends TScrollPanel {
     //public static final Vec2i EDITBOX_SIZE = new Vec2i(35, 36);
     public static final Vec2i BUTTON_SIZE = TButton.RECOMMEND_SIZE;
-    private boolean isChild=false;
+    private boolean isChild = false;
 
     //lane 1
     public final TTitledSuggestedEditBox target = new TTitledSuggestedEditBox(
@@ -71,6 +70,21 @@ public class ParametersScrollPanel extends TScrollPanel {
             r = new TTitledSimpleConstrainedEditBox(new TextComponent("R"), FloatArgumentType.floatArg()),
             g = new TTitledSimpleConstrainedEditBox(new TextComponent("G"), FloatArgumentType.floatArg()),
             b = new TTitledSimpleConstrainedEditBox(new TextComponent("B"), FloatArgumentType.floatArg());
+    //lane 6
+    public final TTitledCycleButton<InheritableBoolean> interact = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.interact"));
+    public final TTitledSimpleConstrainedEditBox
+            horizontalInteract = new TTitledSimpleConstrainedEditBox(
+            new TranslatableComponent("gui.mp.de.helper.horizontal_interact"), DoubleArgumentType.doubleArg()),
+            verticalInteract = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.vertical_interact"), DoubleArgumentType.doubleArg()),
+            friction = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.friction"), FloatArgumentType.floatArg()),
+            friction2 = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.friction_after"), FloatArgumentType.floatArg()),
+            gravity = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.gravity"), FloatArgumentType.floatArg()),
+            gravity2 = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.gravity_after"), FloatArgumentType.floatArg());
 
     public ParametersScrollPanel() {
         super();
@@ -79,6 +93,8 @@ public class ParametersScrollPanel extends TScrollPanel {
         init3();
         init4();
         init5();
+        init6();
+        setChild(false);
     }
 
     public void init1() {
@@ -112,6 +128,11 @@ public class ParametersScrollPanel extends TScrollPanel {
         this.addAll(r);
     }
 
+    public void init6() {
+        Stream.of(InheritableBoolean.values()).forEach(interact::addElement);
+        this.addAll(interact, horizontalInteract, verticalInteract, friction, friction2, gravity, gravity2);
+    }
+
     @Override
     public void layout() {
         int xGap = 5;
@@ -140,8 +161,9 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BRightOfA(alwaysRender, xGap, lifeTime, stdTitledButton);
         LayoutHelper.BRightOfA(amount, xGap, alwaysRender, stdTitledEditBox);
         LayoutHelper.BRightOfA(renderType, xGap, amount, stdTitledButton);
+        int w = Minecraft.getInstance().screen.width;
         LayoutHelper.BRightOfA(whoCanSee, xGap, renderType,
-                Minecraft.getInstance().screen.width - renderType.getX() - renderType.getWidth() - 2 * xGap - DesignerScreen.GAP, stdTitledEditBox.y);
+                w - renderType.getX() - renderType.getWidth() - 2 * xGap - (w - getX() - getUsableWidth()), stdTitledEditBox.y);
         //lane3
         LayoutHelper.BBottomOfA(xPos, yGap, spriteFrom, stdTitledEditBox);
         LayoutHelper.BRightOfA(yPos, xGap, xPos);
@@ -158,6 +180,17 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BRightOfA(vzD, xGap, vyD);
         //lane 5
         LayoutHelper.BBottomOfA(r, yGap, vx);
+        //TODO
+        //lane 6
+        LayoutHelper.BBottomOfA(interact, yGap + 50, r, stdTitledButton);
+        LayoutHelper.BRightOfA(horizontalInteract, xGap, interact, stdTitledEditBox);
+        LayoutHelper.BRightOfA(verticalInteract, xGap, horizontalInteract);
+        LayoutHelper.BRightOfA(friction, xGap, verticalInteract);
+        LayoutHelper.BRightOfA(friction, xGap, friction);
+        LayoutHelper.BRightOfA(friction2, xGap, friction);
+        LayoutHelper.BRightOfA(gravity, xGap, friction2);
+        LayoutHelper.BRightOfA(gravity2, xGap, gravity);
+
         super.layout();
     }
 
@@ -173,26 +206,16 @@ public class ParametersScrollPanel extends TScrollPanel {
     }
 
     public void setChild(boolean child) {
+        //TODO
         isChild = child;
         if (child) {
             spriteFrom.addElement(SpriteFrom.INHERIT);
             lifeTime.getComponent().setArgument(InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE));
             alwaysRender.addElement(InheritableBoolean.INHERIT);
-            /*xPos.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
-            yPos.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
-            zPos.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
-            vx.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
-            vy.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());
-            vz.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble());*/
         } else {
             spriteFrom.removeElement(SpriteFrom.INHERIT);
             lifeTime.getComponent().setArgument(IntegerArgumentType.integer(0));
             alwaysRender.removeElement(InheritableBoolean.INHERIT);
         }
-    }
-
-    @Override
-    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
-        return super.keyPressed(pKeyCode, pScanCode, pModifiers);
     }
 }

@@ -1,9 +1,15 @@
 package cn.ussshenzhou.madparticle.designer.universal.util;
 
+import cn.ussshenzhou.madparticle.designer.universal.widegt.TSlider;
 import cn.ussshenzhou.madparticle.mixin.AbstractSelectionListAccessor;
 import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
+import cn.ussshenzhou.madparticle.mixin.SliderButtonAccessor;
+import net.minecraft.client.ProgressOption;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.util.FormattedCharSequence;
+
+import java.util.List;
 
 /**
  * @author Tony Yu
@@ -45,5 +51,13 @@ public class AccessorProxy {
         }
     }
 
+    public static class SliderProxy {
+        public static void setOption(TSlider that, ProgressOption option) {
+            ((SliderButtonAccessor) that).setOption(option);
+        }
 
+        public static void setToolTip(TSlider that, List<FormattedCharSequence> tooltip) {
+            ((SliderButtonAccessor) that).setTooltip(tooltip);
+        }
+    }
 }

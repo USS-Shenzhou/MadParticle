@@ -7,7 +7,8 @@
   "mixins": [
     "AbstractSelectionListAccessor",
     "EditBoxAccessor",
-    "ParticleEngineAccessor"
+    "ParticleEngineAccessor",
+    "SliderButtonAccessor"
   ],
   "client": [
   ],

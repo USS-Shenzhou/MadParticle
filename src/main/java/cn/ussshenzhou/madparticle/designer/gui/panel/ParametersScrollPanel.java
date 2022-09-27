@@ -10,6 +10,7 @@ import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TScrollPanel;
+import cn.ussshenzhou.madparticle.designer.universal.widegt.TSlider;
 import cn.ussshenzhou.madparticle.particle.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.SpriteFrom;
@@ -58,6 +59,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             xD = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.x_diffuse"), DoubleArgumentType.doubleArg()),
             yD = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.y_diffuse"), DoubleArgumentType.doubleArg()),
             zD = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.z_diffuse"), DoubleArgumentType.doubleArg());
+    public final ParticlePreviewPanel particlePreview = new ParticlePreviewPanel();
     //lane 4
     public final TTitledSimpleConstrainedEditBox
             vx = new TTitledSimpleConstrainedEditBox(new TextComponent("Vx"), DoubleArgumentType.doubleArg()),
@@ -71,6 +73,10 @@ public class ParametersScrollPanel extends TScrollPanel {
             r = new TTitledSimpleConstrainedEditBox(new TextComponent("R"), FloatArgumentType.floatArg()),
             g = new TTitledSimpleConstrainedEditBox(new TextComponent("G"), FloatArgumentType.floatArg()),
             b = new TTitledSimpleConstrainedEditBox(new TextComponent("B"), FloatArgumentType.floatArg());
+    public final TSlider
+            rSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.r")),
+            gSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.g")),
+            bSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.b"));
     //lane 6
     public final TTitledCycleButton<InheritableBoolean> interact = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.interact"));
     public final TTitledSimpleConstrainedEditBox
@@ -148,7 +154,7 @@ public class ParametersScrollPanel extends TScrollPanel {
     }
 
     public void init3() {
-        this.addAll(xPos, yPos, zPos, xD, yD, zD);
+        this.addAll(xPos, yPos, zPos, xD, yD, zD, particlePreview);
     }
 
     public void init4() {
@@ -156,7 +162,7 @@ public class ParametersScrollPanel extends TScrollPanel {
     }
 
     public void init5() {
-        this.addAll(r,g,b);
+        this.addAll(r, g, b, rSlider, gSlider, bSlider);
     }
 
     public void init6() {
@@ -213,6 +219,10 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BRightOfA(xD, xGap, zPos);
         LayoutHelper.BRightOfA(yD, xGap, xD);
         LayoutHelper.BRightOfA(zD, xGap, yD);
+        int previewW = getX() + getUsableWidth() - zD.getX() - zD.getWidth() - 2 * xGap;
+        int previewH = stdTitledEditBox.y * 2 + yGap;
+        int previewL = Math.min(previewH, previewW);
+        LayoutHelper.BRightOfA(particlePreview, xGap, zD, previewL, previewL);
         //lane 4
         LayoutHelper.BBottomOfA(vx, yGap, xPos);
         LayoutHelper.BRightOfA(vy, xGap, vx);
@@ -223,11 +233,17 @@ public class ParametersScrollPanel extends TScrollPanel {
         //lane 5
         int l = (getUsableWidth() - 7 * xGap - 3 * stdTitledEditBox.x) / 3;
         LayoutHelper.BBottomOfA(r, yGap, vx, stdTitledEditBox);
-        LayoutHelper.BRightOfA(g, yGap, r, l, stdTitledEditBox.y);
-        LayoutHelper.BRightOfA(g, yGap, g, stdTitledEditBox);
-        LayoutHelper.BRightOfA(b, yGap, g, l, stdTitledEditBox.y);
-        LayoutHelper.BRightOfA(b, yGap, b, stdTitledEditBox);
-        //TODO
+        LayoutHelper.BRightOfA(g, xGap, r, l, stdTitledEditBox.y);
+        LayoutHelper.BRightOfA(g, xGap, g, stdTitledEditBox);
+        LayoutHelper.BRightOfA(b, xGap, g, l, stdTitledEditBox.y);
+        LayoutHelper.BRightOfA(b, xGap, b, stdTitledEditBox);
+
+        LayoutHelper.BRightOfA(rSlider, xGap, r, l, rSlider.getPreferredSize().y);
+        LayoutHelper.BBottomOfA(rSlider, 12 - rSlider.getPreferredSize().y, rSlider);
+        LayoutHelper.BRightOfA(gSlider, xGap, g, l, gSlider.getPreferredSize().y);
+        LayoutHelper.BBottomOfA(gSlider, 12 - gSlider.getPreferredSize().y, gSlider);
+        LayoutHelper.BRightOfA(bSlider, xGap, b, l, bSlider.getPreferredSize().y);
+        LayoutHelper.BBottomOfA(bSlider, 12 - bSlider.getPreferredSize().y, bSlider);
         //lane 6
         LayoutHelper.BBottomOfA(interact, yGap, r, stdTitledButton);
         LayoutHelper.BRightOfA(horizontalInteract, xGap, interact, stdTitledEditBox);

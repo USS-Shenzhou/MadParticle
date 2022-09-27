@@ -137,6 +137,11 @@ public class TScrollPanel extends TPanel {
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
         if (isInRange(pMouseX, pMouseY, scrollbarGap, scrollbarGap)) {
+            for (TWidget tWidget : children) {
+                if (tWidget.mouseDragged(pMouseX, pMouseY + scrollAmount, pButton, pDragX, pDragY)) {
+                    return true;
+                }
+            }
             if (pMouseX > getScrollBarX() - scrollbarGap - 6) {
                 double d0 = Math.max(1, this.getMaxScroll());
                 int j = Mth.clamp((int) ((float) (height * height) / (float) bottomY), 32, height);

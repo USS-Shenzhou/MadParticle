@@ -2,7 +2,9 @@ package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.util.MathHelper;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
@@ -290,6 +292,10 @@ public class MadParticle extends TextureSheetParticle {
         return new Vector3f(rCol, gCol, bCol);
     }
 
+    @Override
+    public void render(VertexConsumer pBuffer, Camera pRenderInfo, float pPartialTicks) {
+        super.render(((MadParticleRenderTypes)(particleRenderType)).bufferBuilder, pRenderInfo, pPartialTicks);
+    }
 
     public static class Provider implements ParticleProvider<MadParticleOption> {
         private final SpriteSet sprites;

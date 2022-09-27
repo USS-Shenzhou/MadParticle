@@ -23,6 +23,9 @@ public class InheritableIntegerArgument implements ArgumentType<Integer> {
         this.integerArgumentType = IntegerArgumentType.integer(minimum, maximum);
     }
 
+    public static InheritableIntegerArgument inheritableInteger(int minimum, int maximum,int fatherCommandParameterAmount) {
+        return new InheritableIntegerArgument(minimum, maximum, fatherCommandParameterAmount);
+    }
     public static InheritableIntegerArgument inheritableInteger(int minimum, int maximum) {
         return new InheritableIntegerArgument(minimum, maximum, 0);
     }

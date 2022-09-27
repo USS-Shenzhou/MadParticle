@@ -20,6 +20,7 @@ public abstract class TScreen extends Screen {
 
     protected TScreen(Component pTitle) {
         super(pTitle);
+        minecraft = Minecraft.getInstance();
     }
 
     @Override

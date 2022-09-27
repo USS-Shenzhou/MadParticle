@@ -49,7 +49,7 @@
   "gui.mp.de.helper.gravity": "重力",
   "gui.mp.de.helper.gravity_after": "二次重力",
   "gui.mp.de.helper.collision": "与方块碰撞",
-  "gui.mp.de.helper.collision_count": "碰撞次数",
+  "gui.mp.de.helper.collision_time": "碰撞次数",
   "gui.mp.de.helper.horizontal_diffuse": "水平扩散",
   "gui.mp.de.helper.vertical_bounce": "垂直反弹",
   "gui.mp.de.helper.x_deflection": "x偏转",

@@ -11,6 +11,7 @@ import net.minecraft.util.Mth;
  */
 public class TScrollPanel extends TPanel {
     private double scrollAmount = 0;
+    private double prevScrollAmount = 0;
     private int bottomY = 0;
     private static int speedFactor = 6;
     private int scrollbarGap = 0;
@@ -38,6 +39,12 @@ public class TScrollPanel extends TPanel {
     }
 
     @Override
+    public void tick() {
+        prevScrollAmount = scrollAmount;
+        super.tick();
+    }
+
+    @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         renderScrollBar();
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
@@ -45,7 +52,7 @@ public class TScrollPanel extends TPanel {
 
     @Override
     protected void renderChildren(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        prepareRender(pPoseStack);
+        prepareRender(pPoseStack, pPartialTick);
         super.renderChildren(pPoseStack, pMouseX, pMouseY, pPartialTick);
         pPoseStack.pushPose();
         RenderSystem.disableScissor();
@@ -60,7 +67,7 @@ public class TScrollPanel extends TPanel {
         RenderSystem.disableScissor();
     }*/
 
-    private void prepareRender(PoseStack pPoseStack) {
+    private void prepareRender(PoseStack pPoseStack, float pPartialTick) {
         Minecraft minecraft = Minecraft.getInstance();
         double scale = minecraft.getWindow().getGuiScale();
         RenderSystem.enableScissor(
@@ -69,7 +76,7 @@ public class TScrollPanel extends TPanel {
                 (int) (width * scale),
                 (int) (height * scale));
         pPoseStack.pushPose();
-        pPoseStack.translate(0, -scrollAmount, 0);
+        pPoseStack.translate(0, Mth.lerp(pPartialTick, -prevScrollAmount, -scrollAmount), 0);
     }
 
     @Override
@@ -125,12 +132,6 @@ public class TScrollPanel extends TPanel {
 
     public int getUsableWidth() {
         return width - 6 - scrollbarGap;
-    }
-
-    @SuppressWarnings("AlibabaAvoidDoubleOrFloatEqualCompare")
-    @Override
-    public void tick() {
-        super.tick();
     }
 
     @Override

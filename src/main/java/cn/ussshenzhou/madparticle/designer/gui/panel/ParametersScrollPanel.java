@@ -10,6 +10,7 @@ import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TScrollPanel;
+import cn.ussshenzhou.madparticle.particle.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.SpriteFrom;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -85,6 +86,34 @@ public class ParametersScrollPanel extends TScrollPanel {
                     new TranslatableComponent("gui.mp.de.helper.gravity"), FloatArgumentType.floatArg()),
             gravity2 = new TTitledSimpleConstrainedEditBox(
                     new TranslatableComponent("gui.mp.de.helper.gravity_after"), FloatArgumentType.floatArg());
+    //lane 7
+    public final TTitledCycleButton<InheritableBoolean> collision = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.collision"));
+    public final TTitledSimpleConstrainedEditBox
+            horizontalCollision = new TTitledSimpleConstrainedEditBox(
+            new TranslatableComponent("gui.mp.de.helper.horizontal_diffuse"), DoubleArgumentType.doubleArg()),
+            verticalCollision = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.vertical_bounce"), DoubleArgumentType.doubleArg()),
+            collisionTime = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.collision_time"), IntegerArgumentType.integer(0)),
+            xDeflection = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.x_deflection"), FloatArgumentType.floatArg()),
+            xDeflection2 = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.x_deflection_after"), FloatArgumentType.floatArg()),
+            zDeflection = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.z_deflection"), FloatArgumentType.floatArg()),
+            zDeflection2 = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.z_deflection_after"), FloatArgumentType.floatArg());
+    //lane 8
+    public final TTitledCycleButton<ChangeMode>
+            alpha = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.alpha")),
+            scale = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.scale"));
+    public final TTitledSimpleConstrainedEditBox
+            roll = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.roll_speed"), FloatArgumentType.floatArg()),
+            alphaBegin = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.alpha_begin"), FloatArgumentType.floatArg()),
+            alphaEnd = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.alpha_end"), FloatArgumentType.floatArg()),
+            scaleBegin = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.scale_begin"), FloatArgumentType.floatArg()),
+            scaleEnd = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.scale_end"), FloatArgumentType.floatArg());
+
 
     public ParametersScrollPanel() {
         super();
@@ -94,6 +123,8 @@ public class ParametersScrollPanel extends TScrollPanel {
         init4();
         init5();
         init6();
+        init7();
+        init8();
         setChild(false);
     }
 
@@ -125,12 +156,23 @@ public class ParametersScrollPanel extends TScrollPanel {
     }
 
     public void init5() {
-        this.addAll(r);
+        this.addAll(r,g,b);
     }
 
     public void init6() {
         Stream.of(InheritableBoolean.values()).forEach(interact::addElement);
         this.addAll(interact, horizontalInteract, verticalInteract, friction, friction2, gravity, gravity2);
+    }
+
+    public void init7() {
+        Stream.of(InheritableBoolean.values()).forEach(collision::addElement);
+        this.addAll(collision, horizontalCollision, verticalCollision, collisionTime, xDeflection, xDeflection2, zDeflection, zDeflection2);
+    }
+
+    public void init8() {
+        Stream.of(ChangeMode.values()).forEach(alpha::addElement);
+        Stream.of(ChangeMode.values()).forEach(scale::addElement);
+        this.addAll(alpha, scale, roll, alphaBegin, alphaEnd, scaleBegin, scaleEnd);
     }
 
     @Override
@@ -179,10 +221,15 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BRightOfA(vyD, xGap, vxD);
         LayoutHelper.BRightOfA(vzD, xGap, vyD);
         //lane 5
-        LayoutHelper.BBottomOfA(r, yGap, vx);
+        int l = (getUsableWidth() - 7 * xGap - 3 * stdTitledEditBox.x) / 3;
+        LayoutHelper.BBottomOfA(r, yGap, vx, stdTitledEditBox);
+        LayoutHelper.BRightOfA(g, yGap, r, l, stdTitledEditBox.y);
+        LayoutHelper.BRightOfA(g, yGap, g, stdTitledEditBox);
+        LayoutHelper.BRightOfA(b, yGap, g, l, stdTitledEditBox.y);
+        LayoutHelper.BRightOfA(b, yGap, b, stdTitledEditBox);
         //TODO
         //lane 6
-        LayoutHelper.BBottomOfA(interact, yGap + 50, r, stdTitledButton);
+        LayoutHelper.BBottomOfA(interact, yGap, r, stdTitledButton);
         LayoutHelper.BRightOfA(horizontalInteract, xGap, interact, stdTitledEditBox);
         LayoutHelper.BRightOfA(verticalInteract, xGap, horizontalInteract);
         LayoutHelper.BRightOfA(friction, xGap, verticalInteract);
@@ -190,6 +237,23 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BRightOfA(friction2, xGap, friction);
         LayoutHelper.BRightOfA(gravity, xGap, friction2);
         LayoutHelper.BRightOfA(gravity2, xGap, gravity);
+        //lane 7
+        LayoutHelper.BBottomOfA(collision, yGap, interact);
+        LayoutHelper.BRightOfA(horizontalCollision, xGap, collision, stdTitledEditBox);
+        LayoutHelper.BRightOfA(verticalCollision, xGap, horizontalCollision);
+        LayoutHelper.BRightOfA(collisionTime, xGap, verticalCollision);
+        LayoutHelper.BRightOfA(xDeflection, xGap, collisionTime);
+        LayoutHelper.BRightOfA(xDeflection2, xGap, xDeflection);
+        LayoutHelper.BRightOfA(zDeflection, xGap, xDeflection2);
+        LayoutHelper.BRightOfA(zDeflection2, xGap, zDeflection);
+        //lane 8
+        LayoutHelper.BBottomOfA(roll, yGap, collision, stdTitledEditBox);
+        LayoutHelper.BBottomOfA(scaleEnd, yGap, zDeflection2, stdTitledEditBox);
+        LayoutHelper.BLeftOfA(scaleBegin, xGap, scaleEnd);
+        LayoutHelper.BLeftOfA(scale, xGap, scaleBegin, stdTitledButton);
+        LayoutHelper.BLeftOfA(alphaEnd, xGap, scale, stdTitledEditBox);
+        LayoutHelper.BLeftOfA(alphaBegin, xGap, alphaEnd);
+        LayoutHelper.BLeftOfA(alpha, xGap, alphaBegin, stdTitledButton);
 
         super.layout();
     }

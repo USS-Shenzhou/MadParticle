@@ -14,7 +14,6 @@ public class TSimpleConstrainedEditBox extends TConstrainedEditBox {
     public TSimpleConstrainedEditBox(ArgumentType<?> argument) {
         super();
         this.argument = argument;
-        this.setResponder(this::check);
     }
 
     @Override

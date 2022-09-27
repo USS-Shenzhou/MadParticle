@@ -14,15 +14,20 @@ import net.minecraft.util.Mth;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.util.LinkedList;
+import java.util.function.Consumer;
+
 /**
  * @author USS_Shenzhou
  */
-public class TEditBox extends EditBox implements TWidget {
+public class TEditBox extends EditBox implements TWidget, TResponder<String> {
     TComponent parent = null;
+    protected final LinkedList<Consumer<String>> responders = new LinkedList<>();
 
     public TEditBox(Component tipText) {
         super(Minecraft.getInstance().font, 0, 0, 0, 0, tipText);
         MinecraftForge.EVENT_BUS.register(this);
+        setResponder(this::respond);
     }
 
     public TEditBox() {
@@ -43,6 +48,28 @@ public class TEditBox extends EditBox implements TWidget {
         Font font = Minecraft.getInstance().font;
         return getX() + font.width(s.substring(AccessorProxy.EditBoxProxy.getDisplayPos(this), b)) + font.width(" ");
     }
+
+    @Deprecated
+    @Override
+    public void setResponder(Consumer<String> pResponder) {
+        super.setResponder(pResponder);
+    }
+
+    @Override
+    public void respond(String value) {
+        responders.forEach(stringConsumer -> stringConsumer.accept(value));
+    }
+
+    @Override
+    public void addResponder(Consumer<String> responder) {
+        responders.add(responder);
+    }
+
+    @Override
+    public void clearResponders() {
+        responders.clear();
+    }
+
 
     @Override
     public void setBounds(int x, int y, int width, int height) {

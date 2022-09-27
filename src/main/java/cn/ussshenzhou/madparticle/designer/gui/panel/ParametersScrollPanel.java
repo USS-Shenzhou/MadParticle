@@ -5,6 +5,7 @@ import cn.ussshenzhou.madparticle.command.inheritable.InheritableIntegerArgument
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledCycleButton;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSimpleConstrainedEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSuggestedEditBox;
+import cn.ussshenzhou.madparticle.designer.universal.util.AccessorProxy;
 import cn.ussshenzhou.madparticle.designer.universal.util.ArgumentSuggestionsDispatcher;
 import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
@@ -137,7 +138,8 @@ public class ParametersScrollPanel extends TScrollPanel {
     public void init1() {
         ((ArgumentSuggestionsDispatcher<ParticleOptions>) target.getComponent().getEditBox().getDispatcher())
                 .register(Commands.argument("p", ParticleArgument.particle()));
-
+        target.getComponent().getEditBox().setMaxLength(255);
+        target.getComponent().getEditBox().addResponder(particlePreview::updateParticle);
         tryDefault.setOnPress(pButton -> {
             //TODO
         });
@@ -163,6 +165,24 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     public void init5() {
         this.addAll(r, g, b, rSlider, gSlider, bSlider);
+        r.getComponent().addPassedResponder(s -> particlePreview.setR(Float.parseFloat(s)));
+        g.getComponent().addPassedResponder(s -> particlePreview.setG(Float.parseFloat(s)));
+        b.getComponent().addPassedResponder(s -> particlePreview.setB(Float.parseFloat(s)));
+        rSlider.addResponder(d -> {
+            r.getComponent().setValue(String.format("%.3f", d));
+            AccessorProxy.EditBoxProxy.setDisplayPos(r.getComponent(), 0);
+        });
+        gSlider.addResponder(d -> {
+            g.getComponent().setValue(String.format("%.3f", d));
+            AccessorProxy.EditBoxProxy.setDisplayPos(g.getComponent(), 0);
+        });
+        bSlider.addResponder(d -> {
+            b.getComponent().setValue(String.format("%.3f", d));
+            AccessorProxy.EditBoxProxy.setDisplayPos(b.getComponent(), 0);
+        });
+        rSlider.setValue(1);
+        gSlider.setValue(1);
+        bSlider.setValue(1);
     }
 
     public void init6() {
@@ -222,7 +242,9 @@ public class ParametersScrollPanel extends TScrollPanel {
         int previewW = getX() + getUsableWidth() - zD.getX() - zD.getWidth() - 2 * xGap;
         int previewH = stdTitledEditBox.y * 2 + yGap;
         int previewL = Math.min(previewH, previewW);
-        LayoutHelper.BRightOfA(particlePreview, xGap, zD, previewL, previewL);
+        LayoutHelper.BRightOfA(particlePreview, 0, zD, previewL, previewL);
+        LayoutHelper.BRightOfA(particlePreview, (previewW - previewL) / 2 - previewL, particlePreview);
+        LayoutHelper.BBottomOfA(particlePreview, 6 - previewL, particlePreview);
         //lane 4
         LayoutHelper.BBottomOfA(vx, yGap, xPos);
         LayoutHelper.BRightOfA(vy, xGap, vx);

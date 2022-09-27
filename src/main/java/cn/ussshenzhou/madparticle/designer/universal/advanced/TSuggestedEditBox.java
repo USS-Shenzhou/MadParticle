@@ -34,9 +34,9 @@ public class TSuggestedEditBox extends TPanel {
                 suggestionList.setVisible(pIsFocused);
             }
         };
-        editBox.setResponder(s -> {
+        editBox.addResponder(s -> {
             this.updateSuggestion(s);
-            editBox.check(s);
+            //editBox.check(s);
         });
         suggestionList.setBackground(0xff000000);
         suggestionList.setHorizontalAlignment(HorizontalAlignment.LEFT);

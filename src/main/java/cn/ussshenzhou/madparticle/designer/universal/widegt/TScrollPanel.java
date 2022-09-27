@@ -54,18 +54,17 @@ public class TScrollPanel extends TPanel {
     protected void renderChildren(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         prepareRender(pPoseStack, pPartialTick);
         super.renderChildren(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        pPoseStack.pushPose();
+        pPoseStack.popPose();
         RenderSystem.disableScissor();
     }
 
-    //TODO why not top?
-    /*@Override
+    @Override
     public void renderTop(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        prepareRender(pPoseStack);
+        prepareRender(pPoseStack,pPartialTick);
         super.renderTop(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        pPoseStack.pushPose();
+        pPoseStack.popPose();
         RenderSystem.disableScissor();
-    }*/
+    }
 
     private void prepareRender(PoseStack pPoseStack, float pPartialTick) {
         Minecraft minecraft = Minecraft.getInstance();

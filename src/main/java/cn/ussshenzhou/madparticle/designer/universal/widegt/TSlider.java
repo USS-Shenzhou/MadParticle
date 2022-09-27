@@ -6,35 +6,47 @@ import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.client.ProgressOption;
 import net.minecraft.client.gui.components.SliderButton;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.LinkedList;
+import java.util.function.Consumer;
 
-public class TSlider extends SliderButton implements TWidget {
+public class TSlider extends SliderButton implements TWidget, TResponder<Double> {
     private boolean visible = true;
     TComponent parent = null;
-
-    public TSlider(Options pOptions, int pX, int pY, int pWidth, int pHeight, ProgressOption pProgressOption, List<FormattedCharSequence> pTooltip) {
-        super(pOptions, pX, pY, pWidth, pHeight, pProgressOption, pTooltip);
-    }
+    double min, max;
+    private final LinkedList<Consumer<Double>> responders = new LinkedList<>();
 
     public TSlider(double pMinValue, double pMaxValue, float pSteps, Component tipText) {
-        this(Minecraft.getInstance().options, 0, 0, 0, 0,
+        super(Minecraft.getInstance().options, 0, 0, 0, 0,
                 new ProgressOption("t88.tslider", pMinValue, pMaxValue, pSteps, o -> 0d, (o, d) -> {
                 }, (o, p) -> tipText), ImmutableList.of());
-
         ProgressOption progressOption = new ProgressOption("t88.tslider", pMinValue, pMaxValue, pSteps,
                 (o) -> value, (o, d) -> value = d, (o, p) -> tipText
         );
-        //Function<Minecraft, List<FormattedCharSequence>> pTooltipSupplier = m -> ImmutableList.of();
         AccessorProxy.SliderProxy.setOption(this, progressOption);
-        //AccessorProxy.SliderProxy.setToolTip(this, pTooltipSupplier.apply(Minecraft.getInstance()));
         this.updateMessage();
+        this.min = pMinValue;
+        this.max = pMaxValue;
+    }
+
+    public void setValue(double value) {
+        this.value = Mth.clamp(value, min, max);
+        applyValue();
+    }
+
+    public double getValue() {
+        return value;
+    }
+
+    @Override
+    protected void applyValue() {
+        super.applyValue();
+        respond(value);
     }
 
     @Override
@@ -113,4 +125,18 @@ public class TSlider extends SliderButton implements TWidget {
     public void tick() {
     }
 
+    @Override
+    public void respond(Double value) {
+        responders.forEach(consumer -> consumer.accept(value));
+    }
+
+    @Override
+    public void addResponder(Consumer<Double> responder) {
+        responders.add(responder);
+    }
+
+    @Override
+    public void clearResponders() {
+        responders.clear();
+    }
 }

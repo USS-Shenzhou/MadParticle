@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.particle;
 
+import cn.ussshenzhou.madparticle.MadParticle;
 import cn.ussshenzhou.madparticle.mixin.VertexFormatElementUsageAccessor;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -91,7 +92,7 @@ public enum MadParticleRenderTypes implements ParticleRenderType {
 
     public final MadParticleBufferBuilder bufferBuilder = new MadParticleBufferBuilder(1024 * 512);
 
-    public void end(){
+    public void end() {
         bufferBuilder.end();
         BufferUploader.end(this.bufferBuilder);
     }
@@ -114,8 +115,29 @@ public enum MadParticleRenderTypes implements ParticleRenderType {
     public static final VertexFormat PARTICLE = new VertexFormat(ImmutableMap.<String, VertexFormatElement>builder()
             .put("Position", ELEMENT_POSITION)
             .put("UV0", ELEMENT_UV0)
-            .put("Color", ELEMENT_COLOR)
+            .put("Color", MadParticleRenderTypes.ELEMENT_COLOR)
             .put("UV2", ELEMENT_UV2)
             .build());
+
+    static {
+        if (MadParticle.isOptifineInstalled) {
+            try {
+                @SuppressWarnings("JavaReflectionMemberAccess")
+                var field = VertexFormat.class.getDeclaredField("colorElementOffset");
+                field.trySetAccessible();
+                field.set(PARTICLE, ELEMENT_POSITION.getByteSize() + ELEMENT_UV0.getByteSize());
+            } catch (IllegalAccessException | NoSuchFieldException e) {
+                throw new RuntimeException("failed to set colorElementOffset", e);
+            }
+            try {
+                @SuppressWarnings("JavaReflectionMemberAccess")
+                var field = VertexFormatElement.class.getDeclaredField("attributeIndex");
+                field.trySetAccessible();
+                field.set(ELEMENT_COLOR, 1);
+            } catch (IllegalAccessException | NoSuchFieldException e) {
+                throw new RuntimeException("failed to set attributeIndex", e);
+            }
+        }
+    }
 
 }

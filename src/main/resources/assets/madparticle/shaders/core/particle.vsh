@@ -2,23 +2,25 @@
 
 #moj_import <fog.glsl>
 
-uniform sampler2D Sampler0;
+in vec3 Position;
+in vec2 UV0;
+in vec4 Color;
+in ivec2 UV2;
 
-uniform vec4 ColorModulator;
-uniform float FogStart;
-uniform float FogEnd;
-uniform vec4 FogColor;
+uniform sampler2D Sampler2;
 
-in float vertexDistance;
-in vec2 texCoord0;
-in vec4 vertexColor;
+uniform mat4 ModelViewMat;
+uniform mat4 ProjMat;
+uniform int FogShape;
 
-out vec4 fragColor;
+out float vertexDistance;
+out vec2 texCoord0;
+out vec4 vertexColor;
 
 void main() {
-    vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
-    if (color.a < 0.1) {
-        discard;
-    }
-    fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
+    gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
+
+    vertexDistance = fog_distance(ModelViewMat, Position, FogShape);
+    texCoord0 = UV0;
+    vertexColor = Color * texelFetch(Sampler2, UV2 / 16, 0);
 }

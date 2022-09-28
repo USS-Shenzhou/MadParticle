@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferVertexConsumer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 
@@ -62,5 +63,39 @@ public class MadParticleBufferBuilder extends BufferBuilder {
         return super.color(pColorARGB);
     }
 
-    //TODO override the full vertex fill version
+    @Override
+    public void vertex(float pX, float pY, float pZ, float pRed, float pGreen, float pBlue, float pAlpha, float pTexU, float pTexV, int pOverlayUV, int pLightmapUV, float pNormalX, float pNormalY, float pNormalZ) {
+        if (this.defaultColorSet) {
+            throw new IllegalStateException();
+        } else if (this.fastFormat) {
+            this.putFloat(0, pX);
+            this.putFloat(4, pY);
+            this.putFloat(8, pZ);
+            this.putFloat(12, pRed);
+            this.putFloat(16, pGreen);
+            this.putFloat(20, pBlue);
+            this.putFloat(24, pAlpha);
+            this.putFloat(28, pTexU);
+            this.putFloat(32, pTexV);
+            int i;
+            if (this.fullFormat) {
+                this.putShort(36, (short)(pOverlayUV & '\uffff'));
+                this.putShort(38, (short)(pOverlayUV >> 16 & '\uffff'));
+                i = 40;
+            } else {
+                i = 36;
+            }
+
+            this.putShort(i + 0, (short)(pLightmapUV & '\uffff'));
+            this.putShort(i + 2, (short)(pLightmapUV >> 16 & '\uffff'));
+            this.putByte(i + 4, BufferVertexConsumer.normalIntValue(pNormalX));
+            this.putByte(i + 5, BufferVertexConsumer.normalIntValue(pNormalY));
+            this.putByte(i + 6, BufferVertexConsumer.normalIntValue(pNormalZ));
+            this.nextElementByte += i + 8;
+            this.endVertex();
+        } else {
+            super.vertex(pX, pY, pZ, pRed, pGreen, pBlue, pAlpha, pTexU, pTexV, pOverlayUV, pLightmapUV, pNormalX, pNormalY, pNormalZ);
+        }
+    }
+
 }

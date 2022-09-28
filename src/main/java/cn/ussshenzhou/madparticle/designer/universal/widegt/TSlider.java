@@ -15,6 +15,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
+/**
+ * @author USS_Shenzhou
+ */
 public class TSlider extends SliderButton implements TWidget, TResponder<Double> {
     private boolean visible = true;
     TComponent parent = null;

@@ -12,6 +12,9 @@ import net.minecraft.client.renderer.texture.TextureManager;
 
 import static com.mojang.blaze3d.vertex.DefaultVertexFormat.*;
 
+/**
+ * @author zomb-676
+ */
 public enum MadParticleRenderTypes implements ParticleRenderType {
 
     TERRAIN_SHEET {

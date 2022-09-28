@@ -4,6 +4,9 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 
+/**
+ * @author zomb-676
+ */
 public class MadParticleBufferBuilder extends BufferBuilder {
 
     MadParticleBufferBuilder(int pCapacity) {

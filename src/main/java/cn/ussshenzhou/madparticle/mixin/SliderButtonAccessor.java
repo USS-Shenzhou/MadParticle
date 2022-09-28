@@ -9,6 +9,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.List;
 
+/**
+ * @author USS_Shenzhou
+ */
 @Mixin(SliderButton.class)
 public interface SliderButtonAccessor {
 

@@ -62,10 +62,10 @@ public class DesignerScreen extends TScreen {
     @SuppressWarnings("AlibabaSwitchStatement")
     public void setVisibleMode(DesignerModeSelectList.DesignerMode mode) {
         TPanel[] panels = {helperModePanel, lineModePanel};
-        Arrays.stream(panels).forEach(p -> p.setVisible(false));
+        Arrays.stream(panels).forEach(p -> p.setVisibleT(false));
         switch (mode) {
-            case HELPER -> helperModePanel.setVisible(true);
-            case LINE -> lineModePanel.setVisible(true);
+            case HELPER -> helperModePanel.setVisibleT(true);
+            case LINE -> lineModePanel.setVisibleT(true);
             default -> {
             }
         }
@@ -74,9 +74,9 @@ public class DesignerScreen extends TScreen {
     @Override
     public void tick() {
         super.tick();
-        designerModeSelectList.tick();
-        helperModePanel.tick();
-        lineModePanel.tick();
+        designerModeSelectList.tickT();
+        helperModePanel.tickT();
+        lineModePanel.tickT();
     }
 
     @Override

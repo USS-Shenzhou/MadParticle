@@ -79,7 +79,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
 
     protected void renderChildren(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         for (TWidget tWidget : children) {
-            if (tWidget.isVisible()) {
+            if (tWidget.isVisibleT()) {
                 tWidget.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
             }
         }
@@ -88,16 +88,16 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     @Override
     public void renderTop(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         for (TWidget w : children) {
-            if (w.isVisible()) {
+            if (w.isVisibleT()) {
                 w.renderTop(pPoseStack, pMouseX, pMouseY, pPartialTick);
             }
         }
     }
 
     @Override
-    public void tick() {
+    public void tickT() {
         for (TWidget tWidget : children) {
-            tWidget.tick();
+            tWidget.tickT();
         }
     }
 
@@ -127,7 +127,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         for (TWidget tWidget : children) {
-            if (!tWidget.isVisible()) {
+            if (!tWidget.isVisibleT()) {
                 continue;
             }
             if (tWidget.mouseClicked(pMouseX, pMouseY, pButton)) {
@@ -140,7 +140,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     @Override
     public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
         for (TWidget tWidget : children) {
-            if (!tWidget.isVisible()) {
+            if (!tWidget.isVisibleT()) {
                 continue;
             }
             if (tWidget.mouseReleased(pMouseX, pMouseY, pButton)) {
@@ -153,7 +153,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
         for (TWidget tWidget : children) {
-            if (!tWidget.isVisible()) {
+            if (!tWidget.isVisibleT()) {
                 continue;
             }
             if (tWidget.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY)) {
@@ -166,7 +166,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
         for (TWidget tWidget : children) {
-            if (!tWidget.isVisible()) {
+            if (!tWidget.isVisibleT()) {
                 continue;
             }
             if (tWidget.mouseScrolled(pMouseX, pMouseY, pDelta)) {
@@ -179,7 +179,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         for (TWidget tWidget : children) {
-            if (!tWidget.isVisible()) {
+            if (!tWidget.isVisibleT()) {
                 continue;
             }
             if (tWidget.keyPressed(pKeyCode, pScanCode, pModifiers)) {
@@ -192,7 +192,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     @Override
     public boolean keyReleased(int pKeyCode, int pScanCode, int pModifiers) {
         for (TWidget tWidget : children) {
-            if (!tWidget.isVisible()) {
+            if (!tWidget.isVisibleT()) {
                 continue;
             }
             if (tWidget.keyReleased(pKeyCode, pScanCode, pModifiers)) {
@@ -205,7 +205,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     @Override
     public boolean charTyped(char pCodePoint, int pModifiers) {
         for (TWidget tWidget : children) {
-            if (!tWidget.isVisible()) {
+            if (!tWidget.isVisibleT()) {
                 continue;
             }
             if (tWidget.charTyped(pCodePoint, pModifiers)) {
@@ -239,12 +239,12 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     }
 
     @Override
-    public boolean isVisible() {
+    public boolean isVisibleT() {
         return visible;
     }
 
     @Override
-    public void setVisible(boolean visible) {
+    public void setVisibleT(boolean visible) {
         this.visible = visible;
     }
 

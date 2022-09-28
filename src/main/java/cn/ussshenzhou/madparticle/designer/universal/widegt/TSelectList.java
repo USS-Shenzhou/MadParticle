@@ -148,12 +148,12 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
     }
 
     @Override
-    public boolean isVisible() {
+    public boolean isVisibleT() {
         return visible;
     }
 
     @Override
-    public void setVisible(boolean visible) {
+    public void setVisibleT(boolean visible) {
         this.visible = visible;
     }
 
@@ -375,7 +375,7 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
     }
 
     @Override
-    public void tick() {
+    public void tickT() {
     }
 
     public int getForeground() {

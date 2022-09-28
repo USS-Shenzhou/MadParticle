@@ -72,6 +72,16 @@ public class TEditBox extends EditBox implements TWidget, TResponder<String> {
 
 
     @Override
+    public boolean isVisibleT() {
+        return this.isVisible();
+    }
+
+    @Override
+    public void setVisibleT(boolean visible) {
+        this.setVisible(visible);
+    }
+
+    @Override
     public void setBounds(int x, int y, int width, int height) {
         MWidget2TComponentHelper.setBounds(x, y, width, height, this);
     }
@@ -133,6 +143,11 @@ public class TEditBox extends EditBox implements TWidget, TResponder<String> {
     @Override
     public Vec2i getSize() {
         return new Vec2i(width, height);
+    }
+
+    @Override
+    public void tickT() {
+        this.tick();
     }
 
     @Override

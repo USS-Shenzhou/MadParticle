@@ -47,12 +47,12 @@ public abstract class TScreen extends Screen {
         renderBackGround(pPoseStack, pMouseX, pMouseY, pPartialTick);
         LinkedList<Widget> renderTop = new LinkedList<>();
         for (TWidget w : this.tChildren) {
-            if (w.isVisible()) {
+            if (w.isVisibleT()) {
                 w.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
             }
         }
         for (TWidget w : this.tChildren) {
-            if (w.isVisible()) {
+            if (w.isVisibleT()) {
                 w.renderTop(pPoseStack, pMouseX, pMouseY, pPartialTick);
             }
         }
@@ -82,7 +82,7 @@ public abstract class TScreen extends Screen {
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         for (TWidget tWidget : tChildren) {
-            if (!tWidget.isVisible()) {
+            if (!tWidget.isVisibleT()) {
                 continue;
             }
             if (tWidget.mouseClicked(pMouseX, pMouseY, pButton)) {
@@ -100,7 +100,7 @@ public abstract class TScreen extends Screen {
     public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
         this.setDragging(false);
         for (TWidget tWidget : tChildren) {
-            if (!tWidget.isVisible()) {
+            if (!tWidget.isVisibleT()) {
                 continue;
             }
             if (tWidget.mouseReleased(pMouseX, pMouseY, pButton)) {
@@ -113,7 +113,7 @@ public abstract class TScreen extends Screen {
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
         for (TWidget tWidget : tChildren) {
-            if (!tWidget.isVisible()) {
+            if (!tWidget.isVisibleT()) {
                 continue;
             }
             if (tWidget.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY)) {
@@ -126,7 +126,7 @@ public abstract class TScreen extends Screen {
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
         for (TWidget tWidget : tChildren) {
-            if (!tWidget.isVisible()) {
+            if (!tWidget.isVisibleT()) {
                 continue;
             }
             if (tWidget.mouseScrolled(pMouseX, pMouseY, pDelta)) {

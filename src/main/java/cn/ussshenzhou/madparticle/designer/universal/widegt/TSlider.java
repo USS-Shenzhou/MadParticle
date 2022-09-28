@@ -71,12 +71,12 @@ public class TSlider extends SliderButton implements TWidget, TResponder<Double>
     }
 
     @Override
-    public boolean isVisible() {
+    public boolean isVisibleT() {
         return visible;
     }
 
     @Override
-    public void setVisible(boolean visible) {
+    public void setVisibleT(boolean visible) {
         this.visible = visible;
     }
 
@@ -125,7 +125,7 @@ public class TSlider extends SliderButton implements TWidget, TResponder<Double>
     }
 
     @Override
-    public void tick() {
+    public void tickT() {
     }
 
     @Override

@@ -64,12 +64,12 @@ public class TButton extends Button implements TWidget {
     }
 
     @Override
-    public boolean isVisible() {
+    public boolean isVisibleT() {
         return this.visible;
     }
 
     @Override
-    public void setVisible(boolean visible) {
+    public void setVisibleT(boolean visible) {
         this.visible = visible;
     }
 
@@ -121,7 +121,7 @@ public class TButton extends Button implements TWidget {
     }
 
     @Override
-    public void tick() {
+    public void tickT() {
 
     }
 

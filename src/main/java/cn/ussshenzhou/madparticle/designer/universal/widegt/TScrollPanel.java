@@ -39,9 +39,9 @@ public class TScrollPanel extends TPanel {
     }
 
     @Override
-    public void tick() {
+    public void tickT() {
         prevScrollAmount = scrollAmount;
-        super.tick();
+        super.tickT();
     }
 
     @Override

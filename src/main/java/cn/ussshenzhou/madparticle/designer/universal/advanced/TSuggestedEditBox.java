@@ -31,7 +31,7 @@ public class TSuggestedEditBox extends TPanel {
             @Override
             public void setFocus(boolean pIsFocused) {
                 super.setFocus(pIsFocused);
-                suggestionList.setVisible(pIsFocused);
+                suggestionList.setVisibleT(pIsFocused);
             }
         };
         editBox.addResponder(s -> {
@@ -66,7 +66,7 @@ public class TSuggestedEditBox extends TPanel {
 
     @Override
     public void renderTop(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        if (suggestionList.isVisible()) {
+        if (suggestionList.isVisibleT()) {
             suggestionList.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
         }
         super.renderTop(pPoseStack, pMouseX, pMouseY, pPartialTick);
@@ -93,7 +93,7 @@ public class TSuggestedEditBox extends TPanel {
     private void updateSuggestionList(List<Suggestion> list) {
         suggestionList.clearElement();
         if (!list.isEmpty()) {
-            suggestionList.setVisible(true);
+            suggestionList.setVisibleT(true);
             List<String> texts = new ArrayList<>();
             String l = "";
             for (Suggestion suggestion : list) {
@@ -117,7 +117,7 @@ public class TSuggestedEditBox extends TPanel {
                 );
             }
         } else {
-            suggestionList.setVisible(false);
+            suggestionList.setVisibleT(false);
         }
     }
 

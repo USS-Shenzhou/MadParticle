@@ -14,9 +14,9 @@ import javax.annotation.Nullable;
 @SuppressWarnings("AlibabaAbstractMethodOrInterfaceMethodMustUseJavadoc")
 public interface TWidget extends Widget, GuiEventListener {
 
-    boolean isVisible();
+    boolean isVisibleT();
 
-    void setVisible(boolean visible);
+    void setVisibleT(boolean visible);
 
     void setBounds(int x, int y, int width, int height);
 
@@ -43,7 +43,7 @@ public interface TWidget extends Widget, GuiEventListener {
 
     Vec2i getSize();
 
-    void tick();
+    void tickT();
 
     default void renderTop(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
     }

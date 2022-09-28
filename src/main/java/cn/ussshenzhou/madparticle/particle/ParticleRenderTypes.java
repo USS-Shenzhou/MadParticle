@@ -29,16 +29,16 @@ public enum ParticleRenderTypes implements ToTranslatableString {
     public static ParticleRenderType getType(ParticleRenderTypes enumType) {
         switch (enumType) {
             case TERRAIN_SHEET -> {
-                return ParticleRenderType.TERRAIN_SHEET;
+                return MadParticleRenderTypes.TERRAIN_SHEET;
             }
             case PARTICLE_SHEET_OPAQUE -> {
-                return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
+                return MadParticleRenderTypes.PARTICLE_SHEET_OPAQUE;
             }
             case PARTICLE_SHEET_LIT -> {
-                return ParticleRenderType.PARTICLE_SHEET_LIT;
+                return MadParticleRenderTypes.PARTICLE_SHEET_LIT;
             }
             case PARTICLE_SHEET_TRANSLUCENT -> {
-                return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+                return MadParticleRenderTypes.PARTICLE_SHEET_TRANSLUCENT;
             }
             case CUSTOM -> {
                 return ParticleRenderType.CUSTOM;

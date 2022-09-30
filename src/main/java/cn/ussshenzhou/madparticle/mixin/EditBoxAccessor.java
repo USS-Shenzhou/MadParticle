@@ -17,4 +17,7 @@ public interface EditBoxAccessor {
 
     @Accessor
     void setDisplayPos(int pos);
+
+    @Accessor
+    int getTextColor();
 }

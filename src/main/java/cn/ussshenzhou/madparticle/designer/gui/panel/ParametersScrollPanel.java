@@ -1,7 +1,8 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
-import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
-import cn.ussshenzhou.madparticle.command.inheritable.InheritableIntegerArgument;
+import cn.ussshenzhou.madparticle.command.inheritable.*;
+import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
+import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledComponent;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledCycleButton;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSimpleConstrainedEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSuggestedEditBox;
@@ -10,18 +11,27 @@ import cn.ussshenzhou.madparticle.designer.universal.util.ArgumentSuggestionsDis
 import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
+import cn.ussshenzhou.madparticle.designer.universal.widegt.TEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TScrollPanel;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TSlider;
+import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
+import cn.ussshenzhou.madparticle.mixin.ParticleAccessor;
+import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.particle.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.SpriteFrom;
+import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ParticleArgument;
+import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.TextComponent;
@@ -53,22 +63,22 @@ public class ParametersScrollPanel extends TScrollPanel {
     public final TTitledSuggestedEditBox whoCanSee = new TTitledSuggestedEditBox(
             new TranslatableComponent("gui.mp.de.helper.who_see"), new ArgumentSuggestionsDispatcher<>());
     //lane 3
-    public final TTitledSimpleConstrainedEditBox
-            xPos = new TTitledSimpleConstrainedEditBox(new TextComponent("X"), DoubleArgumentType.doubleArg()),
-            yPos = new TTitledSimpleConstrainedEditBox(new TextComponent("Y"), DoubleArgumentType.doubleArg()),
-            zPos = new TTitledSimpleConstrainedEditBox(new TextComponent("Z"), DoubleArgumentType.doubleArg()),
-            xD = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.x_diffuse"), DoubleArgumentType.doubleArg()),
-            yD = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.y_diffuse"), DoubleArgumentType.doubleArg()),
-            zD = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.z_diffuse"), DoubleArgumentType.doubleArg());
+    public final SingleVec3EditBox
+            xPos = new SingleVec3EditBox(new TextComponent("X")),
+            yPos = new SingleVec3EditBox(new TextComponent("Y")),
+            zPos = new SingleVec3EditBox(new TextComponent("Z")),
+            xD = new SingleVec3EditBox(new TranslatableComponent("gui.mp.de.helper.x_diffuse")),
+            yD = new SingleVec3EditBox(new TranslatableComponent("gui.mp.de.helper.y_diffuse")),
+            zD = new SingleVec3EditBox(new TranslatableComponent("gui.mp.de.helper.z_diffuse"));
     public final ParticlePreviewPanel particlePreview = new ParticlePreviewPanel();
     //lane 4
-    public final TTitledSimpleConstrainedEditBox
-            vx = new TTitledSimpleConstrainedEditBox(new TextComponent("Vx"), DoubleArgumentType.doubleArg()),
-            vy = new TTitledSimpleConstrainedEditBox(new TextComponent("Vy"), DoubleArgumentType.doubleArg()),
-            vz = new TTitledSimpleConstrainedEditBox(new TextComponent("Vz"), DoubleArgumentType.doubleArg()),
-            vxD = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.vx_diffuse"), DoubleArgumentType.doubleArg()),
-            vyD = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.vy_diffuse"), DoubleArgumentType.doubleArg()),
-            vzD = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.vz_diffuse"), DoubleArgumentType.doubleArg());
+    public final SingleVec3EditBox
+            vx = new SingleVec3EditBox(new TextComponent("Vx")),
+            vy = new SingleVec3EditBox(new TextComponent("Vy")),
+            vz = new SingleVec3EditBox(new TextComponent("Vz")),
+            vxD = new SingleVec3EditBox(new TranslatableComponent("gui.mp.de.helper.vx_diffuse")),
+            vyD = new SingleVec3EditBox(new TranslatableComponent("gui.mp.de.helper.vy_diffuse")),
+            vzD = new SingleVec3EditBox(new TranslatableComponent("gui.mp.de.helper.vz_diffuse"));
     //lane 5
     public final TTitledSimpleConstrainedEditBox
             r = new TTitledSimpleConstrainedEditBox(new TextComponent("R"), FloatArgumentType.floatArg()),
@@ -132,7 +142,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         init6();
         init7();
         init8();
-        setChild(false);
+        setChild(true);
     }
 
     public void init1() {
@@ -140,9 +150,7 @@ public class ParametersScrollPanel extends TScrollPanel {
                 .register(Commands.argument("p", ParticleArgument.particle()));
         target.getComponent().getEditBox().setMaxLength(255);
         target.getComponent().getEditBox().addResponder(particlePreview::updateParticle);
-        tryDefault.setOnPress(pButton -> {
-            //TODO
-        });
+        tryDefault.setOnPress(pButton -> tryFillDefault());
         this.addAll(target, tryDefault);
     }
 
@@ -157,17 +165,41 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     public void init3() {
         this.addAll(xPos, yPos, zPos, xD, yD, zD, particlePreview);
+        xControlX2(xPos, xD);
+        xControlX2(yPos, yD);
+        xControlX2(zPos, zD);
     }
 
     public void init4() {
         this.addAll(vx, vy, vz, vxD, vyD, vzD);
+        xControlX2(vx, vxD);
+        xControlX2(vy, vyD);
+        xControlX2(vz, vzD);
+    }
+
+    private void xControlX2(TTitledSimpleConstrainedEditBox controller, TTitledSimpleConstrainedEditBox controlled) {
+        controller.getComponent().addPassedResponder(s -> {
+            controlled.getComponent().setEditable(!s.contains("="));
+        });
     }
 
     public void init5() {
         this.addAll(r, g, b, rSlider, gSlider, bSlider);
-        r.getComponent().addPassedResponder(s -> particlePreview.setR(Float.parseFloat(s)));
-        g.getComponent().addPassedResponder(s -> particlePreview.setG(Float.parseFloat(s)));
-        b.getComponent().addPassedResponder(s -> particlePreview.setB(Float.parseFloat(s)));
+        r.getComponent().addPassedResponder(s -> {
+            float f = Float.parseFloat(s);
+            particlePreview.setR(f);
+            rSlider.setValueWithoutRespond(f);
+        });
+        g.getComponent().addPassedResponder(s -> {
+            float f = Float.parseFloat(s);
+            particlePreview.setG(f);
+            gSlider.setValueWithoutRespond(f);
+        });
+        b.getComponent().addPassedResponder(s -> {
+            float f = Float.parseFloat(s);
+            particlePreview.setB(Float.parseFloat(s));
+            bSlider.setValueWithoutRespond(f);
+        });
         rSlider.addResponder(d -> {
             r.getComponent().setValue(String.format("%.3f", d));
             AccessorProxy.EditBoxProxy.setDisplayPos(r.getComponent(), 0);
@@ -191,14 +223,83 @@ public class ParametersScrollPanel extends TScrollPanel {
     }
 
     public void init7() {
-        Stream.of(InheritableBoolean.values()).forEach(collision::addElement);
         this.addAll(collision, horizontalCollision, verticalCollision, collisionTime, xDeflection, xDeflection2, zDeflection, zDeflection2);
+        collision.addElement(InheritableBoolean.TRUE, button -> {
+            Stream.of(horizontalCollision, verticalCollision, collisionTime).forEach(e -> e.getComponent().setEditable(true));
+        });
+        collision.addElement(InheritableBoolean.FALSE, button -> {
+            Stream.of(horizontalCollision, verticalCollision, collisionTime).forEach(e -> e.getComponent().setEditable(false));
+        });
     }
 
     public void init8() {
         Stream.of(ChangeMode.values()).forEach(alpha::addElement);
         Stream.of(ChangeMode.values()).forEach(scale::addElement);
         this.addAll(alpha, scale, roll, alphaBegin, alphaEnd, scaleBegin, scaleEnd);
+    }
+
+    private void tryFillDefault() {
+        ArgumentSuggestionsDispatcher<ParticleOptions> dispatcher = new ArgumentSuggestionsDispatcher<>();
+        dispatcher.register(Commands.argument("particle", ParticleArgument.particle()));
+        CommandSourceStack sourceStack = Minecraft.getInstance().player.createCommandSourceStack();
+        String value = target.getComponent().getEditBox().getValue();
+        ParseResults<CommandSourceStack> parseResults = dispatcher.parse(value, sourceStack);
+        CommandContext<CommandSourceStack> ct = parseResults.getContext().build(value);
+        try {
+            ParticleOptions particleOptions = ct.getArgument("particle", ParticleOptions.class);
+            Particle particle = ((ParticleEngineAccessor) Minecraft.getInstance().particleEngine).callMakeParticle(particleOptions, 0, 0, 0, 0, 0, 0);
+            if (particle != null) {
+                ParticleAccessor accessor = (ParticleAccessor) particle;
+                ifClearThenSet(lifeTime, particle.getLifetime());
+                ifClearThenSet(amount, 5);
+                alwaysRender.getComponent().select(InheritableBoolean.FALSE);
+                ifClearThenSet(whoCanSee.getComponent().getEditBox(), "@a");
+                Stream.of(xPos, yPos, zPos, vx, vy, vz).forEach(
+                        titled -> ifClearThenSet(titled, isChild ? "=" : "~")
+                );
+                Stream.of(xD, yD, zD, vxD, vyD, vzD).forEach(
+                        titled -> ifClearThenSet(titled, "0.0")
+                );
+                rSlider.setValue(accessor.getRCol());
+                gSlider.setValue(accessor.getGCol());
+                bSlider.setValue(accessor.getBCol());
+                r.getComponent().setTextColor(0x37e2ff);
+                g.getComponent().setTextColor(0x37e2ff);
+                b.getComponent().setTextColor(0x37e2ff);
+                ifClearThenSet(accessor.getFriction(), friction, friction2);
+                ifClearThenSet(accessor.getGravity(), gravity, gravity2);
+                ifClearThenSet(gravity2, accessor.getGravity());
+                collision.getComponent().select(InheritableBoolean.FALSE);
+                Stream.of(horizontalInteract, verticalInteract, xDeflection, xDeflection2, zDeflection, zDeflection2).forEach(editBox ->
+                        ifClearThenSet(editBox, 0));
+                ifClearThenSet(roll, accessor.getRoll());
+                ifClearThenSet(accessor.getAlpha(), alphaBegin, alphaEnd);
+                ifClearThenSet(String.format("%.2f", (accessor.getBbHeight() + accessor.getBbWidth()) / 2 / 0.2), scaleBegin, scaleEnd);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private <V> void ifClearThenSet(TTitledComponent<? extends TEditBox> tTitled, V value) {
+        ifClearThenSet(tTitled.getComponent(), value);
+    }
+
+    private <V> void ifClearThenSet(V value, TTitledComponent<? extends TEditBox>... tTitled) {
+        Stream.of(tTitled).forEach(t -> ifClearThenSet(t.getComponent(), value));
+    }
+
+    /*private <V> void ifClearThenSet(V value, TEditBox... editBoxes) {
+        Stream.of(editBoxes).forEach(editBox -> ifClearThenSet(editBox, value));
+    }*/
+
+    private <V> void ifClearThenSet(TEditBox editBox, V value) {
+        if (
+                (editBox.getValue().isEmpty() || ((EditBoxAccessor) editBox).getTextColor() == 0x37e2ff)
+                        && ((EditBoxAccessor) editBox).isIsEditable()
+        ) {
+            editBox.setValue(value.toString());
+            editBox.setTextColor(0x37e2ff);
+        }
     }
 
     @Override
@@ -314,10 +415,37 @@ public class ParametersScrollPanel extends TScrollPanel {
             spriteFrom.addElement(SpriteFrom.INHERIT);
             lifeTime.getComponent().setArgument(InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE));
             alwaysRender.addElement(InheritableBoolean.INHERIT);
+            amount.getComponent().setArgument(InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE));
+            Stream.of(xPos, yPos, zPos, xD, yD, zD, vx, vy, vz, vxD, vyD, vzD).forEach(editBox -> editBox.getComponent().setArgument(InheritableVec3Argument.inheritableVec3()));
+            collision.addElement(InheritableBoolean.INHERIT, button -> {
+                Stream.of(horizontalCollision, verticalCollision, collisionTime).forEach(editBox -> {
+                    editBox.getComponent().setEditable(true);
+                    ifClearThenSet(editBox, "=");
+                });
+            });
+            collisionTime.getComponent().setArgument(InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE));
+            Stream.of(horizontalCollision, verticalCollision, horizontalInteract, verticalInteract).forEach(editBox -> editBox.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble()));
+            roll.getComponent().setArgument(InheritableFloatArgument.inheritableFloat());
+            interact.addElement(InheritableBoolean.INHERIT);
+            Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(InheritableFloatArgument.inheritableFloat()));
+            Stream.of(alpha, scale).forEach(button -> button.addElement(ChangeMode.INHERIT));
+
+            amount.getComponent().setEditable(false);
         } else {
             spriteFrom.removeElement(SpriteFrom.INHERIT);
             lifeTime.getComponent().setArgument(IntegerArgumentType.integer(0));
             alwaysRender.removeElement(InheritableBoolean.INHERIT);
+            amount.getComponent().setArgument(IntegerArgumentType.integer(0));
+            Stream.of(xPos, yPos, zPos, xD, yD, zD, vx, vy, vz, vxD, vyD, vzD).forEach(editBox -> editBox.getComponent().setArgument(Vec3Argument.vec3()));
+            collision.removeElement(InheritableBoolean.INHERIT);
+            collisionTime.getComponent().setArgument(IntegerArgumentType.integer(0));
+            Stream.of(horizontalCollision, verticalCollision, horizontalInteract, verticalInteract).forEach(editBox -> editBox.getComponent().setArgument(DoubleArgumentType.doubleArg()));
+            roll.getComponent().setArgument(FloatArgumentType.floatArg());
+            interact.removeElement(InheritableBoolean.INHERIT);
+            Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg()));
+            Stream.of(alpha, scale).forEach(button -> button.removeElement(ChangeMode.INHERIT));
+
+            amount.getComponent().setEditable(true);
         }
     }
 }

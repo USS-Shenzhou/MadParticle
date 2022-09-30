@@ -23,7 +23,6 @@
   "gui.mp.de.helper.true": "是",
   "gui.mp.de.helper.false": "否",
   "gui.mp.de.helper.amount": "数量",
-  "gui.mp.de.helper.invalid": "不可用",
   "gui.mp.de.helper.render_type": "渲染模式",
   "gui.mp.de.helper.render_type.terrain": "terrain",
   "gui.mp.de.helper.render_type.opaque": "不透明",
@@ -65,5 +64,7 @@
   "gui.mp.de.helper.alpha_end": "结束α",
   "gui.mp.de.helper.scale": "大小变化",
   "gui.mp.de.helper.scale_begin": "初始大小",
-  "gui.mp.de.helper.scale_end": "结束大小"
+  "gui.mp.de.helper.scale_end": "结束大小",
+
+  "gui.t88.invalid": "不可用"
 }

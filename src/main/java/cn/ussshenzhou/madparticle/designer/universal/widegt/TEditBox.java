@@ -169,10 +169,12 @@ public class TEditBox extends EditBox implements TWidget, TResponder<String> {
 
     @Override
     public void setEditable(boolean pEnabled) {
+        String s = Language.getInstance().getOrDefault("gui.t88.invalid");
         if (!pEnabled && "".equals(getValue())) {
-            String s = Language.getInstance().getOrDefault("invalid");
             setValue(s);
             AccessorProxy.EditBoxProxy.setDisplayPos(this, 0);
+        } else if (pEnabled && s.equals(getValue())) {
+            setValue("");
         }
         super.setEditable(pEnabled);
     }

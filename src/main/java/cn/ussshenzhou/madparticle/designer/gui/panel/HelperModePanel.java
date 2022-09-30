@@ -19,7 +19,7 @@ public class HelperModePanel extends TPanel {
     private final TSuggestedEditBox command = new TSuggestedEditBox(MadParticleCommand::new);
     private final CommandStringSelectList commandStringSelectList = new CommandStringSelectList();
 
-    ParametersScrollPanel parametersScrollPanel = new ParametersScrollPanel();
+    private ParametersScrollPanel parametersScrollPanel = null;
 
     public HelperModePanel() {
         super();
@@ -28,12 +28,24 @@ public class HelperModePanel extends TPanel {
         this.add(copy);
         this.add(command);
         this.add(commandStringSelectList);
-        this.add(parametersScrollPanel);
 
         copy.setOnPress(pButton -> {
             Minecraft.getInstance().keyboardHandler.setClipboard(command.getEditBox().getValue());
             //TODO: copied!
         });
+    }
+
+    public void setParametersScrollPanel(ParametersScrollPanel parametersScrollPanel) {
+        if (this.parametersScrollPanel != null) {
+            this.parametersScrollPanel.setVisibleT(false);
+            this.remove(this.parametersScrollPanel);
+        }
+        this.parametersScrollPanel = parametersScrollPanel;
+        if (parametersScrollPanel!=null){
+            this.add(parametersScrollPanel);
+            parametersScrollPanel.setVisibleT(true);
+        }
+        layout();
     }
 
     @Override
@@ -44,10 +56,12 @@ public class HelperModePanel extends TPanel {
                 TButton.RECOMMEND_SIZE.x + commandStringSelectList.getComponent().getScrollbarGap() + TSelectList.SCROLLBAR_WIDTH,
                 height - command.getY() - command.getHeight() - DesignerScreen.GAP * 2 - TButton.RECOMMEND_SIZE.y - 1
         );
-        LayoutHelper.BRightOfA(parametersScrollPanel,
-                DesignerScreen.GAP + 2, commandStringSelectList,
-                width - commandStringSelectList.getWidth() - DesignerScreen.GAP - 2,
-                commandStringSelectList.getHeight() + DesignerScreen.GAP * 2 + 1 + TButton.RECOMMEND_SIZE.y);
+        if (parametersScrollPanel != null) {
+            LayoutHelper.BRightOfA(parametersScrollPanel,
+                    DesignerScreen.GAP + 2, commandStringSelectList,
+                    width - commandStringSelectList.getWidth() - DesignerScreen.GAP - 2,
+                    commandStringSelectList.getHeight() + DesignerScreen.GAP * 2 + 1 + TButton.RECOMMEND_SIZE.y);
+        }
         super.layout();
     }
 

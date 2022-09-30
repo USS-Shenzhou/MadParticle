@@ -1,20 +1,21 @@
 {
-	"required": true,
-	"minVersion": "0.8",
-	"package": "cn.ussshenzhou.madparticle.mixin",
-	"compatibilityLevel": "JAVA_8",
-	"refmap": "madparticle.refmap.json",
-	"mixins": [
-		"AbstractSelectionListAccessor",
-		"EditBoxAccessor",
-		"ParticleEngineAccessor",
-		"SliderButtonAccessor",
-		"VertexFormatElementUsageAccessor"
-	],
-	"client": [
-		"ParticleEngineMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
+  "required": true,
+  "minVersion": "0.8",
+  "package": "cn.ussshenzhou.madparticle.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "madparticle.refmap.json",
+  "mixins": [
+    "AbstractSelectionListAccessor",
+    "EditBoxAccessor",
+    "ParticleAccessor",
+    "ParticleEngineAccessor",
+    "SliderButtonAccessor",
+    "VertexFormatElementUsageAccessor"
+  ],
+  "client": [
+    "ParticleEngineMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
 	}
 }

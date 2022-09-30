@@ -2,6 +2,7 @@ package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.util.AccessorProxy;
 import cn.ussshenzhou.madparticle.designer.universal.util.MWidget2TComponentHelper;
+import cn.ussshenzhou.madparticle.designer.universal.util.MouseHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -42,20 +43,40 @@ public class TSlider extends SliderButton implements TWidget, TResponder<Double>
         applyValue();
     }
 
+    public void setValueWithoutRespond(double value) {
+        this.value = Mth.clamp(value, min, max);
+        applyValue(false);
+    }
+
     public double getValue() {
         return value;
     }
 
     @Override
     protected void applyValue() {
+        applyValue(true);
+    }
+
+    protected void applyValue(boolean respond) {
+        if (respond){
+            respond(value);
+        }
         super.applyValue();
-        respond(value);
+
     }
 
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
         if (isInRange(pMouseX, pMouseY, 2, 2)) {
             return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        if (isInRange(MouseHelper.getMouseX(), MouseHelper.getMouseY(), 2, 2)) {
+            return super.keyPressed(pKeyCode, pScanCode, pModifiers);
         }
         return false;
     }

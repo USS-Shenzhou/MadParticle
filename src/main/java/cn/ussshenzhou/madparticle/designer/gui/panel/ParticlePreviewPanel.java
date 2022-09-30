@@ -25,17 +25,24 @@ public class ParticlePreviewPanel extends TPanel {
     }
 
     public void updateParticle(String particleCommandText) {
-        ParticleEngineAccessor particleEngineAccessor = (ParticleEngineAccessor) Minecraft.getInstance().particleEngine;
-        SpriteSet spriteSet = particleEngineAccessor.getSpriteSets().get(new ResourceLocation(particleCommandText));
-        if (spriteSet == null) {
+        try {
+            ParticleEngineAccessor particleEngineAccessor = (ParticleEngineAccessor) Minecraft.getInstance().particleEngine;
+            SpriteSet spriteSet = particleEngineAccessor.getSpriteSets().get(new ResourceLocation(particleCommandText));
+            if (spriteSet == null) {
+                throw new Exception();
+            }
+            textureAtlasSprite = spriteSet.get(new Random());
+        } catch (Exception ignored) {
             textureAtlasSprite = null;
-            return;
         }
-        textureAtlasSprite = spriteSet.get(new Random());
     }
 
     @Override
-    public void renderTop(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        if (border != null) {
+            renderBorder(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        }
+        renderBackground(pPoseStack, pMouseX, pMouseY, pPartialTick);
         if (textureAtlasSprite != null) {
             RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
             RenderSystem.setShaderTexture(0, textureAtlasSprite.atlas().location());
@@ -46,7 +53,7 @@ public class ParticlePreviewPanel extends TPanel {
             blit(pPoseStack, x + 4, y + 4, 0, width - 8, height - 8, textureAtlasSprite);
             RenderSystem.setShaderColor(1, 1, 1, 1);
         }
-        super.renderTop(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        renderChildren(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 
     public float getR() {

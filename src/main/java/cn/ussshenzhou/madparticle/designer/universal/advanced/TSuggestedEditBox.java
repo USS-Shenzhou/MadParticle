@@ -136,10 +136,14 @@ public class TSuggestedEditBox extends TPanel {
         if (e != null) {
             String suggestion = suggestionList.getSelected().getContent();
             String s = editBox.getValue();
+            if ("[".equals(suggestion) || "]".equals(suggestion) || "{".equals(suggestion) || "}".equals(suggestion)) {
+                editBox.setValue(s.substring(0, editBox.getCursorPosition()) + suggestion + s.substring(editBox.getCursorPosition()));
+                return;
+            }
             if (s.isEmpty()) {
                 editBox.setValue(suggestion);
             } else {
-                int a = s.lastIndexOf(" ", editBox.getCursorPosition());
+                int a = findLastSplitter(s);
                 int b = s.indexOf(" ", editBox.getCursorPosition());
                 if (a == -1) {
                     editBox.setValue(b == -1 ? suggestion : suggestion + s.substring(b));
@@ -151,6 +155,20 @@ public class TSuggestedEditBox extends TPanel {
                 editBox.moveCursorTo(a + 1 + suggestion.length());
             }
         }
+    }
+
+    private int findLastSplitter(String s) {
+        String[] splitters = {" ", ",", "[", "{"};
+        int i = -1, j = 0;
+        while (i == -1) {
+            try {
+                i = s.lastIndexOf(splitters[j], editBox.getCursorPosition());
+                j++;
+            } catch (IndexOutOfBoundsException ignored) {
+                break;
+            }
+        }
+        return i;
     }
 
     public TCommandConstrainedEditBox getEditBox() {

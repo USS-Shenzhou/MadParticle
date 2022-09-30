@@ -1,6 +1,8 @@
 package cn.ussshenzhou.madparticle.designer.gui.widegt;
 
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
+import cn.ussshenzhou.madparticle.designer.gui.panel.HelperModePanel;
+import cn.ussshenzhou.madparticle.designer.gui.panel.ParametersScrollPanel;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSelectList;
 import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.MouseHelper;
@@ -22,11 +24,36 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
         this.add(delete);
 
         newCommand.setOnPress(pButton -> {
-            getComponent().addElement(new SubCommand());
+            var list = getComponent();
+            addElement(new SubCommand(), list1 -> {
+                this.getParentInstanceOf(HelperModePanel.class).setParametersScrollPanel(list1.getSelected().getContent().parametersScrollPanel);
+            });
+            if (list.getSelected() == null) {
+                list.setSelected(list.children().get(list.children().size() - 1));
+            }
+            this.checkChild();
         });
         delete.setOnPress(pButton -> {
             getComponent().removeElement(getComponent().getSelected());
+            this.getParentInstanceOf(HelperModePanel.class).setParametersScrollPanel(null);
+            this.checkChild();
         });
+    }
+
+    private void checkChild() {
+        var list = this.getComponent().children();
+        for (int i = 0; i < list.size(); i++) {
+            var panel = list.get(i).getContent().parametersScrollPanel;
+            if (i == 0) {
+                if (panel.isChild()) {
+                    panel.setChild(false);
+                }
+            } else {
+                if (!panel.isChild()) {
+                    panel.setChild(true);
+                }
+            }
+        }
     }
 
     @Override
@@ -59,10 +86,20 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
     }
 
     public class SubCommand {
+        private final ParametersScrollPanel parametersScrollPanel;
+
+        public SubCommand() {
+            parametersScrollPanel = new ParametersScrollPanel();
+        }
 
         @Override
         public String toString() {
-            return "null";
+            String value = parametersScrollPanel.target.getComponent().getEditBox().getValue();
+            if (value.isEmpty()) {
+                return "null";
+            }
+            String[] s = value.split(":");
+            return s[s.length - 1];
         }
     }
 }

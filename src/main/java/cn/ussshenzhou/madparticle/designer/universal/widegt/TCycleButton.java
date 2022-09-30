@@ -6,6 +6,7 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -65,6 +66,25 @@ public class TCycleButton<E> extends TButton {
         return values.get(cycleIndex);
     }
 
+    public void select(int index) throws IndexOutOfBoundsException {
+        //if (index > 0 && index <= values.size() - 1) {
+        index = Mth.clamp(index, 0, values.size() - 1);
+        this.cycleIndex = index;
+        this.setMessage(values.get(cycleIndex).getNarration());
+        Consumer<TCycleButton<E>> c = values.get(cycleIndex).onSwitched;
+        if (c != null) {
+            c.accept(this);
+        }
+    }
+
+    public void select(Entry entry) {
+        select(values.indexOf(entry));
+    }
+
+    public void select(E content) {
+        select(values.indexOf(new Entry(content)));
+    }
+
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         if (isInRange(pMouseX, pMouseY)) {
@@ -85,11 +105,7 @@ public class TCycleButton<E> extends TButton {
             } else if (cycleIndex > values.size() - 1) {
                 cycleIndex = 0;
             }
-            this.setMessage(values.get(cycleIndex).getNarration());
-            Consumer<TCycleButton<E>> c = values.get(cycleIndex).onSwitched;
-            if (c != null) {
-                c.accept(this);
-            }
+            this.select(cycleIndex);
         } else {
             this.cycleIndex = 0;
             this.setMessage(new TextComponent(""));

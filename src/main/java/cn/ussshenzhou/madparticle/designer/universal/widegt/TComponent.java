@@ -20,7 +20,7 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     int background = 0x00000000;
     int foreground = 0xffffffff;
     protected LinkedList<TWidget> children = new LinkedList<>();
-    Border border = null;
+    protected Border border = null;
     TComponent parent = null;
     final int id = (int) (Math.random() * Integer.MAX_VALUE);
 

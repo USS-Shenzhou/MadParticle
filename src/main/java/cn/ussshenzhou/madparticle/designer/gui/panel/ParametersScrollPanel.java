@@ -34,6 +34,7 @@ import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
@@ -447,5 +448,38 @@ public class ParametersScrollPanel extends TScrollPanel {
 
             amount.getComponent().setEditable(true);
         }
+    }
+
+    public String wrap() {
+        StringBuilder builder = new StringBuilder("mp");
+        append(builder, target);
+        append(builder, spriteFrom.getComponent().getSelected() == null ? null : spriteFrom.getComponent().getSelected().getContent());
+        append(builder, lifeTime, 0);
+        append(builder, alwaysRender.getComponent().getSelected() == null ? null : alwaysRender.getComponent().getSelected().getContent());
+        append(builder, amount, 0);
+        append(builder, xPos, null);
+
+        return builder.toString();
+    }
+
+    public void append(StringBuilder string, Object o) {
+        if (o != null && !o.toString().isEmpty()) {
+            string.append(" ").append(o.toString());
+        } else {
+            string.append(" ?");
+        }
+    }
+
+    public void append(StringBuilder string, TEditBox editBox,Object defaultValue) {
+        String v = editBox.getValue();
+        if (v.isEmpty() || v.equals(Language.getInstance().getOrDefault("gui.t88.invalid"))) {
+            append(string, defaultValue);
+        } else {
+            append(string, v);
+        }
+    }
+
+    public void append(StringBuilder stringBuilder, TTitledComponent<? extends TEditBox> titled, Object defaultValue) {
+        append(stringBuilder, titled.getComponent(), defaultValue);
     }
 }

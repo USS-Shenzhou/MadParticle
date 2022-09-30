@@ -11,13 +11,16 @@ import java.util.function.Consumer;
  */
 public abstract class TConstrainedEditBox extends TEditBox {
     protected final LinkedList<Consumer<String>> passedResponders = new LinkedList<>();
+    public static final int RED_TEXT_COLOR = 0xfc5454;
+    public static final int WHITE_TEXT_COLOR = DEFAULT_TEXT_COLOR;
+    public static final int BLUE_TEXT_COLOR = 0x37e2ff;
 
     public TConstrainedEditBox() {
         super();
         this.addResponder(s -> {
             if (check(s)) {
                 passedRespond(s);
-                this.setTextColor(14737632);
+                this.setTextColor(WHITE_TEXT_COLOR);
             }
         });
     }
@@ -28,7 +31,7 @@ public abstract class TConstrainedEditBox extends TEditBox {
         try {
             checkAndThrow(value);
         } catch (CommandSyntaxException e) {
-            this.setTextColor(0xfc5454);
+            this.setTextColor(RED_TEXT_COLOR);
             return false;
         } catch (StringIndexOutOfBoundsException e) {
             return true;

@@ -65,6 +65,7 @@
   "gui.mp.de.helper.scale": "大小变化",
   "gui.mp.de.helper.scale_begin": "初始大小",
   "gui.mp.de.helper.scale_end": "结束大小",
+  "gui.mp.de.helper.unwrap": "解析",
 
   "gui.t88.invalid": "不可用"
 }

@@ -163,7 +163,7 @@ public abstract class TScreen extends Screen {
 
     public void onClose(boolean isFinal) {
         if (isFinal) {
-            tChildren.forEach(TWidget::onClose);
+            tChildren.forEach(TWidget::onFinalClose);
         }
         super.onClose();
     }

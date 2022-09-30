@@ -417,6 +417,7 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
     public class Entry extends ObjectSelectionList.Entry<Entry> {
         E content;
         Consumer<TSelectList<E>> consumer;
+        private Integer specialForeground = null;
 
         public Entry(E content, Consumer<TSelectList<E>> consumer) {
             this.content = content;
@@ -442,7 +443,7 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
         @Override
         public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
             Font font = Minecraft.getInstance().font;
-            int color = getSelected() == this ? selectedForeGround : foreground;
+            int color = specialForeground == null ? (getSelected() == this ? selectedForeGround : foreground) : specialForeground;
             switch (horizontalAlignment) {
                 case LEFT:
                     drawString(pPoseStack, font, getNarration(), pLeft + 1, pTop + (pHeight - font.lineHeight) / 2, color);
@@ -470,6 +471,18 @@ public class TSelectList<E> extends ObjectSelectionList<TSelectList<E>.Entry> im
 
         public E getContent() {
             return content;
+        }
+
+        public int getSpecialForeground() {
+            return specialForeground;
+        }
+
+        public void setSpecialForeground(int specialForeground) {
+            this.specialForeground = specialForeground;
+        }
+
+        public void clearSpecialForeground() {
+            specialForeground = null;
         }
     }
 

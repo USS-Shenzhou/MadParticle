@@ -7,10 +7,12 @@
   "mixins": [
     "AbstractSelectionListAccessor",
     "EditBoxAccessor",
+    "LocalCoordinatesAccessor",
     "ParticleAccessor",
     "ParticleEngineAccessor",
     "SliderButtonAccessor",
-    "VertexFormatElementUsageAccessor"
+    "VertexFormatElementUsageAccessor",
+    "WorldCoordinatesAccessor"
   ],
   "client": [
     "ParticleEngineMixin"

@@ -13,6 +13,7 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -194,4 +195,11 @@ public class MadParticleCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    public static ParseResults<CommandSourceStack> justParse(String commandText){
+        CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
+        new MadParticleCommand(dispatcher);
+        InheritableCommandDispatcher<CommandSourceStack> inheritableDispatcher = new InheritableCommandDispatcher<>(dispatcher.getRoot());
+        CommandSourceStack sourceStack = Minecraft.getInstance().player.createCommandSourceStack();
+        return inheritableDispatcher.parse(new InheritableStringReader(commandText), sourceStack);
+    }
 }

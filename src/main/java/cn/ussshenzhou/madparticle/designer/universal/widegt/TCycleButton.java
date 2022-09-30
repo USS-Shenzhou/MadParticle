@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
+import cn.ussshenzhou.madparticle.designer.universal.event.TWidgetContentUpdatedEvent;
 import cn.ussshenzhou.madparticle.designer.universal.util.ToTranslatableString;
 import net.minecraft.client.Minecraft;
 import net.minecraft.locale.Language;
@@ -7,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
+import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -75,6 +77,7 @@ public class TCycleButton<E> extends TButton {
         if (c != null) {
             c.accept(this);
         }
+        MinecraftForge.EVENT_BUS.post(new TWidgetContentUpdatedEvent(this));
     }
 
     public void select(Entry entry) {
@@ -109,6 +112,7 @@ public class TCycleButton<E> extends TButton {
         } else {
             this.cycleIndex = 0;
             this.setMessage(new TextComponent(""));
+            MinecraftForge.EVENT_BUS.post(new TWidgetContentUpdatedEvent(this));
         }
     }
 

@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.universal.widegt;
 
 import cn.ussshenzhou.madparticle.designer.universal.event.EditBoxFocusedEvent;
+import cn.ussshenzhou.madparticle.designer.universal.event.TWidgetContentUpdatedEvent;
 import cn.ussshenzhou.madparticle.designer.universal.util.AccessorProxy;
 import cn.ussshenzhou.madparticle.designer.universal.util.MWidget2TComponentHelper;
 import cn.ussshenzhou.madparticle.designer.universal.util.Vec2i;
@@ -24,10 +25,18 @@ public class TEditBox extends EditBox implements TWidget, TResponder<String> {
     TComponent parent = null;
     protected final LinkedList<Consumer<String>> responders = new LinkedList<>();
 
+    @SubscribeEvent
+    public void onEditBoxFocused(EditBoxFocusedEvent event) {
+        if (event.getWillFocused() != this) {
+            this.setFocus(false);
+        }
+    }
+
     public TEditBox(Component tipText) {
         super(Minecraft.getInstance().font, 0, 0, 0, 0, tipText);
         MinecraftForge.EVENT_BUS.register(this);
         setResponder(this::respond);
+        this.addResponder(s -> MinecraftForge.EVENT_BUS.post(new TWidgetContentUpdatedEvent(this)));
     }
 
     public TEditBox() {
@@ -70,7 +79,6 @@ public class TEditBox extends EditBox implements TWidget, TResponder<String> {
         responders.clear();
     }
 
-
     @Override
     public boolean isVisibleT() {
         return this.isVisible();
@@ -102,17 +110,10 @@ public class TEditBox extends EditBox implements TWidget, TResponder<String> {
         super.setFocus(pIsFocused);
     }
 
-    @SubscribeEvent
-    public void onEditBoxFocused(EditBoxFocusedEvent event) {
-        if (event.getWillFocused() != this) {
-            this.setFocus(false);
-        }
-    }
-
     @Override
-    public void onClose() {
+    public void onFinalClose() {
         MinecraftForge.EVENT_BUS.unregister(this);
-        TWidget.super.onClose();
+        TWidget.super.onFinalClose();
     }
 
     @Override

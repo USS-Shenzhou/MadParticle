@@ -2,6 +2,7 @@ package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.command.inheritable.*;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
+import cn.ussshenzhou.madparticle.designer.universal.advanced.TConstrainedEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledComponent;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledCycleButton;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSimpleConstrainedEditBox;
@@ -264,9 +265,9 @@ public class ParametersScrollPanel extends TScrollPanel {
                 rSlider.setValue(accessor.getRCol());
                 gSlider.setValue(accessor.getGCol());
                 bSlider.setValue(accessor.getBCol());
-                r.getComponent().setTextColor(0x37e2ff);
-                g.getComponent().setTextColor(0x37e2ff);
-                b.getComponent().setTextColor(0x37e2ff);
+                r.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);
+                g.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);
+                b.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);
                 ifClearThenSet(accessor.getFriction(), friction, friction2);
                 ifClearThenSet(accessor.getGravity(), gravity, gravity2);
                 ifClearThenSet(gravity2, accessor.getGravity());
@@ -451,26 +452,44 @@ public class ParametersScrollPanel extends TScrollPanel {
     }
 
     public String wrap() {
-        StringBuilder builder = new StringBuilder("mp");
-        append(builder, target);
-        append(builder, spriteFrom.getComponent().getSelected() == null ? null : spriteFrom.getComponent().getSelected().getContent());
-        append(builder, lifeTime, 0);
-        append(builder, alwaysRender.getComponent().getSelected() == null ? null : alwaysRender.getComponent().getSelected().getContent());
-        append(builder, amount, 0);
-        append(builder, xPos, null);
-
+        StringBuilder builder = new StringBuilder();
+        append(builder, target.getComponent().getEditBox());
+        append(builder, spriteFrom);
+        append(builder, lifeTime);
+        append(builder, alwaysRender);
+        append(builder, amount,1);
+        Stream.of(xPos, yPos, zPos, xD, yD, zD, vx, vy, vz, vxD, vyD, vzD).forEach(titled -> append(builder, titled, "0.0"));
+        append(builder, collision);
+        Stream.of(collisionTime, horizontalCollision, verticalCollision, friction, friction2, gravity, gravity2, xDeflection, zDeflection, xDeflection2, zDeflection2, roll)
+                .forEach(titled -> append(builder, titled, "0"));
+        append(builder, interact);
+        Stream.of(horizontalInteract, horizontalInteract).forEach(titled -> append(builder, titled));
+        append(builder, renderType);
+        Stream.of(r, g, b, alphaBegin, alphaEnd).forEach(titled -> append(builder, titled));
+        append(builder, alpha);
+        Stream.of(scaleBegin, scaleEnd).forEach(titled -> append(builder, titled));
+        append(builder, scale);
+        append(builder, whoCanSee.getComponent().getEditBox(), "@a");
         return builder.toString();
     }
 
-    public void append(StringBuilder string, Object o) {
+    private void append(StringBuilder string, Object o) {
         if (o != null && !o.toString().isEmpty()) {
-            string.append(" ").append(o.toString());
+            string.append(" ").append(o);
         } else {
             string.append(" ?");
         }
     }
 
-    public void append(StringBuilder string, TEditBox editBox,Object defaultValue) {
+    private void append(StringBuilder string, TEditBox editBox) {
+        append(string, editBox.getValue());
+    }
+
+    private void append(StringBuilder stringBuilder, TTitledComponent<? extends TEditBox> titled) {
+        append(stringBuilder, titled.getComponent());
+    }
+
+    private void append(StringBuilder string, TEditBox editBox, Object defaultValue) {
         String v = editBox.getValue();
         if (v.isEmpty() || v.equals(Language.getInstance().getOrDefault("gui.t88.invalid"))) {
             append(string, defaultValue);
@@ -479,7 +498,15 @@ public class ParametersScrollPanel extends TScrollPanel {
         }
     }
 
-    public void append(StringBuilder stringBuilder, TTitledComponent<? extends TEditBox> titled, Object defaultValue) {
+    private void append(StringBuilder stringBuilder, TTitledComponent<? extends TEditBox> titled, Object defaultValue) {
         append(stringBuilder, titled.getComponent(), defaultValue);
+    }
+
+    private void append(StringBuilder string, TTitledCycleButton<?> button) {
+        if (button.getComponent().getSelected() == null) {
+            append(string, (Object) null);
+        } else {
+            append(string, button.getComponent().getSelected().getContent());
+        }
     }
 }

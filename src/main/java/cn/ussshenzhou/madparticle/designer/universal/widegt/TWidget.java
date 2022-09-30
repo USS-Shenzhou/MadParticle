@@ -56,7 +56,7 @@ public interface TWidget extends Widget, GuiEventListener {
         return pMouseX >= getX() - xPadding && pMouseX <= getX() + getSize().x + xPadding && pMouseY >= getY() - yPadding && pMouseY <= getY() + getSize().y + yPadding;
     }
 
-    default void onClose() {
+    default void onFinalClose() {
     }
 
     @SuppressWarnings("unchecked")

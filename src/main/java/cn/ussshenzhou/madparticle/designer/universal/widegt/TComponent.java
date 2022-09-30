@@ -216,8 +216,8 @@ public abstract class TComponent extends GuiComponent implements TWidget {
     }
 
     @Override
-    public void onClose() {
-        children.forEach(TWidget::onClose);
+    public void onFinalClose() {
+        children.forEach(TWidget::onFinalClose);
     }
 
     @Override

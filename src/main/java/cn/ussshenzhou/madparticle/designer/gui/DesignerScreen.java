@@ -9,7 +9,6 @@ import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TPanel;
 import cn.ussshenzhou.madparticle.designer.universal.widegt.TSelectList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import javax.annotation.Nullable;
@@ -95,7 +94,6 @@ public class DesignerScreen extends TScreen {
             this.onClose(false);
             return true;
         } else {
-            LogUtils.getLogger().warn("screen pressed, {}", this.getFocused());
             return this.getFocused() != null && this.getFocused().keyPressed(pKeyCode, pScanCode, pModifiers);
         }
     }

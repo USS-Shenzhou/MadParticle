@@ -259,7 +259,10 @@ public class ParametersScrollPanel extends TScrollPanel {
                 Stream.of(xPos, yPos, zPos).forEach(
                         titled -> ifClearThenSet(titled, isChild ? "=" : "~")
                 );
-                Stream.of(xD, yD, zD, vxD, vyD, vzD, vx, vy, vz).forEach(
+                Stream.of(vx, vy, vz).forEach(
+                        titled -> ifClearThenSet(titled, isChild ? "=" : "0.0")
+                );
+                Stream.of(xD, yD, zD, vxD, vyD, vzD ).forEach(
                         titled -> ifClearThenSet(titled, "0.0")
                 );
                 rSlider.setValue(accessor.getRCol());

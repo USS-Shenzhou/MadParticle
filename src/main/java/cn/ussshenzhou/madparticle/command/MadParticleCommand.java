@@ -23,13 +23,14 @@ import net.minecraft.commands.arguments.coordinates.Coordinates;
 import net.minecraft.commands.arguments.coordinates.WorldCoordinates;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.command.EnumArgument;
 
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author USS_Shenzhou
@@ -123,12 +124,22 @@ public class MadParticleCommand {
         );
     }
 
-    private static int sendToAll(CommandContext<CommandSourceStack> ct, CommandDispatcher<CommandSourceStack> dispatcher) throws CommandSyntaxException {
-        ServerLevel level = ct.getSource().getLevel();
-        return sendToPlayer(ct, level.getPlayers(serverPlayer -> true), dispatcher);
+    private static int sendToAll(CommandContext<CommandSourceStack> ct, CommandDispatcher<CommandSourceStack> dispatcher) {
+        return sendToPlayer(ct, ct.getSource().getLevel().getPlayers(serverPlayer -> true), dispatcher);
     }
 
-    private static int sendToPlayer(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) throws CommandSyntaxException {
+    private static int sendToPlayer(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                send(context, players, dispatcher);
+            } catch (CommandSyntaxException e) {
+                context.getSource().sendFailure(new TextComponent(e.getLocalizedMessage()));
+            }
+        });
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int send(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) throws CommandSyntaxException {
         String commandString = context.getInput();
         String[] commandStrings = commandString.split(" expireThen ");
         MadParticleOption child = null;

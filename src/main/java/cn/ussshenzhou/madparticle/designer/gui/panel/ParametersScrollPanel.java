@@ -256,10 +256,10 @@ public class ParametersScrollPanel extends TScrollPanel {
                 ifClearThenSet(amount, 5);
                 alwaysRender.getComponent().select(InheritableBoolean.FALSE);
                 ifClearThenSet(whoCanSee.getComponent().getEditBox(), "@a");
-                Stream.of(xPos, yPos, zPos, vx, vy, vz).forEach(
+                Stream.of(xPos, yPos, zPos).forEach(
                         titled -> ifClearThenSet(titled, isChild ? "=" : "~")
                 );
-                Stream.of(xD, yD, zD, vxD, vyD, vzD).forEach(
+                Stream.of(xD, yD, zD, vxD, vyD, vzD, vx, vy, vz).forEach(
                         titled -> ifClearThenSet(titled, "0.0")
                 );
                 rSlider.setValue(accessor.getRCol());

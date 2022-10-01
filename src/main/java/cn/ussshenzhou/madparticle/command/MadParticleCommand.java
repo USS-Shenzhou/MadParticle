@@ -13,6 +13,7 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -122,12 +123,12 @@ public class MadParticleCommand {
         );
     }
 
-    private static int sendToAll(CommandContext<CommandSourceStack> ct, CommandDispatcher<CommandSourceStack> dispatcher) {
+    private static int sendToAll(CommandContext<CommandSourceStack> ct, CommandDispatcher<CommandSourceStack> dispatcher) throws CommandSyntaxException {
         ServerLevel level = ct.getSource().getLevel();
         return sendToPlayer(ct, level.getPlayers(serverPlayer -> true), dispatcher);
     }
 
-    private static int sendToPlayer(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {
+    private static int sendToPlayer(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) throws CommandSyntaxException {
         String commandString = context.getInput();
         String[] commandStrings = commandString.split(" expireThen ");
         MadParticleOption child = null;
@@ -136,16 +137,21 @@ public class MadParticleCommand {
             if (s.startsWith("/")) {
                 s = s.replaceFirst("/", "");
             }
+
             if (!s.startsWith("mp") && !s.startsWith("madparticle")) {
-                s = "mp " + s;
+                if (!s.startsWith("execute")) {
+                    s = "mp " + s;
+                    s = s.replaceFirst("madparticle", "mp");
+                }
             }
             InheritableCommandDispatcher<CommandSourceStack> inheritableCommandDispatcher = new InheritableCommandDispatcher<>(dispatcher.getRoot());
             ParseResults<CommandSourceStack> parseResults = inheritableCommandDispatcher.parse(new InheritableStringReader(s), context.getSource());
-            CommandContext<CommandSourceStack> ct = parseResults.getContext().build(s);
-            Vec3 pos = ct.getArgument("spawnPos", Coordinates.class).getPosition(ct.getSource());
-            Vec3 posDiffuse = ct.getArgument("spawnDiffuse", WorldCoordinates.class).getPosition(ct.getSource());
-            Vec3 speed = ct.getArgument("spawnSpeed", WorldCoordinates.class).getPosition(ct.getSource());
-            Vec3 speedDiffuse = ct.getArgument("speedDiffuse", WorldCoordinates.class).getPosition(ct.getSource());
+            CommandContext<CommandSourceStack> ctRoot = parseResults.getContext().build(s);
+            CommandContext<CommandSourceStack> ct = getValidContextChild(ctRoot);
+            Vec3 pos = ct.getArgument("spawnPos", Coordinates.class).getPosition(ctRoot.getSource());
+            Vec3 posDiffuse = ct.getArgument("spawnDiffuse", WorldCoordinates.class).getPosition(ctRoot.getSource());
+            Vec3 speed = ct.getArgument("spawnSpeed", WorldCoordinates.class).getPosition(ctRoot.getSource());
+            Vec3 speedDiffuse = ct.getArgument("speedDiffuse", WorldCoordinates.class).getPosition(ctRoot.getSource());
             boolean haveChild = i != commandStrings.length - 1;
             MadParticleOption father = new MadParticleOption(
                     Registry.PARTICLE_TYPE.getId(ct.getArgument("targetParticle", ParticleOptions.class).getType()),
@@ -195,7 +201,23 @@ public class MadParticleCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    public static ParseResults<CommandSourceStack> justParse(String commandText){
+    private static CommandContext<CommandSourceStack> getValidContextChild(CommandContext<CommandSourceStack> root) throws CommandSyntaxException {
+        CommandContext<CommandSourceStack> now = root;
+        while (true) {
+            try {
+                now.getArgument("targetParticle", ParticleOptions.class);
+                break;
+            } catch (IllegalArgumentException ignored) {
+                now = now.getChild();
+                if (now == null) {
+                    throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create("Failed to parse command correctly.");
+                }
+            }
+        }
+        return now;
+    }
+
+    public static ParseResults<CommandSourceStack> justParse(String commandText) {
         CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
         new MadParticleCommand(dispatcher);
         InheritableCommandDispatcher<CommandSourceStack> inheritableDispatcher = new InheritableCommandDispatcher<>(dispatcher.getRoot());

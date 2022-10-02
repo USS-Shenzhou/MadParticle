@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.command;
 
 import cn.ussshenzhou.madparticle.command.inheritable.*;
+import cn.ussshenzhou.madparticle.mixin.CommandContextAccessor;
 import cn.ussshenzhou.madparticle.network.MadParticlePacket;
 import cn.ussshenzhou.madparticle.network.MadParticlePacketSend;
 import cn.ussshenzhou.madparticle.particle.ChangeMode;
@@ -219,9 +220,11 @@ public class MadParticleCommand {
                 now.getArgument("targetParticle", ParticleOptions.class);
                 break;
             } catch (IllegalArgumentException ignored) {
-                now = now.getChild();
-                if (now == null) {
-                    throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create("Failed to parse command correctly.");
+                if (now.getChild() == null) {
+                    throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create(
+                            "Failed to parse command correctly after "+((CommandContextAccessor<?>)now).getArguments().keySet().toString());
+                } else {
+                    now = now.getChild();
                 }
             }
         }

@@ -183,7 +183,7 @@ public class MadParticle extends TextureSheetParticle {
         double y0 = pY;
         double z0 = pZ;
         double r2 = pX * pX + pY * pY + pZ * pZ;
-        if (this.hasPhysics && (pX != 0.0D || pY != 0.0D || pZ != 0.0D) && r2 < MAXIMUM_COLLISION_VELOCITY_SQUARED) {
+        if (collision && this.hasPhysics && (pX != 0.0D || pY != 0.0D || pZ != 0.0D) && r2 < MAXIMUM_COLLISION_VELOCITY_SQUARED) {
             Vec3 vec3 = Entity.collideBoundingBox((Entity) null, new Vec3(pX, pY, pZ), this.getBoundingBox(), this.level, List.of());
             pX = vec3.x;
             pY = vec3.y;

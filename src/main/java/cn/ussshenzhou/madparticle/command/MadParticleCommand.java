@@ -1,7 +1,6 @@
 package cn.ussshenzhou.madparticle.command;
 
 import cn.ussshenzhou.madparticle.command.inheritable.*;
-import cn.ussshenzhou.madparticle.mixin.CommandContextAccessor;
 import cn.ussshenzhou.madparticle.network.MadParticlePacket;
 import cn.ussshenzhou.madparticle.network.MadParticlePacketSend;
 import cn.ussshenzhou.madparticle.particle.ChangeMode;
@@ -14,6 +13,7 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.context.ParsedArgument;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
@@ -30,7 +30,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.command.EnumArgument;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -221,8 +223,17 @@ public class MadParticleCommand {
                 break;
             } catch (IllegalArgumentException ignored) {
                 if (now.getChild() == null) {
-                    throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create(
-                            "Failed to parse command correctly after "+((CommandContextAccessor<?>)now).getArguments().keySet().toString());
+                    try {
+                        Field f = now.getClass().getDeclaredField("arguments");
+                        f.setAccessible(true);
+                        Map<String, ParsedArgument<?, ?>> map = (Map<String, ParsedArgument<?, ?>>) f.get(now);
+                        String[] s = map.keySet().toArray(new String[0]);
+                        throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create(
+                                "Failed to parse command correctly after " + s[s.length - 1]);
+                    } catch (NoSuchFieldException | IllegalAccessException | ClassCastException ignored1) {
+                        throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create(
+                                "Failed to parse command correctly. Failed to get more info.");
+                    }
                 } else {
                     now = now.getChild();
                 }

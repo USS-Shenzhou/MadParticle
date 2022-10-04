@@ -15,7 +15,6 @@
     "WorldCoordinatesAccessor"
   ],
   "client": [
-    "ParticleEngineMixin"
   ],
   "injectors": {
     "defaultRequire": 1

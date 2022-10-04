@@ -14,18 +14,20 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import static com.mojang.blaze3d.vertex.DefaultVertexFormat.*;
 
 /**
+ * don't use the passed BufferBuilder instance in the {@link MadParticleRenderTypes#begin(BufferBuilder, TextureManager)}<p>
+ * use the BufferBuilder holded by {@link MadParticleRenderTypes} itself
  * @author zomb-676
  */
 public enum MadParticleRenderTypes implements ParticleRenderType {
 
     TERRAIN_SHEET {
-        public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
+        public void begin(@Deprecated BufferBuilder bufferBuilderPassed, TextureManager textureManager) {
             RenderSystem.enableBlend();
             RenderSystem.setShader(MadParticleShader::getMadParticleShader);
             RenderSystem.defaultBlendFunc();
             RenderSystem.depthMask(true);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
-            bufferBuilder.begin(VertexFormat.Mode.QUADS, PARTICLE);
+            this.bufferBuilder.begin(VertexFormat.Mode.QUADS, PARTICLE);
         }
 
         public void end(Tesselator tesselator) {
@@ -37,13 +39,13 @@ public enum MadParticleRenderTypes implements ParticleRenderType {
         }
     },
     PARTICLE_SHEET_OPAQUE {
-        public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
+        public void begin(@Deprecated BufferBuilder bufferBuilderPassed, TextureManager textureManager) {
             RenderSystem.disableBlend();
             RenderSystem.setShader(MadParticleShader::getMadParticleShader);
             RenderSystem.depthMask(true);
             RenderSystem.setShader(GameRenderer::getParticleShader);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
-            bufferBuilder.begin(VertexFormat.Mode.QUADS, PARTICLE);
+            this.bufferBuilder.begin(VertexFormat.Mode.QUADS, PARTICLE);
         }
 
         public void end(Tesselator tesselator) {
@@ -55,13 +57,13 @@ public enum MadParticleRenderTypes implements ParticleRenderType {
         }
     },
     PARTICLE_SHEET_TRANSLUCENT {
-        public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
+        public void begin(@Deprecated BufferBuilder bufferBuilderPassed, TextureManager textureManager) {
             RenderSystem.setShader(MadParticleShader::getMadParticleShader);
             RenderSystem.depthMask(true);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             RenderSystem.enableBlend();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            bufferBuilder.begin(VertexFormat.Mode.QUADS, PARTICLE);
+            this.bufferBuilder.begin(VertexFormat.Mode.QUADS, PARTICLE);
         }
 
         public void end(Tesselator tesselator) {
@@ -73,12 +75,12 @@ public enum MadParticleRenderTypes implements ParticleRenderType {
         }
     },
     PARTICLE_SHEET_LIT {
-        public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
+        public void begin(@Deprecated BufferBuilder bufferBuilderPassed, TextureManager textureManager) {
             RenderSystem.setShader(MadParticleShader::getMadParticleShader);
             RenderSystem.disableBlend();
             RenderSystem.depthMask(true);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
-            bufferBuilder.begin(VertexFormat.Mode.QUADS, PARTICLE);
+            this.bufferBuilder.begin(VertexFormat.Mode.QUADS, PARTICLE);
         }
 
         public void end(Tesselator tesselator) {

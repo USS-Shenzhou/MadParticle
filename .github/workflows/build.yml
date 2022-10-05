@@ -1,0 +1,44 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: test-build
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'build.gradle'
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Apply Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: $${{ runner.os }}-gradle
+      - name: Get Short Identifier
+        uses: benjlevesque/short-sha@v1.2
+        id: short-sha
+      - name: Build
+        id: build
+        env:
+          VERSION_IDENTIFIER: SNAPSHOT+${{ steps.short-sha.outputs.sha }}
+        run: ./gradlew :build :githubActionOutput --stacktrace
+      - name: GitHub Action Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build.outputs.artifact_name }}
+          path: ${{ steps.build.outputs.artifact_path }}

@@ -99,6 +99,7 @@ public class MadParticle extends TextureSheetParticle {
         this.gCol = g;
         this.bCol = b;
         this.beginAlpha = beginAlpha;
+        this.alpha = beginAlpha;
         this.endAlpha = endAlpha;
         this.alphaMode = alphaMode;
         this.beginScale = beginScale;

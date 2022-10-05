@@ -2,7 +2,6 @@ package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.command.inheritable.*;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
-import cn.ussshenzhou.madparticle.designer.universal.advanced.TConstrainedEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledComponent;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledCycleButton;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSimpleConstrainedEditBox;
@@ -262,15 +261,18 @@ public class ParametersScrollPanel extends TScrollPanel {
                 Stream.of(vx, vy, vz).forEach(
                         titled -> ifClearThenSet(titled, isChild ? "=" : "0.0")
                 );
-                Stream.of(xD, yD, zD, vxD, vyD, vzD ).forEach(
+                Stream.of(xD, yD, zD, vxD, vyD, vzD).forEach(
                         titled -> ifClearThenSet(titled, "0.0")
                 );
-                rSlider.setValue(accessor.getRCol());
+                /*rSlider.setValue(accessor.getRCol());
                 gSlider.setValue(accessor.getGCol());
                 bSlider.setValue(accessor.getBCol());
                 r.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);
                 g.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);
-                b.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);
+                b.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);*/
+                ifClearThenSet(r, accessor.getRCol());
+                ifClearThenSet(g, accessor.getGCol());
+                ifClearThenSet(b, accessor.getBCol());
                 ifClearThenSet(accessor.getFriction(), friction, friction2);
                 ifClearThenSet(accessor.getGravity(), gravity, gravity2);
                 ifClearThenSet(gravity2, accessor.getGravity());
@@ -460,7 +462,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         append(builder, spriteFrom);
         append(builder, lifeTime);
         append(builder, alwaysRender);
-        append(builder, amount,1);
+        append(builder, amount, 1);
         Stream.of(xPos, yPos, zPos, xD, yD, zD, vx, vy, vz, vxD, vyD, vzD).forEach(titled -> append(builder, titled, "0.0"));
         append(builder, collision);
         Stream.of(collisionTime, horizontalCollision, verticalCollision, friction, friction2, gravity, gravity2, xDeflection, zDeflection, xDeflection2, zDeflection2, roll)

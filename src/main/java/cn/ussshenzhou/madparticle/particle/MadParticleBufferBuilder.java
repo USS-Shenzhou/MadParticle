@@ -2,7 +2,6 @@ package cn.ussshenzhou.madparticle.particle;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferVertexConsumer;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 
 /**
@@ -13,12 +12,26 @@ public class MadParticleBufferBuilder extends BufferBuilder {
     MadParticleBufferBuilder(int pCapacity) {
         super(pCapacity);
     }
+    public MadParticleBufferBuilder bloomFactor(float bloomFactorR,float bloomFactorG,float bloomFactorB) {
+        var vertexformatelement = this.currentElement();
+        if (vertexformatelement.getUsage() != MadParticleRenderTypes.BLOOM_FACTOR) {
+            return this;
+        } else if (vertexformatelement.getType() == VertexFormatElement.Type.FLOAT && vertexformatelement.getCount() == 3) {
+            this.putFloat(0,bloomFactorR);
+            this.putFloat(4,bloomFactorG);
+            this.putFloat(2 * 4,bloomFactorB);
+            this.nextElement();
+            return this;
+        }else{
+            throw new IllegalStateException();
+        }
+    }
 
     /**
      * allow greater than 255
      */
     @Override
-    public VertexConsumer color(int pRed, int pGreen, int pBlue, int pAlpha) {
+    public MadParticleBufferBuilder color(int pRed, int pGreen, int pBlue, int pAlpha) {
         VertexFormatElement vertexformatelement = this.currentElement();
         if (vertexformatelement.getUsage() != MadParticleRenderTypes.NO_NORMALIZED_COLOR) {
             return this;
@@ -38,7 +51,7 @@ public class MadParticleBufferBuilder extends BufferBuilder {
      * allow greater than 1f
      */
     @Override
-    public VertexConsumer color(float pRed, float pGreen, float pBlue, float pAlpha) {
+    public MadParticleBufferBuilder color(float pRed, float pGreen, float pBlue, float pAlpha) {
         VertexFormatElement vertexformatelement = this.currentElement();
         if (vertexformatelement.getUsage() != MadParticleRenderTypes.NO_NORMALIZED_COLOR) {
             return this;
@@ -59,8 +72,8 @@ public class MadParticleBufferBuilder extends BufferBuilder {
      */
     @Override
     @Deprecated
-    public VertexConsumer color(int pColorARGB) {
-        return super.color(pColorARGB);
+    public MadParticleBufferBuilder color(int pColorARGB) {
+        return (MadParticleBufferBuilder) super.color(pColorARGB);
     }
 
     @Override
@@ -79,15 +92,15 @@ public class MadParticleBufferBuilder extends BufferBuilder {
             this.putFloat(32, pTexV);
             int i;
             if (this.fullFormat) {
-                this.putShort(36, (short)(pOverlayUV & '\uffff'));
-                this.putShort(38, (short)(pOverlayUV >> 16 & '\uffff'));
+                this.putShort(36, (short) (pOverlayUV & '\uffff'));
+                this.putShort(38, (short) (pOverlayUV >> 16 & '\uffff'));
                 i = 40;
             } else {
                 i = 36;
             }
 
-            this.putShort(i + 0, (short)(pLightmapUV & '\uffff'));
-            this.putShort(i + 2, (short)(pLightmapUV >> 16 & '\uffff'));
+            this.putShort(i + 0, (short) (pLightmapUV & '\uffff'));
+            this.putShort(i + 2, (short) (pLightmapUV >> 16 & '\uffff'));
             this.putByte(i + 4, BufferVertexConsumer.normalIntValue(pNormalX));
             this.putByte(i + 5, BufferVertexConsumer.normalIntValue(pNormalY));
             this.putByte(i + 6, BufferVertexConsumer.normalIntValue(pNormalZ));

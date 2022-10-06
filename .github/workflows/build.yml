@@ -40,10 +40,7 @@ jobs:
         id: build
         env:
           VERSION_IDENTIFIER: SNAPSHOT+${{ steps.short-sha.outputs.sha }}
-        #run: |
-        #  chmod +x gradlew
-        #  ./gradlew :build :githubActionOutput --stacktrace
-        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        run: ./gradlew :build :githubActionOutput --stacktrace
         with:
           arguments: build, githubActionOutput, --stacktrace
       - name: GitHub Action Artifact

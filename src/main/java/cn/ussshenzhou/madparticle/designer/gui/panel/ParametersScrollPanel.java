@@ -131,7 +131,15 @@ public class ParametersScrollPanel extends TScrollPanel {
             alphaEnd = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.alpha_end"), FloatArgumentType.floatArg()),
             scaleBegin = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.scale_begin"), FloatArgumentType.floatArg()),
             scaleEnd = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.scale_end"), FloatArgumentType.floatArg());
-
+    //lane 9
+    public final TTitledSimpleConstrainedEditBox
+            bloomR = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom R"), FloatArgumentType.floatArg()),
+            bloomG = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom G"), FloatArgumentType.floatArg()),
+            bloomB = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom B"), FloatArgumentType.floatArg());
+    public final TSlider
+            bloomRSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.bloom_r")),
+            bloomGSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.bloom_g")),
+            bloomBSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.bloom_b"));
 
     public ParametersScrollPanel() {
         super();
@@ -143,6 +151,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         init6();
         init7();
         init8();
+        init9();
         setChild(true);
     }
 
@@ -239,6 +248,37 @@ public class ParametersScrollPanel extends TScrollPanel {
         this.addAll(alpha, scale, roll, alphaBegin, alphaEnd, scaleBegin, scaleEnd);
     }
 
+    public void init9(){
+        this.addAll(bloomR, bloomG, bloomB, bloomRSlider, bloomGSlider, bloomBSlider);
+        bloomR.getComponent().addPassedResponder(s -> {
+            float f = Float.parseFloat(s);
+            bloomRSlider.setValueWithoutRespond(f);
+        });
+        bloomG.getComponent().addPassedResponder(s -> {
+            float f = Float.parseFloat(s);
+            bloomGSlider.setValueWithoutRespond(f);
+        });
+        bloomB.getComponent().addPassedResponder(s -> {
+            float f = Float.parseFloat(s);
+            bloomBSlider.setValueWithoutRespond(f);
+        });
+        bloomRSlider.addResponder(d -> {
+            bloomR.getComponent().setValue(String.format("%.3f", d));
+            AccessorProxy.EditBoxProxy.setDisplayPos(r.getComponent(), 0);
+        });
+        bloomGSlider.addResponder(d -> {
+            bloomG.getComponent().setValue(String.format("%.3f", d));
+            AccessorProxy.EditBoxProxy.setDisplayPos(g.getComponent(), 0);
+        });
+        bloomBSlider.addResponder(d -> {
+            bloomB.getComponent().setValue(String.format("%.3f", d));
+            AccessorProxy.EditBoxProxy.setDisplayPos(b.getComponent(), 0);
+        });
+        bloomRSlider.setValue(1);
+        bloomGSlider.setValue(1);
+        bloomBSlider.setValue(1);
+    }
+
     private void tryFillDefault() {
         ArgumentSuggestionsDispatcher<ParticleOptions> dispatcher = new ArgumentSuggestionsDispatcher<>();
         dispatcher.register(Commands.argument("particle", ParticleArgument.particle()));
@@ -264,12 +304,6 @@ public class ParametersScrollPanel extends TScrollPanel {
                 Stream.of(xD, yD, zD, vxD, vyD, vzD).forEach(
                         titled -> ifClearThenSet(titled, "0.0")
                 );
-                /*rSlider.setValue(accessor.getRCol());
-                gSlider.setValue(accessor.getGCol());
-                bSlider.setValue(accessor.getBCol());
-                r.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);
-                g.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);
-                b.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);*/
                 ifClearThenSet(r, accessor.getRCol());
                 ifClearThenSet(g, accessor.getGCol());
                 ifClearThenSet(b, accessor.getBCol());
@@ -400,7 +434,19 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BLeftOfA(alphaEnd, xGap, scale, stdTitledEditBox);
         LayoutHelper.BLeftOfA(alphaBegin, xGap, alphaEnd);
         LayoutHelper.BLeftOfA(alpha, xGap, alphaBegin, stdTitledButton);
+        //lane 9
+        LayoutHelper.BBottomOfA(bloomR, yGap, roll, stdTitledEditBox);
+        LayoutHelper.BRightOfA(bloomG, xGap, bloomR, l, stdTitledEditBox.y);
+        LayoutHelper.BRightOfA(bloomG, xGap, bloomG, stdTitledEditBox);
+        LayoutHelper.BRightOfA(bloomB, xGap, bloomG, l, stdTitledEditBox.y);
+        LayoutHelper.BRightOfA(bloomB, xGap, bloomB, stdTitledEditBox);
 
+        LayoutHelper.BRightOfA(bloomRSlider, xGap, bloomR, l, bloomRSlider.getPreferredSize().y);
+        LayoutHelper.BBottomOfA(bloomRSlider, 12 - bloomRSlider.getPreferredSize().y, bloomRSlider);
+        LayoutHelper.BRightOfA(bloomGSlider, xGap, bloomG, l, bloomGSlider.getPreferredSize().y);
+        LayoutHelper.BBottomOfA(bloomGSlider, 12 - bloomGSlider.getPreferredSize().y, bloomGSlider);
+        LayoutHelper.BRightOfA(bloomBSlider, xGap,bloomB, l, bloomBSlider.getPreferredSize().y);
+        LayoutHelper.BBottomOfA(bloomBSlider, 12 - bloomBSlider.getPreferredSize().y, bloomBSlider);
         super.layout();
     }
 

@@ -47,6 +47,7 @@ public class MadParticle extends TextureSheetParticle {
     protected float zDeflection;
     protected final float xDeflectionAfterCollision;
     protected final float zDeflectionAfterCollision;
+    protected final float bloomR, bloomG, bloomB;
 
     private int bounceCount = 0;
     private float scale;
@@ -68,7 +69,8 @@ public class MadParticle extends TextureSheetParticle {
                        float beginScale, float endScale, ChangeMode scaleMode,
                        MadParticleOption child,
                        float rollSpeed,
-                       float xDeflection, float zDeflection, float xDeflectionAfterCollision, float zDeflectionAfterCollision
+                       float xDeflection, float zDeflection, float xDeflectionAfterCollision, float zDeflectionAfterCollision,
+                       float bloomR, float bloomG, float bloomB
     ) {
         super(pLevel, pX, pY, pZ);
         this.sprites = spriteSet;
@@ -122,6 +124,9 @@ public class MadParticle extends TextureSheetParticle {
         this.zDeflection = zDeflection;
         this.xDeflectionAfterCollision = xDeflectionAfterCollision;
         this.zDeflectionAfterCollision = zDeflectionAfterCollision;
+        this.bloomR = bloomR;
+        this.bloomG = bloomG;
+        this.bloomB = bloomB;
     }
 
     @Override
@@ -362,7 +367,8 @@ public class MadParticle extends TextureSheetParticle {
                             op.beginScale(), op.endScale(), op.scaleMode(),
                             op.child(),
                             op.rollSpeed(),
-                            op.xDeflection(), op.xDeflectionAfterCollision(), op.zDeflection(), op.zDeflectionAfterCollision()
+                            op.xDeflection(), op.xDeflectionAfterCollision(), op.zDeflection(), op.zDeflectionAfterCollision(),
+                            op.bloomR(), op.bloomG(), op.bloomB()
                     );
                 }
             }

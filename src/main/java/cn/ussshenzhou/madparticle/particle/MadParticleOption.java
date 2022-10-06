@@ -26,7 +26,8 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                                 boolean haveChild, MadParticleOption child,
                                 float rollSpeed,
                                 float xDeflection, float zDeflection, float xDeflectionAfterCollision,
-                                float zDeflectionAfterCollision
+                                float zDeflectionAfterCollision,
+                                float bloomR, float bloomG, float bloomB
 
 ) implements ParticleOptions {
     public static final Deserializer<MadParticleOption> DESERIALIZER = new Deserializer<MadParticleOption>() {
@@ -68,6 +69,9 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
             float xDeflectionAfterCollision = buf.readFloat();
             float zDeflection = buf.readFloat();
             float zDeflectionAfterCollision = buf.readFloat();
+            float bloomR = buf.readFloat();
+            float bloomG = buf.readFloat();
+            float bloomB = buf.readFloat();
             return new MadParticleOption(targetParticle, spriteFrom, lifeTime, alwaysRender, amount,
                     px, py, pz, xDiffuse, yDiffuse, zDiffuse, vx, vy, vz, vxDiffuse, vyDiffuse, vzDiffuse,
                     friction, gravity, collision, bounceTime, horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce, afterCollisionFriction, afterCollisionGravity,
@@ -75,7 +79,8 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                     renderType, r, g, b, beginAlpha, endAlpha, alphaMode, beginScale, endScale, scaleMode,
                     haveChild, child,
                     rollSpeed,
-                    xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision
+                    xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision,
+                    bloomR, bloomG, bloomB
             );
         }
     };
@@ -129,6 +134,9 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
         buf.writeFloat(xDeflectionAfterCollision);
         buf.writeFloat(zDeflection);
         buf.writeFloat(zDeflectionAfterCollision);
+        buf.writeFloat(bloomR);
+        buf.writeFloat(bloomG);
+        buf.writeFloat(bloomB);
     }
 
     @Override
@@ -189,7 +197,8 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                 haveChild,
                 child,
                 rollSpeed == Float.MAX_VALUE ? fatherParticle.rollSpeed : rollSpeed,
-                xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision
+                xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision,
+                bloomR, bloomG, bloomB
         );
     }
 }

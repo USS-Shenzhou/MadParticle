@@ -192,3 +192,11 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
+tasks.register("githubActionOutput") {
+    it.onlyIf {
+        System.env.GITHUB_ACTIONS
+    }
+    it.doLast {
+        println "::set-output name=artifact_name::${jarArchiveBaseName}-${version}.dev.jar"
+    }
+}

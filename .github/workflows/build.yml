@@ -15,6 +15,7 @@ on:
       paths:
       - 'src/**'
       - 'build.gradle'
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -45,5 +46,5 @@ jobs:
       - name: GitHub Action Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ steps.build.outputs.artifact_name }}
+          name: output.jar
           path: build/reobfJar/output.jar

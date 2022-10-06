@@ -11,6 +11,10 @@ on:
     paths:
       - 'src/**'
       - 'build.gradle'
+  pull_request:
+      paths:
+      - 'src/**'
+      - 'build.gradle'
 jobs:
   build:
     runs-on: ubuntu-latest

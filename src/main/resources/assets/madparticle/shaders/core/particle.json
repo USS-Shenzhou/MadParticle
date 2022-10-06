@@ -4,13 +4,14 @@
 		"srcrgb": "srcalpha",
 		"dstrgb": "1-srcalpha"
 	},
-	"vertex": "madparticle:particle",
-	"fragment": "madparticle:particle",
+	"vertex": "madparticle:mad_particle",
+	"fragment": "madparticle:mad_particle",
 	"attributes": [
 		"Position",
 		"UV0",
 		"Color",
-		"UV2"
+		"UV2",
+        "BloomFactor"
 	],
 	"samplers": [
 		{ "name": "Sampler0" },

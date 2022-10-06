@@ -301,7 +301,7 @@ public class MadParticle extends TextureSheetParticle {
 
     @Override
     public void render(VertexConsumer pBuffer, Camera pRenderInfo, float pPartialTicks) {
-        pBuffer = ((MadParticleRenderTypes) (particleRenderType)).bufferBuilder;
+        MadParticleBufferBuilder buffer = ((MadParticleRenderTypes) (particleRenderType)).bufferBuilder;
         //copied from SingleQuadParticle.render for compatability with Rubidium
         Vec3 vec3 = pRenderInfo.getPosition();
         float f = (float) (Mth.lerp((double) pPartialTicks, this.xo, this.x) - vec3.x());
@@ -333,10 +333,17 @@ public class MadParticle extends TextureSheetParticle {
         float f5 = this.getV0();
         float f6 = this.getV1();
         int j = this.getLightColor(pPartialTicks);
-        pBuffer.vertex((double) avector3f[0].x(), (double) avector3f[0].y(), (double) avector3f[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-        pBuffer.vertex((double) avector3f[1].x(), (double) avector3f[1].y(), (double) avector3f[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-        pBuffer.vertex((double) avector3f[2].x(), (double) avector3f[2].y(), (double) avector3f[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-        pBuffer.vertex((double) avector3f[3].x(), (double) avector3f[3].y(), (double) avector3f[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+        buffer.vertex((double) avector3f[0].x(), (double) avector3f[0].y(), (double) avector3f[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j);
+        buffer.bloomFactor(1f,1f,1f).endVertex();
+
+        buffer.vertex((double) avector3f[1].x(), (double) avector3f[1].y(), (double) avector3f[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j);
+        buffer.bloomFactor(1f,1f,1f).endVertex();
+
+        buffer.vertex((double) avector3f[2].x(), (double) avector3f[2].y(), (double) avector3f[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j);
+        buffer.bloomFactor(1f,1f,1f).endVertex();
+
+        buffer.vertex((double) avector3f[3].x(), (double) avector3f[3].y(), (double) avector3f[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j);
+        buffer.bloomFactor(1f,1f,1f).endVertex();
 
     }
 

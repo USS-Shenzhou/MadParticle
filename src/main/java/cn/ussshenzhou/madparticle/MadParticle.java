@@ -10,6 +10,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
+import java.util.function.Supplier;
+
 /**
  * TODO:
  * <p>Designer: translocation-priority mode</p>
@@ -21,6 +23,7 @@ public class MadParticle {
     public static final String MOD_ID = "madparticle";
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final boolean isOptifineInstalled = isClassFound("net.optifine.reflect.ReflectorClass");
+    public static final boolean isShimmerInstalled = ModList.get().isLoaded("shimmer");
 
     public MadParticle() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -39,6 +42,12 @@ public class MadParticle {
             return true;
         } catch (ClassNotFoundException e) {
             return false;
+        }
+    }
+
+    public static void runOnShimmer(Supplier<Runnable> run){
+        if (isShimmerInstalled){
+            run.get().run();
         }
     }
 

@@ -36,11 +36,13 @@ jobs:
       - name: Get Short Identifier
         uses: benjlevesque/short-sha@v1.2
         id: short-sha
+      - name: Before Build
+        run: chmod +x gradlew
       - name: Build
         id: build
         env:
           VERSION_IDENTIFIER: SNAPSHOT+${{ steps.short-sha.outputs.sha }}
-        run: chmod +x ./gradlew :build :githubActionOutput --stacktrace
+        run: ./gradlew :build :githubActionOutput --stacktrace
       - name: GitHub Action Artifact
         uses: actions/upload-artifact@v3
         with:

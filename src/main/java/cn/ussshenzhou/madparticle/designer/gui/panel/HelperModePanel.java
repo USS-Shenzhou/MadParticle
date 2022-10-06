@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
+import cn.ussshenzhou.madparticle.command.CommandHelper;
 import cn.ussshenzhou.madparticle.command.MadParticleCommand;
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
@@ -16,7 +17,9 @@ import cn.ussshenzhou.madparticle.particle.SpriteFrom;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.context.ParsedArgument;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -154,8 +157,7 @@ public class HelperModePanel extends TPanel {
         commandStringSelectList.getComponent().clearElement();
         String commandString = command.getEditBox().getValue();
         String[] commandStrings = commandString.split(" expireThen ");
-        for (int i = 0; i < commandStrings.length; i++) {
-            String s = commandStrings[i];
+        for (String s : commandStrings) {
             if (s.startsWith("/")) {
                 s = s.replaceFirst("/", "");
             }
@@ -163,7 +165,13 @@ public class HelperModePanel extends TPanel {
                 s = "mp " + s;
             }
             ParseResults<CommandSourceStack> parseResults = MadParticleCommand.justParse(s);
-            Map<String, ParsedArgument<CommandSourceStack, ?>> map = parseResults.getContext().getArguments();
+            CommandContextBuilder<CommandSourceStack> ctb;
+            try {
+                ctb = CommandHelper.getContextBuilderHasArgument(parseResults.getContext(), "targetParticle");
+            } catch (CommandSyntaxException ignored) {
+                return;
+            }
+            Map<String, ParsedArgument<CommandSourceStack, ?>> map = ctb.getArguments();
             ParametersScrollPanel panel = new ParametersScrollPanel();
             getArgAndFill(panel.target.getComponent().getEditBox(), "targetParticle", s, map);
             getArgAndFill(panel.lifeTime, "lifeTime", s, map);

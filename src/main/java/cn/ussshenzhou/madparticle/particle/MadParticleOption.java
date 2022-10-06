@@ -65,8 +65,8 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
             MadParticleOption child = haveChild ? MadParticleOption.DESERIALIZER.fromNetwork(ModParticleRegistry.MAD_PARTICLE.get(), buf) : null;
             float rollSpeed = buf.readFloat();
             float xDeflection = buf.readFloat();
-            float zDeflection = buf.readFloat();
             float xDeflectionAfterCollision = buf.readFloat();
+            float zDeflection = buf.readFloat();
             float zDeflectionAfterCollision = buf.readFloat();
             return new MadParticleOption(targetParticle, spriteFrom, lifeTime, alwaysRender, amount,
                     px, py, pz, xDiffuse, yDiffuse, zDiffuse, vx, vy, vz, vxDiffuse, vyDiffuse, vzDiffuse,

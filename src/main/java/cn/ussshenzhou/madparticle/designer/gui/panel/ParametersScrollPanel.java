@@ -316,6 +316,9 @@ public class ParametersScrollPanel extends TScrollPanel {
                 ifClearThenSet(roll, accessor.getRoll());
                 ifClearThenSet(accessor.getAlpha(), alphaBegin, alphaEnd);
                 ifClearThenSet(String.format("%.2f", (accessor.getBbHeight() + accessor.getBbWidth()) / 2 / 0.2), scaleBegin, scaleEnd);
+                ifClearThenSet(bloomR,0);
+                ifClearThenSet(bloomG,0);
+                ifClearThenSet(bloomB,0);
             }
         } catch (Exception ignored) {
         }

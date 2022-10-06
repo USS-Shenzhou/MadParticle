@@ -142,6 +142,10 @@ repositories {
     // flatDir {
     //     dir 'libs'
     // }
+    maven {
+        url "https://maven.firstdarkdev.xyz/snapshots"
+    }
+
 }
 
 dependencies {
@@ -150,6 +154,7 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.18.2-40.1.59'
 
+    runtimeOnly fg.deobf("com.lowdragmc.shimmer:Shimmer-forge-1.18.2:0.1.1")
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency

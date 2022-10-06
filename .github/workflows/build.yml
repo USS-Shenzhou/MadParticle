@@ -40,7 +40,8 @@ jobs:
         id: build
         env:
           VERSION_IDENTIFIER: SNAPSHOT+${{ steps.short-sha.outputs.sha }}
-        run: ./gradlew :build :githubActionOutput --stacktrace
+        run: ./gradlew :build --stacktrace
+        #:githubActionOutput
       - name: GitHub Action Artifact
         uses: actions/upload-artifact@v3
         with:

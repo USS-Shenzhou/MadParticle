@@ -37,6 +37,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraftforge.fml.ModList;
 
 import java.util.stream.Stream;
 
@@ -45,9 +46,9 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
 public class ParametersScrollPanel extends TScrollPanel {
-    //public static final Vec2i EDITBOX_SIZE = new Vec2i(35, 36);
     public static final Vec2i BUTTON_SIZE = TButton.RECOMMEND_SIZE;
     private boolean isChild = false;
+    private final static boolean IS_SHIMMER_EXIST = ModList.get().isLoaded("shimmer");
 
     //lane 1
     public final TTitledSuggestedEditBox target = new TTitledSuggestedEditBox(
@@ -248,7 +249,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         this.addAll(alpha, scale, roll, alphaBegin, alphaEnd, scaleBegin, scaleEnd);
     }
 
-    public void init9(){
+    public void init9() {
         this.addAll(bloomR, bloomG, bloomB, bloomRSlider, bloomGSlider, bloomBSlider);
         bloomR.getComponent().addPassedResponder(s -> {
             float f = Float.parseFloat(s);
@@ -277,6 +278,9 @@ public class ParametersScrollPanel extends TScrollPanel {
         bloomRSlider.setValue(1);
         bloomGSlider.setValue(1);
         bloomBSlider.setValue(1);
+        if (!IS_SHIMMER_EXIST) {
+            Stream.of(bloomR, bloomG, bloomB).forEach(t -> t.getComponent().setEditable(false));
+        }
     }
 
     private void tryFillDefault() {
@@ -316,9 +320,9 @@ public class ParametersScrollPanel extends TScrollPanel {
                 ifClearThenSet(roll, accessor.getRoll());
                 ifClearThenSet(accessor.getAlpha(), alphaBegin, alphaEnd);
                 ifClearThenSet(String.format("%.2f", (accessor.getBbHeight() + accessor.getBbWidth()) / 2 / 0.2), scaleBegin, scaleEnd);
-                ifClearThenSet(bloomR,0);
-                ifClearThenSet(bloomG,0);
-                ifClearThenSet(bloomB,0);
+                ifClearThenSet(bloomR, 0);
+                ifClearThenSet(bloomG, 0);
+                ifClearThenSet(bloomB, 0);
             }
         } catch (Exception ignored) {
         }
@@ -448,7 +452,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BBottomOfA(bloomRSlider, 12 - bloomRSlider.getPreferredSize().y, bloomRSlider);
         LayoutHelper.BRightOfA(bloomGSlider, xGap, bloomG, l, bloomGSlider.getPreferredSize().y);
         LayoutHelper.BBottomOfA(bloomGSlider, 12 - bloomGSlider.getPreferredSize().y, bloomGSlider);
-        LayoutHelper.BRightOfA(bloomBSlider, xGap,bloomB, l, bloomBSlider.getPreferredSize().y);
+        LayoutHelper.BRightOfA(bloomBSlider, xGap, bloomB, l, bloomBSlider.getPreferredSize().y);
         LayoutHelper.BBottomOfA(bloomBSlider, 12 - bloomBSlider.getPreferredSize().y, bloomBSlider);
         super.layout();
     }
@@ -483,7 +487,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             Stream.of(horizontalCollision, verticalCollision, horizontalInteract, verticalInteract).forEach(editBox -> editBox.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble()));
             roll.getComponent().setArgument(InheritableFloatArgument.inheritableFloat());
             interact.addElement(InheritableBoolean.INHERIT);
-            Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(InheritableFloatArgument.inheritableFloat()));
+            Stream.of(r, g, b, bloomR, bloomG, bloomB).forEach(editBox -> editBox.getComponent().setArgument(InheritableFloatArgument.inheritableFloat()));
             Stream.of(alpha, scale).forEach(button -> button.addElement(ChangeMode.INHERIT));
 
             amount.getComponent().setEditable(false);
@@ -498,7 +502,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             Stream.of(horizontalCollision, verticalCollision, horizontalInteract, verticalInteract).forEach(editBox -> editBox.getComponent().setArgument(DoubleArgumentType.doubleArg()));
             roll.getComponent().setArgument(FloatArgumentType.floatArg());
             interact.removeElement(InheritableBoolean.INHERIT);
-            Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg()));
+            Stream.of(r, g, b, bloomR, bloomG, bloomB).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg()));
             Stream.of(alpha, scale).forEach(button -> button.removeElement(ChangeMode.INHERIT));
 
             amount.getComponent().setEditable(true);
@@ -519,7 +523,9 @@ public class ParametersScrollPanel extends TScrollPanel {
         append(builder, interact);
         Stream.of(horizontalInteract, horizontalInteract).forEach(titled -> append(builder, titled));
         append(builder, renderType);
-        Stream.of(r, g, b, alphaBegin, alphaEnd).forEach(titled -> append(builder, titled));
+        Stream.of(r, g, b).forEach(titled -> append(builder, titled));
+        Stream.of(bloomR, bloomG, bloomB).forEach(titled -> append(builder, titled, 0));
+        Stream.of(alphaBegin, alphaEnd).forEach(titled -> append(builder, titled));
         append(builder, alpha);
         Stream.of(scaleBegin, scaleEnd).forEach(titled -> append(builder, titled));
         append(builder, scale);

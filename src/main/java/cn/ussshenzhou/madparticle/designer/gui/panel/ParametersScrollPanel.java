@@ -134,9 +134,9 @@ public class ParametersScrollPanel extends TScrollPanel {
             scaleEnd = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.scale_end"), FloatArgumentType.floatArg());
     //lane 9
     public final TTitledSimpleConstrainedEditBox
-            bloomR = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom R"), FloatArgumentType.floatArg()),
-            bloomG = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom G"), FloatArgumentType.floatArg()),
-            bloomB = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom B"), FloatArgumentType.floatArg());
+            bloomR = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom R"), FloatArgumentType.floatArg(0)),
+            bloomG = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom G"), FloatArgumentType.floatArg(0)),
+            bloomB = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom B"), FloatArgumentType.floatArg(0));
     public final TSlider
             bloomRSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.bloom_r")),
             bloomGSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.bloom_g")),
@@ -264,19 +264,19 @@ public class ParametersScrollPanel extends TScrollPanel {
             bloomBSlider.setValueWithoutRespond(f);
         });
         bloomRSlider.addResponder(d -> {
-            if (bloomR.getComponent().isEditable()){
+            if (bloomR.getComponent().isEditable()) {
                 bloomR.getComponent().setValue(String.format("%.3f", d));
                 AccessorProxy.EditBoxProxy.setDisplayPos(bloomR.getComponent(), 0);
             }
         });
         bloomGSlider.addResponder(d -> {
-            if (bloomG.getComponent().isEditable()){
+            if (bloomG.getComponent().isEditable()) {
                 bloomG.getComponent().setValue(String.format("%.3f", d));
                 AccessorProxy.EditBoxProxy.setDisplayPos(bloomG.getComponent(), 0);
             }
         });
         bloomBSlider.addResponder(d -> {
-            if (bloomB.getComponent().isEditable()){
+            if (bloomB.getComponent().isEditable()) {
                 bloomB.getComponent().setValue(String.format("%.3f", d));
                 AccessorProxy.EditBoxProxy.setDisplayPos(bloomB.getComponent(), 0);
             }
@@ -500,7 +500,8 @@ public class ParametersScrollPanel extends TScrollPanel {
             Stream.of(horizontalCollision, verticalCollision, horizontalInteract, verticalInteract).forEach(editBox -> editBox.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble()));
             roll.getComponent().setArgument(InheritableFloatArgument.inheritableFloat());
             interact.addElement(InheritableBoolean.INHERIT);
-            Stream.of(r, g, b, bloomR, bloomG, bloomB).forEach(editBox -> editBox.getComponent().setArgument(InheritableFloatArgument.inheritableFloat()));
+            Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(InheritableFloatArgument.inheritableFloat()));
+            Stream.of(bloomR, bloomG, bloomB).forEach(editBox -> editBox.getComponent().setArgument(InheritableFloatArgument.inheritableFloat(0, Integer.MAX_VALUE)));
             Stream.of(alpha, scale).forEach(button -> button.addElement(ChangeMode.INHERIT));
 
             amount.getComponent().setEditable(false);
@@ -515,7 +516,8 @@ public class ParametersScrollPanel extends TScrollPanel {
             Stream.of(horizontalCollision, verticalCollision, horizontalInteract, verticalInteract).forEach(editBox -> editBox.getComponent().setArgument(DoubleArgumentType.doubleArg()));
             roll.getComponent().setArgument(FloatArgumentType.floatArg());
             interact.removeElement(InheritableBoolean.INHERIT);
-            Stream.of(r, g, b, bloomR, bloomG, bloomB).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg()));
+            Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg()));
+            Stream.of(bloomR, bloomG, bloomB).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg(0)));
             Stream.of(alpha, scale).forEach(button -> button.removeElement(ChangeMode.INHERIT));
 
             amount.getComponent().setEditable(true);

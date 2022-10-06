@@ -71,9 +71,9 @@ public class MadParticleCommand {
                                                                                                                                                                                                                                                         .then(Commands.argument("r", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
                                                                                                                                                                                                                                                                 .then(Commands.argument("g", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
                                                                                                                                                                                                                                                                         .then(Commands.argument("b", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
-                                                                                                                                                                                                                                                                                .then(Commands.argument("bloomR", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
-                                                                                                                                                                                                                                                                                        .then(Commands.argument("bloomG", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
-                                                                                                                                                                                                                                                                                                .then(Commands.argument("bloomB", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                                .then(Commands.argument("bloomR", new InheritableIntegerArgument(0, Integer.MAX_VALUE, COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                                        .then(Commands.argument("bloomG", new InheritableIntegerArgument(0, Integer.MAX_VALUE, COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                                                .then(Commands.argument("bloomB", new InheritableIntegerArgument(0, Integer.MAX_VALUE, COMMAND_LENGTH))
                                                                                                                                                                                                                                                                                                         .then(Commands.argument("beginAlpha", FloatArgumentType.floatArg(0, 1))
                                                                                                                                                                                                                                                                                                                 .then(Commands.argument("endAlpha", FloatArgumentType.floatArg(0, 1))
                                                                                                                                                                                                                                                                                                                         .then(Commands.argument("alphaMode", EnumArgument.enumArgument(ChangeMode.class))
@@ -206,9 +206,9 @@ public class MadParticleCommand {
                     ct.getArgument("zDeflection", Float.class),
                     ct.getArgument("xDeflectionAfterCollision", Float.class),
                     ct.getArgument("zDeflectionAfterCollision", Float.class),
-                    ct.getArgument("bloomR",Float.class),
-                    ct.getArgument("bloomG",Float.class),
-                    ct.getArgument("bloomB",Float.class)
+                    ct.getArgument("bloomR", Float.class),
+                    ct.getArgument("bloomG", Float.class),
+                    ct.getArgument("bloomB", Float.class)
             );
             child = father;
         }

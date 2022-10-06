@@ -179,4 +179,8 @@ public class TEditBox extends EditBox implements TWidget, TResponder<String> {
         }
         super.setEditable(pEnabled);
     }
+
+    public boolean isEditable(){
+        return AccessorProxy.EditBoxProxy.isEditBoxEdible(this);
+    }
 }

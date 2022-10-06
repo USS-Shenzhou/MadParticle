@@ -46,4 +46,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.build.outputs.artifact_name }}
-          path: ${{ steps.build.outputs.artifact_path }}
+          path: build/libs/${{ steps.build.outputs.artifact_name }}

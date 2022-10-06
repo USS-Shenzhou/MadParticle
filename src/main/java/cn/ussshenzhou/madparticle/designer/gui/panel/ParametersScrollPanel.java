@@ -264,22 +264,35 @@ public class ParametersScrollPanel extends TScrollPanel {
             bloomBSlider.setValueWithoutRespond(f);
         });
         bloomRSlider.addResponder(d -> {
-            bloomR.getComponent().setValue(String.format("%.3f", d));
-            AccessorProxy.EditBoxProxy.setDisplayPos(r.getComponent(), 0);
+            if (bloomR.getComponent().isEditable()){
+                bloomR.getComponent().setValue(String.format("%.3f", d));
+                AccessorProxy.EditBoxProxy.setDisplayPos(bloomR.getComponent(), 0);
+            }
         });
         bloomGSlider.addResponder(d -> {
-            bloomG.getComponent().setValue(String.format("%.3f", d));
-            AccessorProxy.EditBoxProxy.setDisplayPos(g.getComponent(), 0);
+            if (bloomG.getComponent().isEditable()){
+                bloomG.getComponent().setValue(String.format("%.3f", d));
+                AccessorProxy.EditBoxProxy.setDisplayPos(bloomG.getComponent(), 0);
+            }
         });
         bloomBSlider.addResponder(d -> {
-            bloomB.getComponent().setValue(String.format("%.3f", d));
-            AccessorProxy.EditBoxProxy.setDisplayPos(b.getComponent(), 0);
+            if (bloomB.getComponent().isEditable()){
+                bloomB.getComponent().setValue(String.format("%.3f", d));
+                AccessorProxy.EditBoxProxy.setDisplayPos(bloomB.getComponent(), 0);
+            }
         });
-        bloomRSlider.setValue(1);
-        bloomGSlider.setValue(1);
-        bloomBSlider.setValue(1);
         if (!IS_SHIMMER_EXIST) {
-            Stream.of(bloomR, bloomG, bloomB).forEach(t -> t.getComponent().setEditable(false));
+            Stream.of(bloomR, bloomG, bloomB).forEach(t -> {
+                t.getComponent().setEditable(false);
+                AccessorProxy.EditBoxProxy.setDisplayPos(t.getComponent(), 0);
+            });
+            bloomRSlider.setValue(0);
+            bloomGSlider.setValue(0);
+            bloomBSlider.setValue(0);
+        } else {
+            bloomRSlider.setValue(1);
+            bloomGSlider.setValue(1);
+            bloomBSlider.setValue(1);
         }
     }
 

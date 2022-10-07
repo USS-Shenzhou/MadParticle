@@ -8,7 +8,7 @@ in vec3 Position;
 in vec2 UV0;
 in vec4 Color;
 in ivec2 UV2;
-in vec3 BloomFactor;
+in float BloomFactor;
 
 #define SHIMMER
 
@@ -23,7 +23,7 @@ out vec2 texCoord0;
 out vec4 vertexColor;
 
 #ifdef SHIMMER
-out vec3 bloomFactor;
+out float bloomFactor;
 #endif
 
 void main() {

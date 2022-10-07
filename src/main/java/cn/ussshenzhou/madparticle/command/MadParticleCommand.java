@@ -13,7 +13,6 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.context.ParsedArgument;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
@@ -30,9 +29,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.command.EnumArgument;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -74,17 +71,23 @@ public class MadParticleCommand {
                                                                                                                                                                                                                                                         .then(Commands.argument("r", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
                                                                                                                                                                                                                                                                 .then(Commands.argument("g", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
                                                                                                                                                                                                                                                                         .then(Commands.argument("b", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
-                                                                                                                                                                                                                                                                                .then(Commands.argument("beginAlpha", FloatArgumentType.floatArg(0, 1))
-                                                                                                                                                                                                                                                                                        .then(Commands.argument("endAlpha", FloatArgumentType.floatArg(0, 1))
-                                                                                                                                                                                                                                                                                                .then(Commands.argument("alphaMode", EnumArgument.enumArgument(ChangeMode.class))
-                                                                                                                                                                                                                                                                                                        .then(Commands.argument("beginScale", FloatArgumentType.floatArg(0))
-                                                                                                                                                                                                                                                                                                                .then(Commands.argument("endScale", FloatArgumentType.floatArg(0))
-                                                                                                                                                                                                                                                                                                                        .then(Commands.argument("scaleMode", EnumArgument.enumArgument(ChangeMode.class))
-                                                                                                                                                                                                                                                                                                                                .executes(ct1 -> sendToAll(ct1, dispatcher))
-                                                                                                                                                                                                                                                                                                                                .then(Commands.argument("whoCanSee", EntityArgument.players())
-                                                                                                                                                                                                                                                                                                                                        .executes((ct) -> sendToPlayer(ct, EntityArgument.getPlayers(ct, "whoCanSee"), dispatcher))
-                                                                                                                                                                                                                                                                                                                                        .then(Commands.literal("expireThen")
-                                                                                                                                                                                                                                                                                                                                                .redirect(dispatcher.register(Commands.literal("mp")))
+                                                                                                                                                                                                                                                                                .then(Commands.argument("bloomR", new InheritableIntegerArgument(0, Integer.MAX_VALUE, COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                                        .then(Commands.argument("bloomG", new InheritableIntegerArgument(0, Integer.MAX_VALUE, COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                                                .then(Commands.argument("bloomB", new InheritableIntegerArgument(0, Integer.MAX_VALUE, COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                                                        .then(Commands.argument("beginAlpha", FloatArgumentType.floatArg(0, 1))
+                                                                                                                                                                                                                                                                                                                .then(Commands.argument("endAlpha", FloatArgumentType.floatArg(0, 1))
+                                                                                                                                                                                                                                                                                                                        .then(Commands.argument("alphaMode", EnumArgument.enumArgument(ChangeMode.class))
+                                                                                                                                                                                                                                                                                                                                .then(Commands.argument("beginScale", FloatArgumentType.floatArg(0))
+                                                                                                                                                                                                                                                                                                                                        .then(Commands.argument("endScale", FloatArgumentType.floatArg(0))
+                                                                                                                                                                                                                                                                                                                                                .then(Commands.argument("scaleMode", EnumArgument.enumArgument(ChangeMode.class))
+                                                                                                                                                                                                                                                                                                                                                        .executes(ct1 -> sendToAll(ct1, dispatcher))
+                                                                                                                                                                                                                                                                                                                                                        .then(Commands.argument("whoCanSee", EntityArgument.players())
+                                                                                                                                                                                                                                                                                                                                                                .executes((ct) -> sendToPlayer(ct, EntityArgument.getPlayers(ct, "whoCanSee"), dispatcher))
+                                                                                                                                                                                                                                                                                                                                                                .then(Commands.literal("expireThen")
+                                                                                                                                                                                                                                                                                                                                                                        .redirect(dispatcher.register(Commands.literal("mp")))
+                                                                                                                                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                                                                                                                )
                                                                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                                                         )
@@ -161,7 +164,7 @@ public class MadParticleCommand {
             InheritableCommandDispatcher<CommandSourceStack> inheritableCommandDispatcher = new InheritableCommandDispatcher<>(dispatcher.getRoot());
             ParseResults<CommandSourceStack> parseResults = inheritableCommandDispatcher.parse(new InheritableStringReader(s), context.getSource());
             CommandContext<CommandSourceStack> ctRoot = parseResults.getContext().build(s);
-            CommandContext<CommandSourceStack> ct = getValidContextChild(ctRoot);
+            CommandContext<CommandSourceStack> ct = CommandHelper.getContextHasArgument(ctRoot, "targetParticle");
             Vec3 pos = ct.getArgument("spawnPos", Coordinates.class).getPosition(ctRoot.getSource());
             Vec3 posDiffuse = ct.getArgument("spawnDiffuse", WorldCoordinates.class).getPosition(ctRoot.getSource());
             Vec3 speed = ct.getArgument("spawnSpeed", WorldCoordinates.class).getPosition(ctRoot.getSource());
@@ -202,7 +205,10 @@ public class MadParticleCommand {
                     ct.getArgument("xDeflection", Float.class),
                     ct.getArgument("zDeflection", Float.class),
                     ct.getArgument("xDeflectionAfterCollision", Float.class),
-                    ct.getArgument("zDeflectionAfterCollision", Float.class)
+                    ct.getArgument("zDeflectionAfterCollision", Float.class),
+                    ct.getArgument("bloomR", Float.class),
+                    ct.getArgument("bloomG", Float.class),
+                    ct.getArgument("bloomB", Float.class)
             );
             child = father;
         }
@@ -213,33 +219,6 @@ public class MadParticleCommand {
             );
         }
         return Command.SINGLE_SUCCESS;
-    }
-
-    private static CommandContext<CommandSourceStack> getValidContextChild(CommandContext<CommandSourceStack> root) throws CommandSyntaxException {
-        CommandContext<CommandSourceStack> now = root;
-        while (true) {
-            try {
-                now.getArgument("targetParticle", ParticleOptions.class);
-                break;
-            } catch (IllegalArgumentException ignored) {
-                if (now.getChild() == null) {
-                    try {
-                        Field f = now.getClass().getDeclaredField("arguments");
-                        f.setAccessible(true);
-                        Map<String, ParsedArgument<?, ?>> map = (Map<String, ParsedArgument<?, ?>>) f.get(now);
-                        String[] s = map.keySet().toArray(new String[0]);
-                        throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create(
-                                "Failed to parse command correctly after " + s[s.length - 1]);
-                    } catch (NoSuchFieldException | IllegalAccessException | ClassCastException ignored1) {
-                        throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create(
-                                "Failed to parse command correctly. Failed to get more info.");
-                    }
-                } else {
-                    now = now.getChild();
-                }
-            }
-        }
-        return now;
     }
 
     public static ParseResults<CommandSourceStack> justParse(String commandText) {

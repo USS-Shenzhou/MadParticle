@@ -68,6 +68,7 @@ public abstract class TScreen extends Screen {
 
 
     public void layout() {
+        Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
         for (TWidget w : this.tChildren) {
             if (w instanceof TComponent t) {
                 t.layout();

@@ -2,7 +2,6 @@ package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.command.inheritable.*;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
-import cn.ussshenzhou.madparticle.designer.universal.advanced.TConstrainedEditBox;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledComponent;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledCycleButton;
 import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSimpleConstrainedEditBox;
@@ -38,6 +37,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraftforge.fml.ModList;
 
 import java.util.stream.Stream;
 
@@ -46,9 +46,9 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
 public class ParametersScrollPanel extends TScrollPanel {
-    //public static final Vec2i EDITBOX_SIZE = new Vec2i(35, 36);
     public static final Vec2i BUTTON_SIZE = TButton.RECOMMEND_SIZE;
     private boolean isChild = false;
+    private final static boolean IS_SHIMMER_EXIST = ModList.get().isLoaded("shimmer");
 
     //lane 1
     public final TTitledSuggestedEditBox target = new TTitledSuggestedEditBox(
@@ -132,7 +132,15 @@ public class ParametersScrollPanel extends TScrollPanel {
             alphaEnd = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.alpha_end"), FloatArgumentType.floatArg()),
             scaleBegin = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.scale_begin"), FloatArgumentType.floatArg()),
             scaleEnd = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.scale_end"), FloatArgumentType.floatArg());
-
+    //lane 9
+    public final TTitledSimpleConstrainedEditBox
+            bloomR = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom R"), FloatArgumentType.floatArg(0)),
+            bloomG = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom G"), FloatArgumentType.floatArg(0)),
+            bloomB = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom B"), FloatArgumentType.floatArg(0));
+    public final TSlider
+            bloomRSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.bloom_r")),
+            bloomGSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.bloom_g")),
+            bloomBSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.bloom_b"));
 
     public ParametersScrollPanel() {
         super();
@@ -144,6 +152,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         init6();
         init7();
         init8();
+        init9();
         setChild(true);
     }
 
@@ -240,6 +249,53 @@ public class ParametersScrollPanel extends TScrollPanel {
         this.addAll(alpha, scale, roll, alphaBegin, alphaEnd, scaleBegin, scaleEnd);
     }
 
+    public void init9() {
+        this.addAll(bloomR, bloomG, bloomB, bloomRSlider, bloomGSlider, bloomBSlider);
+        bloomR.getComponent().addPassedResponder(s -> {
+            float f = Float.parseFloat(s);
+            bloomRSlider.setValueWithoutRespond(f);
+        });
+        bloomG.getComponent().addPassedResponder(s -> {
+            float f = Float.parseFloat(s);
+            bloomGSlider.setValueWithoutRespond(f);
+        });
+        bloomB.getComponent().addPassedResponder(s -> {
+            float f = Float.parseFloat(s);
+            bloomBSlider.setValueWithoutRespond(f);
+        });
+        bloomRSlider.addResponder(d -> {
+            if (bloomR.getComponent().isEditable()) {
+                bloomR.getComponent().setValue(String.format("%.3f", d));
+                AccessorProxy.EditBoxProxy.setDisplayPos(bloomR.getComponent(), 0);
+            }
+        });
+        bloomGSlider.addResponder(d -> {
+            if (bloomG.getComponent().isEditable()) {
+                bloomG.getComponent().setValue(String.format("%.3f", d));
+                AccessorProxy.EditBoxProxy.setDisplayPos(bloomG.getComponent(), 0);
+            }
+        });
+        bloomBSlider.addResponder(d -> {
+            if (bloomB.getComponent().isEditable()) {
+                bloomB.getComponent().setValue(String.format("%.3f", d));
+                AccessorProxy.EditBoxProxy.setDisplayPos(bloomB.getComponent(), 0);
+            }
+        });
+        if (!IS_SHIMMER_EXIST) {
+            Stream.of(bloomR, bloomG, bloomB).forEach(t -> {
+                t.getComponent().setEditable(false);
+                AccessorProxy.EditBoxProxy.setDisplayPos(t.getComponent(), 0);
+            });
+            bloomRSlider.setValue(0);
+            bloomGSlider.setValue(0);
+            bloomBSlider.setValue(0);
+        } else {
+            bloomRSlider.setValue(1);
+            bloomGSlider.setValue(1);
+            bloomBSlider.setValue(1);
+        }
+    }
+
     private void tryFillDefault() {
         ArgumentSuggestionsDispatcher<ParticleOptions> dispatcher = new ArgumentSuggestionsDispatcher<>();
         dispatcher.register(Commands.argument("particle", ParticleArgument.particle()));
@@ -262,15 +318,12 @@ public class ParametersScrollPanel extends TScrollPanel {
                 Stream.of(vx, vy, vz).forEach(
                         titled -> ifClearThenSet(titled, isChild ? "=" : "0.0")
                 );
-                Stream.of(xD, yD, zD, vxD, vyD, vzD ).forEach(
+                Stream.of(xD, yD, zD, vxD, vyD, vzD).forEach(
                         titled -> ifClearThenSet(titled, "0.0")
                 );
-                rSlider.setValue(accessor.getRCol());
-                gSlider.setValue(accessor.getGCol());
-                bSlider.setValue(accessor.getBCol());
-                r.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);
-                g.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);
-                b.getComponent().setTextColor(TConstrainedEditBox.BLUE_TEXT_COLOR);
+                ifClearThenSet(r, accessor.getRCol());
+                ifClearThenSet(g, accessor.getGCol());
+                ifClearThenSet(b, accessor.getBCol());
                 ifClearThenSet(accessor.getFriction(), friction, friction2);
                 ifClearThenSet(accessor.getGravity(), gravity, gravity2);
                 ifClearThenSet(gravity2, accessor.getGravity());
@@ -280,6 +333,9 @@ public class ParametersScrollPanel extends TScrollPanel {
                 ifClearThenSet(roll, accessor.getRoll());
                 ifClearThenSet(accessor.getAlpha(), alphaBegin, alphaEnd);
                 ifClearThenSet(String.format("%.2f", (accessor.getBbHeight() + accessor.getBbWidth()) / 2 / 0.2), scaleBegin, scaleEnd);
+                ifClearThenSet(bloomR, 0);
+                ifClearThenSet(bloomG, 0);
+                ifClearThenSet(bloomB, 0);
             }
         } catch (Exception ignored) {
         }
@@ -398,7 +454,19 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BLeftOfA(alphaEnd, xGap, scale, stdTitledEditBox);
         LayoutHelper.BLeftOfA(alphaBegin, xGap, alphaEnd);
         LayoutHelper.BLeftOfA(alpha, xGap, alphaBegin, stdTitledButton);
+        //lane 9
+        LayoutHelper.BBottomOfA(bloomR, yGap, roll, stdTitledEditBox);
+        LayoutHelper.BRightOfA(bloomG, xGap, bloomR, l, stdTitledEditBox.y);
+        LayoutHelper.BRightOfA(bloomG, xGap, bloomG, stdTitledEditBox);
+        LayoutHelper.BRightOfA(bloomB, xGap, bloomG, l, stdTitledEditBox.y);
+        LayoutHelper.BRightOfA(bloomB, xGap, bloomB, stdTitledEditBox);
 
+        LayoutHelper.BRightOfA(bloomRSlider, xGap, bloomR, l, bloomRSlider.getPreferredSize().y);
+        LayoutHelper.BBottomOfA(bloomRSlider, 12 - bloomRSlider.getPreferredSize().y, bloomRSlider);
+        LayoutHelper.BRightOfA(bloomGSlider, xGap, bloomG, l, bloomGSlider.getPreferredSize().y);
+        LayoutHelper.BBottomOfA(bloomGSlider, 12 - bloomGSlider.getPreferredSize().y, bloomGSlider);
+        LayoutHelper.BRightOfA(bloomBSlider, xGap, bloomB, l, bloomBSlider.getPreferredSize().y);
+        LayoutHelper.BBottomOfA(bloomBSlider, 12 - bloomBSlider.getPreferredSize().y, bloomBSlider);
         super.layout();
     }
 
@@ -433,6 +501,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             roll.getComponent().setArgument(InheritableFloatArgument.inheritableFloat());
             interact.addElement(InheritableBoolean.INHERIT);
             Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(InheritableFloatArgument.inheritableFloat()));
+            Stream.of(bloomR, bloomG, bloomB).forEach(editBox -> editBox.getComponent().setArgument(InheritableFloatArgument.inheritableFloat(0, Integer.MAX_VALUE)));
             Stream.of(alpha, scale).forEach(button -> button.addElement(ChangeMode.INHERIT));
 
             amount.getComponent().setEditable(false);
@@ -448,6 +517,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             roll.getComponent().setArgument(FloatArgumentType.floatArg());
             interact.removeElement(InheritableBoolean.INHERIT);
             Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg()));
+            Stream.of(bloomR, bloomG, bloomB).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg(0)));
             Stream.of(alpha, scale).forEach(button -> button.removeElement(ChangeMode.INHERIT));
 
             amount.getComponent().setEditable(true);
@@ -460,7 +530,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         append(builder, spriteFrom);
         append(builder, lifeTime);
         append(builder, alwaysRender);
-        append(builder, amount,1);
+        append(builder, amount, 1);
         Stream.of(xPos, yPos, zPos, xD, yD, zD, vx, vy, vz, vxD, vyD, vzD).forEach(titled -> append(builder, titled, "0.0"));
         append(builder, collision);
         Stream.of(collisionTime, horizontalCollision, verticalCollision, friction, friction2, gravity, gravity2, xDeflection, zDeflection, xDeflection2, zDeflection2, roll)
@@ -468,7 +538,9 @@ public class ParametersScrollPanel extends TScrollPanel {
         append(builder, interact);
         Stream.of(horizontalInteract, horizontalInteract).forEach(titled -> append(builder, titled));
         append(builder, renderType);
-        Stream.of(r, g, b, alphaBegin, alphaEnd).forEach(titled -> append(builder, titled));
+        Stream.of(r, g, b).forEach(titled -> append(builder, titled));
+        Stream.of(bloomR, bloomG, bloomB).forEach(titled -> append(builder, titled, 0));
+        Stream.of(alphaBegin, alphaEnd).forEach(titled -> append(builder, titled));
         append(builder, alpha);
         Stream.of(scaleBegin, scaleEnd).forEach(titled -> append(builder, titled));
         append(builder, scale);

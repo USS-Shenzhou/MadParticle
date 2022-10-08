@@ -25,8 +25,8 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                                 float beginScale, float endScale, ChangeMode scaleMode,
                                 boolean haveChild, MadParticleOption child,
                                 float rollSpeed,
-                                float xDeflection, float zDeflection, float xDeflectionAfterCollision,
-                                float zDeflectionAfterCollision,
+                                float xDeflection,float xDeflectionAfterCollision,
+                                float zDeflection, float zDeflectionAfterCollision,
                                 float bloomFactor
 
 ) implements ParticleOptions {

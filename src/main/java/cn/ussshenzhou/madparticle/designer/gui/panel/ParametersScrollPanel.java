@@ -479,7 +479,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         append(builder, amount, 1);
         Stream.of(xPos, yPos, zPos, xD, yD, zD, vx, vy, vz, vxD, vyD, vzD).forEach(titled -> append(builder, titled, "0.0"));
         append(builder, collision);
-        Stream.of(collisionTime, horizontalCollision, verticalCollision, friction, friction2, gravity, gravity2, xDeflection, zDeflection, xDeflection2, zDeflection2, roll)
+        Stream.of(collisionTime, horizontalCollision, verticalCollision, friction, friction2, gravity, gravity2, xDeflection, xDeflection2, zDeflection, zDeflection2, roll)
                 .forEach(titled -> append(builder, titled, "0"));
         append(builder, interact);
         Stream.of(horizontalInteract, horizontalInteract).forEach(titled -> append(builder, titled));

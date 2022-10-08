@@ -192,8 +192,8 @@ public class MadParticleCommand {
                     haveChild ? child : null,
                     ct.getArgument("rollSpeed", Float.class),
                     ct.getArgument("xDeflection", Float.class),
-                    ct.getArgument("zDeflection", Float.class),
                     ct.getArgument("xDeflectionAfterCollision", Float.class),
+                    ct.getArgument("zDeflection", Float.class),
                     ct.getArgument("zDeflectionAfterCollision", Float.class),
                     ct.getArgument("bloomFactor", Float.class)
             );

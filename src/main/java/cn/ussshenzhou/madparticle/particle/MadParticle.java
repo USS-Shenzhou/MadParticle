@@ -69,7 +69,7 @@ public class MadParticle extends TextureSheetParticle {
                        float beginScale, float endScale, ChangeMode scaleMode,
                        MadParticleOption child,
                        float rollSpeed,
-                       float xDeflection, float zDeflection, float xDeflectionAfterCollision, float zDeflectionAfterCollision,
+                       float xDeflection, float xDeflectionAfterCollision, float zDeflection, float zDeflectionAfterCollision,
                        float bloomFactor
     ) {
         super(pLevel, pX, pY, pZ);

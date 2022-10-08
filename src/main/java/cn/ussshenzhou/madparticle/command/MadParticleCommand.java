@@ -13,6 +13,7 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -20,9 +21,11 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.commands.arguments.coordinates.Coordinates;
 import net.minecraft.commands.arguments.coordinates.WorldCoordinates;
+import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.command.EnumArgument;
@@ -135,7 +138,7 @@ public class MadParticleCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    public static int send(String commandString, CommandSourceStack sourceStack, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void send(String commandString, CommandSourceStack sourceStack, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {
         String[] commandStrings = commandString.split(" expireThen ");
         MadParticleOption child = null;
         for (int i = commandStrings.length - 1; i >= 0; i--) {
@@ -153,11 +156,11 @@ public class MadParticleCommand {
             InheritableCommandDispatcher<CommandSourceStack> inheritableCommandDispatcher = new InheritableCommandDispatcher<>(dispatcher.getRoot());
             ParseResults<CommandSourceStack> parseResults = inheritableCommandDispatcher.parse(new InheritableStringReader(s), sourceStack);
             CommandContext<CommandSourceStack> ctRoot = parseResults.getContext().build(s);
-            CommandContext<CommandSourceStack> ct = CommandHelper.getContextHasArgument(ctRoot, "targetParticle");
-            Vec3 pos = ct.getArgument("spawnPos", Coordinates.class).getPosition(ctRoot.getSource());
-            Vec3 posDiffuse = ct.getArgument("spawnDiffuse", WorldCoordinates.class).getPosition(ctRoot.getSource());
-            Vec3 speed = ct.getArgument("spawnSpeed", WorldCoordinates.class).getPosition(ctRoot.getSource());
-            Vec3 speedDiffuse = ct.getArgument("speedDiffuse", WorldCoordinates.class).getPosition(ctRoot.getSource());
+            CommandContext<CommandSourceStack> ct = CommandHelper.getContextHasArgument(ctRoot, "targetParticle", ParticleOptions.class);
+            Vec3 pos = ct.getArgument("spawnPos", Coordinates.class).getPosition(sourceStack);
+            Vec3 posDiffuse = ct.getArgument("spawnDiffuse", WorldCoordinates.class).getPosition(sourceStack);
+            Vec3 speed = ct.getArgument("spawnSpeed", WorldCoordinates.class).getPosition(sourceStack);
+            Vec3 speedDiffuse = ct.getArgument("speedDiffuse", WorldCoordinates.class).getPosition(sourceStack);
             boolean haveChild = i != commandStrings.length - 1;
             MadParticleOption father = new MadParticleOption(
                     Registry.PARTICLE_TYPE.getId(ct.getArgument("targetParticle", ParticleOptions.class).getType()),
@@ -205,7 +208,24 @@ public class MadParticleCommand {
                     new MadParticlePacket(child)
             );
         }
-        return Command.SINGLE_SUCCESS;
+    }
+
+    public static void fastSend(String commandString, CommandSourceStack sourceStack, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {
+        InheritableCommandDispatcher<CommandSourceStack> inheritableCommandDispatcher = new InheritableCommandDispatcher<>(dispatcher.getRoot());
+        ParseResults<CommandSourceStack> parseResults = inheritableCommandDispatcher.parse(new InheritableStringReader(commandString), sourceStack);
+        CommandContext<CommandSourceStack> ctPre = parseResults.getContext().build(commandString);
+        CommandContext<CommandSourceStack> ctExe = CommandHelper.getContextHasArgument(ctPre, "targets", EntitySelector.class);
+        if (ctExe != null) {
+            try {
+                Collection<? extends Entity> entities = EntityArgument.getOptionalEntities(ctExe, "targets");
+                for (Entity entity : entities) {
+                    CompletableFuture.runAsync(() -> send(commandString, ctPre.getSource().withEntity(entity).withPosition(entity.position()), players, dispatcher));
+                }
+            } catch (CommandSyntaxException ignored) {
+            }
+        } else {
+            send(commandString, sourceStack, players, dispatcher);
+        }
     }
 
     public static ParseResults<CommandSourceStack> justParse(String commandText) {

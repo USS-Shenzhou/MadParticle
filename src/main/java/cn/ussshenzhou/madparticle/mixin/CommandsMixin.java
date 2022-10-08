@@ -29,7 +29,7 @@ public class CommandsMixin {
         if (pCommand.startsWith("mp ")
                 //execute ... mp ...
                 || pCommand.contains(" mp ")) {
-            CompletableFuture.runAsync(() -> MadParticleCommand.send(pCommand, pSource, pSource.getLevel().getPlayers(serverPlayer -> true), dispatcher));
+            CompletableFuture.runAsync(() -> MadParticleCommand.fastSend(pCommand, pSource, pSource.getLevel().getPlayers(serverPlayer -> true), dispatcher));
             cir.setReturnValue(Command.SINGLE_SUCCESS);
         }
     }

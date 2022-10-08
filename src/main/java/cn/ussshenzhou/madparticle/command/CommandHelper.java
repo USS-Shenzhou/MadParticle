@@ -4,7 +4,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.context.ParsedArgument;
 import com.mojang.logging.LogUtils;
-import net.minecraft.core.particles.ParticleOptions;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -16,11 +15,11 @@ import java.util.Map;
  */
 public class CommandHelper {
 
-    public static <S> @Nullable CommandContext<S> getContextHasArgument(CommandContext<S> root, String argument){
+    public static <S, C> @Nullable CommandContext<S> getContextHasArgument(CommandContext<S> root, String argument, Class<C> clazz) {
         CommandContext<S> now = root;
         while (true) {
             try {
-                now.getArgument(argument, ParticleOptions.class);
+                now.getArgument(argument, clazz);
                 break;
             } catch (IllegalArgumentException e) {
                 if (now.getChild() == null) {
@@ -42,11 +41,11 @@ public class CommandHelper {
         return now;
     }
 
-    public static <S> @Nullable CommandContext<S> nextContextHasArgument(CommandContext<S> root, String argument) {
+    public static <S, C> @Nullable CommandContext<S> nextContextHasArgument(CommandContext<S> root, String argument, Class<C> clazz) {
         CommandContext<S> now = root.getChild();
         while (true) {
             try {
-                now.getArgument(argument, ParticleOptions.class);
+                now.getArgument(argument, clazz);
                 break;
             } catch (IllegalArgumentException e) {
                 if (now.getChild() == null) {
@@ -63,7 +62,7 @@ public class CommandHelper {
                 } else {
                     now = now.getChild();
                 }
-            } catch (NullPointerException ignored){
+            } catch (NullPointerException ignored) {
                 return null;
             }
         }

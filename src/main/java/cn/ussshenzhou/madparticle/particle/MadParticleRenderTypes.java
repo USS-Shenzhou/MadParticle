@@ -139,7 +139,7 @@ public enum MadParticleRenderTypes implements ParticleRenderType {
                     });
 
     public static final VertexFormatElement ELEMENT_BLOOM_FACTOR = new VertexFormatElement(0
-            , VertexFormatElement.Type.FLOAT, BLOOM_FACTOR, 3);
+            , VertexFormatElement.Type.FLOAT, BLOOM_FACTOR, 1);
 
 
     public static final VertexFormat PARTICLE = new VertexFormat(ImmutableMap.<String, VertexFormatElement>builder()

@@ -20,7 +20,7 @@ in vec2 texCoord0;
 in vec4 vertexColor;
 
 #ifdef SHIMMER
-in vec3 bloomFactor;
+in float bloomFactor;
 #endif
 
 layout (location = 0) out vec4 fragColor;
@@ -37,6 +37,8 @@ void main() {
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 
     #ifdef SHIMMER
-    bloomColor = vec4(bloomFactor,1.0f) * fragColor;
+    if (bloomFactor > 0.01){
+        bloomColor = vec4(min(bloomFactor,1.0)) * fragColor;
+    }
     #endif
 }

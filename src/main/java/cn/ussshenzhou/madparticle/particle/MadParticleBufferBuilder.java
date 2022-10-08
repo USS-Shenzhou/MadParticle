@@ -12,20 +12,6 @@ public class MadParticleBufferBuilder extends BufferBuilder {
     MadParticleBufferBuilder(int pCapacity) {
         super(pCapacity);
     }
-    public MadParticleBufferBuilder bloomFactor(float bloomFactorR,float bloomFactorG,float bloomFactorB) {
-        var vertexformatelement = this.currentElement();
-        if (vertexformatelement.getUsage() != MadParticleRenderTypes.BLOOM_FACTOR) {
-            return this;
-        } else if (vertexformatelement.getType() == VertexFormatElement.Type.FLOAT && vertexformatelement.getCount() == 3) {
-            this.putFloat(0,bloomFactorR);
-            this.putFloat(4,bloomFactorG);
-            this.putFloat(2 * 4,bloomFactorB);
-            this.nextElement();
-            return this;
-        }else{
-            throw new IllegalStateException();
-        }
-    }
 
     /**
      * allow greater than 255
@@ -63,6 +49,23 @@ public class MadParticleBufferBuilder extends BufferBuilder {
             this.nextElement();
             return this;
         } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    /**
+     *
+     * @param bloomFactor should range from 0 to 1
+     */
+    public MadParticleBufferBuilder bloomFactor(float bloomFactor) {
+        var vertexformatelement = this.currentElement();
+        if (vertexformatelement.getUsage() != MadParticleRenderTypes.BLOOM_FACTOR) {
+            return this;
+        } else if (vertexformatelement.getType() == VertexFormatElement.Type.FLOAT && vertexformatelement.getCount() == 1) {
+            this.putFloat(0,bloomFactor);
+            this.nextElement();
+            return this;
+        }else{
             throw new IllegalStateException();
         }
     }

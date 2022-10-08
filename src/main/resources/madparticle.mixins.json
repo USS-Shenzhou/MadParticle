@@ -6,6 +6,7 @@
   "refmap": "madparticle.refmap.json",
   "mixins": [
     "AbstractSelectionListAccessor",
+    "CommandsMixin",
     "EditBoxAccessor",
     "LocalCoordinatesAccessor",
     "ParticleAccessor",

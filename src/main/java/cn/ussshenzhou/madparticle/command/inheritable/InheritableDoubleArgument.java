@@ -20,7 +20,7 @@ public class InheritableDoubleArgument implements ArgumentType<Double> {
         this.minimum = minimum;
         this.maximum = maximum;
         this.fatherCommandParameterAmount = fatherCommandParameterAmount;
-        this.doubleArgumentType = DoubleArgumentType.doubleArg(minimum, maximum);
+        this.doubleArgumentType = DoubleArgumentType.doubleArg();
     }
 
     public static InheritableDoubleArgument inheritableDouble(double minimum, double maximum) {
@@ -58,6 +58,14 @@ public class InheritableDoubleArgument implements ArgumentType<Double> {
     private double inheritableParse(StringReader reader) throws CommandSyntaxException {
         InheritableStringReader inheritableStringReader = new InheritableStringReader(reader);
         double result = doubleArgumentType.parse(inheritableStringReader);
+        if (result == Double.MAX_VALUE) {
+            reader.setCursor(inheritableStringReader.getCursor());
+            return result;
+        } else if (result < minimum) {
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.floatTooLow().createWithContext(reader, result, minimum);
+        } else if (result > maximum) {
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.floatTooHigh().createWithContext(reader, result, maximum);
+        }
         reader.setCursor(inheritableStringReader.getCursor());
         return result;
     }

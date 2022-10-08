@@ -129,7 +129,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             alpha = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.alpha")),
             scale = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.scale"));
     public final TTitledSimpleConstrainedEditBox
-            bloomStrength = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.bloom_factor"), FloatArgumentType.floatArg(0)),
+            bloomStrength = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.bloom_factor"), FloatArgumentType.floatArg(0, 1)),
             alphaBegin = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.alpha_begin"), FloatArgumentType.floatArg()),
             alphaEnd = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.alpha_end"), FloatArgumentType.floatArg()),
             scaleBegin = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.scale_begin"), FloatArgumentType.floatArg()),
@@ -231,8 +231,13 @@ public class ParametersScrollPanel extends TScrollPanel {
     }
 
     public void init7() {
-        Stream.of(InheritableBoolean.values()).forEach(interact::addElement);
         this.addAll(roll, interact, horizontalInteract, verticalInteract, friction, friction2, gravity, gravity2);
+        interact.addElement(InheritableBoolean.TRUE, button -> {
+            Stream.of(horizontalInteract, verticalInteract).forEach(e -> e.getComponent().setEditable(true));
+        });
+        interact.addElement(InheritableBoolean.FALSE, button -> {
+            Stream.of(horizontalInteract, verticalInteract).forEach(e -> e.getComponent().setEditable(false));
+        });
     }
 
     public void init8() {
@@ -367,6 +372,12 @@ public class ParametersScrollPanel extends TScrollPanel {
                     ifClearThenSet(editBox, "=");
                 });
             });
+            interact.addElement(InheritableBoolean.INHERIT, button -> {
+                Stream.of(horizontalInteract, verticalInteract).forEach(editBox -> {
+                    editBox.getComponent().setEditable(true);
+                    ifClearThenSet(editBox, "=");
+                });
+            });
             collisionTime.getComponent().setArgument(InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE));
             Stream.of(horizontalCollision, verticalCollision, horizontalInteract, verticalInteract).forEach(editBox -> editBox.getComponent().setArgument(InheritableDoubleArgument.inheritableDouble()));
             roll.getComponent().setArgument(InheritableFloatArgument.inheritableFloat());
@@ -383,10 +394,10 @@ public class ParametersScrollPanel extends TScrollPanel {
             amount.getComponent().setArgument(IntegerArgumentType.integer(0));
             Stream.of(xPos, yPos, zPos, xD, yD, zD, vx, vy, vz, vxD, vyD, vzD).forEach(editBox -> editBox.getComponent().setArgument(Vec3Argument.vec3()));
             collision.removeElement(InheritableBoolean.INHERIT);
+            interact.removeElement(InheritableBoolean.INHERIT);
             collisionTime.getComponent().setArgument(IntegerArgumentType.integer(0));
             Stream.of(horizontalCollision, verticalCollision, horizontalInteract, verticalInteract).forEach(editBox -> editBox.getComponent().setArgument(DoubleArgumentType.doubleArg()));
             roll.getComponent().setArgument(FloatArgumentType.floatArg());
-            interact.removeElement(InheritableBoolean.INHERIT);
             Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg()));
             bloomStrength.getComponent().setArgument(FloatArgumentType.floatArg(0, 1));
             Stream.of(alpha, scale).forEach(button -> button.removeElement(ChangeMode.INHERIT));

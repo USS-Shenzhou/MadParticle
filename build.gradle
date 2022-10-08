@@ -19,7 +19,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 group = 'cn.ussshenzhou'
-version = '0.2.0.beta'
+version = '0.2.1.beta'
 
 java {
     archivesBaseName = 'madparticle'
@@ -139,13 +139,18 @@ repositories {
     // ForgeGradle automatically adds the Forge maven and Maven Central for you
 
     // If you have mod jar dependencies in ./libs, you can declare them as a repository like so:
-    flatDir {
+    /*flatDir {
         dir 'libs'
-    }
-    maven {
+    }*/
+    /*maven {
         url "https://maven.firstdarkdev.xyz/snapshots"
+    }*/
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
     }
-
 }
 
 dependencies {
@@ -154,7 +159,8 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.18.2-40.1.73'
 
-    //implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge-1.18.2:0.1.10")
+    implementation fg.deobf('curse.maven:shimmer-627824:4020772')
+    //implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge-1.18.2:0.1.11")
 
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
@@ -163,7 +169,7 @@ dependencies {
 
     // Examples using mod jars from ./libs
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
-    implementation fg.deobf('blank:shimmer:forge-1.18.2-0.1.11')
+    //implementation fg.deobf('blank:shimmer:forge-1.18.2-0.1.11')
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html

@@ -137,7 +137,7 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
 
     private void checkWrapped(TSelectList<?>.Entry entry, String subCommand) {
         subCommand = "mp" + subCommand;
-        subCommand = subCommand.replace("=", "~");
+        subCommand = subCommand.replace("=", "0");
         ParseResults<CommandSourceStack> parseResults = MadParticleCommand.justParse(subCommand);
         Map<?, CommandSyntaxException> map = parseResults.getExceptions();
         if ((!map.isEmpty()) || parseResults.getContext().build(subCommand).getNodes().isEmpty()) {

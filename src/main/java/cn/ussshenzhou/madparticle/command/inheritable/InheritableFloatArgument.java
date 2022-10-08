@@ -20,7 +20,7 @@ public class InheritableFloatArgument implements ArgumentType<Float> {
         this.minimum = minimum;
         this.maximum = maximum;
         this.fatherCommandParameterAmount = fatherCommandParameterAmount;
-        this.floatArgumentType = FloatArgumentType.floatArg(minimum, maximum);
+        this.floatArgumentType = FloatArgumentType.floatArg();
     }
 
     public static InheritableFloatArgument inheritableFloat(float minimum, float maximum) {
@@ -58,6 +58,14 @@ public class InheritableFloatArgument implements ArgumentType<Float> {
     private float inheritableParse(StringReader reader) throws CommandSyntaxException {
         InheritableStringReader inheritableStringReader = new InheritableStringReader(reader);
         float result = floatArgumentType.parse(inheritableStringReader);
+        if (result == Float.MAX_VALUE) {
+            reader.setCursor(inheritableStringReader.getCursor());
+            return result;
+        } else if (result < minimum) {
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.floatTooLow().createWithContext(reader, result, minimum);
+        } else if (result > maximum) {
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.floatTooHigh().createWithContext(reader, result, maximum);
+        }
         reader.setCursor(inheritableStringReader.getCursor());
         return result;
     }

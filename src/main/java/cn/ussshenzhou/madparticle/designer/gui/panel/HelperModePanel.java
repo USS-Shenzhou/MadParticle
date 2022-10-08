@@ -19,7 +19,6 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.context.ParsedArgument;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -166,9 +165,8 @@ public class HelperModePanel extends TPanel {
             }
             ParseResults<CommandSourceStack> parseResults = MadParticleCommand.justParse(s);
             CommandContextBuilder<CommandSourceStack> ctb;
-            try {
-                ctb = CommandHelper.getContextBuilderHasArgument(parseResults.getContext(), "targetParticle");
-            } catch (CommandSyntaxException ignored) {
+            ctb = CommandHelper.getContextBuilderHasArgument(parseResults.getContext(), "targetParticle");
+            if (ctb == null) {
                 return;
             }
             Map<String, ParsedArgument<CommandSourceStack, ?>> map = ctb.getArguments();
@@ -184,6 +182,7 @@ public class HelperModePanel extends TPanel {
             getArgAndFill(panel.r, "r", s, map);
             getArgAndFill(panel.g, "g", s, map);
             getArgAndFill(panel.b, "b", s, map);
+            getArgAndFill(panel.bloomStrength, "bloomFactor", s, map);
             getArgAndFill(panel.horizontalInteract, "horizontalInteractFactor", s, map);
             getArgAndFill(panel.verticalInteract, "verticalInteractFactor", s, map);
             getArgAndFill(panel.horizontalCollision, "horizontalRelativeCollisionDiffuse", s, map);

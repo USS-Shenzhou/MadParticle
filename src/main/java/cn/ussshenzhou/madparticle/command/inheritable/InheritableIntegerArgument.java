@@ -20,7 +20,7 @@ public class InheritableIntegerArgument implements ArgumentType<Integer> {
         this.minimum = minimum;
         this.maximum = maximum;
         this.fatherCommandParameterAmount = fatherCommandParameterAmount;
-        this.integerArgumentType = IntegerArgumentType.integer(minimum, maximum);
+        this.integerArgumentType = IntegerArgumentType.integer();
     }
 
     public static InheritableIntegerArgument inheritableInteger(int minimum, int maximum,int fatherCommandParameterAmount) {
@@ -61,6 +61,14 @@ public class InheritableIntegerArgument implements ArgumentType<Integer> {
     private int inheritableParse(StringReader reader) throws CommandSyntaxException {
         InheritableStringReader inheritableStringReader = new InheritableStringReader(reader);
         int result = integerArgumentType.parse(inheritableStringReader);
+        if (result == Integer.MAX_VALUE) {
+            reader.setCursor(inheritableStringReader.getCursor());
+            return result;
+        } else if (result < minimum) {
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.floatTooLow().createWithContext(reader, result, minimum);
+        } else if (result > maximum) {
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.floatTooHigh().createWithContext(reader, result, maximum);
+        }
         reader.setCursor(inheritableStringReader.getCursor());
         return result;
     }

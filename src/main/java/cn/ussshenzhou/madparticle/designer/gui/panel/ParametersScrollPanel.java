@@ -91,21 +91,6 @@ public class ParametersScrollPanel extends TScrollPanel {
             gSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.g")),
             bSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.b"));
     //lane 6
-    public final TTitledCycleButton<InheritableBoolean> interact = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.interact"));
-    public final TTitledSimpleConstrainedEditBox
-            horizontalInteract = new TTitledSimpleConstrainedEditBox(
-            new TranslatableComponent("gui.mp.de.helper.horizontal_interact"), DoubleArgumentType.doubleArg()),
-            verticalInteract = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.vertical_interact"), DoubleArgumentType.doubleArg()),
-            friction = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.friction"), FloatArgumentType.floatArg()),
-            friction2 = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.friction_after"), FloatArgumentType.floatArg()),
-            gravity = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.gravity"), FloatArgumentType.floatArg()),
-            gravity2 = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.gravity_after"), FloatArgumentType.floatArg());
-    //lane 7
     public final TTitledCycleButton<InheritableBoolean> collision = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.collision"));
     public final TTitledSimpleConstrainedEditBox
             horizontalCollision = new TTitledSimpleConstrainedEditBox(
@@ -122,25 +107,33 @@ public class ParametersScrollPanel extends TScrollPanel {
                     new TranslatableComponent("gui.mp.de.helper.z_deflection"), FloatArgumentType.floatArg()),
             zDeflection2 = new TTitledSimpleConstrainedEditBox(
                     new TranslatableComponent("gui.mp.de.helper.z_deflection_after"), FloatArgumentType.floatArg());
+    //lane 7
+    public final TTitledCycleButton<InheritableBoolean> interact = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.interact"));
+    public final TTitledSimpleConstrainedEditBox
+            roll = new TTitledSimpleConstrainedEditBox(
+            new TranslatableComponent("gui.mp.de.helper.roll_speed"), FloatArgumentType.floatArg()),
+            horizontalInteract = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.horizontal_interact"), DoubleArgumentType.doubleArg()),
+            verticalInteract = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.vertical_interact"), DoubleArgumentType.doubleArg()),
+            friction = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.friction"), FloatArgumentType.floatArg()),
+            friction2 = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.friction_after"), FloatArgumentType.floatArg()),
+            gravity = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.gravity"), FloatArgumentType.floatArg()),
+            gravity2 = new TTitledSimpleConstrainedEditBox(
+                    new TranslatableComponent("gui.mp.de.helper.gravity_after"), FloatArgumentType.floatArg());
     //lane 8
     public final TTitledCycleButton<ChangeMode>
             alpha = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.alpha")),
             scale = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.scale"));
     public final TTitledSimpleConstrainedEditBox
-            roll = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.roll_speed"), FloatArgumentType.floatArg()),
+            bloomStrength = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.bloom_factor"), FloatArgumentType.floatArg(0)),
             alphaBegin = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.alpha_begin"), FloatArgumentType.floatArg()),
             alphaEnd = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.alpha_end"), FloatArgumentType.floatArg()),
             scaleBegin = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.scale_begin"), FloatArgumentType.floatArg()),
             scaleEnd = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.scale_end"), FloatArgumentType.floatArg());
-    //lane 9
-    public final TTitledSimpleConstrainedEditBox
-            bloomR = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom R"), FloatArgumentType.floatArg(0)),
-            bloomG = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom G"), FloatArgumentType.floatArg(0)),
-            bloomB = new TTitledSimpleConstrainedEditBox(new TextComponent("bloom B"), FloatArgumentType.floatArg(0));
-    public final TSlider
-            bloomRSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.bloom_r")),
-            bloomGSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.bloom_g")),
-            bloomBSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.bloom_b"));
 
     public ParametersScrollPanel() {
         super();
@@ -152,7 +145,6 @@ public class ParametersScrollPanel extends TScrollPanel {
         init6();
         init7();
         init8();
-        init9();
         setChild(true);
     }
 
@@ -229,11 +221,6 @@ public class ParametersScrollPanel extends TScrollPanel {
     }
 
     public void init6() {
-        Stream.of(InheritableBoolean.values()).forEach(interact::addElement);
-        this.addAll(interact, horizontalInteract, verticalInteract, friction, friction2, gravity, gravity2);
-    }
-
-    public void init7() {
         this.addAll(collision, horizontalCollision, verticalCollision, collisionTime, xDeflection, xDeflection2, zDeflection, zDeflection2);
         collision.addElement(InheritableBoolean.TRUE, button -> {
             Stream.of(horizontalCollision, verticalCollision, collisionTime).forEach(e -> e.getComponent().setEditable(true));
@@ -243,123 +230,18 @@ public class ParametersScrollPanel extends TScrollPanel {
         });
     }
 
+    public void init7() {
+        Stream.of(InheritableBoolean.values()).forEach(interact::addElement);
+        this.addAll(roll, interact, horizontalInteract, verticalInteract, friction, friction2, gravity, gravity2);
+    }
+
     public void init8() {
         Stream.of(ChangeMode.values()).forEach(alpha::addElement);
         Stream.of(ChangeMode.values()).forEach(scale::addElement);
-        this.addAll(alpha, scale, roll, alphaBegin, alphaEnd, scaleBegin, scaleEnd);
-    }
-
-    public void init9() {
-        this.addAll(bloomR, bloomG, bloomB, bloomRSlider, bloomGSlider, bloomBSlider);
-        bloomR.getComponent().addPassedResponder(s -> {
-            float f = Float.parseFloat(s);
-            bloomRSlider.setValueWithoutRespond(f);
-        });
-        bloomG.getComponent().addPassedResponder(s -> {
-            float f = Float.parseFloat(s);
-            bloomGSlider.setValueWithoutRespond(f);
-        });
-        bloomB.getComponent().addPassedResponder(s -> {
-            float f = Float.parseFloat(s);
-            bloomBSlider.setValueWithoutRespond(f);
-        });
-        bloomRSlider.addResponder(d -> {
-            if (bloomR.getComponent().isEditable()) {
-                bloomR.getComponent().setValue(String.format("%.3f", d));
-                AccessorProxy.EditBoxProxy.setDisplayPos(bloomR.getComponent(), 0);
-            }
-        });
-        bloomGSlider.addResponder(d -> {
-            if (bloomG.getComponent().isEditable()) {
-                bloomG.getComponent().setValue(String.format("%.3f", d));
-                AccessorProxy.EditBoxProxy.setDisplayPos(bloomG.getComponent(), 0);
-            }
-        });
-        bloomBSlider.addResponder(d -> {
-            if (bloomB.getComponent().isEditable()) {
-                bloomB.getComponent().setValue(String.format("%.3f", d));
-                AccessorProxy.EditBoxProxy.setDisplayPos(bloomB.getComponent(), 0);
-            }
-        });
+        this.addAll(bloomStrength, alpha, scale, alphaBegin, alphaEnd, scaleBegin, scaleEnd);
         if (!IS_SHIMMER_EXIST) {
-            Stream.of(bloomR, bloomG, bloomB).forEach(t -> {
-                t.getComponent().setEditable(false);
-                AccessorProxy.EditBoxProxy.setDisplayPos(t.getComponent(), 0);
-            });
-            bloomRSlider.setValue(0);
-            bloomGSlider.setValue(0);
-            bloomBSlider.setValue(0);
-        } else {
-            bloomRSlider.setValue(1);
-            bloomGSlider.setValue(1);
-            bloomBSlider.setValue(1);
-        }
-    }
-
-    private void tryFillDefault() {
-        ArgumentSuggestionsDispatcher<ParticleOptions> dispatcher = new ArgumentSuggestionsDispatcher<>();
-        dispatcher.register(Commands.argument("particle", ParticleArgument.particle()));
-        CommandSourceStack sourceStack = Minecraft.getInstance().player.createCommandSourceStack();
-        String value = target.getComponent().getEditBox().getValue();
-        ParseResults<CommandSourceStack> parseResults = dispatcher.parse(value, sourceStack);
-        CommandContext<CommandSourceStack> ct = parseResults.getContext().build(value);
-        try {
-            ParticleOptions particleOptions = ct.getArgument("particle", ParticleOptions.class);
-            Particle particle = ((ParticleEngineAccessor) Minecraft.getInstance().particleEngine).callMakeParticle(particleOptions, 0, 0, 0, 0, 0, 0);
-            if (particle != null) {
-                ParticleAccessor accessor = (ParticleAccessor) particle;
-                ifClearThenSet(lifeTime, particle.getLifetime());
-                ifClearThenSet(amount, 5);
-                alwaysRender.getComponent().select(InheritableBoolean.FALSE);
-                ifClearThenSet(whoCanSee.getComponent().getEditBox(), "@a");
-                Stream.of(xPos, yPos, zPos).forEach(
-                        titled -> ifClearThenSet(titled, isChild ? "=" : "~")
-                );
-                Stream.of(vx, vy, vz).forEach(
-                        titled -> ifClearThenSet(titled, isChild ? "=" : "0.0")
-                );
-                Stream.of(xD, yD, zD, vxD, vyD, vzD).forEach(
-                        titled -> ifClearThenSet(titled, "0.0")
-                );
-                ifClearThenSet(r, accessor.getRCol());
-                ifClearThenSet(g, accessor.getGCol());
-                ifClearThenSet(b, accessor.getBCol());
-                ifClearThenSet(accessor.getFriction(), friction, friction2);
-                ifClearThenSet(accessor.getGravity(), gravity, gravity2);
-                ifClearThenSet(gravity2, accessor.getGravity());
-                collision.getComponent().select(InheritableBoolean.FALSE);
-                Stream.of(horizontalInteract, verticalInteract, xDeflection, xDeflection2, zDeflection, zDeflection2).forEach(editBox ->
-                        ifClearThenSet(editBox, 0));
-                ifClearThenSet(roll, accessor.getRoll());
-                ifClearThenSet(accessor.getAlpha(), alphaBegin, alphaEnd);
-                ifClearThenSet(String.format("%.2f", (accessor.getBbHeight() + accessor.getBbWidth()) / 2 / 0.2), scaleBegin, scaleEnd);
-                ifClearThenSet(bloomR, 0);
-                ifClearThenSet(bloomG, 0);
-                ifClearThenSet(bloomB, 0);
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
-    private <V> void ifClearThenSet(TTitledComponent<? extends TEditBox> tTitled, V value) {
-        ifClearThenSet(tTitled.getComponent(), value);
-    }
-
-    private <V> void ifClearThenSet(V value, TTitledComponent<? extends TEditBox>... tTitled) {
-        Stream.of(tTitled).forEach(t -> ifClearThenSet(t.getComponent(), value));
-    }
-
-    /*private <V> void ifClearThenSet(V value, TEditBox... editBoxes) {
-        Stream.of(editBoxes).forEach(editBox -> ifClearThenSet(editBox, value));
-    }*/
-
-    private <V> void ifClearThenSet(TEditBox editBox, V value) {
-        if (
-                (editBox.getValue().isEmpty() || ((EditBoxAccessor) editBox).getTextColor() == 0x37e2ff)
-                        && ((EditBoxAccessor) editBox).isIsEditable()
-        ) {
-            editBox.setValue(value.toString());
-            editBox.setTextColor(0x37e2ff);
+            bloomStrength.getComponent().setEditable(false);
+            AccessorProxy.EditBoxProxy.setDisplayPos(bloomStrength.getComponent(), 0);
         }
     }
 
@@ -429,46 +311,36 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BRightOfA(bSlider, xGap, b, l, bSlider.getPreferredSize().y);
         LayoutHelper.BBottomOfA(bSlider, 12 - bSlider.getPreferredSize().y, bSlider);
         //lane 6
-        LayoutHelper.BBottomOfA(interact, yGap, r, stdTitledButton);
-        LayoutHelper.BRightOfA(horizontalInteract, xGap, interact, stdTitledEditBox);
-        LayoutHelper.BRightOfA(verticalInteract, xGap, horizontalInteract);
-        LayoutHelper.BRightOfA(friction, xGap, verticalInteract);
-        LayoutHelper.BRightOfA(friction, xGap, friction);
+        LayoutHelper.BBottomOfA(collision, yGap, r, stdTitledButton);
+        LayoutHelper.BRightOfA(horizontalCollision, xGap, collision, stdTitledEditBox);
+        LayoutHelper.BRightOfA(verticalCollision, xGap, horizontalCollision);
+        LayoutHelper.BRightOfA(collisionTime, xGap, verticalCollision);
+        LayoutHelper.BRightOfA(friction, xGap, collisionTime);
         LayoutHelper.BRightOfA(friction2, xGap, friction);
         LayoutHelper.BRightOfA(gravity, xGap, friction2);
         LayoutHelper.BRightOfA(gravity2, xGap, gravity);
         //lane 7
-        LayoutHelper.BBottomOfA(collision, yGap, interact);
-        LayoutHelper.BRightOfA(horizontalCollision, xGap, collision, stdTitledEditBox);
-        LayoutHelper.BRightOfA(verticalCollision, xGap, horizontalCollision);
-        LayoutHelper.BRightOfA(collisionTime, xGap, verticalCollision);
-        LayoutHelper.BRightOfA(xDeflection, xGap, collisionTime);
+        LayoutHelper.BBottomOfA(roll, yGap, collision, stdTitledEditBox);
+        LayoutHelper.BRightOfA(interact, xGap, roll, stdTitledButton);
+        LayoutHelper.BRightOfA(horizontalInteract, xGap, interact, stdTitledEditBox);
+        LayoutHelper.BRightOfA(verticalInteract, xGap, horizontalInteract);
+        LayoutHelper.BRightOfA(xDeflection, xGap, verticalInteract);
         LayoutHelper.BRightOfA(xDeflection2, xGap, xDeflection);
         LayoutHelper.BRightOfA(zDeflection, xGap, xDeflection2);
         LayoutHelper.BRightOfA(zDeflection2, xGap, zDeflection);
         //lane 8
-        LayoutHelper.BBottomOfA(roll, yGap, collision, stdTitledEditBox);
+        LayoutHelper.BBottomOfA(bloomStrength, yGap, roll, stdTitledEditBox);
+
         LayoutHelper.BBottomOfA(scaleEnd, yGap, zDeflection2, stdTitledEditBox);
         LayoutHelper.BLeftOfA(scaleBegin, xGap, scaleEnd);
         LayoutHelper.BLeftOfA(scale, xGap, scaleBegin, stdTitledButton);
         LayoutHelper.BLeftOfA(alphaEnd, xGap, scale, stdTitledEditBox);
         LayoutHelper.BLeftOfA(alphaBegin, xGap, alphaEnd);
         LayoutHelper.BLeftOfA(alpha, xGap, alphaBegin, stdTitledButton);
-        //lane 9
-        LayoutHelper.BBottomOfA(bloomR, yGap, roll, stdTitledEditBox);
-        LayoutHelper.BRightOfA(bloomG, xGap, bloomR, l, stdTitledEditBox.y);
-        LayoutHelper.BRightOfA(bloomG, xGap, bloomG, stdTitledEditBox);
-        LayoutHelper.BRightOfA(bloomB, xGap, bloomG, l, stdTitledEditBox.y);
-        LayoutHelper.BRightOfA(bloomB, xGap, bloomB, stdTitledEditBox);
-
-        LayoutHelper.BRightOfA(bloomRSlider, xGap, bloomR, l, bloomRSlider.getPreferredSize().y);
-        LayoutHelper.BBottomOfA(bloomRSlider, 12 - bloomRSlider.getPreferredSize().y, bloomRSlider);
-        LayoutHelper.BRightOfA(bloomGSlider, xGap, bloomG, l, bloomGSlider.getPreferredSize().y);
-        LayoutHelper.BBottomOfA(bloomGSlider, 12 - bloomGSlider.getPreferredSize().y, bloomGSlider);
-        LayoutHelper.BRightOfA(bloomBSlider, xGap, bloomB, l, bloomBSlider.getPreferredSize().y);
-        LayoutHelper.BBottomOfA(bloomBSlider, 12 - bloomBSlider.getPreferredSize().y, bloomBSlider);
         super.layout();
     }
+
+    //TODO set bloomStrength
 
     private Vec2i calculateStdTitledEditBox(Vec2i size, int gap) {
         return new Vec2i(
@@ -482,7 +354,6 @@ public class ParametersScrollPanel extends TScrollPanel {
     }
 
     public void setChild(boolean child) {
-        //TODO
         isChild = child;
         if (child) {
             spriteFrom.addElement(SpriteFrom.INHERIT);
@@ -501,7 +372,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             roll.getComponent().setArgument(InheritableFloatArgument.inheritableFloat());
             interact.addElement(InheritableBoolean.INHERIT);
             Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(InheritableFloatArgument.inheritableFloat()));
-            Stream.of(bloomR, bloomG, bloomB).forEach(editBox -> editBox.getComponent().setArgument(InheritableFloatArgument.inheritableFloat(0, Integer.MAX_VALUE)));
+            bloomStrength.getComponent().setArgument(InheritableFloatArgument.inheritableFloat(0, 1));
             Stream.of(alpha, scale).forEach(button -> button.addElement(ChangeMode.INHERIT));
 
             amount.getComponent().setEditable(false);
@@ -517,10 +388,74 @@ public class ParametersScrollPanel extends TScrollPanel {
             roll.getComponent().setArgument(FloatArgumentType.floatArg());
             interact.removeElement(InheritableBoolean.INHERIT);
             Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg()));
-            Stream.of(bloomR, bloomG, bloomB).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg(0)));
+            bloomStrength.getComponent().setArgument(FloatArgumentType.floatArg(0, 1));
             Stream.of(alpha, scale).forEach(button -> button.removeElement(ChangeMode.INHERIT));
-
             amount.getComponent().setEditable(true);
+        }
+    }
+
+    private void tryFillDefault() {
+        ArgumentSuggestionsDispatcher<ParticleOptions> dispatcher = new ArgumentSuggestionsDispatcher<>();
+        dispatcher.register(Commands.argument("particle", ParticleArgument.particle()));
+        CommandSourceStack sourceStack = Minecraft.getInstance().player.createCommandSourceStack();
+        String value = target.getComponent().getEditBox().getValue();
+        ParseResults<CommandSourceStack> parseResults = dispatcher.parse(value, sourceStack);
+        CommandContext<CommandSourceStack> ct = parseResults.getContext().build(value);
+        try {
+            ParticleOptions particleOptions = ct.getArgument("particle", ParticleOptions.class);
+            Particle particle = ((ParticleEngineAccessor) Minecraft.getInstance().particleEngine).callMakeParticle(particleOptions, 0, 0, 0, 0, 0, 0);
+            if (particle != null) {
+                ParticleAccessor accessor = (ParticleAccessor) particle;
+                ifClearThenSet(lifeTime, particle.getLifetime());
+                ifClearThenSet(amount, 5);
+                alwaysRender.getComponent().select(InheritableBoolean.FALSE);
+                ifClearThenSet(whoCanSee.getComponent().getEditBox(), "@a");
+                Stream.of(xPos, yPos, zPos).forEach(
+                        titled -> ifClearThenSet(titled, isChild ? "=" : "~")
+                );
+                Stream.of(vx, vy, vz).forEach(
+                        titled -> ifClearThenSet(titled, isChild ? "=" : "0.0")
+                );
+                Stream.of(xD, yD, zD, vxD, vyD, vzD).forEach(
+                        titled -> ifClearThenSet(titled, "0.0")
+                );
+                ifClearThenSet(r, accessor.getRCol());
+                ifClearThenSet(g, accessor.getGCol());
+                ifClearThenSet(b, accessor.getBCol());
+                ifClearThenSet(accessor.getFriction(), friction, friction2);
+                ifClearThenSet(accessor.getGravity(), gravity, gravity2);
+                ifClearThenSet(gravity2, accessor.getGravity());
+                collision.getComponent().select(InheritableBoolean.FALSE);
+                Stream.of(horizontalInteract, verticalInteract, xDeflection, xDeflection2, zDeflection, zDeflection2).forEach(editBox ->
+                        ifClearThenSet(editBox, 0));
+                ifClearThenSet(roll, accessor.getRoll());
+                ifClearThenSet(accessor.getAlpha(), alphaBegin, alphaEnd);
+                ifClearThenSet(String.format("%.2f", (accessor.getBbHeight() + accessor.getBbWidth()) / 2 / 0.2), scaleBegin, scaleEnd);
+                ifClearThenSet(bloomStrength, isChild ? "=" : "0");
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private <V> void ifClearThenSet(TTitledComponent<? extends TEditBox> tTitled, V value) {
+        ifClearThenSet(tTitled.getComponent(), value);
+    }
+
+    private <V> void ifClearThenSet(V value, TTitledComponent<? extends TEditBox>... tTitled) {
+        Stream.of(tTitled).forEach(t -> ifClearThenSet(t.getComponent(), value));
+    }
+
+    /*private <V> void ifClearThenSet(V value, TEditBox... editBoxes) {
+        Stream.of(editBoxes).forEach(editBox -> ifClearThenSet(editBox, value));
+    }*/
+
+    private <V> void ifClearThenSet(TEditBox editBox, V value) {
+        if (
+                (editBox.getValue().isEmpty() || ((EditBoxAccessor) editBox).getTextColor() == 0x37e2ff)
+                        && ((EditBoxAccessor) editBox).isIsEditable()
+        ) {
+            editBox.setValue(value.toString());
+            editBox.setTextColor(0x37e2ff);
         }
     }
 
@@ -539,7 +474,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         Stream.of(horizontalInteract, horizontalInteract).forEach(titled -> append(builder, titled));
         append(builder, renderType);
         Stream.of(r, g, b).forEach(titled -> append(builder, titled));
-        Stream.of(bloomR, bloomG, bloomB).forEach(titled -> append(builder, titled, 0));
+        append(builder, bloomStrength);
         Stream.of(alphaBegin, alphaEnd).forEach(titled -> append(builder, titled));
         append(builder, alpha);
         Stream.of(scaleBegin, scaleEnd).forEach(titled -> append(builder, titled));

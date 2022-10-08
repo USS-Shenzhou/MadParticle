@@ -66,9 +66,7 @@
   "gui.mp.de.helper.scale_begin": "初始大小",
   "gui.mp.de.helper.scale_end": "结束大小",
   "gui.mp.de.helper.unwrap": "解析",
-  "gui.mp.de.helper.bloom_r": "泛光 红",
-  "gui.mp.de.helper.bloom_g": "泛光 绿",
-  "gui.mp.de.helper.bloom_b": "泛光 蓝",
+  "gui.mp.de.helper.bloom_factor": "泛光强度",
 
   "gui.t88.invalid": "不可用"
 }

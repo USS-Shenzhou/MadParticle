@@ -47,7 +47,7 @@ public class MadParticle extends TextureSheetParticle {
     protected float zDeflection;
     protected final float xDeflectionAfterCollision;
     protected final float zDeflectionAfterCollision;
-    protected final float bloomR, bloomG, bloomB;
+    protected final float bloomFactor;
 
     private int bounceCount = 0;
     private float scale;
@@ -70,7 +70,7 @@ public class MadParticle extends TextureSheetParticle {
                        MadParticleOption child,
                        float rollSpeed,
                        float xDeflection, float zDeflection, float xDeflectionAfterCollision, float zDeflectionAfterCollision,
-                       float bloomR, float bloomG, float bloomB
+                       float bloomFactor
     ) {
         super(pLevel, pX, pY, pZ);
         this.sprites = spriteSet;
@@ -124,9 +124,7 @@ public class MadParticle extends TextureSheetParticle {
         this.zDeflection = zDeflection;
         this.xDeflectionAfterCollision = xDeflectionAfterCollision;
         this.zDeflectionAfterCollision = zDeflectionAfterCollision;
-        this.bloomR = bloomR;
-        this.bloomG = bloomG;
-        this.bloomB = bloomB;
+        this.bloomFactor = bloomFactor;
     }
 
     @Override
@@ -334,16 +332,12 @@ public class MadParticle extends TextureSheetParticle {
         float f6 = this.getV1();
         int j = this.getLightColor(pPartialTicks);
         buffer.vertex((double) avector3f[0].x(), (double) avector3f[0].y(), (double) avector3f[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j);
-        buffer.bloomFactor(bloomR, bloomG, bloomB).endVertex();
 
         buffer.vertex((double) avector3f[1].x(), (double) avector3f[1].y(), (double) avector3f[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j);
-        buffer.bloomFactor(bloomR, bloomG, bloomB).endVertex();
 
         buffer.vertex((double) avector3f[2].x(), (double) avector3f[2].y(), (double) avector3f[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j);
-        buffer.bloomFactor(bloomR, bloomG, bloomB).endVertex();
 
         buffer.vertex((double) avector3f[3].x(), (double) avector3f[3].y(), (double) avector3f[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j);
-        buffer.bloomFactor(bloomR, bloomG, bloomB).endVertex();
 
     }
 
@@ -375,7 +369,7 @@ public class MadParticle extends TextureSheetParticle {
                             op.child(),
                             op.rollSpeed(),
                             op.xDeflection(), op.xDeflectionAfterCollision(), op.zDeflection(), op.zDeflectionAfterCollision(),
-                            op.bloomR(), op.bloomG(), op.bloomB()
+                            op.bloomFactor()
                     );
                 }
             }

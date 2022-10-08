@@ -204,6 +204,6 @@ tasks.register("githubActionOutput") {
         System.env.GITHUB_ACTIONS
     }
     it.doLast {
-        println "::set-output name=artifact_name::${archivesBaseName}-${version}.dev-"
+        println "::set-output name=artifact_name::${archivesBaseName}-${version}"
     }
 }

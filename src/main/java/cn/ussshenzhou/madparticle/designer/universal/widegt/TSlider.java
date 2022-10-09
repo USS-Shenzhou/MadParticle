@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ProgressOption;
 import net.minecraft.client.gui.components.SliderButton;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
@@ -58,11 +59,37 @@ public class TSlider extends SliderButton implements TWidget, TResponder<Double>
     }
 
     protected void applyValue(boolean respond) {
-        if (respond){
+        if (respond) {
             respond(value);
         }
         super.applyValue();
 
+    }
+
+    public void addValue(double delta) {
+        setValue(value + delta);
+    }
+
+    private float factor0 = 0.2f;
+    private float factor1 = 0.1f;
+    private float factor2 = 0.05f;
+    private float factor3 = 0.01f;
+
+    @Override
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
+        if (isInRange(pMouseX, pMouseY, 2, 2)) {
+            if (Screen.hasControlDown()) {
+                if (Screen.hasShiftDown()) {
+
+                }
+
+            } else if (Screen.hasShiftDown()) {
+
+            } else {
+
+            }
+        }
+        return false;
     }
 
     @Override

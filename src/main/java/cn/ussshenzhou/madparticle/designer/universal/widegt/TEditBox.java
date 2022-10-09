@@ -58,6 +58,12 @@ public class TEditBox extends EditBox implements TWidget, TResponder<String> {
         return getX() + font.width(s.substring(AccessorProxy.EditBoxProxy.getDisplayPos(this), b)) + font.width(" ");
     }
 
+    @Override
+    public void renderHighlight(int pStartX, int pStartY, int pEndX, int pEndY) {
+        double scroll = -this.getParentScrollAmountIfExist();
+        super.renderHighlight(pStartX, (int) (pStartY + scroll), pEndX, (int) (pEndY + scroll));
+    }
+
     @Deprecated
     @Override
     public void setResponder(Consumer<String> pResponder) {
@@ -180,7 +186,7 @@ public class TEditBox extends EditBox implements TWidget, TResponder<String> {
         super.setEditable(pEnabled);
     }
 
-    public boolean isEditable(){
+    public boolean isEditable() {
         return AccessorProxy.EditBoxProxy.isEditBoxEdible(this);
     }
 }

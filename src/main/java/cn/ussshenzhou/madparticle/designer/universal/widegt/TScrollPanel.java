@@ -157,10 +157,12 @@ public class TScrollPanel extends TPanel {
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
         if (isInRange(pMouseX, pMouseY)) {
-            this.setScrollAmount(pDelta);
-            return true;
+            if (!super.mouseScrolled(pMouseX, pMouseY, pDelta)){
+                this.setScrollAmount(pDelta);
+                return true;
+            }
         }
-        return super.mouseScrolled(pMouseX, pMouseY, pDelta);
+        return false;
     }
 
     @Override

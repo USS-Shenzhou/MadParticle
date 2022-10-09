@@ -20,6 +20,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.context.ParsedArgument;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.common.MinecraftForge;
@@ -56,7 +57,7 @@ public class HelperModePanel extends TPanel {
 
         @Override
         public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
-            if (pKeyCode == 86 && pScanCode == 47 && pModifiers == 2) {
+            if (Screen.isPaste(pKeyCode)) {
                 switchCount = 0;
                 callPauseCount = 0;
                 switchCopyAndUnwrap();

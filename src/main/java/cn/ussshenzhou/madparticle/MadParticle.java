@@ -23,7 +23,7 @@ public class MadParticle {
     public static final String MOD_ID = "madparticle";
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final boolean isOptifineInstalled = isClassFound("net.optifine.reflect.ReflectorClass");
-    public static final boolean isShimmerInstalled = ModList.get().isLoaded("shimmer");
+    public static final boolean isShimmerInstalled = isModLoaded("shimmer");
 
     public MadParticle() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -32,7 +32,7 @@ public class MadParticle {
         ModParticleRegistry.PARTICLE_TYPES.register(modBus);
     }
 
-    public boolean isModLoaded(String modID) {
+    public static boolean isModLoaded(String modID) {
         return ModList.get().isLoaded(modID);
     }
 

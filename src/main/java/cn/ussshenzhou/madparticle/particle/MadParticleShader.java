@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.MadParticle;
+import cn.ussshenzhou.madparticle.designer.gui.widegt.TColorChooser;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
@@ -30,7 +31,9 @@ public class MadParticleShader {
             event.registerShader(new ShaderInstance(resourceManager
                             , new ResourceLocation(MadParticle.MOD_ID, "particle"), MadParticleRenderTypes.PARTICLE)
                     , (shaderInstance -> madParticleShader = shaderInstance));
-
+            event.registerShader(new ShaderInstance(resourceManager,
+                    new ResourceLocation(MadParticle.MOD_ID,"hsb_block"), TColorChooser.HSB_VERTEX_FORMAT),
+                    shaderInstance -> TColorChooser.POSITION_HSB_SHADER = shaderInstance);
         } catch (Exception e) {
             throw new RuntimeException("failed to load particle shader", e);
         }

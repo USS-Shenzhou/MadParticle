@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "cn.usshenzhou.madparticle.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "BufferBuilderAccessor"
+  ],
+  "client": [
+    "ParticleEngineAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

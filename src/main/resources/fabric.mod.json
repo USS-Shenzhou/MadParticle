@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "madparticle",
+  "version": "${version}",
+  "name": "Madparticle",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "GPL-3.0",
+  "icon": "assets/madparticle/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "cn.usshenzhou.madparticle.client.MadparticleClient"
+    ],
+    "main": [
+      "cn.usshenzhou.madparticle.Madparticle"
+    ]
+  },
+  "mixins": [
+    "madparticle.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.13",
+    "fabric": "*",
+    "minecraft": "1.18.2"
+  },
+  "accessWidener" : "mp.accesswidener"
+}

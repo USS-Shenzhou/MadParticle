@@ -168,16 +168,16 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     public void init3() {
         this.addAll(xPos, yPos, zPos, xD, yD, zD, particlePreview);
-        xControlX2(xPos, xD);
-        xControlX2(yPos, yD);
-        xControlX2(zPos, zD);
+        //xControlX2(xPos, xD);
+        //xControlX2(yPos, yD);
+        //xControlX2(zPos, zD);
     }
 
     public void init4() {
         this.addAll(vx, vy, vz, vxD, vyD, vzD);
-        xControlX2(vx, vxD);
-        xControlX2(vy, vyD);
-        xControlX2(vz, vzD);
+        //xControlX2(vx, vxD);
+        //xControlX2(vy, vyD);
+        //xControlX2(vz, vzD);
     }
 
     private void xControlX2(TTitledSimpleConstrainedEditBox controller, TTitledSimpleConstrainedEditBox controlled) {
@@ -365,7 +365,8 @@ public class ParametersScrollPanel extends TScrollPanel {
             lifeTime.getComponent().setArgument(InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE));
             alwaysRender.addElement(InheritableBoolean.INHERIT);
             amount.getComponent().setArgument(InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE));
-            Stream.of(xPos, yPos, zPos, xD, yD, zD, vx, vy, vz, vxD, vyD, vzD).forEach(editBox -> editBox.getComponent().setArgument(InheritableVec3Argument.inheritableVec3()));
+            Stream.of(xPos, yPos, zPos, vx, vy, vz).forEach(editBox -> editBox.getComponent().setArgument(InheritableVec3Argument.inheritableVec3()));
+            Stream.of(xD, yD, zD, vxD, vyD, vzD).forEach(editBox -> editBox.getComponent().setArgument(Vec3Argument.vec3(false)));
             collision.addElement(InheritableBoolean.INHERIT, button -> {
                 Stream.of(horizontalCollision, verticalCollision, collisionTime).forEach(editBox -> {
                     editBox.getComponent().setEditable(true);

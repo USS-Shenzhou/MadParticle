@@ -19,7 +19,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 group = 'cn.ussshenzhou'
-version = '0.2.1.beta'
+version = '0.2.2'
 
 java {
     archivesBaseName = 'madparticle'
@@ -162,8 +162,8 @@ dependencies {
     implementation fg.deobf('curse.maven:shimmer-627824:4082058')
     //implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge-1.18.2:0.1.11")
 
-    implementation fg.deobf('curse.maven:t88-663112:4346957')
-    annotationProcessor 'curse.maven:t88-663112:4346957'
+    implementation fg.deobf('curse.maven:t88-663112:4353358')
+    annotationProcessor 'curse.maven:t88-663112:4353358'
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency

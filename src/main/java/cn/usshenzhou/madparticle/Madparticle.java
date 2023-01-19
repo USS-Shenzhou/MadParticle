@@ -9,13 +9,11 @@ import cn.usshenzhou.madparticle.command.inheritable.InheritableVec3Argument;
 import cn.usshenzhou.madparticle.particle.MadParticleType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import org.intellij.lang.annotations.Identifier;
 
 import java.util.function.Supplier;
 
@@ -24,6 +22,7 @@ import java.util.function.Supplier;
  */
 public class Madparticle implements ModInitializer {
     public static final boolean isShimmerInstalled = FabricLoader.getInstance().isModLoaded("shimmer");
+    public static final boolean isOptifineInstalled = isClassFound("net.optifine.reflect.ReflectorClass");
     public static final MadParticleType MAD_PARTICLE = new MadParticleType();
 
     @SuppressWarnings("InstantiationOfUtilityClass")
@@ -40,6 +39,15 @@ public class Madparticle implements ModInitializer {
         });
 
         Registry.register(Registry.PARTICLE_TYPE,new ResourceLocation("madparticle","mad_particle"),MAD_PARTICLE);
+    }
+
+    public static boolean isClassFound(String className) {
+        try {
+            Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     public static void runOnShimmer(Supplier<Runnable> run){

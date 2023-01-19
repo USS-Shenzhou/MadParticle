@@ -152,7 +152,7 @@ public enum MadParticleRenderTypes implements ParticleRenderType {
             .build());
 
     static {
-        if (MadParticle.isOptifineInstalled) {
+        if (Madparticle.isOptifineInstalled) {
             try {
                 @SuppressWarnings("JavaReflectionMemberAccess")
                 var field = VertexFormat.class.getDeclaredField("colorElementOffset");

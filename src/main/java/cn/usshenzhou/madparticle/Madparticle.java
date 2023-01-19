@@ -24,6 +24,7 @@ import java.util.function.Supplier;
  */
 public class Madparticle implements ModInitializer {
     public static final boolean isShimmerInstalled = FabricLoader.getInstance().isModLoaded("shimmer");
+    public static final boolean isOptifineInstalled = isClassFound("net.optifine.reflect.ReflectorClass");
     public static final MadParticleType MAD_PARTICLE = new MadParticleType();
 
     @SuppressWarnings("InstantiationOfUtilityClass")
@@ -40,6 +41,15 @@ public class Madparticle implements ModInitializer {
         });
 
         Registry.register(Registry.PARTICLE_TYPE,new ResourceLocation("madparticle","mad_particle"),MAD_PARTICLE);
+    }
+
+    public static boolean isClassFound(String className) {
+        try {
+            Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     public static void runOnShimmer(Supplier<Runnable> run){

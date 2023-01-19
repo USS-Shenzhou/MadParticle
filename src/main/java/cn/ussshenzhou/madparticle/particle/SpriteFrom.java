@@ -1,6 +1,6 @@
 package cn.ussshenzhou.madparticle.particle;
 
-import cn.ussshenzhou.madparticle.designer.universal.util.ToTranslatableString;
+import cn.ussshenzhou.t88.gui.util.ToTranslatableString;
 
 /**
  * @author USS_Shenzhou

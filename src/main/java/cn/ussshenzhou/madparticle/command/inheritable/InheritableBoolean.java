@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.command.inheritable;
 
-import cn.ussshenzhou.madparticle.designer.universal.util.ToTranslatableString;
+
+import cn.ussshenzhou.t88.gui.util.ToTranslatableString;
 
 /**
  * @author USS_Shenzhou

@@ -3,11 +3,11 @@ package cn.ussshenzhou.madparticle.designer.gui;
 import cn.ussshenzhou.madparticle.designer.gui.panel.HelperModePanel;
 import cn.ussshenzhou.madparticle.designer.gui.panel.LineModePanel;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.DesignerModeSelectList;
-import cn.ussshenzhou.madparticle.designer.universal.screen.TScreen;
-import cn.ussshenzhou.madparticle.designer.universal.util.LayoutHelper;
-import cn.ussshenzhou.madparticle.designer.universal.widegt.TButton;
-import cn.ussshenzhou.madparticle.designer.universal.widegt.TPanel;
-import cn.ussshenzhou.madparticle.designer.universal.widegt.TSelectList;
+import cn.ussshenzhou.t88.gui.screen.TScreen;
+import cn.ussshenzhou.t88.gui.util.LayoutHelper;
+import cn.ussshenzhou.t88.gui.widegt.TButton;
+import cn.ussshenzhou.t88.gui.widegt.TPanel;
+import cn.ussshenzhou.t88.gui.widegt.TSelectList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.TranslatableComponent;
 

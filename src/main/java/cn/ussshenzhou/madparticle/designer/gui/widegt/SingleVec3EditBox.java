@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.gui.widegt;
 
-import cn.ussshenzhou.madparticle.designer.universal.advanced.TSimpleConstrainedEditBox;
-import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSimpleConstrainedEditBox;
+import cn.ussshenzhou.t88.gui.advanced.TSimpleConstrainedEditBox;
+import cn.ussshenzhou.t88.gui.combine.TTitledSimpleConstrainedEditBox;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.network.chat.Component;

@@ -1,8 +1,8 @@
 package cn.ussshenzhou.madparticle.designer.gui.widegt;
 
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
-import cn.ussshenzhou.madparticle.designer.universal.combine.TTitledSelectList;
-import cn.ussshenzhou.madparticle.designer.universal.widegt.TSelectList;
+import cn.ussshenzhou.t88.gui.combine.TTitledSelectList;
+import cn.ussshenzhou.t88.gui.widegt.TSelectList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.TranslatableComponent;
 

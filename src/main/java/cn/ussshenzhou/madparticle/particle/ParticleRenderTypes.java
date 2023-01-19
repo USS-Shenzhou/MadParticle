@@ -1,6 +1,6 @@
 package cn.ussshenzhou.madparticle.particle;
 
-import cn.ussshenzhou.madparticle.designer.universal.util.ToTranslatableString;
+import cn.ussshenzhou.t88.gui.util.ToTranslatableString;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

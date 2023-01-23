@@ -26,7 +26,7 @@ import java.util.List;
  */
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
 public class MadParticle extends TextureSheetParticle {
-    protected final SpriteSet sprites;
+	protected final SpriteSet sprites;
     protected final SpriteFrom spriteFrom;
     protected final float beginGravity;
     protected final boolean collision;

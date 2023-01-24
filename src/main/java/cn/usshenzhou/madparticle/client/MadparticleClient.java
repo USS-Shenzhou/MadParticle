@@ -21,7 +21,7 @@ public class MadparticleClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientSpriteRegistryCallback.event(InventoryMenu.BLOCK_ATLAS).register(((atlasTexture, registry) -> {
-            registry.register(new ResourceLocation("madparticle","particle/mad_particle"));
+            registry.register(new ResourceLocation(Madparticle.MOD_ID,"particle/mad_particle"));
         }));
 
         ParticleFactoryRegistry.getInstance().register(Madparticle.MAD_PARTICLE, MadParticle.Provider::new);

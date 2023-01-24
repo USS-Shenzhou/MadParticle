@@ -10,12 +10,14 @@ import cn.usshenzhou.madparticle.particle.MadParticleType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.commands.Commands;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
+
 
 /**
  * @author USS_Shenzhou
@@ -24,6 +26,9 @@ public class Madparticle implements ModInitializer {
     public static final boolean isShimmerInstalled = FabricLoader.getInstance().isModLoaded("shimmer");
     public static final boolean isOptifineInstalled = isClassFound("net.optifine.reflect.ReflectorClass");
     public static final MadParticleType MAD_PARTICLE = new MadParticleType();
+    public static String MOD_ID = "madparticle";
+    public static final String TEST_COMMAND = "say wip";//TODO fill test command
+
 
     @SuppressWarnings("InstantiationOfUtilityClass")
     @Override
@@ -36,9 +41,15 @@ public class Madparticle implements ModInitializer {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             new MadParticleCommand(dispatcher);
+            if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+                dispatcher.register(Commands.literal("mp_test").executes((context) -> {
+                    var source = context.getSource();
+                    source.getLevel().getServer().getCommands().performCommand(source, TEST_COMMAND);
+                    return 0;
+                }));
+            }
         });
-
-        Registry.register(Registry.PARTICLE_TYPE,new ResourceLocation("madparticle","mad_particle"),MAD_PARTICLE);
+        Registry.register(Registry.PARTICLE_TYPE, new ResourceLocation(Madparticle.MOD_ID, "mad_particle"), MAD_PARTICLE);
     }
 
     public static boolean isClassFound(String className) {

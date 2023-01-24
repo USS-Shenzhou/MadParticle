@@ -1,20 +1,21 @@
 package cn.usshenzhou.madparticle.particle;
 
+import cn.usshenzhou.madparticle.Madparticle;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterShadersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraft.server.packs.resources.ResourceManager;
+
+import java.util.function.Consumer;
 
 /**
  * @author zomb-676
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT, modid = MadParticle.MOD_ID)
 public class MadParticleShader {
 
     public static ShaderInstance madParticleShader;
+    public static final String shaderName = "mad_particle";
 
     public static final RenderStateShard.ShaderStateShard particleShader = new RenderStateShard.ShaderStateShard(() -> MadParticleShader.madParticleShader);
 
@@ -22,16 +23,12 @@ public class MadParticleShader {
         return madParticleShader;
     }
 
-    @SubscribeEvent
-    public static void registerShader(RegisterShadersEvent event) {
-        var resourceManager = event.getResourceManager();
+    public static Pair<ShaderInstance, Consumer<ShaderInstance>> registerShader(ResourceManager resourceManager) {
         try {
-            event.registerShader(new ShaderInstance(resourceManager
-                            , new ResourceLocation(MadParticle.MOD_ID, "particle"), MadParticleRenderTypes.PARTICLE)
-                    , (shaderInstance -> madParticleShader = shaderInstance));
-
+            return new Pair<>(new ShaderInstance(resourceManager, shaderName, MadParticleRenderTypes.PARTICLE),
+                    shaderInstance -> madParticleShader = shaderInstance);
         } catch (Exception e) {
-            throw new RuntimeException("failed to load particle shader", e);
+            throw new RuntimeException("failed to load particle shader " + shaderName, e);
         }
     }
 }

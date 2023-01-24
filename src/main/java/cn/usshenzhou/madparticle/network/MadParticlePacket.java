@@ -2,6 +2,7 @@ package cn.usshenzhou.madparticle.network;
 
 import cn.usshenzhou.madparticle.Madparticle;
 import cn.usshenzhou.madparticle.particle.MadParticleOption;
+import cn.usshenzhou.madparticle.particle.MadParticleShader;
 import cn.usshenzhou.madparticle.util.MathHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
@@ -14,7 +15,7 @@ import java.util.Random;
  * @author USS_Shenzhou
  */
 public class MadParticlePacket {
-    public static final ResourceLocation CHANNEL_NAME = new ResourceLocation("madparticle","mad_particle_packet");
+    public static final ResourceLocation CHANNEL_NAME = new ResourceLocation(Madparticle.MOD_ID,"mad_particle_packet");
 
     private final MadParticleOption particleOption;
 

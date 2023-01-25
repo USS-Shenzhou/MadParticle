@@ -22,6 +22,9 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    maven { url 'https://jitpack.io' }
+    maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://maven.terraformersmc.com/releases/"}
 }
 
 dependencies {
@@ -37,7 +40,12 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modImplementation 'curse.maven:shimmer-627824:4082058'
+    modImplementation 'curse.maven:shimmer-627824:4082061'
+    include(implementation "com.github.LlamaLad7:MixinExtras:0.1.1")
+    annotationProcessor("com.github.LlamaLad7:MixinExtras:0.1.1")
+    modApi("me.shedaniel.cloth:cloth-config-fabric:9.0.94") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 }
 
 loom {

@@ -40,14 +40,15 @@ public class Madparticle implements ModInitializer {
         ArgumentTypes.register("froge:enum", EnumArgument.class,new EmptyArgumentSerializer<>(() -> EnumArgument.enumArgument(Enum.class)));
 
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            new MadParticleCommand(dispatcher);
-            if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            //new MadParticleCommand(dispatcher);
+            /*if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
                 dispatcher.register(Commands.literal("mp_test").executes((context) -> {
                     var source = context.getSource();
                     source.getLevel().getServer().getCommands().performCommand(source, TEST_COMMAND);
                     return 0;
                 }));
-            }
+            }*/
+            MadParticleCommand.madParticleCommand(dispatcher);
         });
         Registry.register(Registry.PARTICLE_TYPE, new ResourceLocation(Madparticle.MOD_ID, "mad_particle"), MAD_PARTICLE);
     }

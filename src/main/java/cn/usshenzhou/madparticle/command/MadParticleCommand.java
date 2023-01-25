@@ -129,6 +129,94 @@ public class MadParticleCommand {
         );
     }
 
+    public static void madParticleCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(
+                Commands.literal("madparticle")
+                        .redirect(dispatcher.register(Commands.literal("mp")
+                                        .then(Commands.argument("targetParticle", ParticleArgument.particle())
+                                                .then(Commands.argument("spriteFrom", EnumArgument.enumArgument(SpriteFrom.class))
+                                                        .then(Commands.argument("lifeTime", new InheritableIntegerArgument(0, Integer.MAX_VALUE, COMMAND_LENGTH))
+                                                                .then(Commands.argument("alwaysRender", EnumArgument.enumArgument(InheritableBoolean.class))
+                                                                        .then(Commands.argument("amount", IntegerArgumentType.integer())
+                                                                                .then(Commands.argument("spawnPos", InheritableVec3Argument.inheritableVec3(COMMAND_LENGTH))
+                                                                                        .then(Commands.argument("spawnDiffuse", InheritableVec3Argument.inheritableVec3(COMMAND_LENGTH))
+                                                                                                .then(Commands.argument("spawnSpeed", InheritableVec3Argument.inheritableVec3(COMMAND_LENGTH))
+                                                                                                        .then(Commands.argument("speedDiffuse", InheritableVec3Argument.inheritableVec3(COMMAND_LENGTH))
+                                                                                                                .then(Commands.argument("collision", EnumArgument.enumArgument(InheritableBoolean.class))
+                                                                                                                        .then(Commands.argument("bounceTime", InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE, COMMAND_LENGTH))
+                                                                                                                                .then(Commands.argument("horizontalRelativeCollisionDiffuse", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
+                                                                                                                                        .then(Commands.argument("verticalRelativeCollisionBounce", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
+                                                                                                                                                .then(Commands.argument("friction", FloatArgumentType.floatArg())
+                                                                                                                                                        .then(Commands.argument("afterCollisionFriction", FloatArgumentType.floatArg())
+                                                                                                                                                                .then(Commands.argument("gravity", FloatArgumentType.floatArg())
+                                                                                                                                                                        .then(Commands.argument("afterCollisionGravity", FloatArgumentType.floatArg())
+                                                                                                                                                                                .then(Commands.argument("xDeflection", FloatArgumentType.floatArg())
+                                                                                                                                                                                        .then(Commands.argument("xDeflectionAfterCollision", FloatArgumentType.floatArg())
+                                                                                                                                                                                                .then(Commands.argument("zDeflection", FloatArgumentType.floatArg())
+                                                                                                                                                                                                        .then(Commands.argument("zDeflectionAfterCollision", FloatArgumentType.floatArg())
+                                                                                                                                                                                                                .then(Commands.argument("rollSpeed", InheritableFloatArgument.inheritableFloat())
+                                                                                                                                                                                                                        .then(Commands.argument("interactWithEntity", EnumArgument.enumArgument(InheritableBoolean.class))
+                                                                                                                                                                                                                                .then(Commands.argument("horizontalInteractFactor", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
+                                                                                                                                                                                                                                        .then(Commands.argument("verticalInteractFactor", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
+                                                                                                                                                                                                                                                .then(Commands.argument("renderType", EnumArgument.enumArgument(ParticleRenderTypes.class))
+                                                                                                                                                                                                                                                        .then(Commands.argument("r", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                .then(Commands.argument("g", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                        .then(Commands.argument("b", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                                .then(Commands.argument("bloomFactor", new InheritableFloatArgument(0, 1, COMMAND_LENGTH))
+                                                                                                                                                                                                                                                                                        .then(Commands.argument("beginAlpha", FloatArgumentType.floatArg(0, 1))
+                                                                                                                                                                                                                                                                                                .then(Commands.argument("endAlpha", FloatArgumentType.floatArg(0, 1))
+                                                                                                                                                                                                                                                                                                        .then(Commands.argument("alphaMode", EnumArgument.enumArgument(ChangeMode.class))
+                                                                                                                                                                                                                                                                                                                .then(Commands.argument("beginScale", FloatArgumentType.floatArg(0))
+                                                                                                                                                                                                                                                                                                                        .then(Commands.argument("endScale", FloatArgumentType.floatArg(0))
+                                                                                                                                                                                                                                                                                                                                .then(Commands.argument("scaleMode", EnumArgument.enumArgument(ChangeMode.class))
+                                                                                                                                                                                                                                                                                                                                        .executes(ct1 -> sendToAll(ct1, dispatcher))
+                                                                                                                                                                                                                                                                                                                                        .then(Commands.argument("whoCanSee", EntityArgument.players())
+                                                                                                                                                                                                                                                                                                                                                .executes((ct) -> sendToPlayer(ct, EntityArgument.getPlayers(ct, "whoCanSee"), dispatcher))
+                                                                                                                                                                                                                                                                                                                                                .then(Commands.literal("expireThen")
+                                                                                                                                                                                                                                                                                                                                                        .redirect(dispatcher.register(Commands.literal("mp")))
+                                                                                                                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                )
+                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                )
+                                                                                                                                                                                                        )
+                                                                                                                                                                                                )
+                                                                                                                                                                                        )
+                                                                                                                                                                                )
+                                                                                                                                                                        )
+                                                                                                                                                                )
+                                                                                                                                                        )
+                                                                                                                                                )
+                                                                                                                                        )
+                                                                                                                                )
+                                                                                                                        )
+                                                                                                                )
+                                                                                                        )
+                                                                                                )
+                                                                                        )
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+        );
+    }
+
     private static int sendToAll(CommandContext<CommandSourceStack> ct, CommandDispatcher<CommandSourceStack> dispatcher) {
         return sendToPlayer(ct, ct.getSource().getLevel().getPlayers(serverPlayer -> true), dispatcher);
     }
@@ -205,7 +293,7 @@ public class MadParticleCommand {
             child = father;
         }
         MadParticlePacket packet= new MadParticlePacket(child);
-        FriendlyByteBuf buf = packet.write(PacketByteBufs.empty());
+        FriendlyByteBuf buf = packet.write(PacketByteBufs.create());
         for (ServerPlayer player : players) {
             ServerPlayNetworking.send(player,MadParticlePacket.CHANNEL_NAME, buf);
         }

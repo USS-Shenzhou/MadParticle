@@ -369,7 +369,7 @@ public class MadParticle extends TextureSheetParticle {
                             op.friction(), op.gravity(), op.collision().get(), op.bounceTime(),
                             op.horizontalRelativeCollisionDiffuse(), op.verticalRelativeCollisionBounce(), op.afterCollisionFriction(), op.afterCollisionGravity(),
                             op.interactWithEntity().get(), op.horizontalInteractFactor(), op.verticalInteractFactor(),
-                            op.lifeTime(), ParticleRenderTypes.getType(op.renderType()),
+                            op.lifeTime(), ParticleRenderTypesProxy.getType(op.renderType()),
                             op.r(), op.g(), op.b(),
                             op.beginAlpha(), op.endAlpha(), op.alphaMode(),
                             op.beginScale(), op.endScale(), op.scaleMode(),

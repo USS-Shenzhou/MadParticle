@@ -28,7 +28,13 @@
   "gui.mp.de.helper.render_type.opaque": "不透明",
   "gui.mp.de.helper.render_type.lit": "lit",
   "gui.mp.de.helper.render_type.translucent": "半透明",
-  "gui.mp.de.helper.render_type.custom": "自定义",
+
+  "gui.mp.de.helper.render_type.vanilla_terrain": "原版terrain",
+  "gui.mp.de.helper.render_type.vanilla_opaque": "原版不透明",
+  "gui.mp.de.helper.render_type.vanilla_lit": "原版lit",
+  "gui.mp.de.helper.render_type.vanilla_translucent": "原版半透明",
+
+  "gui.mp.de.helper.render_type.vanilla_custom": "原版自定义",
   "gui.mp.de.helper.render_type.no_render": "不渲染",
   "gui.mp.de.helper.who_see": "可见者",
   "gui.mp.de.helper.x_diffuse": "X误差",

@@ -27,13 +27,13 @@ public class GameRendererMixin {
 	 */
 	@Inject(method = "reloadShaders", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;shutdownShaders()V", shift = At.Shift.AFTER))
 	private void reloadShaders(ResourceManager resourceManager, CallbackInfo ci) {
-		this.setupShader(MadParticleShader::registerShader, resourceManager);
+		this.setupShaderMp(MadParticleShader::registerShader, resourceManager);
 	}
 
-	private void setupShader(Function<ResourceManager, Pair<ShaderInstance, Consumer<ShaderInstance>>> function, ResourceManager manager) {
+	private void setupShaderMp(Function<ResourceManager, Pair<ShaderInstance, Consumer<ShaderInstance>>> function, ResourceManager manager) {
 		var shader = function.apply(manager);
 		this.shaders.put(shader.getFirst().getName(), shader.getFirst());
 		shader.getSecond().accept(shader.getFirst());
-		shader.getFirst().close();
+		//shader.getFirst().close();
 	}
 }

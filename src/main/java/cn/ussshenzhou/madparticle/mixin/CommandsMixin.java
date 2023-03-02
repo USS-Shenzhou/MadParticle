@@ -26,7 +26,7 @@ public class CommandsMixin {
 
     @Inject(method = "performCommand", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;push(Ljava/lang/String;)V"), cancellable = true)
     private void madParticleOptimize(CommandSourceStack pSource, String pCommand, CallbackInfoReturnable<Integer> cir) {
-        if (pCommand.startsWith("mp ")
+        if (pSource.hasPermission(2) && pCommand.startsWith("mp ")
                 //execute ... mp ...
                 || pCommand.contains(" mp ")) {
             CompletableFuture.runAsync(() -> MadParticleCommand.fastSend(pCommand, pSource, pSource.getLevel().getPlayers(serverPlayer -> true), dispatcher));

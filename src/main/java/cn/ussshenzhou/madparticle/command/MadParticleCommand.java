@@ -43,7 +43,9 @@ public class MadParticleCommand {
     public MadParticleCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("madparticle")
+                        .requires(commandSourceStack -> commandSourceStack.hasPermission(2))
                         .redirect(dispatcher.register(Commands.literal("mp")
+                                        .requires(commandSourceStack -> commandSourceStack.hasPermission(2))
                                         .then(Commands.argument("targetParticle", ParticleArgument.particle())
                                                 .then(Commands.argument("spriteFrom", EnumArgument.enumArgument(SpriteFrom.class))
                                                         .then(Commands.argument("lifeTime", new InheritableIntegerArgument(0, Integer.MAX_VALUE, COMMAND_LENGTH))

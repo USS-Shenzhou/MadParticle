@@ -12,10 +12,13 @@
     "ParticleAccessor",
     "ParticleEngineAccessor",
     "SliderButtonAccessor",
+    "TextureManagerAccessor",
     "VertexFormatElementUsageAccessor",
     "WorldCoordinatesAccessor"
   ],
   "client": [
+    "ParticleEngineMixin",
+    "TextureAtlasMixin"
   ],
   "injectors": {
     "defaultRequire": 1

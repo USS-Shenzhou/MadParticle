@@ -6,6 +6,7 @@ import cn.usshenzhou.madparticle.command.inheritable.InheritableDoubleArgument;
 import cn.usshenzhou.madparticle.command.inheritable.InheritableFloatArgument;
 import cn.usshenzhou.madparticle.command.inheritable.InheritableIntegerArgument;
 import cn.usshenzhou.madparticle.command.inheritable.InheritableVec3Argument;
+import cn.usshenzhou.madparticle.particle.CustomParticleRegistry;
 import cn.usshenzhou.madparticle.particle.MadParticleType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
@@ -51,6 +52,7 @@ public class Madparticle implements ModInitializer {
             MadParticleCommand.madParticleCommand(dispatcher);
         });
         Registry.register(Registry.PARTICLE_TYPE, new ResourceLocation(Madparticle.MOD_ID, "mad_particle"), MAD_PARTICLE);
+        CustomParticleRegistry.registerParticleType();
     }
 
     public static boolean isClassFound(String className) {

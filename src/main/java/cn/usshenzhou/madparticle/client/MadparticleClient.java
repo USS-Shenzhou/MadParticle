@@ -2,6 +2,7 @@ package cn.usshenzhou.madparticle.client;
 
 import cn.usshenzhou.madparticle.Madparticle;
 import cn.usshenzhou.madparticle.network.MadParticlePacket;
+import cn.usshenzhou.madparticle.particle.CustomParticleRegistry;
 import cn.usshenzhou.madparticle.particle.MadParticle;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -25,6 +26,7 @@ public class MadparticleClient implements ClientModInitializer {
         }));
 
         ParticleFactoryRegistry.getInstance().register(Madparticle.MAD_PARTICLE, MadParticle.Provider::new);
+        CustomParticleRegistry.onParticleProviderRegistry();
 
         ClientPlayNetworking.registerGlobalReceiver(MadParticlePacket.CHANNEL_NAME,(client, handler, buf, responseSender) -> {
             MadParticlePacket packet = new MadParticlePacket(buf);

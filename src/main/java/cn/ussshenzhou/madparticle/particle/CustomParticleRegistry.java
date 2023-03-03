@@ -2,37 +2,41 @@ package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.MadParticle;
 import com.mojang.logging.LogUtils;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.io.FileNotFoundException;
+import java.util.*;
 
 /**
  * @author USS_Shenzhou
+ * <p>
+ * File name: modid~leaves.png  modid~leaves#1.png
+ * <p>
+ * Particle type reg name: modid:leaves
+ * <p>
+ * Particle texture name in json: modid:leaves modid:leaves__1
  */
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class CustomParticleRegistry {
-    private static final LinkedHashSet<ResourceLocation> CUSTOM_PARTICLES_RES = new LinkedHashSet<>();
-    private static final LinkedHashSet<ParticleType<SimpleParticleType>> CUSTOM_PARTICLES_TYPE = new LinkedHashSet<>();
-    private static final LinkedHashMap<ResourceLocation, File> SPRITE_LOCATION = new LinkedHashMap<>();
+    public static final LinkedHashMap<ResourceLocation, List<ResourceLocation>> CUSTOM_PARTICLES_TYPE_NAMES_AND_TEXTURES = new LinkedHashMap<>();
+    public static final LinkedHashSet<ParticleType<SimpleParticleType>> CUSTOM_PARTICLE_TYPES = new LinkedHashSet<>();
+    public static final LinkedHashSet<ResourceLocation> ALL_TEXTURES = new LinkedHashSet<>();
 
     @SubscribeEvent
     public static void registerParticleType(RegistryEvent.Register<ParticleType<?>> event) {
@@ -46,14 +50,18 @@ public class CustomParticleRegistry {
             return;
         }
         Arrays.stream(files).filter(file -> !file.isDirectory()).forEach(file -> {
-            String s = getResourceName(file);
-            if (s == null) {
+            ResourceLocation particleTypeName = fileToParticleTypeNameResLoc(file);
+            if (particleTypeName == null) {
                 return;
             }
-            ResourceLocation location = new ResourceLocation(s);
-            CUSTOM_PARTICLES_RES.add(location);
-            ParticleType<SimpleParticleType> particleType = (ParticleType<SimpleParticleType>) new SimpleParticleType(false).setRegistryName(location);
-            CUSTOM_PARTICLES_TYPE.add(particleType);
+            if (CUSTOM_PARTICLES_TYPE_NAMES_AND_TEXTURES.containsKey(particleTypeName)) {
+                return;
+            }
+            List<ResourceLocation> textureNames = fileToTextureName(files, file);
+            CUSTOM_PARTICLES_TYPE_NAMES_AND_TEXTURES.put(particleTypeName, textureNames);
+            ALL_TEXTURES.addAll(textureNames);
+            ParticleType<SimpleParticleType> particleType = (ParticleType<SimpleParticleType>) new SimpleParticleType(false).setRegistryName(particleTypeName);
+            CUSTOM_PARTICLE_TYPES.add(particleType);
             event.getRegistry().register(particleType);
         });
     }
@@ -61,44 +69,84 @@ public class CustomParticleRegistry {
     @SubscribeEvent
     public static void onParticleProviderRegistry(ParticleFactoryRegisterEvent event) {
         ParticleEngine particleEngine = Minecraft.getInstance().particleEngine;
-        CUSTOM_PARTICLES_TYPE.forEach(particleType -> particleEngine.register(particleType, GeneralNullProvider::new));
-    }
-
-    @SubscribeEvent
-    public static void onTextureStitch(TextureStitchEvent.Pre event) {
-        if (!event.getAtlas().location().equals(TextureAtlas.LOCATION_PARTICLES)) {
-            return;
-        }
-        SPRITE_LOCATION.keySet().forEach(event::addSprite);
+        CUSTOM_PARTICLE_TYPES.forEach(particleType -> particleEngine.register(particleType, GeneralNullProvider::new));
     }
 
     public static final String MOD_ID_SPLIT = "~";
     public static final String AGE_SPLIT = "#";
 
-    public static @Nullable String getResourceName(File file) {
+    public static @Nullable ResourceLocation fileToParticleTypeNameResLoc(File file) {
         String name = file.getName().toLowerCase().replace(".png", "").split(AGE_SPLIT)[0];
         if (!name.contains(MOD_ID_SPLIT)) {
             name = MadParticle.MOD_ID + "~" + name;
         }
         name = name.replace(MOD_ID_SPLIT, ":");
-        if (ResourceLocation.isValidResourceLocation(name)) {
-            return name;
-        } else {
-            LogUtils.getLogger().error("Failed to register {}. This is not a valid resource location.", file.getName());
+        try {
+            return new ResourceLocation(name);
+        } catch (ResourceLocationException ignored) {
+            LogUtils.getLogger().error("Failed to register particle {}. This is not a valid resource location.", file.getName());
             return null;
         }
     }
 
-    public static LinkedHashSet<ResourceLocation> getCustomParticleRes() {
-        return CUSTOM_PARTICLES_RES;
+    public static List<ResourceLocation> fileToTextureName(File[] allFile, File file) {
+        String key = file.getName().replace(".png", "").split(AGE_SPLIT)[0];
+        List<ResourceLocation> locations = new ArrayList<>();
+        //This will cause an n*n in the worst situation. But it's in the loading stage. Just wait.
+        List<File> textures = Arrays.stream(allFile).filter(f -> f.getName().contains(key)).toList();
+        if (textures.size() > 1) {
+            for (int i = 0; i < textures.size(); i++) {
+                String supposedName = key + "#" + i + ".png";
+                Optional<File> optional = textures.stream().filter(f -> f.getName().contains(supposedName)).findFirst();
+                if (optional.isEmpty()) {
+                    LogUtils.getLogger().error("Failed to find texture {}. Check if it is a valid name.", supposedName);
+                    continue;
+                }
+                ResourceLocation location = fileToTextureResLoc(optional.get());
+                if (location != null) {
+                    locations.add(location);
+                }
+            }
+        } else {
+            ResourceLocation location = fileToTextureResLoc(textures.get(0));
+            if (location != null) {
+                locations.add(location);
+            }
+        }
+        return locations;
     }
 
-    public static LinkedHashSet<ParticleType<SimpleParticleType>> getCustomParticleTypes() {
-        return CUSTOM_PARTICLES_TYPE;
+    private static @Nullable ResourceLocation fileToTextureResLoc(File file) {
+        String s = file.getName().replace(".png", "").replace(MOD_ID_SPLIT, ":").replace(AGE_SPLIT, "__");
+        if (!s.contains(":")) {
+            s = MadParticle.MOD_ID + ":" + s;
+        }
+        try {
+            return new ResourceLocation(s);
+        } catch (ResourceLocationException ignored) {
+            LogUtils.getLogger().error("Failed to register texture {}. This is not a valid resource location.", file.getName());
+            return null;
+        }
     }
 
-    public static LinkedHashMap<ResourceLocation, File> getSpriteLocations() {
-        return SPRITE_LOCATION;
+    public static String listToJsonString(List<ResourceLocation> locations) {
+        StringBuilder builder = new StringBuilder();
+        locations.forEach(location -> builder
+                .append("\"")
+                .append(location.toString())
+                .append("\",\n")
+        );
+        builder.delete(builder.length() - 2, builder.length());
+        return builder.toString();
+    }
+
+    public static File textureResLocToFile(ResourceLocation location) throws FileNotFoundException {
+        String name = location.toString().replace(MadParticle.MOD_ID + ":", "").replace(":", MOD_ID_SPLIT).replace("__", "#") + ".png";
+        File file = new File(Minecraft.getInstance().gameDirectory, "customparticles/" + name);
+        if (!file.exists()) {
+            throw new FileNotFoundException();
+        }
+        return file;
     }
 
     public static class GeneralNullProvider implements ParticleProvider<SimpleParticleType> {
@@ -109,7 +157,7 @@ public class CustomParticleRegistry {
         }
 
         public Particle createParticle(SimpleParticleType pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
-            return null;
+            return new CustomParticle(pLevel, pX, pY, pZ);
         }
     }
 }

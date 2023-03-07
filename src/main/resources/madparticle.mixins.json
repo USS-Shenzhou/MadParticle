@@ -17,6 +17,7 @@
     "WorldCoordinatesAccessor"
   ],
   "client": [
+    "LevelRendererMixin",
     "ParticleEngineMixin",
     "TextureAtlasMixin"
   ],

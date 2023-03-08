@@ -23,6 +23,7 @@ import static com.mojang.blaze3d.vertex.DefaultVertexFormat.*;
 public enum MadParticleRenderTypes implements ParticleRenderType {
 
     TERRAIN_SHEET {
+        @Override
         public void begin(@Deprecated BufferBuilder bufferBuilderPassed, TextureManager textureManager) {
             begin();
             RenderSystem.enableBlend();
@@ -33,15 +34,18 @@ public enum MadParticleRenderTypes implements ParticleRenderType {
             this.bufferBuilder.begin(VertexFormat.Mode.QUADS, PARTICLE);
         }
 
+        @Override
         public void end(Tesselator tesselator) {
             end();
         }
 
+        @Override
         public String toString() {
             return "MAD_TERRAIN_SHEET";
         }
     },
     PARTICLE_SHEET_OPAQUE {
+        @Override
         public void begin(@Deprecated BufferBuilder bufferBuilderPassed, TextureManager textureManager) {
             begin();
             RenderSystem.disableBlend();
@@ -51,15 +55,18 @@ public enum MadParticleRenderTypes implements ParticleRenderType {
             this.bufferBuilder.begin(VertexFormat.Mode.QUADS, PARTICLE);
         }
 
+        @Override
         public void end(Tesselator tesselator) {
             end();
         }
 
+        @Override
         public String toString() {
             return "MAD_PARTICLE_SHEET_OPAQUE";
         }
     },
     PARTICLE_SHEET_TRANSLUCENT {
+        @Override
         public void begin(@Deprecated BufferBuilder bufferBuilderPassed, TextureManager textureManager) {
             begin();
             RenderSystem.setShader(MadParticleShader::getMadParticleShader);
@@ -70,15 +77,18 @@ public enum MadParticleRenderTypes implements ParticleRenderType {
             this.bufferBuilder.begin(VertexFormat.Mode.QUADS, PARTICLE);
         }
 
+        @Override
         public void end(Tesselator tesselator) {
             end();
         }
 
+        @Override
         public String toString() {
             return "MAD_PARTICLE_SHEET_TRANSLUCENT";
         }
     },
     PARTICLE_SHEET_LIT {
+        @Override
         public void begin(@Deprecated BufferBuilder bufferBuilderPassed, TextureManager textureManager) {
             begin();
             RenderSystem.setShader(MadParticleShader::getMadParticleShader);
@@ -88,10 +98,12 @@ public enum MadParticleRenderTypes implements ParticleRenderType {
             this.bufferBuilder.begin(VertexFormat.Mode.QUADS, PARTICLE);
         }
 
+        @Override
         public void end(Tesselator tesselator) {
             end();
         }
 
+        @Override
         public String toString() {
             return "MAD_PARTICLE_SHEET_LIT";
         }

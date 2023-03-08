@@ -2,6 +2,7 @@ package cn.ussshenzhou.madparticle.designer.gui;
 
 import cn.ussshenzhou.madparticle.designer.gui.panel.HelperModePanel;
 import cn.ussshenzhou.madparticle.designer.gui.panel.LineModePanel;
+import cn.ussshenzhou.madparticle.designer.gui.panel.SettingPanel;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.DesignerModeSelectList;
 import cn.ussshenzhou.t88.gui.screen.TScreen;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
@@ -22,14 +23,17 @@ public class DesignerScreen extends TScreen {
     private static DesignerScreen designerScreen = null;
 
     private final DesignerModeSelectList designerModeSelectList = new DesignerModeSelectList();
+
     private final HelperModePanel helperModePanel = new HelperModePanel();
     private final LineModePanel lineModePanel = new LineModePanel();
+    private final SettingPanel settingPanel = new SettingPanel();
 
     public DesignerScreen() {
         super(new TranslatableComponent("gui.mp.designer.title"));
         this.add(designerModeSelectList);
         this.add(helperModePanel);
         this.add(lineModePanel);
+        this.add(settingPanel);
         if (designerScreen == null) {
             designerScreen = this;
         }
@@ -40,7 +44,7 @@ public class DesignerScreen extends TScreen {
     }
 
     public static DesignerScreen newInstance() {
-        if (designerScreen!=null){
+        if (designerScreen != null) {
             designerScreen.onClose(true);
         }
         designerScreen = new DesignerScreen();
@@ -56,16 +60,17 @@ public class DesignerScreen extends TScreen {
                 width - designerModeSelectList.getWidth() - 3 * GAP - 1,
                 height - 2 * GAP);
         LayoutHelper.BSameAsA(lineModePanel, helperModePanel);
+        LayoutHelper.BSameAsA(settingPanel, lineModePanel);
         super.layout();
     }
 
-    @SuppressWarnings("AlibabaSwitchStatement")
     public void setVisibleMode(DesignerModeSelectList.DesignerMode mode) {
-        TPanel[] panels = {helperModePanel, lineModePanel};
+        TPanel[] panels = {helperModePanel, lineModePanel, settingPanel};
         Arrays.stream(panels).forEach(p -> p.setVisibleT(false));
         switch (mode) {
             case HELPER -> helperModePanel.setVisibleT(true);
             case LINE -> lineModePanel.setVisibleT(true);
+            case SETTING -> settingPanel.setVisibleT(true);
             default -> {
             }
         }
@@ -77,6 +82,7 @@ public class DesignerScreen extends TScreen {
         designerModeSelectList.tickT();
         helperModePanel.tickT();
         lineModePanel.tickT();
+        settingPanel.tickT();
     }
 
     @Override

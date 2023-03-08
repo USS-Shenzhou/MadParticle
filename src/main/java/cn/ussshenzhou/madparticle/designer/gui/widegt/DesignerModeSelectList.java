@@ -12,15 +12,21 @@ import net.minecraft.network.chat.TranslatableComponent;
 public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelectList.DesignerMode> {
 
     public DesignerModeSelectList() {
-        super(new TranslatableComponent("gui.mp.de.mode.title"),new TSelectList<>());
+        super(new TranslatableComponent("gui.mp.de.mode.title"), new TSelectList<>());
         this.addElement(DesignerMode.HELPER, list -> {
             if (DesignerScreen.getInstance() != null) {
                 DesignerScreen.getInstance().setVisibleMode(DesignerMode.HELPER);
             }
         });
         this.addElement(DesignerMode.LINE, list -> {
-            assert DesignerScreen.getInstance() != null;
-            DesignerScreen.getInstance().setVisibleMode(DesignerMode.LINE);
+            if (DesignerScreen.getInstance() != null) {
+                DesignerScreen.getInstance().setVisibleMode(DesignerMode.LINE);
+            }
+        });
+        this.addElement(DesignerMode.SETTING, list -> {
+            if (DesignerScreen.getInstance() != null) {
+                DesignerScreen.getInstance().setVisibleMode(DesignerMode.SETTING);
+            }
         });
         this.getComponent().setSelected(0);
     }
@@ -28,7 +34,8 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
     @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
     public enum DesignerMode {
         HELPER("gui.mp.de.mode.helper"),
-        LINE("gui.mp.de.mode.line");
+        LINE("gui.mp.de.mode.line"),
+        SETTING("gui.mp.de.mode.setting");
 
         private final String translateKey;
 
@@ -47,6 +54,6 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
         //This is a bad example. You should use panels instead of direct fill() to draw split lines.
         fill(pPoseStack, x - 1, y + height + DesignerScreen.GAP, x + width + 1, y + height + 1 + DesignerScreen.GAP, 0x80ffffff);
-        fill(pPoseStack, x + width, y, x + width + 1, y + height+ DesignerScreen.GAP, 0x80ffffff);
+        fill(pPoseStack, x + width, y, x + width + 1, y + height + DesignerScreen.GAP, 0x80ffffff);
     }
 }

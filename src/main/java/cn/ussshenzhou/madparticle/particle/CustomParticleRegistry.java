@@ -156,6 +156,8 @@ public class CustomParticleRegistry {
             this.sprite = pSprites;
         }
 
+        @Nullable
+        @Override
         public Particle createParticle(SimpleParticleType pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
             return new CustomParticle(pLevel, pX, pY, pZ);
         }

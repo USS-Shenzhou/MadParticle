@@ -74,5 +74,7 @@
   "gui.mp.de.helper.unwrap": "解析",
   "gui.mp.de.helper.bloom_factor": "泛光强度",
 
-  "gui.t88.invalid": "不可用"
+  "gui.t88.invalid": "不可用",
+
+  "gui.mp.de.mode.setting": "设置"
 }

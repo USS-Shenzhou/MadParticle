@@ -3,7 +3,7 @@ package cn.ussshenzhou.madparticle.particle;
 import cn.ussshenzhou.madparticle.MadParticle;
 import cn.ussshenzhou.madparticle.mixin.VertexFormatElementUsageAccessor;
 import com.google.common.collect.ImmutableMap;
-import com.lowdragmc.shimmer.client.postprocessing.PostProcessing;
+//import com.lowdragmc.shimmer.client.postprocessing.PostProcessing;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -112,11 +112,12 @@ public enum MadParticleRenderTypes implements ParticleRenderType {
     public final MadParticleBufferBuilder bufferBuilder = new MadParticleBufferBuilder(1024 * 512);
 
     public void end() {
-        bufferBuilder.end();
-        BufferUploader.end(this.bufferBuilder);
+        //bufferBuilder.end();
+        //BufferUploader.end(this.bufferBuilder);
+        BufferUploader.drawWithShader(bufferBuilder.end());
         MadParticle.runOnShimmer(() -> () -> {
             GL43.glDrawBuffers(GL43.GL_COLOR_ATTACHMENT0);
-            PostProcessing.getBlockBloom().renderBlockPost();
+            //PostProcessing.getBlockBloom().renderBlockPost();
         });
     }
 

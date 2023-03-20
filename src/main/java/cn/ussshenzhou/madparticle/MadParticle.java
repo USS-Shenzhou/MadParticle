@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle;
 
+import cn.ussshenzhou.madparticle.command.inheritable.ModCommandArgumentRegistry;
 import cn.ussshenzhou.madparticle.particle.ModParticleRegistry;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
@@ -30,6 +31,7 @@ public class MadParticle {
         MinecraftForge.EVENT_BUS.register(this);
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModParticleRegistry.PARTICLE_TYPES.register(modBus);
+        ModCommandArgumentRegistry.COMMAND_ARGUMENTS.register(modBus);
     }
 
     public boolean isModLoaded(String modID) {
@@ -45,8 +47,8 @@ public class MadParticle {
         }
     }
 
-    public static void runOnShimmer(Supplier<Runnable> run){
-        if (isShimmerInstalled){
+    public static void runOnShimmer(Supplier<Runnable> run) {
+        if (isShimmerInstalled) {
             run.get().run();
         }
     }

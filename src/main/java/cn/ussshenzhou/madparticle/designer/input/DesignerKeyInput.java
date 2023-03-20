@@ -29,7 +29,7 @@ public class DesignerKeyInput {
 
 
     @SubscribeEvent
-    public static void onKeyInput(InputEvent.KeyInputEvent event) {
+    public static void onKeyInput(InputEvent.Key event) {
         Minecraft minecraft = Minecraft.getInstance();
         if (CALL_OUT_DESIGNER.consumeClick()) {
             if (DesignerScreen.getInstance() == null) {

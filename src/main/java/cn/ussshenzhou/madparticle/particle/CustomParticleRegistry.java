@@ -6,17 +6,17 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
-import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -39,7 +39,10 @@ public class CustomParticleRegistry {
     public static final LinkedHashSet<ResourceLocation> ALL_TEXTURES = new LinkedHashSet<>();
 
     @SubscribeEvent
-    public static void registerParticleType(RegistryEvent.Register<ParticleType<?>> event) {
+    public static void registerParticleType(RegisterEvent event) {
+        if (!event.getRegistryKey().equals(ForgeRegistries.Keys.PARTICLE_TYPES)){
+            return;
+        }
         File particleDir = new File(Minecraft.getInstance().gameDirectory, "customparticles");
         if (!particleDir.exists() || !particleDir.isDirectory()) {
             particleDir.mkdir();
@@ -60,16 +63,15 @@ public class CustomParticleRegistry {
             List<ResourceLocation> textureNames = fileToTextureName(files, file);
             CUSTOM_PARTICLES_TYPE_NAMES_AND_TEXTURES.put(particleTypeName, textureNames);
             ALL_TEXTURES.addAll(textureNames);
-            ParticleType<SimpleParticleType> particleType = (ParticleType<SimpleParticleType>) new SimpleParticleType(false).setRegistryName(particleTypeName);
+            ParticleType<SimpleParticleType> particleType = new SimpleParticleType(false);
             CUSTOM_PARTICLE_TYPES.add(particleType);
-            event.getRegistry().register(particleType);
+            event.register(ForgeRegistries.Keys.PARTICLE_TYPES, particleTypeName, () -> particleType);
         });
     }
 
     @SubscribeEvent
-    public static void onParticleProviderRegistry(ParticleFactoryRegisterEvent event) {
-        ParticleEngine particleEngine = Minecraft.getInstance().particleEngine;
-        CUSTOM_PARTICLE_TYPES.forEach(particleType -> particleEngine.register(particleType, GeneralNullProvider::new));
+    public static void onParticleProviderRegistry(RegisterParticleProvidersEvent event) {
+        CUSTOM_PARTICLE_TYPES.forEach(particleType -> event.register(particleType, GeneralNullProvider::new));
     }
 
     public static final String MOD_ID_SPLIT = "~";

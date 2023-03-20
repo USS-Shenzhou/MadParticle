@@ -25,7 +25,7 @@ public class MadParticleShader {
 
     @SubscribeEvent
     public static void registerShader(RegisterShadersEvent event) {
-        var resourceManager = event.getResourceManager();
+        var resourceManager = event.getResourceProvider();
         try {
             event.registerShader(new ShaderInstance(resourceManager
                             , new ResourceLocation(MadParticle.MOD_ID, "particle"), MadParticleRenderTypes.PARTICLE)

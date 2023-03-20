@@ -1,5 +1,7 @@
 package cn.ussshenzhou.madparticle.util;
 
+import net.minecraft.util.RandomSource;
+
 import java.util.Random;
 
 /**
@@ -10,6 +12,10 @@ public class MathHelper {
 
     public static double signedRandom() {
         Random r = new Random();
+        return r.nextBoolean() ? -r.nextDouble() : r.nextDouble();
+    }
+
+    public static double signedRandom(RandomSource r) {
         return r.nextBoolean() ? -r.nextDouble() : r.nextDouble();
     }
 

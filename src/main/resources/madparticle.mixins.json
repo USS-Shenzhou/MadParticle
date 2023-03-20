@@ -8,10 +8,10 @@
     "AbstractSelectionListAccessor",
     "CommandsMixin",
     "EditBoxAccessor",
+    "FallbackResourceManagerMixin",
     "LocalCoordinatesAccessor",
     "ParticleAccessor",
     "ParticleEngineAccessor",
-    "SliderButtonAccessor",
     "TextureManagerAccessor",
     "VertexFormatElementUsageAccessor",
     "WorldCoordinatesAccessor"

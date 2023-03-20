@@ -14,7 +14,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -24,11 +24,11 @@ import java.util.concurrent.CompletableFuture;
  * @author USS_Shenzhou
  */
 public class CommandStringSelectList extends TTitledSelectList<CommandStringSelectList.SubCommand> {
-    private final TButton newCommand = new TButton(new TranslatableComponent("gui.mp.de.helper.new"));
-    private final TButton delete = new TButton(new TranslatableComponent("gui.mp.de.helper.delete"));
+    private final TButton newCommand = new TButton(Component.translatable("gui.mp.de.helper.new"));
+    private final TButton delete = new TButton(Component.translatable("gui.mp.de.helper.delete"));
 
     public CommandStringSelectList() {
-        super(new TranslatableComponent("gui.mp.de.helper.command_string"), new TSelectList<>());
+        super(Component.translatable("gui.mp.de.helper.command_string"), new TSelectList<>());
         this.add(newCommand);
         this.add(delete);
 

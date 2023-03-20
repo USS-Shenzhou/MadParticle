@@ -22,7 +22,7 @@ import com.mojang.brigadier.context.ParsedArgument;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -34,8 +34,8 @@ import java.util.concurrent.CompletableFuture;
  * @author USS_Shenzhou
  */
 public class HelperModePanel extends TPanel {
-    private final TButton copy = new TButton(new TranslatableComponent("gui.mp.de.helper.copy"));
-    private final TButton unwrap = new TButton(new TranslatableComponent("gui.mp.de.helper.unwrap"));
+    private final TButton copy = new TButton(Component.translatable("gui.mp.de.helper.copy"));
+    private final TButton unwrap = new TButton(Component.translatable("gui.mp.de.helper.unwrap"));
     private final TSuggestedEditBox command = new TSuggestedEditBox(MadParticleCommand::new) {
 
         @SubscribeEvent
@@ -97,7 +97,7 @@ public class HelperModePanel extends TPanel {
 
     public HelperModePanel() {
         super();
-        command.getEditBox().setFocus(false);
+        command.getEditBox().setFocused(false);
         command.getEditBox().setMaxLength(32500);
         this.add(copy);
         this.add(command);

@@ -14,6 +14,6 @@ public class LevelRendererMixin {
 
     @ModifyConstant(method = "addParticleInternal(Lnet/minecraft/core/particles/ParticleOptions;ZZDDDDDD)Lnet/minecraft/client/particle/Particle;", constant = @Constant(doubleValue = 1024))
     private double madparticleIncreaseParticleVisibleDistance(double original) {
-        return (Minecraft.getInstance().options.renderDistance * 4 * Minecraft.getInstance().options.renderDistance * 4);
+        return (Minecraft.getInstance().options.renderDistance.get() * 4 * Minecraft.getInstance().options.renderDistance.get() * 4);
     }
 }

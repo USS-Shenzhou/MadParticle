@@ -1,10 +1,9 @@
 package cn.ussshenzhou.madparticle.designer.input;
 
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ClientRegistry;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 /**
  * @author USS_Shenzhou
@@ -12,10 +11,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD,value = Dist.CLIENT)
 public class ModKeyMappingRegistry {
     @SubscribeEvent
-    public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            ClientRegistry.registerKeyBinding(DesignerKeyInput.CALL_OUT_DESIGNER);
-            ClientRegistry.registerKeyBinding(DesignerKeyInput.CLEAR_DESIGNER);
-        });
+    public static void onClientSetup(RegisterKeyMappingsEvent event) {
+        event.register(DesignerKeyInput.CALL_OUT_DESIGNER);
+        event.register(DesignerKeyInput.CLEAR_DESIGNER);
     }
 }

@@ -9,8 +9,7 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.Random;
+import net.minecraft.util.RandomSource;
 
 /**
  * @author Tony Yu
@@ -31,7 +30,7 @@ public class ParticlePreviewPanel extends TPanel {
             if (spriteSet == null) {
                 throw new Exception();
             }
-            textureAtlasSprite = spriteSet.get(new Random());
+            textureAtlasSprite = spriteSet.get(RandomSource.create());
         } catch (Exception ignored) {
             textureAtlasSprite = null;
         }
@@ -45,7 +44,7 @@ public class ParticlePreviewPanel extends TPanel {
         renderBackground(pPoseStack, pMouseX, pMouseY, pPartialTick);
         if (textureAtlasSprite != null) {
             RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-            RenderSystem.setShaderTexture(0, textureAtlasSprite.atlas().location());
+            RenderSystem.setShaderTexture(0, textureAtlasSprite.atlasLocation());
             RenderSystem.setShaderColor(r, g, b, 1);
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();

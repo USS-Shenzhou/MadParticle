@@ -24,12 +24,14 @@ public class CommandsMixin {
     @Shadow
     private CommandDispatcher<CommandSourceStack> dispatcher;
 
-    @Inject(method = "performCommand", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;push(Ljava/lang/String;)V"), cancellable = true)
+    @Inject(method = "performPrefixedCommand", at = @At(value = "HEAD"), cancellable = true)
     private void madParticleOptimize(CommandSourceStack pSource, String pCommand, CallbackInfoReturnable<Integer> cir) {
-        if (pSource.hasPermission(2) && pCommand.startsWith("mp ")
+        if (pCommand.startsWith("mp ")
                 //execute ... mp ...
                 || pCommand.contains(" mp ")) {
-            CompletableFuture.runAsync(() -> MadParticleCommand.fastSend(pCommand, pSource, pSource.getLevel().getPlayers(serverPlayer -> true), dispatcher));
+            if (pSource.hasPermission(2)){
+                CompletableFuture.runAsync(() -> MadParticleCommand.fastSend(pCommand, pSource, pSource.getLevel().getPlayers(serverPlayer -> true), dispatcher));
+            }
             cir.setReturnValue(Command.SINGLE_SUCCESS);
         }
     }

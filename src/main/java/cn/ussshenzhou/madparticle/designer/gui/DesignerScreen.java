@@ -10,7 +10,7 @@ import cn.ussshenzhou.t88.gui.widegt.TButton;
 import cn.ussshenzhou.t88.gui.widegt.TPanel;
 import cn.ussshenzhou.t88.gui.widegt.TSelectList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ public class DesignerScreen extends TScreen {
     private final SettingPanel settingPanel = new SettingPanel();
 
     public DesignerScreen() {
-        super(new TranslatableComponent("gui.mp.designer.title"));
+        super(Component.translatable("gui.mp.designer.title"));
         this.add(designerModeSelectList);
         this.add(helperModePanel);
         this.add(lineModePanel);

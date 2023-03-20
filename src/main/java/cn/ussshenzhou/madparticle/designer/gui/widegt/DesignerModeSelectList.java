@@ -4,7 +4,7 @@ import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.t88.gui.combine.TTitledSelectList;
 import cn.ussshenzhou.t88.gui.widegt.TSelectList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 /**
  * @author USS_Shenzhou
@@ -12,7 +12,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelectList.DesignerMode> {
 
     public DesignerModeSelectList() {
-        super(new TranslatableComponent("gui.mp.de.mode.title"), new TSelectList<>());
+        super(Component.translatable("gui.mp.de.mode.title"), new TSelectList<>());
         this.addElement(DesignerMode.HELPER, list -> {
             if (DesignerScreen.getInstance() != null) {
                 DesignerScreen.getInstance().setVisibleMode(DesignerMode.HELPER);

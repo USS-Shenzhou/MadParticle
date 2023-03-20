@@ -23,8 +23,9 @@ import net.minecraft.commands.arguments.coordinates.Coordinates;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.arguments.coordinates.WorldCoordinates;
 import net.minecraft.commands.arguments.selector.EntitySelector;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -46,7 +47,7 @@ public class MadParticleCommand {
                         .requires(commandSourceStack -> commandSourceStack.hasPermission(2))
                         .redirect(dispatcher.register(Commands.literal("mp")
                                         .requires(commandSourceStack -> commandSourceStack.hasPermission(2))
-                                        .then(Commands.argument("targetParticle", ParticleArgument.particle())
+                                        .then(Commands.argument("targetParticle", ParticleArgument.particle(Commands.createValidationContext(VanillaRegistries.createLookup())))
                                                 .then(Commands.argument("spriteFrom", EnumArgument.enumArgument(SpriteFrom.class))
                                                         .then(Commands.argument("lifeTime", new InheritableIntegerArgument(0, Integer.MAX_VALUE, COMMAND_LENGTH))
                                                                 .then(Commands.argument("alwaysRender", EnumArgument.enumArgument(InheritableBoolean.class))
@@ -166,7 +167,7 @@ public class MadParticleCommand {
             Vec3 speedDiffuse = ct.getArgument("speedDiffuse", WorldCoordinates.class).getPosition(sourceStack);
             boolean haveChild = i != commandStrings.length - 1;
             MadParticleOption father = new MadParticleOption(
-                    Registry.PARTICLE_TYPE.getId(ct.getArgument("targetParticle", ParticleOptions.class).getType()),
+                    BuiltInRegistries.PARTICLE_TYPE.getId(ct.getArgument("targetParticle", ParticleOptions.class).getType()),
                     ct.getArgument("spriteFrom", SpriteFrom.class),
                     ct.getArgument("lifeTime", Integer.class),
                     ct.getArgument("alwaysRender", InheritableBoolean.class),

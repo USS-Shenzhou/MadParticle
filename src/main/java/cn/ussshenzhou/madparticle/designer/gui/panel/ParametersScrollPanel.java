@@ -34,9 +34,9 @@ import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.locale.Language;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.fml.ModList;
 
 import java.util.stream.Stream;
@@ -52,88 +52,88 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     //lane 1
     public final TTitledSuggestedEditBox target = new TTitledSuggestedEditBox(
-            new TranslatableComponent("gui.mp.de.helper.target"), new ArgumentSuggestionsDispatcher<>());
-    public final TButton tryDefault = new TButton(new TranslatableComponent("gui.mp.de.helper.try_default"));
+            Component.translatable("gui.mp.de.helper.target"), new ArgumentSuggestionsDispatcher<>());
+    public final TButton tryDefault = new TButton(Component.translatable("gui.mp.de.helper.try_default"));
     //lane 2
-    public final TTitledCycleButton<SpriteFrom> spriteFrom = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.sprite"));
+    public final TTitledCycleButton<SpriteFrom> spriteFrom = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.sprite"));
     public final TTitledSimpleConstrainedEditBox lifeTime = new TTitledSimpleConstrainedEditBox(
-            new TranslatableComponent("gui.mp.de.helper.life"), IntegerArgumentType.integer(0));
-    public final TTitledCycleButton<InheritableBoolean> alwaysRender = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.always"));
+            Component.translatable("gui.mp.de.helper.life"), IntegerArgumentType.integer(0));
+    public final TTitledCycleButton<InheritableBoolean> alwaysRender = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.always"));
     public final TTitledSimpleConstrainedEditBox amount = new TTitledSimpleConstrainedEditBox(
-            new TranslatableComponent("gui.mp.de.helper.amount"), IntegerArgumentType.integer(0));
-    public final TTitledCycleButton<ParticleRenderTypes> renderType = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.render_type"));
+            Component.translatable("gui.mp.de.helper.amount"), IntegerArgumentType.integer(0));
+    public final TTitledCycleButton<ParticleRenderTypes> renderType = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.render_type"));
     public final TTitledSuggestedEditBox whoCanSee = new TTitledSuggestedEditBox(
-            new TranslatableComponent("gui.mp.de.helper.who_see"), new ArgumentSuggestionsDispatcher<>());
+            Component.translatable("gui.mp.de.helper.who_see"), new ArgumentSuggestionsDispatcher<>());
     //lane 3
     public final SingleVec3EditBox
-            xPos = new SingleVec3EditBox(new TextComponent("X")),
-            yPos = new SingleVec3EditBox(new TextComponent("Y")),
-            zPos = new SingleVec3EditBox(new TextComponent("Z")),
-            xD = new SingleVec3EditBox(new TranslatableComponent("gui.mp.de.helper.x_diffuse")),
-            yD = new SingleVec3EditBox(new TranslatableComponent("gui.mp.de.helper.y_diffuse")),
-            zD = new SingleVec3EditBox(new TranslatableComponent("gui.mp.de.helper.z_diffuse"));
+            xPos = new SingleVec3EditBox(Component.literal("X")),
+            yPos = new SingleVec3EditBox(Component.literal("Y")),
+            zPos = new SingleVec3EditBox(Component.literal("Z")),
+            xD = new SingleVec3EditBox(Component.translatable("gui.mp.de.helper.x_diffuse")),
+            yD = new SingleVec3EditBox(Component.translatable("gui.mp.de.helper.y_diffuse")),
+            zD = new SingleVec3EditBox(Component.translatable("gui.mp.de.helper.z_diffuse"));
     public final ParticlePreviewPanel particlePreview = new ParticlePreviewPanel();
     //lane 4
     public final SingleVec3EditBox
-            vx = new SingleVec3EditBox(new TextComponent("Vx")),
-            vy = new SingleVec3EditBox(new TextComponent("Vy")),
-            vz = new SingleVec3EditBox(new TextComponent("Vz")),
-            vxD = new SingleVec3EditBox(new TranslatableComponent("gui.mp.de.helper.vx_diffuse")),
-            vyD = new SingleVec3EditBox(new TranslatableComponent("gui.mp.de.helper.vy_diffuse")),
-            vzD = new SingleVec3EditBox(new TranslatableComponent("gui.mp.de.helper.vz_diffuse"));
+            vx = new SingleVec3EditBox(Component.literal("Vx")),
+            vy = new SingleVec3EditBox(Component.literal("Vy")),
+            vz = new SingleVec3EditBox(Component.literal("Vz")),
+            vxD = new SingleVec3EditBox(Component.translatable("gui.mp.de.helper.vx_diffuse")),
+            vyD = new SingleVec3EditBox(Component.translatable("gui.mp.de.helper.vy_diffuse")),
+            vzD = new SingleVec3EditBox(Component.translatable("gui.mp.de.helper.vz_diffuse"));
     //lane 5
     public final TTitledSimpleConstrainedEditBox
-            r = new TTitledSimpleConstrainedEditBox(new TextComponent("R"), FloatArgumentType.floatArg()),
-            g = new TTitledSimpleConstrainedEditBox(new TextComponent("G"), FloatArgumentType.floatArg()),
-            b = new TTitledSimpleConstrainedEditBox(new TextComponent("B"), FloatArgumentType.floatArg());
+            r = new TTitledSimpleConstrainedEditBox(Component.literal("R"), FloatArgumentType.floatArg()),
+            g = new TTitledSimpleConstrainedEditBox(Component.literal("G"), FloatArgumentType.floatArg()),
+            b = new TTitledSimpleConstrainedEditBox(Component.literal("B"), FloatArgumentType.floatArg());
     public final TSlider
-            rSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.r")),
-            gSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.g")),
-            bSlider = new TSlider(0, 1, 0.01f, new TranslatableComponent("gui.mp.de.helper.b"));
+            rSlider = new TSlider(0, 1, 0.01f, Component.translatable("gui.mp.de.helper.r")),
+            gSlider = new TSlider(0, 1, 0.01f, Component.translatable("gui.mp.de.helper.g")),
+            bSlider = new TSlider(0, 1, 0.01f, Component.translatable("gui.mp.de.helper.b"));
     //lane 6
-    public final TTitledCycleButton<InheritableBoolean> collision = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.collision"));
+    public final TTitledCycleButton<InheritableBoolean> collision = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.collision"));
     public final TTitledSimpleConstrainedEditBox
             horizontalCollision = new TTitledSimpleConstrainedEditBox(
-            new TranslatableComponent("gui.mp.de.helper.horizontal_diffuse"), DoubleArgumentType.doubleArg()),
+            Component.translatable("gui.mp.de.helper.horizontal_diffuse"), DoubleArgumentType.doubleArg()),
             verticalCollision = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.vertical_bounce"), DoubleArgumentType.doubleArg()),
+                    Component.translatable("gui.mp.de.helper.vertical_bounce"), DoubleArgumentType.doubleArg()),
             collisionTime = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.collision_time"), IntegerArgumentType.integer(0)),
+                    Component.translatable("gui.mp.de.helper.collision_time"), IntegerArgumentType.integer(0)),
             xDeflection = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.x_deflection"), FloatArgumentType.floatArg()),
+                    Component.translatable("gui.mp.de.helper.x_deflection"), FloatArgumentType.floatArg()),
             xDeflection2 = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.x_deflection_after"), FloatArgumentType.floatArg()),
+                    Component.translatable("gui.mp.de.helper.x_deflection_after"), FloatArgumentType.floatArg()),
             zDeflection = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.z_deflection"), FloatArgumentType.floatArg()),
+                    Component.translatable("gui.mp.de.helper.z_deflection"), FloatArgumentType.floatArg()),
             zDeflection2 = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.z_deflection_after"), FloatArgumentType.floatArg());
+                    Component.translatable("gui.mp.de.helper.z_deflection_after"), FloatArgumentType.floatArg());
     //lane 7
-    public final TTitledCycleButton<InheritableBoolean> interact = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.interact"));
+    public final TTitledCycleButton<InheritableBoolean> interact = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.interact"));
     public final TTitledSimpleConstrainedEditBox
             roll = new TTitledSimpleConstrainedEditBox(
-            new TranslatableComponent("gui.mp.de.helper.roll_speed"), FloatArgumentType.floatArg()),
+            Component.translatable("gui.mp.de.helper.roll_speed"), FloatArgumentType.floatArg()),
             horizontalInteract = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.horizontal_interact"), DoubleArgumentType.doubleArg()),
+                    Component.translatable("gui.mp.de.helper.horizontal_interact"), DoubleArgumentType.doubleArg()),
             verticalInteract = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.vertical_interact"), DoubleArgumentType.doubleArg()),
+                    Component.translatable("gui.mp.de.helper.vertical_interact"), DoubleArgumentType.doubleArg()),
             friction = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.friction"), FloatArgumentType.floatArg()),
+                    Component.translatable("gui.mp.de.helper.friction"), FloatArgumentType.floatArg()),
             friction2 = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.friction_after"), FloatArgumentType.floatArg()),
+                    Component.translatable("gui.mp.de.helper.friction_after"), FloatArgumentType.floatArg()),
             gravity = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.gravity"), FloatArgumentType.floatArg()),
+                    Component.translatable("gui.mp.de.helper.gravity"), FloatArgumentType.floatArg()),
             gravity2 = new TTitledSimpleConstrainedEditBox(
-                    new TranslatableComponent("gui.mp.de.helper.gravity_after"), FloatArgumentType.floatArg());
+                    Component.translatable("gui.mp.de.helper.gravity_after"), FloatArgumentType.floatArg());
     //lane 8
     public final TTitledCycleButton<ChangeMode>
-            alpha = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.alpha")),
-            scale = new TTitledCycleButton<>(new TranslatableComponent("gui.mp.de.helper.scale"));
+            alpha = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.alpha")),
+            scale = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.scale"));
     public final TTitledSimpleConstrainedEditBox
-            bloomStrength = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.bloom_factor"), FloatArgumentType.floatArg(0, 1)),
-            alphaBegin = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.alpha_begin"), FloatArgumentType.floatArg()),
-            alphaEnd = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.alpha_end"), FloatArgumentType.floatArg()),
-            scaleBegin = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.scale_begin"), FloatArgumentType.floatArg()),
-            scaleEnd = new TTitledSimpleConstrainedEditBox(new TranslatableComponent("gui.mp.de.helper.scale_end"), FloatArgumentType.floatArg());
+            bloomStrength = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.bloom_factor"), FloatArgumentType.floatArg(0, 1)),
+            alphaBegin = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.alpha_begin"), FloatArgumentType.floatArg()),
+            alphaEnd = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.alpha_end"), FloatArgumentType.floatArg()),
+            scaleBegin = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.scale_begin"), FloatArgumentType.floatArg()),
+            scaleEnd = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.scale_end"), FloatArgumentType.floatArg());
 
     public ParametersScrollPanel() {
         super();
@@ -150,7 +150,7 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     public void init1() {
         ((ArgumentSuggestionsDispatcher<ParticleOptions>) target.getComponent().getEditBox().getDispatcher())
-                .register(Commands.argument("p", ParticleArgument.particle()));
+                .register(Commands.argument("p", ParticleArgument.particle(Commands.createValidationContext(VanillaRegistries.createLookup()))));
         target.getComponent().getEditBox().setMaxLength(255);
         target.getComponent().getEditBox().addResponder(particlePreview::updateParticle);
         tryDefault.setOnPress(pButton -> tryFillDefault());
@@ -408,7 +408,7 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     private void tryFillDefault() {
         ArgumentSuggestionsDispatcher<ParticleOptions> dispatcher = new ArgumentSuggestionsDispatcher<>();
-        dispatcher.register(Commands.argument("particle", ParticleArgument.particle()));
+        dispatcher.register(Commands.argument("particle", ParticleArgument.particle(Commands.createValidationContext(VanillaRegistries.createLookup()))));
         CommandSourceStack sourceStack = Minecraft.getInstance().player.createCommandSourceStack();
         String value = target.getComponent().getEditBox().getValue();
         ParseResults<CommandSourceStack> parseResults = dispatcher.parse(value, sourceStack);

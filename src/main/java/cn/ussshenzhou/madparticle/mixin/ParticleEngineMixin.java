@@ -1,17 +1,7 @@
 package cn.ussshenzhou.madparticle.mixin;
 
-import cn.ussshenzhou.madparticle.particle.CustomParticleRegistry;
 import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleResource;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 /**
  * @author USS_Shenzhou
@@ -19,7 +9,7 @@ import java.io.IOException;
 @Mixin(ParticleEngine.class)
 public abstract class ParticleEngineMixin {
 
-    @Redirect(method = "loadParticleDescription", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/packs/resources/ResourceManager;getResource(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/server/packs/resources/Resource;"))
+    /*@Redirect(method = "loadParticleDescription", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/packs/resources/ResourceManager;getResource(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/server/packs/resources/Resource;"))
     private Resource madParticleFakeResource(ResourceManager manager, ResourceLocation jsonLocation) throws IOException {
         ResourceLocation original = new ResourceLocation(jsonLocation.getNamespace(),
                 jsonLocation.getPath().replace("particles/", "").replace(".json", ""));
@@ -44,5 +34,5 @@ public abstract class ParticleEngineMixin {
         } else {
             return manager.getResource(jsonLocation);
         }
-    }
+    }*/
 }

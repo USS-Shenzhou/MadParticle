@@ -28,7 +28,7 @@ public class MadParticlePacketSend {
         CHANNEL.messageBuilder(MadParticlePacket.class, nextId())
                 .encoder(MadParticlePacket::write)
                 .decoder(MadParticlePacket::new)
-                .consumer(MadParticlePacket::handler)
+                .consumerMainThread(MadParticlePacket::handler)
                 .add();
     }
 }

@@ -153,7 +153,6 @@ repositories {
     }
 }
 
-def t88FileId = '4447208'
 dependencies {
     // Specify the version of Minecraft to use. If this is any group other than 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
@@ -162,7 +161,7 @@ dependencies {
 
     //implementation fg.deobf('curse.maven:shimmer-627824:4082058')
     //implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge-1.18.2:0.1.11")
-
+    def t88FileId = '4447208'
     implementation fg.deobf('curse.maven:t88-663112:' + t88FileId)
     annotationProcessor 'curse.maven:t88-663112:' + t88FileId
     // Real mod deobf dependency examples - these get remapped to your current mappings

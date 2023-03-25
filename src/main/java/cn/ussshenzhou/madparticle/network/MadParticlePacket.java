@@ -4,15 +4,12 @@ import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.ModParticleRegistry;
 import cn.ussshenzhou.madparticle.util.MathHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Registry;
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
-import org.apache.logging.log4j.LogManager;
 
 import java.util.Random;
 import java.util.function.Supplier;
@@ -36,16 +33,11 @@ public class MadParticlePacket {
     }
 
     public void handler(Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(
-                () -> {
-                    if (context.get().getDirection().equals(NetworkDirection.PLAY_TO_SERVER)) {
+        if (context.get().getDirection().equals(NetworkDirection.PLAY_TO_SERVER)) {
 
-                    } else {
-                        clientHandler();
-                    }
-                }
-        );
-        context.get().setPacketHandled(true);
+        } else {
+            clientHandler();
+        }
     }
 
     @OnlyIn(Dist.CLIENT)

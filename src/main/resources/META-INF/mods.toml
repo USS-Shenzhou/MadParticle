@@ -65,6 +65,6 @@ side = "CLIENT"
 [[dependencies.madparticle]]
 modId = "t88"
 mandatory = false
-versionRange = "[0.2.36,)"
+versionRange = "[0.2.38,)"
 ordering = "NONE"
 side = "BOTH"

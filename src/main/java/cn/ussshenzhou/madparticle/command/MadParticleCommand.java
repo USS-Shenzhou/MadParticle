@@ -2,11 +2,11 @@ package cn.ussshenzhou.madparticle.command;
 
 import cn.ussshenzhou.madparticle.command.inheritable.*;
 import cn.ussshenzhou.madparticle.network.MadParticlePacket;
-import cn.ussshenzhou.madparticle.network.MadParticlePacketSend;
 import cn.ussshenzhou.madparticle.particle.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.SpriteFrom;
+import cn.ussshenzhou.t88.network.NetworkHelper;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
@@ -207,7 +207,7 @@ public class MadParticleCommand {
             child = father;
         }
         for (ServerPlayer player : players) {
-            MadParticlePacketSend.CHANNEL.send(
+            NetworkHelper.getChannel(MadParticlePacket.class).send(
                     PacketDistributor.PLAYER.with(() -> player),
                     new MadParticlePacket(child)
             );

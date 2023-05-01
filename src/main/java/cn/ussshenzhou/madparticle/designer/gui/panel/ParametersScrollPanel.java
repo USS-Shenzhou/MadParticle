@@ -280,7 +280,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BRightOfA(renderType, xGap, amount, stdTitledButton);
         int w = Minecraft.getInstance().screen.width;
         LayoutHelper.BRightOfA(whoCanSee, xGap, renderType,
-                w - renderType.getX() - renderType.getWidth() - 2 * xGap - (w - getX() - getUsableWidth()), stdTitledEditBox.y);
+                w - renderType.getXT() - renderType.getWidth() - 2 * xGap - (w - getXT() - getUsableWidth()), stdTitledEditBox.y);
         //lane3
         LayoutHelper.BBottomOfA(xPos, yGap, spriteFrom, stdTitledEditBox);
         LayoutHelper.BRightOfA(yPos, xGap, xPos);
@@ -288,7 +288,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BRightOfA(xD, xGap, zPos);
         LayoutHelper.BRightOfA(yD, xGap, xD);
         LayoutHelper.BRightOfA(zD, xGap, yD);
-        int previewW = getX() + getUsableWidth() - zD.getX() - zD.getWidth() - 2 * xGap;
+        int previewW = getXT() + getUsableWidth() - zD.getXT() - zD.getWidth() - 2 * xGap;
         int previewH = stdTitledEditBox.y * 2 + yGap;
         int previewL = Math.min(previewH, previewW);
         LayoutHelper.BRightOfA(particlePreview, 0, zD, previewL, previewL);

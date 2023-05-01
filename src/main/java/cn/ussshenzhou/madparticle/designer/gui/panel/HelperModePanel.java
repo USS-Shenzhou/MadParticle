@@ -136,7 +136,7 @@ public class HelperModePanel extends TPanel {
         LayoutHelper.BLeftOfA(command, DesignerScreen.GAP, copy, width - copy.getWidth() - DesignerScreen.GAP, TButton.RECOMMEND_SIZE.y);
         LayoutHelper.BBottomOfA(commandStringSelectList, DesignerScreen.GAP, command,
                 TButton.RECOMMEND_SIZE.x + commandStringSelectList.getComponent().getScrollbarGap() + TSelectList.SCROLLBAR_WIDTH,
-                height - command.getY() - command.getHeight() - DesignerScreen.GAP * 2 - TButton.RECOMMEND_SIZE.y - 1
+                height - command.getYT() - command.getHeight() - DesignerScreen.GAP * 2 - TButton.RECOMMEND_SIZE.y - 1
         );
         if (parametersScrollPanel != null) {
             LayoutHelper.BRightOfA(parametersScrollPanel,

@@ -62,6 +62,7 @@ public class DesignerScreen extends TScreen {
         LayoutHelper.BSameAsA(lineModePanel, helperModePanel);
         LayoutHelper.BSameAsA(settingPanel, lineModePanel);
         super.layout();
+        designerModeSelectList.getComponent().setSelected(designerModeSelectList.getComponent().getSelected());
     }
 
     public void setVisibleMode(DesignerModeSelectList.DesignerMode mode) {

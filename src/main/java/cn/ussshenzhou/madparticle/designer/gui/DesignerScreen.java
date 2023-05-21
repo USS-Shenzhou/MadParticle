@@ -80,10 +80,10 @@ public class DesignerScreen extends TScreen {
     @Override
     public void tick() {
         super.tick();
-        designerModeSelectList.tickT();
+        /*designerModeSelectList.tickT();
         helperModePanel.tickT();
         lineModePanel.tickT();
-        settingPanel.tickT();
+        settingPanel.tickT();*/
     }
 
     @Override

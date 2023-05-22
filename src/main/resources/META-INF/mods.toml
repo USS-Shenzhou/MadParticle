@@ -59,12 +59,12 @@ side = "BOTH"
 [[dependencies.madparticle]]
 modId = "shimmer"
 mandatory = false
-versionRange = "[0.1.11,)"
+versionRange = "[0.1.15,)"
 ordering = "NONE"
 side = "CLIENT"
 [[dependencies.madparticle]]
 modId = "t88"
-mandatory = false
-versionRange = "[0.3.5,)"
+mandatory = true
+versionRange = "[0.3.7,)"
 ordering = "NONE"
 side = "BOTH"

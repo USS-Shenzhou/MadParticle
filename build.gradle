@@ -19,7 +19,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 group = 'cn.ussshenzhou'
-version = '0.2.7'
+version = '0.2.8'
 
 java {
     archivesBaseName = 'madparticle'
@@ -160,6 +160,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.19.4-45.0.9'
 
     //implementation fg.deobf('curse.maven:shimmer-627824:4082058')
+    implementation fg.deobf("curse.maven:shimmer-627824:4546405")
     //implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge-1.18.2:0.1.11")
     def t88FileId = '4519969'
     implementation fg.deobf('curse.maven:t88-663112:' + t88FileId)

@@ -18,11 +18,11 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
                 DesignerScreen.getInstance().setVisibleMode(DesignerMode.HELPER);
             }
         });
-        this.addElement(DesignerMode.LINE, list -> {
+        /*this.addElement(DesignerMode.LINE, list -> {
             if (DesignerScreen.getInstance() != null) {
                 DesignerScreen.getInstance().setVisibleMode(DesignerMode.LINE);
             }
-        });
+        });*/
         this.addElement(DesignerMode.SETTING, list -> {
             if (DesignerScreen.getInstance() != null) {
                 DesignerScreen.getInstance().setVisibleMode(DesignerMode.SETTING);
@@ -34,7 +34,7 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
     @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
     public enum DesignerMode {
         HELPER("gui.mp.de.mode.helper"),
-        LINE("gui.mp.de.mode.line"),
+        //LINE("gui.mp.de.mode.line"),
         SETTING("gui.mp.de.mode.setting");
 
         private final String translateKey;

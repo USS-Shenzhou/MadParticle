@@ -162,7 +162,7 @@ dependencies {
     //implementation fg.deobf('curse.maven:shimmer-627824:4082058')
     implementation fg.deobf("curse.maven:shimmer-627824:4546405")
     //implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge-1.18.2:0.1.11")
-    def t88FileId = '4519969'
+    def t88FileId = '4547716'
     implementation fg.deobf('curse.maven:t88-663112:' + t88FileId)
     annotationProcessor 'curse.maven:t88-663112:' + t88FileId
     // Real mod deobf dependency examples - these get remapped to your current mappings

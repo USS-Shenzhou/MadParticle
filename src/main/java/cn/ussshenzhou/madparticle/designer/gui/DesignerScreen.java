@@ -1,7 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.gui;
 
 import cn.ussshenzhou.madparticle.designer.gui.panel.HelperModePanel;
-import cn.ussshenzhou.madparticle.designer.gui.panel.LineModePanel;
 import cn.ussshenzhou.madparticle.designer.gui.panel.SettingPanel;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.DesignerModeSelectList;
 import cn.ussshenzhou.t88.gui.screen.TScreen;
@@ -25,14 +24,12 @@ public class DesignerScreen extends TScreen {
     private final DesignerModeSelectList designerModeSelectList = new DesignerModeSelectList();
 
     private final HelperModePanel helperModePanel = new HelperModePanel();
-    private final LineModePanel lineModePanel = new LineModePanel();
     private final SettingPanel settingPanel = new SettingPanel();
 
     public DesignerScreen() {
         super(Component.translatable("gui.mp.designer.title"));
         this.add(designerModeSelectList);
         this.add(helperModePanel);
-        this.add(lineModePanel);
         this.add(settingPanel);
         if (designerScreen == null) {
             designerScreen = this;
@@ -59,18 +56,16 @@ public class DesignerScreen extends TScreen {
         LayoutHelper.BRightOfA(helperModePanel, GAP + 1, designerModeSelectList,
                 width - designerModeSelectList.getWidth() - 3 * GAP - 1,
                 height - 2 * GAP);
-        LayoutHelper.BSameAsA(lineModePanel, helperModePanel);
-        LayoutHelper.BSameAsA(settingPanel, lineModePanel);
+        LayoutHelper.BSameAsA(settingPanel, helperModePanel);
         super.layout();
         designerModeSelectList.getComponent().setSelected(designerModeSelectList.getComponent().getSelected());
     }
 
     public void setVisibleMode(DesignerModeSelectList.DesignerMode mode) {
-        TPanel[] panels = {helperModePanel, lineModePanel, settingPanel};
+        TPanel[] panels = {helperModePanel, settingPanel};
         Arrays.stream(panels).forEach(p -> p.setVisibleT(false));
         switch (mode) {
             case HELPER -> helperModePanel.setVisibleT(true);
-            case LINE -> lineModePanel.setVisibleT(true);
             case SETTING -> settingPanel.setVisibleT(true);
             default -> {
             }

@@ -76,5 +76,6 @@
 
   "gui.t88.invalid": "不可用",
 
-  "gui.mp.de.mode.setting": "设置"
+  "gui.mp.de.mode.setting": "设置",
+  "gui.mp.de.setting.amount": "单队列最大粒子数量"
 }

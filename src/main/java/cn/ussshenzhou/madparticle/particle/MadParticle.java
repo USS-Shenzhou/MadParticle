@@ -97,7 +97,7 @@ public class MadParticle extends TextureSheetParticle {
         this.interactWithEntity = interactWithEntity;
         this.horizontalInteractFactor = horizontalInteractFactor;
         this.verticalInteractFactor = verticalInteractFactor;
-        this.lifetime = (int) (lifeTime * (1 + 0.1 * MathHelper.signedRandom()));
+        this.lifetime = (int) (lifeTime * (1 + 0.1 * MathHelper.signedRandom(random)));
         this.particleRenderType = renderType;
         this.rCol = r;
         this.gCol = g;
@@ -114,7 +114,7 @@ public class MadParticle extends TextureSheetParticle {
         this.scaleMode = scaleMode;
         this.hasPhysics = true;
         this.child = child;
-        this.rollSpeed = (float) (rollSpeed * (1 + 0.1 * MathHelper.signedRandom()));
+        this.rollSpeed = (float) (rollSpeed * (1 + 0.1 * MathHelper.signedRandom(random)));
         if (rollSpeed != 0) {
             this.roll = (float) (Math.random() * Math.PI * 2);
         } else {
@@ -171,9 +171,9 @@ public class MadParticle extends TextureSheetParticle {
             //alpha
             this.alpha = alphaMode.lerp(beginAlpha, endAlpha, age, lifetime);
             //size
-            this.scale(1 / scale);
-            scale = scaleMode.lerp(beginScale, endScale, age, lifetime);
-            this.scale(scale);
+            if (endScale != beginScale) {
+                this.scale(1 / scale * scaleMode.lerp(beginScale, endScale, age, lifetime));
+            }
             //roll
             this.oRoll = this.roll;
             if (!this.onGround) {

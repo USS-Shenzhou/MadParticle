@@ -354,10 +354,8 @@ public class MadParticle extends TextureSheetParticle {
     }
 
     public static class Provider implements ParticleProvider<MadParticleOption> {
-        private final SpriteSet sprites;
 
-        public Provider(SpriteSet pSprites) {
-            this.sprites = pSprites;
+        public Provider() {
         }
 
         @Nullable

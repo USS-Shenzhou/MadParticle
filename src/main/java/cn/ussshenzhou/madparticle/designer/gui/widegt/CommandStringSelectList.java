@@ -13,6 +13,7 @@ import cn.ussshenzhou.t88.gui.widegt.TSelectList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 
@@ -75,10 +76,10 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+        super.render(graphics, pMouseX, pMouseY, pPartialTick);
         //This is a bad example. You should use panels instead of direct fill() to draw split lines.
-        fill(pPoseStack, x + width,
+        graphics.fill(x + width,
                 y,
                 x + width + 1,
                 delete.y + delete.getHeight(),

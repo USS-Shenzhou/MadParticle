@@ -12,6 +12,6 @@ import net.minecraftforge.fml.common.Mod;
 public class ModParticleProviderRegistry {
     @SubscribeEvent
     public static void onParticleProviderRegistry(RegisterParticleProvidersEvent event) {
-        event.register(ModParticleRegistry.MAD_PARTICLE.get(), MadParticle.Provider::new);
+        event.registerSpecial(ModParticleRegistry.MAD_PARTICLE.get(), new MadParticle.Provider());
     }
 }

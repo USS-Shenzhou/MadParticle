@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Mixin(ParticleEngine.class)
 public class ParticleEngineMixin {
 
-    @ModifyConstant(method = "net/minecraft/client/particle/ParticleEngine.lambda$tick$9(Lnet/minecraft/client/particle/ParticleRenderType;)Ljava/util/Queue;", constant = @Constant(intValue = 16384))
+    @ModifyConstant(method = "net/minecraft/client/particle/ParticleEngine.lambda$tick$11(Lnet/minecraft/client/particle/ParticleRenderType;)Ljava/util/Queue;", constant = @Constant(intValue = 16384))
     private static int madparticleChangeMaxAmount(int constant) {
         return ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue;
     }

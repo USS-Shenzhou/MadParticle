@@ -4,6 +4,7 @@ import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.t88.gui.combine.TTitledSelectList;
 import cn.ussshenzhou.t88.gui.widegt.TSelectList;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 /**
@@ -50,10 +51,10 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+        super.render(graphics, pMouseX, pMouseY, pPartialTick);
         //This is a bad example. You should use panels instead of direct fill() to draw split lines.
-        fill(pPoseStack, x - 1, y + height + DesignerScreen.GAP, x + width + 1, y + height + 1 + DesignerScreen.GAP, 0x80ffffff);
-        fill(pPoseStack, x + width, y, x + width + 1, y + height + DesignerScreen.GAP, 0x80ffffff);
+        graphics.fill(x - 1, y + height + DesignerScreen.GAP, x + width + 1, y + height + 1 + DesignerScreen.GAP, 0x80ffffff);
+        graphics.fill(x + width, y, x + width + 1, y + height + DesignerScreen.GAP, 0x80ffffff);
     }
 }

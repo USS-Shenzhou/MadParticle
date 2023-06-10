@@ -5,6 +5,7 @@ import cn.ussshenzhou.t88.gui.widegt.TPanel;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -37,11 +38,11 @@ public class ParticlePreviewPanel extends TPanel {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
         if (border != null) {
-            renderBorder(pPoseStack, pMouseX, pMouseY, pPartialTick);
+            renderBorder(graphics, pMouseX, pMouseY, pPartialTick);
         }
-        renderBackground(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        renderBackground(graphics, pMouseX, pMouseY, pPartialTick);
         if (textureAtlasSprite != null) {
             RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
             RenderSystem.setShaderTexture(0, textureAtlasSprite.atlasLocation());
@@ -49,10 +50,10 @@ public class ParticlePreviewPanel extends TPanel {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.enableDepthTest();
-            blit(pPoseStack, x + 4, y + 4, 0, width - 8, height - 8, textureAtlasSprite);
+            graphics.blit(x + 4, y + 4, 0, width - 8, height - 8, textureAtlasSprite);
             RenderSystem.setShaderColor(1, 1, 1, 1);
         }
-        renderChildren(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        renderChildren(graphics, pMouseX, pMouseY, pPartialTick);
     }
 
     public float getR() {

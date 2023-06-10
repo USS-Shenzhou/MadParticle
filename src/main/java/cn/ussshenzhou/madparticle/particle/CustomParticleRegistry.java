@@ -71,7 +71,7 @@ public class CustomParticleRegistry {
 
     @SubscribeEvent
     public static void onParticleProviderRegistry(RegisterParticleProvidersEvent event) {
-        CUSTOM_PARTICLE_TYPES.forEach(particleType -> event.register(particleType, GeneralNullProvider::new));
+        CUSTOM_PARTICLE_TYPES.forEach(particleType -> event.registerSpecial(particleType, new GeneralNullProvider()));
     }
 
     public static final String MOD_ID_SPLIT = "~";
@@ -152,10 +152,8 @@ public class CustomParticleRegistry {
     }
 
     public static class GeneralNullProvider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet sprite;
 
-        public GeneralNullProvider(SpriteSet pSprites) {
-            this.sprite = pSprites;
+        public GeneralNullProvider() {
         }
 
         @Nullable

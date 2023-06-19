@@ -20,12 +20,14 @@ import cn.ussshenzhou.t88.gui.widegt.TButton;
 import cn.ussshenzhou.t88.gui.widegt.TEditBox;
 import cn.ussshenzhou.t88.gui.widegt.TScrollPanel;
 import cn.ussshenzhou.t88.gui.widegt.TSlider;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -37,6 +39,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.ModList;
 
 import java.util.stream.Stream;
@@ -52,7 +55,17 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     //lane 1
     public final TTitledSuggestedEditBox target = new TTitledSuggestedEditBox(
-            Component.translatable("gui.mp.de.helper.target"), new ArgumentSuggestionsDispatcher<>());
+            Component.translatable("gui.mp.de.helper.target"), new ArgumentSuggestionsDispatcher<>()) {
+        @Override
+        public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+            RenderSystem.disableDepthTest();
+            super.render(graphics, pMouseX, pMouseY, pPartialTick);
+            var list = this.getComponent().getSuggestionList();
+            if (list.isVisibleT()) {
+                list.render(graphics, pMouseX, pMouseY, pPartialTick);
+            }
+        }
+    };
     public final TButton tryDefault = new TButton(Component.translatable("gui.mp.de.helper.try_default"));
     //lane 2
     public final TTitledCycleButton<SpriteFrom> spriteFrom = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.sprite"));

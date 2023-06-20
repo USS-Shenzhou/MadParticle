@@ -5,18 +5,18 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "madparticle.refmap.json",
   "mixins": [
-    "AbstractSelectionListAccessor",
     "CommandsMixin",
-    "EditBoxAccessor",
     "FallbackResourceManagerMixin",
     "LocalCoordinatesAccessor",
-    "ParticleAccessor",
-    "ParticleEngineAccessor",
-    "TextureManagerAccessor",
-    "VertexFormatElementUsageAccessor",
     "WorldCoordinatesAccessor"
   ],
   "client": [
+    "VertexFormatElementUsageAccessor",
+    "TextureManagerAccessor",
+    "ParticleEngineAccessor",
+    "ParticleAccessor",
+    "EditBoxAccessor",
+    "AbstractSelectionListAccessor",
     "LevelRendererMixin",
     "ParticleEngineMixin"
   ],

@@ -172,7 +172,9 @@ public class MadParticle extends TextureSheetParticle {
             this.alpha = alphaMode.lerp(beginAlpha, endAlpha, age, lifetime);
             //size
             if (endScale != beginScale) {
-                this.scale(1 / scale * scaleMode.lerp(beginScale, endScale, age, lifetime));
+                float newScale = scaleMode.lerp(beginScale, endScale, age, lifetime);
+                this.scale(1 / scale * newScale);
+                scale = newScale;
             }
             //roll
             this.oRoll = this.roll;

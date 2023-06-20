@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.network;
 
+import cn.ussshenzhou.madparticle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.ModParticleRegistry;
 import cn.ussshenzhou.madparticle.util.MathHelper;
@@ -21,7 +22,7 @@ import java.util.function.Supplier;
 /**
  * @author USS_Shenzhou
  */
-@NetPacket
+@NetPacket(modid = MadParticle.MOD_ID)
 public class MadParticlePacket {
     private final MadParticleOption particleOption;
 

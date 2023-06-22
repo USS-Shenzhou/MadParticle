@@ -14,6 +14,11 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
 
     public DesignerModeSelectList() {
         super(Component.translatable("gui.mp.de.mode.title"), new TSelectList<>());
+        this.addElement(DesignerMode.HELPER_TEACON,list->{
+            if (DesignerScreen.getInstance()!=null){
+                DesignerScreen.getInstance().setVisibleMode(DesignerMode.HELPER_TEACON);
+            }
+        });
         this.addElement(DesignerMode.HELPER, list -> {
             if (DesignerScreen.getInstance() != null) {
                 DesignerScreen.getInstance().setVisibleMode(DesignerMode.HELPER);
@@ -35,6 +40,7 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
     @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
     public enum DesignerMode {
         HELPER("gui.mp.de.mode.helper"),
+        HELPER_TEACON("gui.mp.de.mode.helper.teacon"),
         //LINE("gui.mp.de.mode.line"),
         SETTING("gui.mp.de.mode.setting");
 

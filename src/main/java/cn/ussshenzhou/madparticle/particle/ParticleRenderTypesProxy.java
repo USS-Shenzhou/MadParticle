@@ -31,9 +31,9 @@ public class ParticleRenderTypesProxy {
             case PARTICLE_SHEET_TRANSLUCENT -> {
                 return irisOn ? ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT : MadParticleRenderTypes.PARTICLE_SHEET_TRANSLUCENT;
             }
-            case CUSTOM -> {
+            /*case CUSTOM -> {
                 return ParticleRenderType.CUSTOM;
-            }
+            }*/
             default -> {
                 return ParticleRenderType.NO_RENDER;
             }

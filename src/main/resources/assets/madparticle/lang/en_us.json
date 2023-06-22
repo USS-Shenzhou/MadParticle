@@ -102,5 +102,7 @@
   "gui.t88.invalid": "Invalid",
 
   "gui.mp.de.mode.setting": "Options",
-  "gui.mp.de.setting.amount": "Max Particle Amount in One Queue"
+  "gui.mp.de.setting.amount": "Max Particle Amount in One Queue",
+
+  "gui.mp.de.mode.helper.teacon": "TeaCon"
 }

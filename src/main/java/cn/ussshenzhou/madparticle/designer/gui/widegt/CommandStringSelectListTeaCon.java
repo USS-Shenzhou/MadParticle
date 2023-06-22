@@ -1,9 +1,10 @@
 package cn.ussshenzhou.madparticle.designer.gui.widegt;
 
 import cn.ussshenzhou.madparticle.command.MadParticleCommand;
+import cn.ussshenzhou.madparticle.command.MadParticleCommandTeaCon;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
-import cn.ussshenzhou.madparticle.designer.gui.panel.HelperModePanel;
-import cn.ussshenzhou.madparticle.designer.gui.panel.ParametersScrollPanel;
+import cn.ussshenzhou.madparticle.designer.gui.panel.HelperModePanelTeaCon;
+import cn.ussshenzhou.madparticle.designer.gui.panel.ParametersScrollPanelTeaCon;
 import cn.ussshenzhou.t88.gui.advanced.TConstrainedEditBox;
 import cn.ussshenzhou.t88.gui.combine.TTitledSelectList;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
@@ -23,21 +24,21 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author USS_Shenzhou
  */
-public class CommandStringSelectList extends TTitledSelectList<CommandStringSelectList.SubCommand> {
+public class CommandStringSelectListTeaCon extends TTitledSelectList<CommandStringSelectListTeaCon.SubCommand> {
     private final TButton newCommand = new TButton(Component.translatable("gui.mp.de.helper.new"));
     private final TButton delete = new TButton(Component.translatable("gui.mp.de.helper.delete"));
 
-    public CommandStringSelectList() {
+    public CommandStringSelectListTeaCon() {
         super(Component.translatable("gui.mp.de.helper.command_chain"), new TSelectList<>());
         this.add(newCommand);
         this.add(delete);
 
         newCommand.setOnPress(pButton -> {
             var list = getComponent();
-            var sub = new CommandStringSelectList.SubCommand();
-            add(sub.parametersScrollPanel);
-            addElement(new SubCommand(), list1 -> {
-                list1.getParentInstanceOf(HelperModePanel.class).setParametersScrollPanel(list1.getSelected().getContent().parametersScrollPanel);
+            var sub = new SubCommand();
+            add(sub.parametersScrollPanelTeaCon);
+            addElement(sub, list1 -> {
+                list1.getParentInstanceOf(HelperModePanelTeaCon.class).setParametersScrollPanelTeaCon(list1.getSelected().getContent().parametersScrollPanelTeaCon);
             });
             if (list.getSelected() == null) {
                 list.setSelected(list.children().get(list.children().size() - 1));
@@ -46,7 +47,7 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
         });
         delete.setOnPress(pButton -> {
             getComponent().removeElement(getComponent().getSelected());
-            delete.getParentInstanceOf(HelperModePanel.class).setParametersScrollPanel(null);
+            delete.getParentInstanceOf(HelperModePanelTeaCon.class).setParametersScrollPanelTeaCon(null);
             this.checkChild();
         });
     }
@@ -54,7 +55,7 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
     public void checkChild() {
         var list = this.getComponent().children();
         for (int i = 0; i < list.size(); i++) {
-            var panel = list.get(i).getContent().parametersScrollPanel;
+            var panel = list.get(i).getContent().parametersScrollPanelTeaCon;
             if (i == 0) {
                 if (panel.isChild()) {
                     panel.setChild(false);
@@ -97,19 +98,19 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
     }
 
     public static class SubCommand {
-        private final ParametersScrollPanel parametersScrollPanel;
+        private final ParametersScrollPanelTeaCon parametersScrollPanelTeaCon;
 
         public SubCommand() {
-            this(new ParametersScrollPanel());
+            this(new ParametersScrollPanelTeaCon());
         }
 
-        public SubCommand(ParametersScrollPanel parametersScrollPanel) {
-            this.parametersScrollPanel = parametersScrollPanel;
+        public SubCommand(ParametersScrollPanelTeaCon parametersScrollPanelTeaCon) {
+            this.parametersScrollPanelTeaCon = parametersScrollPanelTeaCon;
         }
 
         @Override
         public String toString() {
-            String value = parametersScrollPanel.target.getComponent().getEditBox().getValue();
+            String value = parametersScrollPanelTeaCon.target.getComponent().getEditBox().getValue();
             if (value.isEmpty()) {
                 return "null";
             }
@@ -117,17 +118,17 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
             return s[s.length - 1];
         }
 
-        public ParametersScrollPanel getParametersScrollPanel() {
-            return parametersScrollPanel;
+        public ParametersScrollPanelTeaCon getParametersScrollPanelTeaCon() {
+            return parametersScrollPanelTeaCon;
         }
     }
 
     public String warp() {
-        StringBuilder builder = new StringBuilder("mp");
+        StringBuilder builder = new StringBuilder("mp_demo");
         Iterator<TSelectList<SubCommand>.Entry> iterator = this.getComponent().children().iterator();
         while (iterator.hasNext()) {
             var subCommand = iterator.next();
-            String sub = subCommand.getContent().parametersScrollPanel.wrap();
+            String sub = subCommand.getContent().parametersScrollPanelTeaCon.wrap();
             CompletableFuture.runAsync(() -> checkWrapped(subCommand, sub));
             builder.append(sub);
             if (iterator.hasNext()) {
@@ -138,9 +139,9 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
     }
 
     private void checkWrapped(TSelectList<?>.Entry entry, String subCommand) {
-        subCommand = "mp" + subCommand;
+        subCommand = "mp_demo" + subCommand;
         subCommand = subCommand.replace("=", "0");
-        ParseResults<CommandSourceStack> parseResults = MadParticleCommand.justParse(subCommand);
+        ParseResults<CommandSourceStack> parseResults = MadParticleCommandTeaCon.justParse(subCommand);
         Map<?, CommandSyntaxException> map = parseResults.getExceptions();
         if ((!map.isEmpty()) || parseResults.getContext().build(subCommand).getNodes().isEmpty()) {
             entry.setSpecialForeground(TConstrainedEditBox.RED_TEXT_COLOR);

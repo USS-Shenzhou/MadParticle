@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.gui;
 
 import cn.ussshenzhou.madparticle.designer.gui.panel.HelperModePanel;
+import cn.ussshenzhou.madparticle.designer.gui.panel.HelperModePanelTeaCon;
 import cn.ussshenzhou.madparticle.designer.gui.panel.SettingPanel;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.DesignerModeSelectList;
 import cn.ussshenzhou.t88.gui.screen.TScreen;
@@ -8,7 +9,6 @@ import cn.ussshenzhou.t88.gui.util.LayoutHelper;
 import cn.ussshenzhou.t88.gui.widegt.TButton;
 import cn.ussshenzhou.t88.gui.widegt.TPanel;
 import cn.ussshenzhou.t88.gui.widegt.TSelectList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
@@ -27,6 +27,8 @@ public class DesignerScreen extends TScreen {
     private final HelperModePanel helperModePanel = new HelperModePanel();
     private final SettingPanel settingPanel = new SettingPanel();
 
+    private final HelperModePanelTeaCon helperModePanelTeaCon = new HelperModePanelTeaCon();
+
     public DesignerScreen() {
         super(Component.translatable("gui.mp.designer.title"));
         this.add(designerModeSelectList);
@@ -35,6 +37,7 @@ public class DesignerScreen extends TScreen {
         if (designerScreen == null) {
             designerScreen = this;
         }
+        this.add(helperModePanelTeaCon);
     }
 
     public static @Nullable DesignerScreen getInstance() {
@@ -58,16 +61,18 @@ public class DesignerScreen extends TScreen {
                 width - designerModeSelectList.getWidth() - 3 * GAP - 1,
                 height - 2 * GAP);
         LayoutHelper.BSameAsA(settingPanel, helperModePanel);
+        LayoutHelper.BSameAsA(helperModePanelTeaCon, helperModePanel);
         super.layout();
         designerModeSelectList.getComponent().setSelected(designerModeSelectList.getComponent().getSelected());
     }
 
     public void setVisibleMode(DesignerModeSelectList.DesignerMode mode) {
-        TPanel[] panels = {helperModePanel, settingPanel};
+        TPanel[] panels = {helperModePanel, settingPanel, helperModePanelTeaCon};
         Arrays.stream(panels).forEach(p -> p.setVisibleT(false));
         switch (mode) {
             case HELPER -> helperModePanel.setVisibleT(true);
             case SETTING -> settingPanel.setVisibleT(true);
+            case HELPER_TEACON -> helperModePanelTeaCon.setVisibleT(true);
             default -> {
             }
         }

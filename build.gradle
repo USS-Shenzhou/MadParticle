@@ -160,7 +160,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.0.3'
 
     implementation fg.deobf("curse.maven:shimmer-627824:4573632")
-    def t88FileId = '4598274'
+    def t88FileId = '4602362'
     implementation fg.deobf('curse.maven:t88-663112:' + t88FileId)
     annotationProcessor 'curse.maven:t88-663112:' + t88FileId
     // Real mod deobf dependency examples - these get remapped to your current mappings

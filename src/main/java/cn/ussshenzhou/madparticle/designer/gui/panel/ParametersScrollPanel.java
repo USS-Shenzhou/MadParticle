@@ -28,6 +28,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -42,6 +43,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.ModList;
 
+import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -159,6 +161,40 @@ public class ParametersScrollPanel extends TScrollPanel {
         init7();
         init8();
         setChild(true);
+        initTooltip();
+    }
+
+    public void initTooltip() {
+        if ("zh_cn".equals(Minecraft.getInstance().getLanguageManager().getSelected())) {
+            return;
+        }
+        Map.ofEntries(
+                Map.entry(xD, "gui.mp.de.helper.x_diffuse.tooltip"),
+                Map.entry(yD, "gui.mp.de.helper.y_diffuse.tooltip"),
+                Map.entry(zD, "gui.mp.de.helper.z_diffuse.tooltip"),
+                Map.entry(vxD, "gui.mp.de.helper.vx_diffuse.tooltip"),
+                Map.entry(vyD, "gui.mp.de.helper.vx_diffuse.tooltip"),
+                Map.entry(vzD, "gui.mp.de.helper.vx_diffuse.tooltip"),
+                Map.entry(horizontalCollision, "gui.mp.de.helper.horizontal_diffuse.tooltip"),
+                Map.entry(verticalCollision, "gui.mp.de.helper.vertical_bounce.tooltip"),
+                Map.entry(collisionTime, "gui.mp.de.helper.collision_time.tooltip"),
+                Map.entry(friction, "gui.mp.de.helper.friction.tooltip"),
+                Map.entry(friction2, "gui.mp.de.helper.friction_after.tooltip"),
+                Map.entry(gravity, "gui.mp.de.helper.gravity.tooltip"),
+                Map.entry(gravity2, "gui.mp.de.helper.gravity_after.tooltip"),
+                Map.entry(roll, "gui.mp.de.helper.roll_speed.tooltip"),
+                Map.entry(interact, "gui.mp.de.helper.interact.tooltip"),
+                Map.entry(horizontalInteract, "gui.mp.de.helper.horizontal_interact.tooltip"),
+                Map.entry(verticalInteract, "gui.mp.de.helper.vertical_interact.tooltip"),
+                Map.entry(xDeflection, "gui.mp.de.helper.x_deflection.tooltip"),
+                Map.entry(xDeflection2, "gui.mp.de.helper.x_deflection_after.tooltip"),
+                Map.entry(zDeflection, "gui.mp.de.helper.z_deflection.tooltip"),
+                Map.entry(zDeflection2, "gui.mp.de.helper.z_deflection_after.tooltip"),
+                Map.entry(scaleBegin, "gui.mp.de.helper.scale_begin.tooltip"),
+                Map.entry(scaleEnd, "gui.mp.de.helper.scale_end.tooltip"),
+                Map.entry(alwaysRender, "gui.mp.de.helper.always.tooltip"),
+                Map.entry(renderType, "gui.mp.de.helper.render_type.tooltip")
+        ).forEach((w, t) -> w.getComponent().setTooltip(Tooltip.create(Component.translatable(t))));
     }
 
     public void init1() {

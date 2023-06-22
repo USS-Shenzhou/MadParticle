@@ -10,7 +10,6 @@ import cn.ussshenzhou.t88.gui.util.LayoutHelper;
 import cn.ussshenzhou.t88.gui.util.MouseHelper;
 import cn.ussshenzhou.t88.gui.widegt.TButton;
 import cn.ussshenzhou.t88.gui.widegt.TSelectList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.gui.GuiGraphics;
@@ -29,7 +28,7 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
     private final TButton delete = new TButton(Component.translatable("gui.mp.de.helper.delete"));
 
     public CommandStringSelectList() {
-        super(Component.translatable("gui.mp.de.helper.command_string"), new TSelectList<>());
+        super(Component.translatable("gui.mp.de.helper.command_chain"), new TSelectList<>());
         this.add(newCommand);
         this.add(delete);
 

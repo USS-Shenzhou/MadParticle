@@ -52,8 +52,8 @@ import java.util.stream.Stream;
 @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
 public class ParametersScrollPanel extends TScrollPanel {
     public static final Vec2i BUTTON_SIZE = TButton.RECOMMEND_SIZE;
-    private boolean isChild = false;
-    private final static boolean IS_SHIMMER_EXIST = ModList.get().isLoaded("shimmer");
+    protected boolean isChild = false;
+    protected final static boolean IS_SHIMMER_EXIST = ModList.get().isLoaded("shimmer");
 
     //lane 1
     public final TTitledSuggestedEditBox target = new TTitledSuggestedEditBox(
@@ -396,7 +396,7 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     //TODO set bloomStrength
 
-    private Vec2i calculateStdTitledEditBox(Vec2i size, int gap) {
+    protected Vec2i calculateStdTitledEditBox(Vec2i size, int gap) {
         return new Vec2i(
                 (getUsableWidth() - size.x - 8 * gap) / 7,
                 20 + 12
@@ -455,7 +455,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         }
     }
 
-    private void tryFillDefault() {
+    protected void tryFillDefault() {
         ArgumentSuggestionsDispatcher<ParticleOptions> dispatcher = new ArgumentSuggestionsDispatcher<>();
         dispatcher.register(Commands.argument("particle", ParticleArgument.particle(Commands.createValidationContext(VanillaRegistries.createLookup()))));
         CommandSourceStack sourceStack = Minecraft.getInstance().player.createCommandSourceStack();
@@ -498,7 +498,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         }
     }
 
-    private <V> void ifClearThenSet(TTitledComponent<? extends TEditBox> tTitled, V value) {
+    protected  <V> void ifClearThenSet(TTitledComponent<? extends TEditBox> tTitled, V value) {
         ifClearThenSet(tTitled.getComponent(), value);
     }
 

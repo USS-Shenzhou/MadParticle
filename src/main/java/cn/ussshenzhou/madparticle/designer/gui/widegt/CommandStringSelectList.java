@@ -24,19 +24,27 @@ import java.util.concurrent.CompletableFuture;
  * @author USS_Shenzhou
  */
 public class CommandStringSelectList extends TTitledSelectList<CommandStringSelectList.SubCommand> {
-    private final TButton newCommand = new TButton(Component.translatable("gui.mp.de.helper.new"));
-    private final TButton delete = new TButton(Component.translatable("gui.mp.de.helper.delete"));
+    public final TButton newCommand = new TButton(Component.translatable("gui.mp.de.helper.new"));
+    public final TButton delete = new TButton(Component.translatable("gui.mp.de.helper.delete"));
 
     public CommandStringSelectList() {
         super(Component.translatable("gui.mp.de.helper.command_chain"), new TSelectList<>());
         this.add(newCommand);
         this.add(delete);
+        initButton();
+        delete.setOnPress(pButton -> {
+            getComponent().removeElement(getComponent().getSelected());
+            delete.getParentInstanceOf(HelperModePanel.class).setParametersScrollPanel(null);
+            this.checkChild();
+        });
+    }
 
+    protected void initButton() {
         newCommand.setOnPress(pButton -> {
             var list = getComponent();
             var sub = new CommandStringSelectList.SubCommand();
             add(sub.parametersScrollPanel);
-            addElement(new SubCommand(), list1 -> {
+            addElement(sub, list1 -> {
                 list1.getParentInstanceOf(HelperModePanel.class).setParametersScrollPanel(list1.getSelected().getContent().parametersScrollPanel);
             });
             if (list.getSelected() == null) {
@@ -97,7 +105,7 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
     }
 
     public static class SubCommand {
-        private final ParametersScrollPanel parametersScrollPanel;
+        public final ParametersScrollPanel parametersScrollPanel;
 
         public SubCommand() {
             this(new ParametersScrollPanel());

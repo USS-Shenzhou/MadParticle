@@ -2,6 +2,7 @@ package cn.ussshenzhou.madparticle.command;
 
 import cn.ussshenzhou.madparticle.command.inheritable.*;
 import cn.ussshenzhou.madparticle.network.MadParticlePacket;
+import cn.ussshenzhou.madparticle.network.MadParticleTadaPacket;
 import cn.ussshenzhou.madparticle.particle.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
@@ -17,6 +18,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.CompoundTagArgument;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.commands.arguments.coordinates.Coordinates;
@@ -26,12 +28,14 @@ import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.command.EnumArgument;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
@@ -86,6 +90,11 @@ public class MadParticleCommand {
                                                                                                                                                                                                                                                                                                                                         .executes(ct1 -> sendToAll(ct1, dispatcher))
                                                                                                                                                                                                                                                                                                                                         .then(Commands.argument("whoCanSee", EntityArgument.players())
                                                                                                                                                                                                                                                                                                                                                 .executes((ct) -> sendToPlayer(ct, EntityArgument.getPlayers(ct, "whoCanSee"), dispatcher))
+                                                                                                                                                                                                                                                                                                                                                .then(Commands.argument("meta", CompoundTagArgument.compoundTag())
+                                                                                                                                                                                                                                                                                                                                                        .then(Commands.literal("expireThen")
+                                                                                                                                                                                                                                                                                                                                                                .redirect(dispatcher.register(Commands.literal("mp")))
+                                                                                                                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                                                                                                                )
                                                                                                                                                                                                                                                                                                                                                 .then(Commands.literal("expireThen")
                                                                                                                                                                                                                                                                                                                                                         .redirect(dispatcher.register(Commands.literal("mp")))
                                                                                                                                                                                                                                                                                                                                                 )
@@ -142,76 +151,106 @@ public class MadParticleCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    public static void send(String commandString, CommandSourceStack sourceStack, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {
+    private static boolean sendTada = false;
+
+    private static void initializeFlags() {
+        sendTada = false;
+    }
+
+    public static void send(String commandString, CommandSourceStack sourceStack, Collection<ServerPlayer> targetPlayers, CommandDispatcher<CommandSourceStack> dispatcher) {
+        initializeFlags();
         String[] commandStrings = commandString.split(" expireThen ");
         MadParticleOption child = null;
         for (int i = commandStrings.length - 1; i >= 0; i--) {
-            String s = commandStrings[i];
-            if (s.startsWith("/")) {
-                s = s.replaceFirst("/", "");
-            }
-
-            if (!s.startsWith("mp") && !s.startsWith("madparticle")) {
-                if (!s.startsWith("execute")) {
-                    s = "mp " + s;
-                    s = s.replaceFirst("madparticle", "mp");
+            child = wrap(child, commandStrings, i, sourceStack, dispatcher);
+        }
+        for (ServerPlayer player : targetPlayers) {
+            if (sendTada) {
+                var sourcePlayer = sourceStack.getPlayer();
+                if (sourcePlayer != null) {
+                    NetworkHelper.getChannel(MadParticleTadaPacket.class).send(
+                            PacketDistributor.PLAYER.with(() -> player),
+                            new MadParticleTadaPacket(child, sourcePlayer.getUUID())
+                    );
                 }
+            } else {
+                NetworkHelper.getChannel(MadParticlePacket.class).send(
+                        PacketDistributor.PLAYER.with(() -> player),
+                        new MadParticlePacket(child)
+                );
             }
-            InheritableCommandDispatcher<CommandSourceStack> inheritableCommandDispatcher = new InheritableCommandDispatcher<>(dispatcher.getRoot());
-            ParseResults<CommandSourceStack> parseResults = inheritableCommandDispatcher.parse(new InheritableStringReader(s), sourceStack);
-            CommandContext<CommandSourceStack> ctRoot = parseResults.getContext().build(s);
-            CommandContext<CommandSourceStack> ct = CommandHelper.getContextHasArgument(ctRoot, "targetParticle", ParticleOptions.class);
-            Vec3 pos = ct.getArgument("spawnPos", Coordinates.class).getPosition(sourceStack);
-            Vec3 posDiffuse = ct.getArgument("spawnDiffuse", WorldCoordinates.class).getPosition(sourceStack);
-            Vec3 speed = ct.getArgument("spawnSpeed", WorldCoordinates.class).getPosition(sourceStack);
-            Vec3 speedDiffuse = ct.getArgument("speedDiffuse", WorldCoordinates.class).getPosition(sourceStack);
-            boolean haveChild = i != commandStrings.length - 1;
-            MadParticleOption father = new MadParticleOption(
-                    BuiltInRegistries.PARTICLE_TYPE.getId(ct.getArgument("targetParticle", ParticleOptions.class).getType()),
-                    ct.getArgument("spriteFrom", SpriteFrom.class),
-                    ct.getArgument("lifeTime", Integer.class),
-                    ct.getArgument("alwaysRender", InheritableBoolean.class),
-                    ct.getArgument("amount", Integer.class),
-                    pos.x, pos.y, pos.z,
-                    posDiffuse.x, posDiffuse.y, posDiffuse.z,
-                    speed.x, speed.y, speed.z,
-                    speedDiffuse.x, speedDiffuse.y, speedDiffuse.z,
-                    ct.getArgument("friction", Float.class),
-                    ct.getArgument("gravity", Float.class),
-                    ct.getArgument("collision", InheritableBoolean.class),
-                    ct.getArgument("bounceTime", Integer.class),
-                    ct.getArgument("horizontalRelativeCollisionDiffuse", Double.class),
-                    ct.getArgument("verticalRelativeCollisionBounce", Double.class),
-                    ct.getArgument("afterCollisionFriction", Float.class),
-                    ct.getArgument("afterCollisionGravity", Float.class),
-                    ct.getArgument("interactWithEntity", InheritableBoolean.class),
-                    ct.getArgument("horizontalInteractFactor", Double.class),
-                    ct.getArgument("verticalInteractFactor", Double.class),
-                    ct.getArgument("renderType", ParticleRenderTypes.class),
-                    ct.getArgument("r", Float.class), ct.getArgument("g", Float.class), ct.getArgument("b", Float.class),
-                    ct.getArgument("beginAlpha", Float.class),
-                    ct.getArgument("endAlpha", Float.class),
-                    ct.getArgument("alphaMode", ChangeMode.class),
-                    ct.getArgument("beginScale", Float.class),
-                    ct.getArgument("endScale", Float.class),
-                    ct.getArgument("scaleMode", ChangeMode.class),
-                    haveChild,
-                    haveChild ? child : null,
-                    ct.getArgument("rollSpeed", Float.class),
-                    ct.getArgument("xDeflection", Float.class),
-                    ct.getArgument("xDeflectionAfterCollision", Float.class),
-                    ct.getArgument("zDeflection", Float.class),
-                    ct.getArgument("zDeflectionAfterCollision", Float.class),
-                    ct.getArgument("bloomFactor", Float.class)
-            );
-            child = father;
         }
-        for (ServerPlayer player : players) {
-            NetworkHelper.getChannel(MadParticlePacket.class).send(
-                    PacketDistributor.PLAYER.with(() -> player),
-                    new MadParticlePacket(child)
-            );
+    }
+
+    private static MadParticleOption wrap(@Nullable MadParticleOption child, String[] commandStrings, int index, CommandSourceStack sourceStack, CommandDispatcher<CommandSourceStack> dispatcher) {
+        String s = commandStrings[index];
+        if (s.startsWith("/")) {
+            s = s.replaceFirst("/", "");
         }
+
+        if (!s.startsWith("mp") && !s.startsWith("madparticle")) {
+            if (!s.startsWith("execute")) {
+                s = "mp " + s;
+                s = s.replaceFirst("madparticle", "mp");
+            }
+        }
+        InheritableCommandDispatcher<CommandSourceStack> inheritableCommandDispatcher = new InheritableCommandDispatcher<>(dispatcher.getRoot());
+        ParseResults<CommandSourceStack> parseResults = inheritableCommandDispatcher.parse(new InheritableStringReader(s), sourceStack);
+        CommandContext<CommandSourceStack> ctRoot = parseResults.getContext().build(s);
+        CommandContext<CommandSourceStack> ct = CommandHelper.getContextHasArgument(ctRoot, "targetParticle", ParticleOptions.class);
+
+        try {
+            CompoundTag metaTag = ct.getArgument("meta", CompoundTag.class);
+            if (metaTag.getBoolean("tada")) {
+                sendTada = true;
+            }
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        Vec3 pos = ct.getArgument("spawnPos", Coordinates.class).getPosition(sourceStack);
+        Vec3 posDiffuse = ct.getArgument("spawnDiffuse", WorldCoordinates.class).getPosition(sourceStack);
+        Vec3 speed = ct.getArgument("spawnSpeed", WorldCoordinates.class).getPosition(sourceStack);
+        Vec3 speedDiffuse = ct.getArgument("speedDiffuse", WorldCoordinates.class).getPosition(sourceStack);
+        boolean haveChild = index != commandStrings.length - 1;
+        MadParticleOption father = new MadParticleOption(
+                BuiltInRegistries.PARTICLE_TYPE.getId(ct.getArgument("targetParticle", ParticleOptions.class).getType()),
+                ct.getArgument("spriteFrom", SpriteFrom.class),
+                ct.getArgument("lifeTime", Integer.class),
+                ct.getArgument("alwaysRender", InheritableBoolean.class),
+                ct.getArgument("amount", Integer.class),
+                pos.x, pos.y, pos.z,
+                posDiffuse.x, posDiffuse.y, posDiffuse.z,
+                speed.x, speed.y, speed.z,
+                speedDiffuse.x, speedDiffuse.y, speedDiffuse.z,
+                ct.getArgument("friction", Float.class),
+                ct.getArgument("gravity", Float.class),
+                ct.getArgument("collision", InheritableBoolean.class),
+                ct.getArgument("bounceTime", Integer.class),
+                ct.getArgument("horizontalRelativeCollisionDiffuse", Double.class),
+                ct.getArgument("verticalRelativeCollisionBounce", Double.class),
+                ct.getArgument("afterCollisionFriction", Float.class),
+                ct.getArgument("afterCollisionGravity", Float.class),
+                ct.getArgument("interactWithEntity", InheritableBoolean.class),
+                ct.getArgument("horizontalInteractFactor", Double.class),
+                ct.getArgument("verticalInteractFactor", Double.class),
+                ct.getArgument("renderType", ParticleRenderTypes.class),
+                ct.getArgument("r", Float.class), ct.getArgument("g", Float.class), ct.getArgument("b", Float.class),
+                ct.getArgument("beginAlpha", Float.class),
+                ct.getArgument("endAlpha", Float.class),
+                ct.getArgument("alphaMode", ChangeMode.class),
+                ct.getArgument("beginScale", Float.class),
+                ct.getArgument("endScale", Float.class),
+                ct.getArgument("scaleMode", ChangeMode.class),
+                haveChild,
+                haveChild ? child : null,
+                ct.getArgument("rollSpeed", Float.class),
+                ct.getArgument("xDeflection", Float.class),
+                ct.getArgument("xDeflectionAfterCollision", Float.class),
+                ct.getArgument("zDeflection", Float.class),
+                ct.getArgument("zDeflectionAfterCollision", Float.class),
+                ct.getArgument("bloomFactor", Float.class)
+        );
+        return father;
     }
 
     public static void fastSend(String commandString, CommandSourceStack sourceStack, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {

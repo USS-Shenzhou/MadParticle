@@ -3,6 +3,7 @@ package cn.ussshenzhou.madparticle.designer.gui;
 import cn.ussshenzhou.madparticle.designer.gui.panel.HelperModePanel;
 import cn.ussshenzhou.madparticle.designer.gui.panel.HelperModePanelTeaCon;
 import cn.ussshenzhou.madparticle.designer.gui.panel.SettingPanel;
+import cn.ussshenzhou.madparticle.designer.gui.panel.TadaModePanel;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.DesignerModeSelectList;
 import cn.ussshenzhou.t88.gui.screen.TScreen;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
@@ -26,6 +27,7 @@ public class DesignerScreen extends TScreen {
 
     private final HelperModePanel helperModePanel = new HelperModePanel();
     private final SettingPanel settingPanel = new SettingPanel();
+    private final TadaModePanel tadaModePanel = new TadaModePanel();
 
     private final HelperModePanelTeaCon helperModePanelTeaCon = new HelperModePanelTeaCon();
 
@@ -38,6 +40,7 @@ public class DesignerScreen extends TScreen {
             designerScreen = this;
         }
         this.add(helperModePanelTeaCon);
+        this.add(tadaModePanel);
     }
 
     public static @Nullable DesignerScreen getInstance() {
@@ -62,17 +65,19 @@ public class DesignerScreen extends TScreen {
                 height - 2 * GAP);
         LayoutHelper.BSameAsA(settingPanel, helperModePanel);
         LayoutHelper.BSameAsA(helperModePanelTeaCon, helperModePanel);
+        LayoutHelper.BSameAsA(tadaModePanel, helperModePanel);
         super.layout();
         designerModeSelectList.getComponent().setSelected(designerModeSelectList.getComponent().getSelected());
     }
 
     public void setVisibleMode(DesignerModeSelectList.DesignerMode mode) {
-        TPanel[] panels = {helperModePanel, settingPanel, helperModePanelTeaCon};
+        TPanel[] panels = {helperModePanel, settingPanel, helperModePanelTeaCon, tadaModePanel};
         Arrays.stream(panels).forEach(p -> p.setVisibleT(false));
         switch (mode) {
             case HELPER -> helperModePanel.setVisibleT(true);
             case SETTING -> settingPanel.setVisibleT(true);
             case HELPER_TEACON -> helperModePanelTeaCon.setVisibleT(true);
+            case TADA -> tadaModePanel.setVisibleT(true);
             default -> {
             }
         }

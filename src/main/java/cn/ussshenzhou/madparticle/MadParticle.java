@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle;
 
 import cn.ussshenzhou.madparticle.command.inheritable.ModCommandArgumentRegistry;
+import cn.ussshenzhou.madparticle.item.ModItemsRegistry;
 import cn.ussshenzhou.madparticle.particle.ModParticleRegistry;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.logging.LogUtils;
@@ -35,6 +36,7 @@ public class MadParticle {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModParticleRegistry.PARTICLE_TYPES.register(modBus);
         ModCommandArgumentRegistry.COMMAND_ARGUMENTS.register(modBus);
+        ModItemsRegistry.ITEMS.register(modBus);
     }
 
     public boolean isModLoaded(String modID) {

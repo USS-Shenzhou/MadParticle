@@ -29,6 +29,11 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
                 DesignerScreen.getInstance().setVisibleMode(DesignerMode.LINE);
             }
         });*/
+        this.addElement(DesignerMode.TADA, list -> {
+            if (DesignerScreen.getInstance() != null) {
+                DesignerScreen.getInstance().setVisibleMode(DesignerMode.TADA);
+            }
+        });
         this.addElement(DesignerMode.SETTING, list -> {
             if (DesignerScreen.getInstance() != null) {
                 DesignerScreen.getInstance().setVisibleMode(DesignerMode.SETTING);
@@ -42,6 +47,7 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
         HELPER("gui.mp.de.mode.helper"),
         HELPER_TEACON("gui.mp.de.mode.helper.teacon"),
         //LINE("gui.mp.de.mode.line"),
+        TADA("gui.mp.de.mode.tada"),
         SETTING("gui.mp.de.mode.setting");
 
         private final String translateKey;

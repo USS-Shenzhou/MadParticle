@@ -1,6 +1,8 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
+import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
+import cn.ussshenzhou.t88.gui.util.AccessorProxy;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
 import net.minecraft.network.chat.Component;
 
@@ -20,6 +22,7 @@ public class TadaParametersScrollPanel extends ParametersScrollPanel {
         List.of(xPos, yPos, zPos).forEach(singleVec3EditBox -> {
             singleVec3EditBox.getComponent().setValue("~");
             singleVec3EditBox.getComponent().setEditable(false);
+            AccessorProxy.EditBoxProxy.setDisplayPos(singleVec3EditBox.getComponent(), 0);
         });
         List.of(vx, vy, vz).forEach(singleVec3EditBox -> {
             singleVec3EditBox.setVisibleT(false);

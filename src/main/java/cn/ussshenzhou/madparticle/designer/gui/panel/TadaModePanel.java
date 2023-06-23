@@ -5,16 +5,19 @@ import cn.ussshenzhou.madparticle.command.MadParticleCommand;
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.CommandStringSelectList;
+import cn.ussshenzhou.madparticle.network.MakeTadaPacket;
 import cn.ussshenzhou.madparticle.particle.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.SpriteFrom;
 import cn.ussshenzhou.t88.gui.advanced.TSuggestedEditBox;
 import cn.ussshenzhou.t88.gui.event.TWidgetContentUpdatedEvent;
+import cn.ussshenzhou.t88.gui.util.AccessorProxy;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
 import cn.ussshenzhou.t88.gui.widegt.TButton;
 import cn.ussshenzhou.t88.gui.widegt.TComponent;
 import cn.ussshenzhou.t88.gui.widegt.TSelectList;
 import cn.ussshenzhou.t88.gui.widegt.TWidget;
+import cn.ussshenzhou.t88.network.NetworkHelper;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.context.CommandContextBuilder;
@@ -25,6 +28,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,7 +41,7 @@ public class TadaModePanel extends HelperModePanel {
     public TadaModePanel() {
         super();
         make.setOnPress(button -> {
-
+            NetworkHelper.sendToServer(new MakeTadaPacket(command.getEditBox().getValue()));
         });
         this.add(make);
         initCommand();
@@ -184,16 +188,17 @@ public class TadaModePanel extends HelperModePanel {
             getArgAndFill(panel.lifeTime, "lifeTime", s, map);
             getArgAndFill(panel.amount, "amount", s, map);
             getArgAndFill(panel.whoCanSee.getComponent().getEditBox(), "whoCanSee", s, map);
-            getVec3ArgAndFill(panel.xPos, panel.yPos, panel.zPos, "spawnPos", s, map);
             getVec3ArgAndFill(panel.xD, panel.yD, panel.zD, "spawnDiffuse", s, map);
             getVec3ArgAndFill(panel.vx, panel.vy, panel.vz, "spawnSpeed", s, map);
 
+            List.of(panel.xPos, panel.yPos, panel.zPos).forEach(singleVec3EditBox -> singleVec3EditBox.getComponent().setValue("~"));
             var a = map.get("spawnSpeed").getRange().get(s).split(" ");
             double vx = Double.parseDouble(a[0]);
             double vy = Double.parseDouble(a[1]);
             double vz = Double.parseDouble(a[2]);
             var speed = Math.sqrt(vx * vx + vy * vy + vz * vz);
             panel.speed.getComponent().setValue(String.format("%.3f", speed));
+            AccessorProxy.EditBoxProxy.setDisplayPos(panel.speed.getComponent(), 0);
 
             getVec3ArgAndFill(panel.vxD, panel.vyD, panel.vzD, "speedDiffuse", s, map);
             getArgAndFill(panel.r, "r", s, map);

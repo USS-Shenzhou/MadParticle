@@ -34,7 +34,7 @@ public class Tada extends Item {
     @Override
     public void onUseTick(Level pLevel, LivingEntity pLivingEntity, ItemStack pStack, int pRemainingUseDuration) {
         if (!pLevel.isClientSide) {
-            pLevel.getServer().getCommands().performPrefixedCommand(pLivingEntity.createCommandSourceStack(), pStack.getTag().getString(TAG_COMMAND));
+            pLevel.getServer().getCommands().performPrefixedCommand(pLivingEntity.createCommandSourceStack().withPermission(2), pStack.getTag().getString(TAG_COMMAND));
         }
     }
 

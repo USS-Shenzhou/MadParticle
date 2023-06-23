@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
+import cn.ussshenzhou.t88.gui.util.LayoutHelper;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class TadaParametersScrollPanel extends ParametersScrollPanel {
     public void layout() {
         super.layout();
         int xGap = vy.getXT() - vx.getXT() - vx.getWidth();
-        speed.setAbsBounds(vx.getXT(), vx.getYT(), vx.getWidth() * 3 + 2 * xGap, vx.getHeight());
+        LayoutHelper.BLeftOfA(speed, xGap, vxD, vx.getWidth() * 3 + 2 * xGap, vx.getHeight());
     }
 
     @Override

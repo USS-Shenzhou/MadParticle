@@ -21,6 +21,7 @@ public class TadaParametersScrollPanel extends ParametersScrollPanel {
 
         List.of(xPos, yPos, zPos).forEach(singleVec3EditBox -> {
             singleVec3EditBox.getComponent().setValue("~");
+            AccessorProxy.EditBoxProxy.setDisplayPos(singleVec3EditBox.getComponent(), 0);
             singleVec3EditBox.getComponent().setEditable(false);
             AccessorProxy.EditBoxProxy.setDisplayPos(singleVec3EditBox.getComponent(), 0);
         });

@@ -162,6 +162,8 @@ public class TadaModePanel extends HelperModePanel {
         }
     }
 
+    private int i = 0;
+
     @Override
     protected void unwrap() {
         this.setParametersScrollPanel(null);
@@ -169,6 +171,7 @@ public class TadaModePanel extends HelperModePanel {
         commandStringSelectList.getComponent().clearElement();
         String commandString = command.getEditBox().getValue();
         String[] commandStrings = commandString.split(" expireThen ");
+        i = 0;
         for (String s : commandStrings) {
             if (s.startsWith("/")) {
                 s = s.replaceFirst("/", "");
@@ -191,7 +194,7 @@ public class TadaModePanel extends HelperModePanel {
             getVec3ArgAndFill(panel.xD, panel.yD, panel.zD, "spawnDiffuse", s, map);
             getVec3ArgAndFill(panel.vx, panel.vy, panel.vz, "spawnSpeed", s, map);
 
-            List.of(panel.xPos, panel.yPos, panel.zPos).forEach(singleVec3EditBox -> singleVec3EditBox.getComponent().setValue("~"));
+            List.of(panel.xPos, panel.yPos, panel.zPos).forEach(singleVec3EditBox -> singleVec3EditBox.getComponent().setValue(i == 0 ? "~" : "="));
             var a = map.get("spawnSpeed").getRange().get(s).split(" ");
             double vx = Double.parseDouble(a[0]);
             double vy = Double.parseDouble(a[1]);
@@ -234,6 +237,7 @@ public class TadaModePanel extends HelperModePanel {
             commandStringSelectList.addElement(new CommandStringSelectList.SubCommand(panel), list1 -> {
                 list1.getParentInstanceOf(HelperModePanel.class).setParametersScrollPanel(list1.getSelected().getContent().getParametersScrollPanel());
             });
+            i++;
         }
         commandStringSelectList.checkChild();
         this.layout();

@@ -18,13 +18,6 @@ public class TadaParametersScrollPanel extends ParametersScrollPanel {
 
         //I do not know why, just dont delete scaleBegin.
         this.addAll(speed, scaleBegin);
-
-        List.of(xPos, yPos, zPos).forEach(singleVec3EditBox -> {
-            singleVec3EditBox.getComponent().setValue("~");
-            AccessorProxy.EditBoxProxy.setDisplayPos(singleVec3EditBox.getComponent(), 0);
-            singleVec3EditBox.getComponent().setEditable(false);
-            AccessorProxy.EditBoxProxy.setDisplayPos(singleVec3EditBox.getComponent(), 0);
-        });
         List.of(vx, vy, vz).forEach(singleVec3EditBox -> {
             singleVec3EditBox.setVisibleT(false);
             singleVec3EditBox.getComponent().setEditable(false);
@@ -50,5 +43,15 @@ public class TadaParametersScrollPanel extends ParametersScrollPanel {
     @Override
     public String wrap() {
         return super.wrap() + " {\"tada\":1}";
+    }
+
+    @Override
+    public void setChild(boolean child) {
+        super.setChild(child);
+        List.of(xPos, yPos, zPos).forEach(singleVec3EditBox -> {
+            singleVec3EditBox.getComponent().setValue(isChild ? "=" : "~");
+            AccessorProxy.EditBoxProxy.setDisplayPos(singleVec3EditBox.getComponent(), 0);
+            singleVec3EditBox.getComponent().setEditable(false);
+        });
     }
 }

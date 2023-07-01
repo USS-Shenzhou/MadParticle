@@ -17,6 +17,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.CompoundTagArgument;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.commands.arguments.coordinates.Coordinates;
@@ -26,6 +27,7 @@ import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -84,8 +86,13 @@ public class MadParticleCommandTeaCon {
                                                                                                                                                                                                                                                                                                                         .executes(ct1 -> sendToAll(ct1, dispatcher))
                                                                                                                                                                                                                                                                                                                         .then(Commands.argument("whoCanSee", EntityArgument.players())
                                                                                                                                                                                                                                                                                                                                 .executes((ct) -> sendToPlayer(ct, EntityArgument.getPlayers(ct, "whoCanSee"), dispatcher))
+                                                                                                                                                                                                                                                                                                                                .then(Commands.argument("meta", CompoundTagArgument.compoundTag())
+                                                                                                                                                                                                                                                                                                                                        .then(Commands.literal("expireThen")
+                                                                                                                                                                                                                                                                                                                                                .redirect(dispatcher.register(Commands.literal("mp")))
+                                                                                                                                                                                                                                                                                                                                        )
+                                                                                                                                                                                                                                                                                                                                )
                                                                                                                                                                                                                                                                                                                                 .then(Commands.literal("expireThen")
-                                                                                                                                                                                                                                                                                                                                        .redirect(dispatcher.register(Commands.literal("mp_demo")))
+                                                                                                                                                                                                                                                                                                                                        .redirect(dispatcher.register(Commands.literal("mp")))
                                                                                                                                                                                                                                                                                                                                 )
                                                                                                                                                                                                                                                                                                                         )
                                                                                                                                                                                                                                                                                                                 )
@@ -138,7 +145,14 @@ public class MadParticleCommandTeaCon {
         return Command.SINGLE_SUCCESS;
     }
 
+    private static boolean sendTada = false;
+
+    private static void initializeFlags() {
+        sendTada = false;
+    }
+
     public static void send(String commandString, CommandSourceStack sourceStack, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {
+        initializeFlags();
         String[] commandStrings = commandString.split(" expireThen ");
         MadParticleOption child = null;
         for (int i = commandStrings.length - 1; i >= 0; i--) {
@@ -157,6 +171,15 @@ public class MadParticleCommandTeaCon {
             ParseResults<CommandSourceStack> parseResults = inheritableCommandDispatcher.parse(new InheritableStringReader(s), sourceStack);
             CommandContext<CommandSourceStack> ctRoot = parseResults.getContext().build(s);
             CommandContext<CommandSourceStack> ct = CommandHelper.getContextHasArgument(ctRoot, "targetParticle", ParticleOptions.class);
+
+            try {
+                CompoundTag metaTag = ct.getArgument("meta", CompoundTag.class);
+                if (metaTag.getBoolean("tada")) {
+                    sendTada = true;
+                }
+            } catch (IllegalArgumentException ignored) {
+            }
+
             Vec3 pos = ct.getArgument("spawnPos", Coordinates.class).getPosition(sourceStack);
             Vec3 posDiffuse = ct.getArgument("spawnDiffuse", WorldCoordinates.class).getPosition(sourceStack);
 

@@ -89,7 +89,7 @@ public class MadParticleCommand {
                                                                                                                                                                                                                                                                                                                                 .then(Commands.argument("scaleMode", EnumArgument.enumArgument(ChangeMode.class))
                                                                                                                                                                                                                                                                                                                                         .executes(ct1 -> sendToAll(ct1, dispatcher))
                                                                                                                                                                                                                                                                                                                                         .then(Commands.argument("whoCanSee", EntityArgument.players())
-                                                                                                                                                                                                                                                                                                                                                .executes((ct) -> sendToPlayer(ct, EntityArgument.getPlayers(ct, "whoCanSee"), dispatcher))
+                                                                                                                                                                                                                                                                                                                                                .executes((ct) -> sendToAssigned(ct.getInput(), ct.getSource(), EntityArgument.getPlayers(ct, "whoCanSee"), dispatcher))
                                                                                                                                                                                                                                                                                                                                                 .then(Commands.argument("meta", CompoundTagArgument.compoundTag())
                                                                                                                                                                                                                                                                                                                                                         .then(Commands.literal("expireThen")
                                                                                                                                                                                                                                                                                                                                                                 .redirect(dispatcher.register(Commands.literal("mp")))
@@ -141,13 +141,12 @@ public class MadParticleCommand {
     }
 
     private static int sendToAll(CommandContext<CommandSourceStack> ct, CommandDispatcher<CommandSourceStack> dispatcher) {
-        return sendToPlayer(ct, ct.getSource().getLevel().getPlayers(serverPlayer -> true), dispatcher);
+        return sendToAssigned(ct.getInput(), ct.getSource(), ct.getSource().getLevel().getPlayers(serverPlayer -> true), dispatcher);
     }
 
-    private static int sendToPlayer(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {
-        CompletableFuture.runAsync(() -> {
-            send(context.getInput(), context.getSource(), players, dispatcher);
-        });
+    private static int sendToAssigned(String command, CommandSourceStack source, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {
+        var option = assembleOption(command, source, dispatcher);
+        send(option, source, players);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -157,29 +156,23 @@ public class MadParticleCommand {
         sendTada = false;
     }
 
-    public static void send(String commandString, CommandSourceStack sourceStack, Collection<ServerPlayer> targetPlayers, CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static MadParticleOption assembleOption(String commandString, CommandSourceStack sourceStack, CommandDispatcher<CommandSourceStack> dispatcher) {
         initializeFlags();
         String[] commandStrings = commandString.split(" expireThen ");
         MadParticleOption child = null;
         for (int i = commandStrings.length - 1; i >= 0; i--) {
             child = wrap(child, commandStrings, i, sourceStack, dispatcher);
         }
-        for (ServerPlayer player : targetPlayers) {
-            if (sendTada) {
-                var sourcePlayer = sourceStack.getPlayer();
-                if (sourcePlayer != null) {
-                    NetworkHelper.getChannel(MadParticleTadaPacket.class).send(
-                            PacketDistributor.PLAYER.with(() -> player),
-                            new MadParticleTadaPacket(child, sourcePlayer.getUUID())
-                    );
-                }
-            } else {
-                NetworkHelper.getChannel(MadParticlePacket.class).send(
-                        PacketDistributor.PLAYER.with(() -> player),
-                        new MadParticlePacket(child)
-                );
-            }
+        return child;
+    }
+
+    public static void send(MadParticleOption option, CommandSourceStack sourceStack, Collection<ServerPlayer> targetPlayers) {
+        var sourcePlayer = sourceStack.getPlayer();
+        if (sendTada && sourcePlayer == null) {
+            return;
         }
+        Object packet = sendTada ? new MadParticleTadaPacket(option, sourcePlayer.getUUID()) : new MadParticlePacket(option);
+        targetPlayers.forEach(player -> NetworkHelper.sendTo(PacketDistributor.PLAYER.with(() -> player), packet));
     }
 
     private static MadParticleOption wrap(@Nullable MadParticleOption child, String[] commandStrings, int index, CommandSourceStack sourceStack, CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -260,14 +253,14 @@ public class MadParticleCommand {
         CommandContext<CommandSourceStack> ctExe = CommandHelper.getContextHasArgument(ctPre, "targets", EntitySelector.class);
         if (ctExe != null) {
             try {
-                Collection<? extends Entity> entities = EntityArgument.getOptionalEntities(ctExe, "targets");
+                Collection<? extends ServerPlayer> entities = EntityArgument.getPlayers(ctExe, "targets");
                 for (Entity entity : entities) {
-                    CompletableFuture.runAsync(() -> send(commandString, ctPre.getSource().withEntity(entity).withPosition(entity.position()), players, dispatcher));
+                    CompletableFuture.runAsync(() -> sendToAssigned(commandString, ctPre.getSource().withEntity(entity).withPosition(entity.position()), players, dispatcher));
                 }
             } catch (CommandSyntaxException ignored) {
             }
         } else {
-            send(commandString, sourceStack, players, dispatcher);
+            sendToAssigned(commandString, sourceStack, players, dispatcher);
         }
     }
 

@@ -148,9 +148,9 @@ repositories {
             includeGroup "curse.maven"
         }
     }
-    maven {
-        url "https://maven.firstdarkdev.xyz/snapshots"
-    }
+    //maven {
+    //    url "https://maven.firstdarkdev.xyz/snapshots"
+    //}
 }
 
 dependencies {

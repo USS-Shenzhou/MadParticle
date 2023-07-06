@@ -15,11 +15,15 @@ public class ParticleEngineMixin {
 
     @ModifyConstant(method = "net/minecraft/client/particle/ParticleEngine.lambda$tick$11(Lnet/minecraft/client/particle/ParticleRenderType;)Ljava/util/Queue;", constant = @Constant(intValue = 16384), require = 0)
     private static int madparticleChangeMaxAmount(int constant) {
-        return ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue;
+        return madparticleMaxAmount();
     }
 
     @ModifyConstant(method = "net/minecraft/client/particle/ParticleEngine.lambda$tick$11(Lnet/minecraft/client/particle/ParticleRenderType;)Ljava/util/Queue;", constant = @Constant(intValue = 16384), remap = false, require = 0)
     private static int madparticleChangeMaxAmountOptifineCompatibility(int constant) {
+        return madparticleMaxAmount();
+    }
+
+    private static int madparticleMaxAmount(){
         return ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue;
     }
 }

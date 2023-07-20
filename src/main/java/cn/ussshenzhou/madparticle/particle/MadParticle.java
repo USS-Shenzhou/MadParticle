@@ -10,6 +10,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,11 +18,15 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.objecthunter.exp4j.Expression;
+import net.objecthunter.exp4j.ExpressionBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.List;
+
+import static cn.ussshenzhou.madparticle.particle.meta.MetaKeys.*;
 
 /**
  * @author USS_Shenzhou
@@ -59,6 +64,11 @@ public class MadParticle extends TextureSheetParticle {
     protected final float zDeflectionInitial;
     protected final float frictionInitial;
 
+    private final CompoundTag meta;
+    private float[] dx = null;
+    private float[] dy = null;
+    private float[] dz = null;
+
     @SuppressWarnings("AlibabaSwitchStatement")
     public MadParticle(ClientLevel pLevel, SpriteSet spriteSet, SpriteFrom spriteFrom,
                        double pX, double pY, double pZ, double vx, double vy, double vz,
@@ -72,7 +82,8 @@ public class MadParticle extends TextureSheetParticle {
                        MadParticleOption child,
                        float rollSpeed,
                        float xDeflection, float xDeflectionAfterCollision, float zDeflection, float zDeflectionAfterCollision,
-                       float bloomFactor
+                       float bloomFactor,
+                       CompoundTag meta
     ) {
         super(pLevel, pX, pY, pZ);
         this.sprites = spriteSet;
@@ -127,6 +138,47 @@ public class MadParticle extends TextureSheetParticle {
         this.xDeflectionAfterCollision = xDeflectionAfterCollision;
         this.zDeflectionAfterCollision = zDeflectionAfterCollision;
         this.bloomFactor = bloomFactor;
+        this.meta = meta;
+        initMetaTags();
+    }
+
+    private void initMetaTags() {
+        handleDxyz();
+    }
+
+    @SuppressWarnings("SpellCheckingInspection")
+    private void handleDxyz() {
+        int length = Math.min(lifetime, 100);
+        if (meta.contains(DX.get())) {
+            Expression e = new ExpressionBuilder(meta.getString(DX.get()))
+                    .variable("t")
+                    .build();
+            dx = new float[length + 1];
+            for (int i = 0; i <= length; i++) {
+                e.setVariable("t", (double) i / length);
+                dx[i] = (float) e.evaluate();
+            }
+        }
+        if (meta.contains(DY.get())) {
+            Expression e = new ExpressionBuilder(meta.getString(DY.get()))
+                    .variable("t")
+                    .build();
+            dy = new float[length + 1];
+            for (int i = 0; i <= length; i++) {
+                e.setVariable("t", (double) i / length);
+                dy[i] = (float) e.evaluate();
+            }
+        }
+        if (meta.contains(DZ.get())) {
+            Expression e = new ExpressionBuilder(meta.getString(DZ.get()))
+                    .variable("t")
+                    .build();
+            dz = new float[length + 1];
+            for (int i = 0; i <= length; i++) {
+                e.setVariable("t", (double) i / length);
+                dz[i] = (float) e.evaluate();
+            }
+        }
     }
 
     @Override
@@ -137,6 +189,22 @@ public class MadParticle extends TextureSheetParticle {
         if (this.age++ >= this.lifetime) {
             this.remove();
         } else {
+            //dx dy dz, gravity and deflection
+            if (this.dy != null) {
+                this.yd = MathHelper.getFromT((float) age / lifetime, dy);
+            } else {
+                this.yd -= 0.04 * (double) this.gravity;
+            }
+            if (this.dx != null) {
+                this.xd = MathHelper.getFromT((float) age / lifetime, dx);
+            } else {
+                this.xd += 0.04 * this.xDeflection;
+            }
+            if (this.dz != null) {
+                this.zd = MathHelper.getFromT((float) age / lifetime, dz);
+            } else {
+                this.zd += 0.04 * this.zDeflection;
+            }
             //interact with Entity
             if (interactWithEntity) {
                 LivingEntity entity = level.getNearestEntity(LivingEntity.class, TargetingConditions.forNonCombat().range(4), null, x, y, z, this.getBoundingBox().inflate(0.7));
@@ -155,10 +223,6 @@ public class MadParticle extends TextureSheetParticle {
                     this.zDeflection = zDeflectionInitial;
                 }
             }
-            //gravity and deflection
-            this.yd -= 0.04 * (double) this.gravity;
-            this.xd += 0.04 * this.xDeflection;
-            this.zd += 0.04 * this.zDeflection;
             //normal
             this.move(this.xd, this.yd, this.zd);
             this.xd *= this.friction;
@@ -209,7 +273,7 @@ public class MadParticle extends TextureSheetParticle {
                     this.xd = v.x;
                     this.yd = -y0 * (random.nextDouble() * verticalRelativeCollisionBounce);
                     this.zd = v.y;
-                    updateGravityAndDeflection();
+                    updateAfterCollision();
                     bounceCount++;
                 } else {
                     this.gravity = 0;
@@ -225,7 +289,7 @@ public class MadParticle extends TextureSheetParticle {
                     this.xd = -x0 * (random.nextDouble() * verticalRelativeCollisionBounce);
                     this.yd = v.x;
                     this.zd = v.y;
-                    updateGravityAndDeflection();
+                    updateAfterCollision();
                     bounceCount++;
                 }
                 this.friction = afterCollisionFriction;
@@ -238,7 +302,7 @@ public class MadParticle extends TextureSheetParticle {
                     this.xd = v.x;
                     this.yd = v.y;
                     this.zd = -z0 * (random.nextDouble() * verticalRelativeCollisionBounce);
-                    updateGravityAndDeflection();
+                    updateAfterCollision();
                     bounceCount++;
                 }
                 this.friction = afterCollisionFriction;
@@ -247,10 +311,13 @@ public class MadParticle extends TextureSheetParticle {
         }
     }
 
-    private void updateGravityAndDeflection() {
+    private void updateAfterCollision() {
         this.gravity = afterCollisionGravity;
         this.xDeflection = xDeflectionAfterCollision;
         this.zDeflection = zDeflectionAfterCollision;
+        this.dx = null;
+        this.dy = null;
+        this.dz = null;
     }
 
     public Vec2 horizontalRelativeCollision(double r2, double d1, double d2) {
@@ -382,7 +449,8 @@ public class MadParticle extends TextureSheetParticle {
                             op.child(),
                             op.rollSpeed(),
                             op.xDeflection(), op.xDeflectionAfterCollision(), op.zDeflection(), op.zDeflectionAfterCollision(),
-                            op.bloomFactor()
+                            op.bloomFactor(),
+                            op.meta()
                     );
                 }
             }

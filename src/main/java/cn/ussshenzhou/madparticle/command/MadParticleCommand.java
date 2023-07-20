@@ -7,6 +7,7 @@ import cn.ussshenzhou.madparticle.particle.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.SpriteFrom;
+import cn.ussshenzhou.madparticle.particle.meta.MetaKeys;
 import cn.ussshenzhou.t88.network.NetworkHelper;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -192,12 +193,14 @@ public class MadParticleCommand {
         CommandContext<CommandSourceStack> ctRoot = parseResults.getContext().build(s);
         CommandContext<CommandSourceStack> ct = CommandHelper.getContextHasArgument(ctRoot, "targetParticle", ParticleOptions.class);
 
+        CompoundTag metaTag = null;
         try {
-            CompoundTag metaTag = ct.getArgument("meta", CompoundTag.class);
-            if (metaTag.getBoolean("tada")) {
+            metaTag = ct.getArgument("meta", CompoundTag.class);
+            if (metaTag.getBoolean(MetaKeys.TADA.get())) {
                 sendTada = true;
             }
         } catch (IllegalArgumentException ignored) {
+            metaTag = new CompoundTag();
         }
 
         Vec3 pos = ct.getArgument("spawnPos", Coordinates.class).getPosition(sourceStack);
@@ -241,7 +244,8 @@ public class MadParticleCommand {
                 ct.getArgument("xDeflectionAfterCollision", Float.class),
                 ct.getArgument("zDeflection", Float.class),
                 ct.getArgument("zDeflectionAfterCollision", Float.class),
-                ct.getArgument("bloomFactor", Float.class)
+                ct.getArgument("bloomFactor", Float.class),
+                metaTag
         );
         return father;
     }

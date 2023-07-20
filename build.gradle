@@ -19,7 +19,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 group = 'cn.ussshenzhou'
-version = '0.3.6.tc'
+version = '0.4.0.tc'
 
 java {
     archivesBaseName = 'madparticle'
@@ -148,16 +148,25 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    mavenCentral()
     //maven {
     //    url "https://maven.firstdarkdev.xyz/snapshots"
     //}
 }
+
+jarJar.enable()
 
 dependencies {
     // Specify the version of Minecraft to use. If this is any group other than 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.20.1-47.0.3'
+
+    // https://mvnrepository.com/artifact/net.objecthunter/exp4j
+    minecraftLibrary group: 'net.objecthunter', name: 'exp4j', version: '[0.4,0.5)'
+    jarJar(group: 'net.objecthunter', name: 'exp4j', version: '[0.4,0.5)') {
+        jarJar.pin(it, '0.4.8')
+    }
 
     implementation fg.deobf("curse.maven:shimmer-627824:4573632")
     def t88FileId = '4602362'

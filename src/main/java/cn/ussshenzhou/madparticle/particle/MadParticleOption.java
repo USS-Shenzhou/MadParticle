@@ -5,6 +5,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,9 +26,10 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                                 float beginScale, float endScale, ChangeMode scaleMode,
                                 boolean haveChild, MadParticleOption child,
                                 float rollSpeed,
-                                float xDeflection,float xDeflectionAfterCollision,
+                                float xDeflection, float xDeflectionAfterCollision,
                                 float zDeflection, float zDeflectionAfterCollision,
-                                float bloomFactor
+                                float bloomFactor,
+                                CompoundTag meta
 
 ) implements ParticleOptions {
     public static final Deserializer<MadParticleOption> DESERIALIZER = new Deserializer<MadParticleOption>() {
@@ -70,6 +72,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
             float zDeflection = buf.readFloat();
             float zDeflectionAfterCollision = buf.readFloat();
             float bloomFactor = buf.readFloat();
+            CompoundTag meta = buf.readNbt();
             return new MadParticleOption(targetParticle, spriteFrom, lifeTime, alwaysRender, amount,
                     px, py, pz, xDiffuse, yDiffuse, zDiffuse, vx, vy, vz, vxDiffuse, vyDiffuse, vzDiffuse,
                     friction, gravity, collision, bounceTime, horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce, afterCollisionFriction, afterCollisionGravity,
@@ -78,7 +81,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                     haveChild, child,
                     rollSpeed,
                     xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision,
-                    bloomFactor
+                    bloomFactor, meta
             );
         }
     };
@@ -194,7 +197,8 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                 child,
                 rollSpeed == Float.MAX_VALUE ? fatherParticle.rollSpeed : rollSpeed,
                 xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision,
-                bloomFactor == Float.MAX_VALUE ? fatherParticle.bloomFactor : bloomFactor
+                bloomFactor == Float.MAX_VALUE ? fatherParticle.bloomFactor : bloomFactor,
+                meta
         );
     }
 }

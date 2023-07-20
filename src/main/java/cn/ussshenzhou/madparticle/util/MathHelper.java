@@ -22,4 +22,10 @@ public class MathHelper {
         int floor = (int) Math.floor(x * 100);
         return (float) (SIN01[floor] + (SIN01[floor == 100 ? floor : floor + 1] - SIN01[floor]) * (x * 100 - floor) / 100);
     }
+
+    public static float getFromT(float t, float[] array) {
+        int max = array.length - 1;
+        int floor = (int) Math.floor(t * max);
+        return array[floor] + (array[floor == max ? floor : floor + 1] - array[floor]) * (t * max - floor) / max;
+    }
 }

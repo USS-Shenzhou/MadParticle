@@ -1,9 +1,6 @@
 package cn.ussshenzhou.madparticle.mixin;
 
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,4 +25,7 @@ public interface ParticleEngineAccessor {
 
     @Accessor
     Map<ParticleRenderType, Queue<Particle>> getParticles();
+
+    @Accessor
+    Map<ResourceLocation, ParticleProvider<?>> getProviders();
 }

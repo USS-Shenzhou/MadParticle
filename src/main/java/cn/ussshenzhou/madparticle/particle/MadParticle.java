@@ -108,7 +108,7 @@ public class MadParticle extends TextureSheetParticle {
         this.interactWithEntity = interactWithEntity;
         this.horizontalInteractFactor = horizontalInteractFactor;
         this.verticalInteractFactor = verticalInteractFactor;
-        this.lifetime = (int) (lifeTime * (1 + 0.1 * MathHelper.signedRandom(random)));
+        this.lifetime = lifeTime;
         this.particleRenderType = renderType;
         this.rCol = r;
         this.gCol = g;
@@ -143,7 +143,16 @@ public class MadParticle extends TextureSheetParticle {
     }
 
     private void initMetaTags() {
+        handleLifeTime();
         handleDxyz();
+    }
+
+    private void handleLifeTime() {
+        float maxError = 0.1f;
+        if (meta.contains(LIFE_ERROR.get())) {
+            maxError = meta.getInt(LIFE_ERROR.get()) / 100f;
+        }
+        lifetime *= (1 + maxError * MathHelper.signedRandom(random));
     }
 
     @SuppressWarnings("SpellCheckingInspection")

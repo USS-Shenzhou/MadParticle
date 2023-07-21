@@ -92,7 +92,7 @@ public class MadParticlePacket {
     private void asyncCreateParticle() {
         Minecraft mc = Minecraft.getInstance();
         var particleEngine = mc.particleEngine;
-        CompletableFuture.supplyAsync(() -> {
+        /*CompletableFuture.supplyAsync(() -> {
             var level = mc.level;
             Random r = new Random();
             var providers = ((ParticleEngineAccessor) particleEngine).getProviders();
@@ -116,7 +116,33 @@ public class MadParticlePacket {
                 );
             }
             return particles;
-        }).thenAccept(particles -> mc.execute(() -> particles.forEach(particleEngine::add)));
+        }).thenAccept(particles -> mc.execute(() -> particles.forEach(particleEngine::add)));*/
+        CompletableFuture.runAsync(() -> {
+            var level = mc.level;
+            Random r = new Random();
+            var providers = ((ParticleEngineAccessor) particleEngine).getProviders();
+            //noinspection unchecked
+            var provider = ((ParticleProvider<MadParticleOption>) providers.get(BuiltInRegistries.PARTICLE_TYPE.getKey(particleOption.getType())));
+            LinkedList<Particle> particles = new LinkedList<>();
+            for (int i = 0; i < particleOption.amount(); i++) {
+                double x = particleOption.px() + MathHelper.signedRandom(r) * particleOption.xDiffuse();
+                double y = particleOption.py() + MathHelper.signedRandom(r) * particleOption.yDiffuse();
+                double z = particleOption.pz() + MathHelper.signedRandom(r) * particleOption.zDiffuse();
+                if (mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z)
+                        > Minecraft.getInstance().options.renderDistance.get() * 4 * Minecraft.getInstance().options.renderDistance.get() * 4) {
+                    continue;
+                }
+                particles.add(
+                        provider.createParticle(particleOption, level, x, y, z,
+                                particleOption.vx() + MathHelper.signedRandom(r) * particleOption.vxDiffuse(),
+                                particleOption.vy() + MathHelper.signedRandom(r) * particleOption.vyDiffuse(),
+                                particleOption.vz() + MathHelper.signedRandom(r) * particleOption.vzDiffuse()
+                        )
+                );
+            }
+            mc.execute(() -> particles.forEach(particleEngine::add));
+            //return particles;
+        });
     }
 
 }

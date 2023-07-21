@@ -8,7 +8,8 @@ public enum MetaKeys {
     TADA("tada"),
     DX("dx"),
     DY("dy"),
-    DZ("dz")
+    DZ("dz"),
+    LIFE_ERROR("life")
     ;
     private final String key;
 

@@ -136,6 +136,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
         buf.writeFloat(zDeflection);
         buf.writeFloat(zDeflectionAfterCollision);
         buf.writeFloat(bloomFactor);
+        buf.writeNbt(meta);
     }
 
     @Override

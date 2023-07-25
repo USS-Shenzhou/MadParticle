@@ -99,6 +99,8 @@
   "gui.mp.de.helper.always.tooltip": "Force Spawn",
   "gui.mp.de.helper.render_type.tooltip": "RenderType",
 
+  "gui.mp.de.helper.meta.title": "Meta Parameters",
+
   "gui.t88.invalid": "Invalid",
 
   "gui.mp.de.mode.setting": "Options",

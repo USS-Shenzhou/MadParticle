@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.command.inheritable.*;
+import cn.ussshenzhou.madparticle.designer.gui.widegt.MetaParameterPanel;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
 import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
 import cn.ussshenzhou.madparticle.mixin.ParticleAccessor;
@@ -40,7 +41,6 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.ModList;
 
 import java.util.Map;
@@ -150,6 +150,9 @@ public class ParametersScrollPanel extends TScrollPanel {
             scaleBegin = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.scale_begin"), FloatArgumentType.floatArg()),
             scaleEnd = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.scale_end"), FloatArgumentType.floatArg());
 
+    //meta
+    public final MetaParameterPanel metaPanel = new MetaParameterPanel();
+
     public ParametersScrollPanel() {
         super();
         init1();
@@ -162,6 +165,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         init8();
         setChild(true);
         initTooltip();
+        this.add(metaPanel);
     }
 
     public void initTooltip() {
@@ -384,13 +388,15 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BRightOfA(zDeflection2, xGap, zDeflection);
         //lane 8
         LayoutHelper.BBottomOfA(bloomStrength, yGap, roll, stdTitledEditBox);
-
         LayoutHelper.BBottomOfA(scaleEnd, yGap, zDeflection2, stdTitledEditBox);
         LayoutHelper.BLeftOfA(scaleBegin, xGap, scaleEnd);
         LayoutHelper.BLeftOfA(scale, xGap, scaleBegin, stdTitledButton);
         LayoutHelper.BLeftOfA(alphaEnd, xGap, scale, stdTitledEditBox);
         LayoutHelper.BLeftOfA(alphaBegin, xGap, alphaEnd);
         LayoutHelper.BLeftOfA(alpha, xGap, alphaBegin, stdTitledButton);
+        //meta
+        metaPanel.passGap(xGap, yGap);
+        LayoutHelper.BBottomOfA(metaPanel, 2 * yGap, bloomStrength, width - 2 * xGap, metaPanel.getPreferredSize().y);
         super.layout();
     }
 
@@ -498,7 +504,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         }
     }
 
-    protected  <V> void ifClearThenSet(TTitledComponent<? extends TEditBox> tTitled, V value) {
+    protected <V> void ifClearThenSet(TTitledComponent<? extends TEditBox> tTitled, V value) {
         ifClearThenSet(tTitled.getComponent(), value);
     }
 
@@ -541,6 +547,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         Stream.of(scaleBegin, scaleEnd).forEach(titled -> append(builder, titled));
         append(builder, scale);
         append(builder, whoCanSee.getComponent().getEditBox(), "@a");
+        metaPanel.wrap(builder);
         return builder.toString();
     }
 

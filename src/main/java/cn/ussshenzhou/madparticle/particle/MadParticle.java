@@ -149,8 +149,11 @@ public class MadParticle extends TextureSheetParticle {
 
     private void handleLifeTime() {
         float maxError = 0.1f;
-        if (meta.contains(LIFE_ERROR.get())) {
-            maxError = meta.getInt(LIFE_ERROR.get()) / 100f;
+        try {
+            if (meta.contains(LIFE_ERROR.get())) {
+                maxError = Float.parseFloat(meta.getString(LIFE_ERROR.get())) / 100;
+            }
+        } catch (NumberFormatException ignored){
         }
         lifetime *= (1 + maxError * MathHelper.signedRandom(random));
     }

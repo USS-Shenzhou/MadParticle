@@ -128,7 +128,8 @@ public class MadParticlePacket {
                 double x = particleOption.px() + MathHelper.signedRandom(r) * particleOption.xDiffuse();
                 double y = particleOption.py() + MathHelper.signedRandom(r) * particleOption.yDiffuse();
                 double z = particleOption.pz() + MathHelper.signedRandom(r) * particleOption.zDiffuse();
-                if (mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z)
+                if (!particleOption.alwaysRender().get()
+                        && mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z)
                         > Minecraft.getInstance().options.renderDistance.get() * 4 * Minecraft.getInstance().options.renderDistance.get() * 4) {
                     continue;
                 }

@@ -1,7 +1,8 @@
 package cn.ussshenzhou.madparticle.designer.gui.widegt;
 
 import cn.ussshenzhou.madparticle.designer.gui.panel.ParametersScrollPanel;
-import cn.ussshenzhou.madparticle.particle.meta.MetaKeys;
+import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
+import cn.ussshenzhou.madparticle.util.MetaKeys;
 import cn.ussshenzhou.t88.gui.advanced.TSimpleConstrainedEditBox;
 import cn.ussshenzhou.t88.gui.advanced.TSuggestedEditBox;
 import cn.ussshenzhou.t88.gui.event.TWidgetContentUpdatedEvent;
@@ -108,7 +109,9 @@ public class MetaParameterPanel extends TPanel {
         metaTag.tags.forEach((s, tag) -> {
             var pair = createAPair();
             pair.key.getEditBox().setValue(s);
+            ((EditBoxAccessor)pair.key.getEditBox()).setDisplayPos(0);
             pair.value.setValue(tag.getAsString());
+            ((EditBoxAccessor)pair.value).setDisplayPos(0);
         });
     }
 

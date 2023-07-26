@@ -1,4 +1,4 @@
-package cn.ussshenzhou.madparticle.particle.meta;
+package cn.ussshenzhou.madparticle.util;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;

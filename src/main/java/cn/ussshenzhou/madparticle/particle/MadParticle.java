@@ -26,7 +26,7 @@ import org.joml.Vector3f;
 
 import java.util.List;
 
-import static cn.ussshenzhou.madparticle.particle.meta.MetaKeys.*;
+import static cn.ussshenzhou.madparticle.util.MetaKeys.*;
 
 /**
  * @author USS_Shenzhou

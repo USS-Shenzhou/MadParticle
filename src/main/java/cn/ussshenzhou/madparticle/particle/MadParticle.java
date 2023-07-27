@@ -68,6 +68,7 @@ public class MadParticle extends TextureSheetParticle {
     private float[] dx = null;
     private float[] dy = null;
     private float[] dz = null;
+    private int disappearOnCollision = 0;
 
     @SuppressWarnings("AlibabaSwitchStatement")
     public MadParticle(ClientLevel pLevel, SpriteSet spriteSet, SpriteFrom spriteFrom,
@@ -145,6 +146,9 @@ public class MadParticle extends TextureSheetParticle {
     private void initMetaTags() {
         handleLifeTime();
         handleDxyz();
+        if (meta.contains(DISAPPEAR_ON_COLLISION.get())) {
+            disappearOnCollision = Integer.parseInt(meta.getString(DISAPPEAR_ON_COLLISION.get()));
+        }
     }
 
     private void handleLifeTime() {
@@ -153,7 +157,7 @@ public class MadParticle extends TextureSheetParticle {
             if (meta.contains(LIFE_ERROR.get())) {
                 maxError = Float.parseFloat(meta.getString(LIFE_ERROR.get())) / 100;
             }
-        } catch (NumberFormatException ignored){
+        } catch (NumberFormatException ignored) {
         }
         lifetime *= (1 + maxError * MathHelper.signedRandom(random));
     }
@@ -286,7 +290,6 @@ public class MadParticle extends TextureSheetParticle {
                     this.yd = -y0 * (random.nextDouble() * verticalRelativeCollisionBounce);
                     this.zd = v.y;
                     updateAfterCollision();
-                    bounceCount++;
                 } else {
                     this.gravity = 0;
                     this.onGround = true;
@@ -302,7 +305,6 @@ public class MadParticle extends TextureSheetParticle {
                     this.yd = v.x;
                     this.zd = v.y;
                     updateAfterCollision();
-                    bounceCount++;
                 }
                 this.friction = afterCollisionFriction;
                 return;
@@ -315,7 +317,6 @@ public class MadParticle extends TextureSheetParticle {
                     this.yd = v.y;
                     this.zd = -z0 * (random.nextDouble() * verticalRelativeCollisionBounce);
                     updateAfterCollision();
-                    bounceCount++;
                 }
                 this.friction = afterCollisionFriction;
                 return;
@@ -324,12 +325,16 @@ public class MadParticle extends TextureSheetParticle {
     }
 
     private void updateAfterCollision() {
+        bounceCount++;
         this.gravity = afterCollisionGravity;
         this.xDeflection = xDeflectionAfterCollision;
         this.zDeflection = zDeflectionAfterCollision;
         this.dx = null;
         this.dy = null;
         this.dz = null;
+        if (disappearOnCollision > 0 && bounceCount >= disappearOnCollision) {
+            this.remove();
+        }
     }
 
     public Vec2 horizontalRelativeCollision(double r2, double d1, double d2) {

@@ -17,7 +17,8 @@ public enum MetaKeys {
     DX("dx", Util.EXPRESSION_ARGUMENT),
     DY("dy", Util.EXPRESSION_ARGUMENT),
     DZ("dz", Util.EXPRESSION_ARGUMENT),
-    LIFE_ERROR("life", IntegerArgumentType.integer());
+    LIFE_ERROR("life", IntegerArgumentType.integer()),
+    DISAPPEAR_ON_COLLISION("disappearOnCollision", IntegerArgumentType.integer(1));
 
     private final String key;
     public final ArgumentType<?> inputArgument;
@@ -38,6 +39,7 @@ public enum MetaKeys {
             case "dy" -> DY;
             case "dz" -> DZ;
             case "life" -> LIFE_ERROR;
+            case "disappearOnCollision" -> DISAPPEAR_ON_COLLISION;
             default -> null;
         };
     }

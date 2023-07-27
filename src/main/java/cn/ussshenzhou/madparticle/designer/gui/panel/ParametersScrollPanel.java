@@ -396,7 +396,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BLeftOfA(alpha, xGap, alphaBegin, stdTitledButton);
         //meta
         metaPanel.passGap(xGap, yGap);
-        LayoutHelper.BBottomOfA(metaPanel, 2 * yGap, bloomStrength, width - 2 * xGap, metaPanel.getPreferredSize().y);
+        LayoutHelper.BBottomOfA(metaPanel, 2 * yGap, bloomStrength, getUsableWidth() - xGap, metaPanel.getPreferredSize().y);
         super.layout();
     }
 

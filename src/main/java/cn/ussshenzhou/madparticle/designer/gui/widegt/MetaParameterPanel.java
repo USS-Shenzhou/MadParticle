@@ -91,9 +91,15 @@ public class MetaParameterPanel extends TPanel {
             }
             builder.append("\"");
             builder.append(pair.key.getEditBox().getValue());
-            builder.append("\":\"");
+            builder.append("\":");
+            boolean naked = pair.value.getArgument() instanceof IntegerArgumentType;
+            if (!naked){
+                builder.append("\"");
+            }
             builder.append(pair.value.getValue());
-            builder.append("\"");
+            if (!naked){
+                builder.append("\"");
+            }
             i++;
         }
         builder.append("}");

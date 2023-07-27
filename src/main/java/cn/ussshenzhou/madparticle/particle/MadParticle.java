@@ -147,7 +147,7 @@ public class MadParticle extends TextureSheetParticle {
         handleLifeTime();
         handleDxyz();
         if (meta.contains(DISAPPEAR_ON_COLLISION.get())) {
-            disappearOnCollision = Integer.parseInt(meta.getString(DISAPPEAR_ON_COLLISION.get()));
+            disappearOnCollision = meta.getInt(DISAPPEAR_ON_COLLISION.get());
         }
     }
 
@@ -155,7 +155,7 @@ public class MadParticle extends TextureSheetParticle {
         float maxError = 0.1f;
         try {
             if (meta.contains(LIFE_ERROR.get())) {
-                maxError = Float.parseFloat(meta.getString(LIFE_ERROR.get())) / 100;
+                maxError = meta.getInt(LIFE_ERROR.get()) / 100f;
             }
         } catch (NumberFormatException ignored) {
         }

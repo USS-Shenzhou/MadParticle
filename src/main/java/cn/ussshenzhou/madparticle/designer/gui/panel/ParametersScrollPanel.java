@@ -144,7 +144,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             alpha = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.alpha")),
             scale = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.scale"));
     public final TTitledSimpleConstrainedEditBox
-            bloomStrength = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.bloom_factor"), FloatArgumentType.floatArg(0, 1)),
+            bloomStrength = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.bloom_factor"), IntegerArgumentType.integer(0, 1)),
             alphaBegin = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.alpha_begin"), FloatArgumentType.floatArg()),
             alphaEnd = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.alpha_end"), FloatArgumentType.floatArg()),
             scaleBegin = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.scale_begin"), FloatArgumentType.floatArg()),

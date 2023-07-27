@@ -1,7 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
-import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
 import cn.ussshenzhou.t88.gui.util.AccessorProxy;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
 import net.minecraft.network.chat.Component;
@@ -25,6 +24,11 @@ public class TadaParametersScrollPanel extends ParametersScrollPanel {
         speed.getComponent().addPassedResponder(s -> {
             List.of(vx, vy, vz).forEach(singleVec3EditBox -> singleVec3EditBox.getComponent().setValue(s));
         });
+        var tadaMetaPair = this.metaPanel.createAPair();
+        tadaMetaPair.setKV("tada", "1");
+        tadaMetaPair.key.getEditBox().setEditable(false);
+        tadaMetaPair.value.setEditable(false);
+        tadaMetaPair.remove.setVisibleT(false);
     }
 
     @Override
@@ -38,11 +42,6 @@ public class TadaParametersScrollPanel extends ParametersScrollPanel {
     protected void tryFillDefault() {
         super.tryFillDefault();
         ifClearThenSet(speed, isChild ? "=" : "0.0");
-    }
-
-    @Override
-    public String wrap() {
-        return super.wrap() + " {\"tada\":1}";
     }
 
     @Override

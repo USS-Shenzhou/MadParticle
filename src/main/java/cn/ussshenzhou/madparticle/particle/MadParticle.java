@@ -338,6 +338,9 @@ public class MadParticle extends TextureSheetParticle {
     }
 
     public Vec2 horizontalRelativeCollision(double r2, double d1, double d2) {
+        if (horizontalRelativeCollisionDiffuse == 0) {
+            return new Vec2(0, 0);
+        }
         //generalLoss controls radius of spread circle.
         r2 *= horizontalRelativeCollisionDiffuse;
         float r = (float) Math.sqrt(r2);

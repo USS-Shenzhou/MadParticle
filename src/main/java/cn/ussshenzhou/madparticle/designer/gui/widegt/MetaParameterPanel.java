@@ -108,14 +108,11 @@ public class MetaParameterPanel extends TPanel {
         }
         metaTag.tags.forEach((s, tag) -> {
             var pair = createAPair();
-            pair.key.getEditBox().setValue(s);
-            ((EditBoxAccessor)pair.key.getEditBox()).setDisplayPos(0);
-            pair.value.setValue(tag.getAsString());
-            ((EditBoxAccessor)pair.value).setDisplayPos(0);
+            pair.setKV(s, tag.getAsString());
         });
     }
 
-    private MetaPairPanel createAPair() {
+    public MetaPairPanel createAPair() {
         MetaPairPanel pair = new MetaPairPanel();
         pairs.add(pair);
         out().add(pair);
@@ -124,11 +121,11 @@ public class MetaParameterPanel extends TPanel {
     }
 
     public class MetaPairPanel extends TPanel {
-        protected final TSuggestedEditBox key = new TSuggestedEditBox(dispatcher ->
+        public final TSuggestedEditBox key = new TSuggestedEditBox(dispatcher ->
                 Arrays.stream(MetaKeys.values()).forEach(key -> dispatcher.register(Commands.literal(key.get())))
         );
-        protected TSimpleConstrainedEditBox value = new TSimpleConstrainedEditBox(IntegerArgumentType.integer(), true);
-        protected TButton remove = new TButton(Component.literal("-"), button -> {
+        public final TSimpleConstrainedEditBox value = new TSimpleConstrainedEditBox(IntegerArgumentType.integer(), true);
+        public final TButton remove = new TButton(Component.literal("-"), button -> {
             pairs.remove(this);
             out().remove(this);
             out().getParentInstanceOf(ParametersScrollPanel.class).layout();
@@ -156,6 +153,14 @@ public class MetaParameterPanel extends TPanel {
             LayoutHelper.BRightOfA(value, xGap, key, width - 2 * width / 7 - 2 * xGap, height);
             LayoutHelper.BRightOfA(remove, xGap, value, width / 7, height);
             super.layout();
+        }
+
+        @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
+        public void setKV(String keyText, String valueText) {
+            key.getEditBox().setValue(keyText);
+            ((EditBoxAccessor) key.getEditBox()).setDisplayPos(0);
+            value.setValue(valueText);
+            ((EditBoxAccessor) value).setDisplayPos(0);
         }
     }
 }

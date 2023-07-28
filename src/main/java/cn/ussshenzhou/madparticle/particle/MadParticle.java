@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
+import cn.ussshenzhou.madparticle.util.AddParticleHelper;
 import cn.ussshenzhou.madparticle.util.MathHelper;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -357,17 +358,7 @@ public class MadParticle extends TextureSheetParticle {
     public void remove() {
         super.remove();
         if (this.child != null) {
-            MadParticleOption p = child.inheritOrContinue(this);
-            Minecraft.getInstance().level.addParticle(
-                    p,
-                    p.alwaysRender().get(),
-                    p.px() + MathHelper.signedRandom(random) * p.xDiffuse(),
-                    p.py() + MathHelper.signedRandom(random) * p.yDiffuse(),
-                    p.pz() + MathHelper.signedRandom(random) * p.zDiffuse(),
-                    p.vx() + MathHelper.signedRandom(random) * p.vxDiffuse(),
-                    p.vy() + MathHelper.signedRandom(random) * p.vyDiffuse(),
-                    p.vz() + MathHelper.signedRandom(random) * p.vzDiffuse()
-            );
+            AddParticleHelper.addParticle(child.inheritOrContinue(this));
         }
     }
 

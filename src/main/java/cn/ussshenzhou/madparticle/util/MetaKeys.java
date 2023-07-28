@@ -8,17 +8,20 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 
 import javax.annotation.Nullable;
 
+import static cn.ussshenzhou.madparticle.util.MetaKeys.Util.*;
+
 /**
  * @author USS_Shenzhou
  */
 
 public enum MetaKeys {
-    TADA("tada", IntegerArgumentType.integer(0, 1)),
-    DX("dx", Util.EXPRESSION_ARGUMENT),
-    DY("dy", Util.EXPRESSION_ARGUMENT),
-    DZ("dz", Util.EXPRESSION_ARGUMENT),
+    TADA("tada", BOOLEAN),
+    DX("dx", EXPRESSION_ARGUMENT),
+    DY("dy", EXPRESSION_ARGUMENT),
+    DZ("dz", EXPRESSION_ARGUMENT),
     LIFE_ERROR("life", IntegerArgumentType.integer()),
-    DISAPPEAR_ON_COLLISION("disappearOnCollision", IntegerArgumentType.integer(1));
+    DISAPPEAR_ON_COLLISION("disappearOnCollision", IntegerArgumentType.integer(1)),
+    TENET("tenet", BOOLEAN);
 
     private final String key;
     public final ArgumentType<?> inputArgument;
@@ -40,6 +43,7 @@ public enum MetaKeys {
             case "dz" -> DZ;
             case "life" -> LIFE_ERROR;
             case "disappearOnCollision" -> DISAPPEAR_ON_COLLISION;
+            case "tenet" -> TENET;
             default -> null;
         };
     }
@@ -60,6 +64,8 @@ public enum MetaKeys {
                 throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedSymbol().create(null);
             }
         };
+
+        public static final IntegerArgumentType BOOLEAN = IntegerArgumentType.integer(0, 1);
     }
 
 }

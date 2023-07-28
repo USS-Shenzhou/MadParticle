@@ -37,7 +37,7 @@ public class MadParticle extends TextureSheetParticle {
     protected final SpriteSet sprites;
     protected final SpriteFrom spriteFrom;
     protected final float beginGravity;
-    protected final boolean collision;
+    protected boolean collision;
     protected final int bounceTime;
     protected final double horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce;
     protected final float afterCollisionFriction;
@@ -50,7 +50,7 @@ public class MadParticle extends TextureSheetParticle {
     protected final float beginScale, endScale;
     protected final ChangeMode scaleMode;
     protected final MadParticleOption child;
-    protected final float rollSpeed;
+    protected float rollSpeed;
     protected float xDeflection;
     protected float zDeflection;
     protected final float xDeflectionAfterCollision;
@@ -70,6 +70,12 @@ public class MadParticle extends TextureSheetParticle {
     private float[] dy = null;
     private float[] dz = null;
     private int disappearOnCollision = 0;
+    public boolean reverse = false;
+    private float[] xdTrack = null;
+    private float[] ydTrack = null;
+    private float[] zdTrack = null;
+    private float[] alphaTrack = null;
+    private float[] scaleTrack = null;
 
     @SuppressWarnings("AlibabaSwitchStatement")
     public MadParticle(ClientLevel pLevel, SpriteSet spriteSet, SpriteFrom spriteFrom,
@@ -141,6 +147,7 @@ public class MadParticle extends TextureSheetParticle {
         this.zDeflectionAfterCollision = zDeflectionAfterCollision;
         this.bloomFactor = bloomFactor;
         this.meta = meta;
+        //keep it at last
         initMetaTags();
     }
 
@@ -150,15 +157,15 @@ public class MadParticle extends TextureSheetParticle {
         if (meta.contains(DISAPPEAR_ON_COLLISION.get())) {
             disappearOnCollision = meta.getInt(DISAPPEAR_ON_COLLISION.get());
         }
+
+        //keep it at last
+        handleTenet();
     }
 
     private void handleLifeTime() {
         float maxError = 0.1f;
-        try {
-            if (meta.contains(LIFE_ERROR.get())) {
-                maxError = meta.getInt(LIFE_ERROR.get()) / 100f;
-            }
-        } catch (NumberFormatException ignored) {
+        if (meta.contains(LIFE_ERROR.get())) {
+            maxError = meta.getInt(LIFE_ERROR.get()) / 100f;
         }
         lifetime *= (1 + maxError * MathHelper.signedRandom(random));
     }
@@ -198,6 +205,44 @@ public class MadParticle extends TextureSheetParticle {
         }
     }
 
+    private void handleTenet() {
+        if (!meta.contains(TENET.get())) {
+            return;
+        }
+        //prepare
+        xdTrack = new float[lifetime];
+        ydTrack = new float[lifetime];
+        zdTrack = new float[lifetime];
+        if (endAlpha != beginAlpha) {
+            alphaTrack = new float[lifetime];
+        }
+        if (endScale != beginScale) {
+            scaleTrack = new float[lifetime];
+        }
+        //int i = lifetime - 1;
+        //fore-run
+        while (true) {
+            tick();
+            if (removed) {
+                break;
+            }
+            int i = lifetime - age;
+            xdTrack[i] = (float) xd;
+            ydTrack[i] = (float) yd;
+            zdTrack[i] = (float) zd;
+            if (endAlpha != beginAlpha) {
+                alphaTrack[i] = alpha;
+            }
+            if (endScale != beginScale) {
+                scaleTrack[i] = scale;
+            }
+        }
+        //clean and get ready
+        reverse = true;
+        removed = false;
+        this.age = 0;
+    }
+
     @Override
     public void tick() {
         this.xo = this.x;
@@ -205,64 +250,102 @@ public class MadParticle extends TextureSheetParticle {
         this.zo = this.z;
         if (this.age++ >= this.lifetime) {
             this.remove();
+        } else if (!reverse) {
+            normalTick();
         } else {
-            //dx dy dz, gravity and deflection
-            if (this.dy != null) {
-                this.yd = MathHelper.getFromT((float) age / lifetime, dy);
-            } else {
-                this.yd -= 0.04 * (double) this.gravity;
-            }
-            if (this.dx != null) {
-                this.xd = MathHelper.getFromT((float) age / lifetime, dx);
-            } else {
-                this.xd += 0.04 * this.xDeflection;
-            }
-            if (this.dz != null) {
-                this.zd = MathHelper.getFromT((float) age / lifetime, dz);
-            } else {
-                this.zd += 0.04 * this.zDeflection;
-            }
-            //interact with Entity
-            if (interactWithEntity) {
-                LivingEntity entity = level.getNearestEntity(LivingEntity.class, TargetingConditions.forNonCombat().range(4), null, x, y, z, this.getBoundingBox().inflate(0.7));
-                if (entity != null) {
-                    Vec3 v = entity.getDeltaMovement();
-                    this.xd += v.x * random.nextFloat() * horizontalInteractFactor;
-                    double dy = Math.max(Math.abs(v.y * verticalInteractFactor), Math.sqrt(Math.pow(v.x, 2) + Math.pow(v.z, 2)) * verticalInteractFactor);
-                    if (dy != 0) {
-                        this.onGround = false;
-                    }
-                    this.yd += (v.y < 0 ? -dy : dy);
-                    this.zd += v.z * random.nextFloat() * horizontalInteractFactor;
-                    this.gravity = beginGravity;
-                    this.friction = frictionInitial;
-                    this.xDeflection = xDeflectionInitial;
-                    this.zDeflection = zDeflectionInitial;
+            reversedTick();
+        }
+        sharedTick();
+    }
+
+    private void normalTick() {
+        //alpha
+        this.alpha = alphaMode.lerp(beginAlpha, endAlpha, age, lifetime);
+        //size
+        if (endScale != beginScale) {
+            float newScale = scaleMode.lerp(beginScale, endScale, age, lifetime);
+            this.scale(1 / scale * newScale);
+            scale = newScale;
+        }
+        //dx dy dz, gravity and deflection
+        if (this.dy != null) {
+            this.yd = MathHelper.getFromT((float) age / lifetime, dy);
+        } else {
+            this.yd -= 0.04 * (double) this.gravity;
+        }
+        if (this.dx != null) {
+            this.xd = MathHelper.getFromT((float) age / lifetime, dx);
+        } else {
+            this.xd += 0.04 * this.xDeflection;
+        }
+        if (this.dz != null) {
+            this.zd = MathHelper.getFromT((float) age / lifetime, dz);
+        } else {
+            this.zd += 0.04 * this.zDeflection;
+        }
+        //interact with Entity
+        if (interactWithEntity) {
+            LivingEntity entity = level.getNearestEntity(LivingEntity.class, TargetingConditions.forNonCombat().range(4), null, x, y, z, this.getBoundingBox().inflate(0.7));
+            if (entity != null) {
+                Vec3 v = entity.getDeltaMovement();
+                this.xd += v.x * random.nextFloat() * horizontalInteractFactor;
+                double dy = Math.max(Math.abs(v.y * verticalInteractFactor), Math.sqrt(Math.pow(v.x, 2) + Math.pow(v.z, 2)) * verticalInteractFactor);
+                if (dy != 0) {
+                    this.onGround = false;
                 }
-            }
-            //normal
-            this.move(this.xd, this.yd, this.zd);
-            this.xd *= this.friction;
-            this.yd *= this.friction;
-            this.zd *= this.friction;
-            //sprite
-            if (this.spriteFrom == SpriteFrom.AGE) {
-                this.setSpriteFromAge(sprites);
-            }
-            //alpha
-            this.alpha = alphaMode.lerp(beginAlpha, endAlpha, age, lifetime);
-            //size
-            if (endScale != beginScale) {
-                float newScale = scaleMode.lerp(beginScale, endScale, age, lifetime);
-                this.scale(1 / scale * newScale);
-                scale = newScale;
-            }
-            //roll
-            this.oRoll = this.roll;
-            if (!this.onGround) {
-                this.roll += (float) Math.PI * rollSpeed * 2.0F;
+                this.yd += (v.y < 0 ? -dy : dy);
+                this.zd += v.z * random.nextFloat() * horizontalInteractFactor;
+                this.gravity = beginGravity;
+                this.friction = frictionInitial;
+                this.xDeflection = xDeflectionInitial;
+                this.zDeflection = zDeflectionInitial;
             }
         }
+        //move
+        this.move(this.xd, this.yd, this.zd);
+        this.xd *= this.friction;
+        this.yd *= this.friction;
+        this.zd *= this.friction;
+    }
+
+    private void reversedTick() {
+        if (endAlpha != beginAlpha) {
+            this.alpha = alphaTrack[age - 1];
+        }
+        if (endScale != beginScale) {
+            float newScale = scaleTrack[age - 1];
+            this.scale(1 / scale * newScale);
+            scale = newScale;
+        }
+        //no interact with Entity
+        this.move(-xdTrack[age - 1], -ydTrack[age - 1], -zdTrack[age - 1]);
+    }
+
+    private void sharedTick() {
+        //sprite
+        if (this.spriteFrom == SpriteFrom.AGE) {
+            if (!reverse) {
+                setSpriteFromAge(sprites);
+            } else {
+                setSpriteFromAgeReversed(sprites);
+            }
+        }
+        //roll
+        this.oRoll = this.roll;
+        if (!this.onGround) {
+            if (!reverse) {
+                this.roll += (float) Math.PI * rollSpeed * 2.0F;
+            } else {
+                this.roll -= (float) Math.PI * rollSpeed * 2.0F;
+            }
+        }
+    }
+
+    public void setSpriteFromAgeReversed(SpriteSet pSprite) {
+        if (!this.removed) {
+            this.setSprite(pSprite.get(lifetime - age, this.lifetime));
+        }
+
     }
 
     @SuppressWarnings("AlibabaAvoidDoubleOrFloatEqualCompare")

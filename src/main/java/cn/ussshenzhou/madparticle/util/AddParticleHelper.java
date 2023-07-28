@@ -36,6 +36,7 @@ public class AddParticleHelper {
         return keys.contains("dx")
                 || keys.contains("dy")
                 || keys.contains("dz")
+                || (keys.contains("tenet") && meta.getBoolean("tenet"))
                 ;
     }
 

@@ -8,10 +8,8 @@ import cn.ussshenzhou.t88.gui.util.LayoutHelper;
 import cn.ussshenzhou.t88.gui.util.Vec2i;
 import cn.ussshenzhou.t88.gui.widegt.*;
 import com.google.common.collect.EvictingQueue;
-import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.network.chat.Component;
 
 /**
@@ -25,6 +23,10 @@ public class SettingPanel extends TPanel {
     public SettingPanel() {
         this.container = new OptionContainer();
         this.add(container);
+        initAmountSlider();
+    }
+
+    private void initAmountSlider(){
         var amount = new HorizontalTitledOption<>(
                 Component.translatable("gui.mp.de.setting.amount"),
                 new TSlider("", 0x2000, 0x20000, (component, aDouble) -> Component.literal(String.format("%d", aDouble.intValue())), null)
@@ -39,7 +41,7 @@ public class SettingPanel extends TPanel {
                 particles.put(particleRenderType, newQueue);
             });
         });
-        amount.actioner.setAbsValueWithoutRespond(ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue);
+        amount.actioner.setAbsValue(ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue);
         container.add(amount);
     }
 

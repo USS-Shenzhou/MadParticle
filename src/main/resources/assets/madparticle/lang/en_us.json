@@ -111,5 +111,6 @@
   "gui.mp.de.mode.tada": "Tada",
   "gui.mp.de.mode.tada.make": "Make a Tada",
 
-  "item.madparticle.tada": "Tada!"
+  "item.madparticle.tada": "Tada",
+  "item.madparticle.tada.tip": "Press [§lshift§r] to copy the command inside to clipboard"
 }

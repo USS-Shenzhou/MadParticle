@@ -83,5 +83,6 @@
   "gui.mp.de.mode.tada": "喷花筒",
   "gui.mp.de.mode.tada.make": "制作喷花筒",
 
-  "item.madparticle.tada": "喷花筒"
+  "item.madparticle.tada": "喷花筒",
+  "item.madparticle.tada.tip": "按下[§lshift§r]以将其中的指令复制到剪贴板"
 }

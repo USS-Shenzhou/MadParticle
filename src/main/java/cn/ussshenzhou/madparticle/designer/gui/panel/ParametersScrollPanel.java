@@ -163,7 +163,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         init6();
         init7();
         init8();
-        setChild(true);
+        //setChild(true);
         initTooltip();
         this.add(metaPanel);
     }

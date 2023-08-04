@@ -1,6 +1,5 @@
 package cn.ussshenzhou.madparticle.item;
 
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;

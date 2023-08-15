@@ -5,7 +5,7 @@ import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.util.HorizontalAlignment;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
-import cn.ussshenzhou.t88.gui.util.Vec2i;
+import org.joml.Vector2i;
 import cn.ussshenzhou.t88.gui.widegt.*;
 import com.google.common.collect.EvictingQueue;
 import net.minecraft.client.Minecraft;
@@ -92,9 +92,9 @@ public class SettingPanel extends TPanel {
         }
 
         @Override
-        public Vec2i getPreferredSize() {
+        public Vector2i getPreferredSize() {
             int actionY = actioner.getPreferredSize().y;
-            return new Vec2i(this.width, Math.max(actionY, 20));
+            return new Vector2i(this.width, Math.max(actionY, 20));
         }
 
         public TLabel getTitle() {

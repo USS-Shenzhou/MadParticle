@@ -9,6 +9,7 @@ import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.particle.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.SpriteFrom;
+import cn.ussshenzhou.madparticle.util.MathHelper;
 import cn.ussshenzhou.t88.gui.combine.TTitledComponent;
 import cn.ussshenzhou.t88.gui.combine.TTitledCycleButton;
 import cn.ussshenzhou.t88.gui.combine.TTitledSimpleConstrainedEditBox;
@@ -16,7 +17,7 @@ import cn.ussshenzhou.t88.gui.combine.TTitledSuggestedEditBox;
 import cn.ussshenzhou.t88.gui.util.AccessorProxy;
 import cn.ussshenzhou.t88.gui.util.ArgumentSuggestionsDispatcher;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
-import cn.ussshenzhou.t88.gui.util.Vec2i;
+import org.joml.Vector2i;
 import cn.ussshenzhou.t88.gui.widegt.TButton;
 import cn.ussshenzhou.t88.gui.widegt.TEditBox;
 import cn.ussshenzhou.t88.gui.widegt.TScrollPanel;
@@ -51,7 +52,7 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
 public class ParametersScrollPanel extends TScrollPanel {
-    public static final Vec2i BUTTON_SIZE = TButton.RECOMMEND_SIZE;
+    public static final Vector2i BUTTON_SIZE = TButton.RECOMMEND_SIZE;
     protected boolean isChild = false;
     protected final static boolean IS_SHIMMER_EXIST = ModList.get().isLoaded("shimmer");
 
@@ -306,8 +307,8 @@ public class ParametersScrollPanel extends TScrollPanel {
     @Override
     public void layout() {
         int xGap = 5;
-        Vec2i buttonSize = BUTTON_SIZE.copy();
-        Vec2i stdTitledEditBox = calculateStdTitledEditBox(buttonSize, xGap);
+        Vector2i buttonSize = MathHelper.copy(BUTTON_SIZE);
+        Vector2i stdTitledEditBox = calculateStdTitledEditBox(buttonSize, xGap);
         while (stdTitledEditBox.x < 35) {
             if (xGap > 2) {
                 xGap--;
@@ -318,7 +319,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             }
             stdTitledEditBox = calculateStdTitledEditBox(buttonSize, xGap);
         }
-        Vec2i stdTitledButton = buttonSize.copy();
+        Vector2i stdTitledButton = MathHelper.copy(buttonSize);
         stdTitledButton.add(0, 12);
         int yGap = xGap - 1;
         //lane 1
@@ -402,8 +403,8 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     //TODO set bloomStrength
 
-    protected Vec2i calculateStdTitledEditBox(Vec2i size, int gap) {
-        return new Vec2i(
+    protected Vector2i calculateStdTitledEditBox(Vector2i size, int gap) {
+        return new Vector2i(
                 (getUsableWidth() - size.x - 8 * gap) / 7,
                 20 + 12
         );

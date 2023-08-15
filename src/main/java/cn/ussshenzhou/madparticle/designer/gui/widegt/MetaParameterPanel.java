@@ -8,7 +8,7 @@ import cn.ussshenzhou.t88.gui.advanced.TSuggestedEditBox;
 import cn.ussshenzhou.t88.gui.event.TWidgetContentUpdatedEvent;
 import cn.ussshenzhou.t88.gui.util.HorizontalAlignment;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
-import cn.ussshenzhou.t88.gui.util.Vec2i;
+import org.joml.Vector2i;
 import cn.ussshenzhou.t88.gui.widegt.TButton;
 import cn.ussshenzhou.t88.gui.widegt.TLabel;
 import cn.ussshenzhou.t88.gui.widegt.TPanel;
@@ -72,8 +72,8 @@ public class MetaParameterPanel extends TPanel {
     }
 
     @Override
-    public Vec2i getPreferredSize() {
-        return new Vec2i(0, 1
+    public Vector2i getPreferredSize() {
+        return new Vector2i(0, 1
                 + yGap
                 + title.getPreferredSize().y
                 + pairs.size() * (yGap + 20)

@@ -76,6 +76,7 @@ public class MadParticle extends TextureSheetParticle {
     private float[] zdTrack = null;
     private float[] alphaTrack = null;
     private float[] scaleTrack = null;
+    private int[] light = null;
 
     @SuppressWarnings("AlibabaSwitchStatement")
     public MadParticle(ClientLevel pLevel, SpriteSet spriteSet, SpriteFrom spriteFrom,
@@ -157,7 +158,7 @@ public class MadParticle extends TextureSheetParticle {
         if (meta.contains(DISAPPEAR_ON_COLLISION.get())) {
             disappearOnCollision = meta.getInt(DISAPPEAR_ON_COLLISION.get());
         }
-
+        handleLight();
         //keep it at last
         handleTenet();
     }
@@ -241,6 +242,21 @@ public class MadParticle extends TextureSheetParticle {
         reverse = true;
         removed = false;
         this.age = 0;
+    }
+
+    private void handleLight() {
+        int length = Math.min(lifetime, 100);
+        if (!meta.contains(LIGHT.get())) {
+            return;
+        }
+        Expression e = new ExpressionBuilder(meta.getString(LIGHT.get()))
+                .variable("t")
+                .build();
+        light = new int[length + 1];
+        for (int i = 0; i <= length; i++) {
+            e.setVariable("t", (double) i / length);
+            light[i] = Mth.clamp((int) e.evaluate(), 0, 15);
+        }
     }
 
     @Override
@@ -499,6 +515,7 @@ public class MadParticle extends TextureSheetParticle {
             float f5 = this.getV0();
             float f6 = this.getV1();
             int j = this.getLightColor(pPartialTicks);
+
             buffer.vertex((double) avector3f[0].x(), (double) avector3f[0].y(), (double) avector3f[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j);
             buffer.bloomFactor(bloomFactor).endVertex();
 
@@ -514,6 +531,16 @@ public class MadParticle extends TextureSheetParticle {
             super.render(pBuffer, pRenderInfo, pPartialTicks);
         }
 
+    }
+
+    @Override
+    protected int getLightColor(float pPartialTick) {
+        int unmodified = super.getLightColor(pPartialTick);
+        if (light == null) {
+            return unmodified;
+        } else {
+            return unmodified & 0b1111_0000_00000000_0000_0000 | ((int) MathHelper.getFromT((float) age / lifetime, light) << 4);
+        }
     }
 
     public static class Provider implements ParticleProvider<MadParticleOption> {

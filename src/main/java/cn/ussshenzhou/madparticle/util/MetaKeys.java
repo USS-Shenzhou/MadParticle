@@ -21,7 +21,8 @@ public enum MetaKeys {
     DZ("dz", EXPRESSION_ARGUMENT),
     LIFE_ERROR("life", IntegerArgumentType.integer()),
     DISAPPEAR_ON_COLLISION("disappearOnCollision", IntegerArgumentType.integer(1)),
-    TENET("tenet", BOOLEAN);
+    TENET("tenet", BOOLEAN),
+    LIGHT("light", EXPRESSION_ARGUMENT);
 
     private final String key;
     public final ArgumentType<?> inputArgument;
@@ -44,6 +45,7 @@ public enum MetaKeys {
             case "life" -> LIFE_ERROR;
             case "disappearOnCollision" -> DISAPPEAR_ON_COLLISION;
             case "tenet" -> TENET;
+            case "light" -> LIGHT;
             default -> null;
         };
     }

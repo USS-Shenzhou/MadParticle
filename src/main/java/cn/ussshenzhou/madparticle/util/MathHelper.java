@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.util;
 
 import net.minecraft.util.RandomSource;
+import org.joml.Vector2i;
 
 import java.util.Random;
 
@@ -27,5 +28,15 @@ public class MathHelper {
         int max = array.length - 1;
         int floor = (int) Math.floor(t * max);
         return array[floor] + (array[floor == max ? floor : floor + 1] - array[floor]) * (t * max - floor) / max;
+    }
+
+    public static float getFromT(float t, int[] array) {
+        int max = array.length - 1;
+        int floor = (int) Math.floor(t * max);
+        return array[floor] + (array[floor == max ? floor : floor + 1] - array[floor]) * (t * max - floor) / max;
+    }
+
+    public static Vector2i copy(Vector2i old) {
+        return new Vector2i(old.x, old.y);
     }
 }

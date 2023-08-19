@@ -19,7 +19,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 group = 'cn.ussshenzhou'
-version = '0.4.9.tc'
+version = '0.4.10.tc'
 
 java {
     archivesBaseName = 'madparticle'

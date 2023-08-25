@@ -489,6 +489,7 @@ public class ParametersScrollPanelTeaCon extends TScrollPanel {
                 ifClearThenSet(accessor.getGravity(), gravity, gravity2);
                 ifClearThenSet(gravity2, accessor.getGravity());
                 collision.getComponent().select(InheritableBoolean.FALSE);
+                interact.getComponent().select(InheritableBoolean.FALSE);
                 Stream.of(horizontalInteract, verticalInteract, xDeflection, xDeflection2, zDeflection, zDeflection2).forEach(editBox ->
                         ifClearThenSet(editBox, 0));
                 ifClearThenSet(roll, accessor.getRoll());

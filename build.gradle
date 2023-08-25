@@ -19,7 +19,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 group = 'cn.ussshenzhou'
-version = '0.4.10.tc'
+version = '0.4.11.tc'
 
 java {
     archivesBaseName = 'madparticle'
@@ -169,7 +169,7 @@ dependencies {
     }
 
     implementation fg.deobf("curse.maven:shimmer-627824:4573632")
-    def t88FileId = '4705681'
+    def t88FileId = '4721072'
     implementation fg.deobf('curse.maven:t88-663112:' + t88FileId)
     annotationProcessor 'curse.maven:t88-663112:' + t88FileId
     // Real mod deobf dependency examples - these get remapped to your current mappings

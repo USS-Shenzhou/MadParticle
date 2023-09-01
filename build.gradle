@@ -19,7 +19,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 group = 'cn.ussshenzhou'
-version = '0.4.11.tc'
+version = '0.4.12.tc'
 
 java {
     archivesBaseName = 'madparticle'
@@ -168,7 +168,7 @@ dependencies {
         jarJar.pin(it, '0.4.8')
     }
 
-    implementation fg.deobf("curse.maven:shimmer-627824:4573632")
+    implementation fg.deobf("curse.maven:shimmer-627824:4704484")
     def t88FileId = '4721072'
     implementation fg.deobf('curse.maven:t88-663112:' + t88FileId)
     annotationProcessor 'curse.maven:t88-663112:' + t88FileId

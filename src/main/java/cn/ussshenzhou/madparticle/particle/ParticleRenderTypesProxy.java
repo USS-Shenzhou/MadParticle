@@ -6,7 +6,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -47,17 +46,24 @@ public class ParticleRenderTypesProxy {
         }
     }
 
+    static Method getInstance;
+    static Method isShaderPackInUse;
+    static {
+        try {
+            Class<?> irisApi = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
+            getInstance = irisApi.getMethod("getInstance");
+            getInstance.setAccessible(true);
+            isShaderPackInUse = irisApi.getMethod("isShaderPackInUse");
+            isShaderPackInUse.setAccessible(true);
+        } catch (Exception ignored) {
+        }
+    }
+
     private static boolean checkIrisOn() {
         //return true;
         try {
-            Class<?> irisApi = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
-            Method getInstance = irisApi.getMethod("getInstance");
-            getInstance.setAccessible(true);
-            Method isShaderPackInUse = irisApi.getMethod("isShaderPackInUse");
-            isShaderPackInUse.setAccessible(true);
             return (boolean) isShaderPackInUse.invoke(getInstance.invoke(null));
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
-                 InvocationTargetException ignored) {
+        } catch (Exception ignored) {
             return false;
         }
     }

@@ -22,6 +22,7 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.context.ParsedArgument;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -41,7 +42,11 @@ public class TadaModePanel extends HelperModePanel {
     public TadaModePanel() {
         super();
         make.setOnPress(button -> {
-            NetworkHelper.sendToServer(new MakeTadaPacket(command.getEditBox().getValue()));
+            NetworkHelper.sendToServer(new MakeTadaPacket(
+                    Minecraft.getInstance().player.isCreative() ?
+                            command.getEditBox().getValue()
+                            : command.getEditBox().getValue().replaceFirst("mp", "mp_demo")
+            ));
         });
         this.add(make);
         initCommand();
@@ -175,6 +180,9 @@ public class TadaModePanel extends HelperModePanel {
         for (String s : commandStrings) {
             if (s.startsWith("/")) {
                 s = s.replaceFirst("/", "");
+            }
+            if (s.startsWith("mp_demo")) {
+                s = s.replaceFirst("mp_demo", "mp");
             }
             if (!s.startsWith("mp") && !s.startsWith("madparticle")) {
                 s = "mp " + s;

@@ -46,22 +46,14 @@ public class ParticleRenderTypesProxy {
         }
     }
 
-    static Method getInstance;
-    static Method isShaderPackInUse;
-    static {
-        try {
-            Class<?> irisApi = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
-            getInstance = irisApi.getMethod("getInstance");
-            getInstance.setAccessible(true);
-            isShaderPackInUse = irisApi.getMethod("isShaderPackInUse");
-            isShaderPackInUse.setAccessible(true);
-        } catch (Exception ignored) {
-        }
-    }
-
     private static boolean checkIrisOn() {
         //return true;
         try {
+            Class<?> irisApi = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
+            Method getInstance = irisApi.getMethod("getInstance");
+            getInstance.setAccessible(true);
+            Method isShaderPackInUse = irisApi.getMethod("isShaderPackInUse");
+            isShaderPackInUse.setAccessible(true);
             return (boolean) isShaderPackInUse.invoke(getInstance.invoke(null));
         } catch (Exception ignored) {
             return false;

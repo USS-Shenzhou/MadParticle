@@ -17,16 +17,17 @@ import net.minecraft.network.chat.Component;
  */
 public class SettingPanel extends TPanel {
     private final OptionContainer container;
-    public static final int STD_GAP = 2;
+    public static final int STD_GAP = 4;
 
     @SuppressWarnings("UnstableApiUsage")
     public SettingPanel() {
         this.container = new OptionContainer();
         this.add(container);
         initAmountSlider();
+        initRealForce();
     }
 
-    private void initAmountSlider(){
+    private void initAmountSlider() {
         var amount = new HorizontalTitledOption<>(
                 Component.translatable("gui.mp.de.setting.amount"),
                 new TSlider("", 0x2000, 0x20000, (component, aDouble) -> Component.literal(String.format("%d", aDouble.intValue())), null)
@@ -43,6 +44,20 @@ public class SettingPanel extends TPanel {
         });
         amount.actioner.setAbsValue(ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue);
         container.add(amount);
+    }
+
+    private void initRealForce() {
+        var realForce = new HorizontalTitledOption<>(
+                Component.translatable("gui.mp.de.setting.real_force"),
+                new TCycleButton<>()
+        );
+        realForce.actioner.addElement("gui.mp.de.helper.true", b -> {
+            ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.limitMaxParticleGenerateDistance = true);
+        });
+        realForce.actioner.addElement("gui.mp.de.helper.false", b -> {
+            ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.limitMaxParticleGenerateDistance = false);
+        });
+        container.add(realForce);
     }
 
     @Override

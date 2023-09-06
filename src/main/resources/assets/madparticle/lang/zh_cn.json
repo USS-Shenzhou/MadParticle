@@ -79,6 +79,7 @@
 
   "gui.mp.de.mode.setting": "设置",
   "gui.mp.de.setting.amount": "单队列最大粒子数量",
+  "gui.mp.de.setting.real_force": "限制粒子最大生成距离",
 
   "gui.mp.de.mode.tada": "喷花筒",
   "gui.mp.de.mode.tada.make": "制作喷花筒",

@@ -10,6 +10,8 @@ public class MadParticleConfig implements TConfig {
 
     public boolean limitMaxParticleGenerateDistance = true;
 
+    public boolean noWelcomeScreen = false;
+
     public MadParticleConfig() {
     }
 }

@@ -84,6 +84,13 @@
   "gui.mp.de.mode.tada": "喷花筒",
   "gui.mp.de.mode.tada.make": "制作喷花筒",
 
+  "gui.mp.wel.title": "欢迎",
+  "gui.mp.wel.text1": "欢迎使用疯狂粒子（MadParticle）!\n按下 §b%s§r 来打开MadParticle辅助设计工具，编写你的第一条指令。",
+  "gui.mp.wel.text2": "想要阅读完整指南，请访问",
+  "gui.mp.wel.text3": "§b§n这里。",
+  "gui.mp.wel.ok": "了解！",
+  "gui.mp.wel.hide": "不再显示",
+
   "item.madparticle.tada": "喷花筒",
   "item.madparticle.tada.tip": "按下[§lshift§r]以将其中的指令复制到剪贴板"
 }

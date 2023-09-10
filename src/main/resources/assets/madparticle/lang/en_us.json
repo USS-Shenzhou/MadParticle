@@ -112,6 +112,13 @@
   "gui.mp.de.mode.tada": "Tada",
   "gui.mp.de.mode.tada.make": "Make a Tada",
 
+  "gui.mp.wel.title": "Welcome",
+  "gui.mp.wel.text1": "Welcome to MadParticle!\nPress §b%s§r to open MadParticle Designer GUI and write your first command.",
+  "gui.mp.wel.text2": "You can read the full guideline at",
+  "gui.mp.wel.text3": "§b§nhere.",
+  "gui.mp.wel.ok": "Got It!",
+  "gui.mp.wel.hide": "Hide Forever",
+
   "item.madparticle.tada": "Tada",
   "item.madparticle.tada.tip": "Press [§lshift§r] to copy the command inside to clipboard"
 }

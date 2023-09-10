@@ -31,6 +31,13 @@ public class AddParticleHelper {
         }
     }
 
+    /**
+     * @apiNote For caller like Rhino js.
+     */
+    public static void asyncAddParticle(MadParticleOption option) {
+        Minecraft.getInstance().execute(() -> addParticle(option));
+    }
+
     private static boolean needAsyncCreate(CompoundTag meta) {
         var keys = meta.tags.keySet();
         return keys.contains("dx")

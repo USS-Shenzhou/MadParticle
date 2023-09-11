@@ -307,7 +307,7 @@ public class MadParticle extends TextureSheetParticle {
                 this.xd += v.x * random.nextFloat() * horizontalInteractFactor;
                 double y0;
                 if (entity.onGround()) {
-                    y0 = Math.max(Math.abs(v.y), Math.sqrt(v.x * v.x + v.z * v.z));
+                    y0 = Math.sqrt(v.x * v.x + v.z * v.z);
                 } else {
                     y0 = v.y;
                 }
@@ -315,7 +315,7 @@ public class MadParticle extends TextureSheetParticle {
                 if (y0 > 0) {
                     this.onGround = false;
                 }
-                this.yd += (v.y < 0 ? -y0 : y0);
+                this.yd += (!entity.onGround() && v.y < 0 ? -y0 : y0);
                 this.zd += v.z * random.nextFloat() * horizontalInteractFactor;
                 this.gravity = beginGravity;
                 this.friction = frictionInitial;

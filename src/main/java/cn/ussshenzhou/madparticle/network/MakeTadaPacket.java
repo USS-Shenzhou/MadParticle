@@ -3,25 +3,17 @@ package cn.ussshenzhou.madparticle.network;
 import cn.ussshenzhou.madparticle.MadParticle;
 import cn.ussshenzhou.madparticle.item.ModItemsRegistry;
 import cn.ussshenzhou.madparticle.item.Tada;
-import cn.ussshenzhou.madparticle.particle.MadParticleOption;
-import cn.ussshenzhou.madparticle.particle.ModParticleRegistry;
-import cn.ussshenzhou.madparticle.util.MathHelper;
 import cn.ussshenzhou.t88.network.annotation.Consumer;
 import cn.ussshenzhou.t88.network.annotation.Decoder;
 import cn.ussshenzhou.t88.network.annotation.Encoder;
 import cn.ussshenzhou.t88.network.annotation.NetPacket;
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.Random;
 import java.util.function.Supplier;
 
 /**
@@ -79,7 +71,9 @@ public class MakeTadaPacket {
 
     private void makeTada(ServerPlayer player) {
         ItemStack tada = new ItemStack(ModItemsRegistry.TADA.get());
-        tada.getOrCreateTag().putString(Tada.TAG_COMMAND, command);
+        var tag = tada.getOrCreateTag();
+        tag.putString(Tada.TAG_COMMAND, command);
+        tag.putBoolean(Tada.PULSE, command.contains("\"pulse\":1") || command.contains("\"pulse\":true"));
         player.getInventory().add(tada);
     }
 }

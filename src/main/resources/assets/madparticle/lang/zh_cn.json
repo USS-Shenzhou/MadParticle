@@ -92,5 +92,7 @@
   "gui.mp.wel.hide": "不再显示",
 
   "item.madparticle.tada": "喷花筒",
-  "item.madparticle.tada.tip": "按下[§lshift§r]以将其中的指令复制到剪贴板"
+  "item.madparticle.tada.tip": "按下[§lshift§r]以将其中的指令复制到剪贴板",
+  "item.madparticle.tada.mode.pulse": "脉冲型",
+  "item.madparticle.tada.mode.con": "连续型"
 }

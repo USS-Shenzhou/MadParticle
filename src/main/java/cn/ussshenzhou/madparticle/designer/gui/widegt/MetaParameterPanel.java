@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.gui.widegt;
 
 import cn.ussshenzhou.madparticle.designer.gui.panel.ParametersScrollPanel;
+import cn.ussshenzhou.madparticle.designer.gui.panel.ParametersScrollPanelTeaCon;
 import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
 import cn.ussshenzhou.madparticle.util.MetaKeys;
 import cn.ussshenzhou.t88.gui.advanced.TSimpleConstrainedEditBox;
@@ -8,10 +9,7 @@ import cn.ussshenzhou.t88.gui.advanced.TSuggestedEditBox;
 import cn.ussshenzhou.t88.gui.event.TWidgetContentUpdatedEvent;
 import cn.ussshenzhou.t88.gui.util.HorizontalAlignment;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
-import org.joml.Vector2i;
-import cn.ussshenzhou.t88.gui.widegt.TButton;
-import cn.ussshenzhou.t88.gui.widegt.TLabel;
-import cn.ussshenzhou.t88.gui.widegt.TPanel;
+import cn.ussshenzhou.t88.gui.widegt.*;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -20,6 +18,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.MinecraftForge;
+import org.joml.Vector2i;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -93,11 +92,11 @@ public class MetaParameterPanel extends TPanel {
             builder.append(pair.key.getEditBox().getValue());
             builder.append("\":");
             boolean naked = pair.value.getArgument() instanceof IntegerArgumentType;
-            if (!naked){
+            if (!naked) {
                 builder.append("\"");
             }
             builder.append(pair.value.getValue());
-            if (!naked){
+            if (!naked) {
                 builder.append("\"");
             }
             i++;
@@ -122,7 +121,12 @@ public class MetaParameterPanel extends TPanel {
         MetaPairPanel pair = new MetaPairPanel();
         pairs.add(pair);
         out().add(pair);
-        getParentInstanceOf(ParametersScrollPanel.class).layout();
+        //teacon demo
+        TComponent p = getParentInstanceOf(ParametersScrollPanel.class);
+        if (p == null) {
+            p = getParentInstanceOf(ParametersScrollPanelTeaCon.class);
+        }
+        p.layout();
         return pair;
     }
 

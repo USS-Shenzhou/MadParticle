@@ -2,7 +2,6 @@ package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
 import cn.ussshenzhou.t88.gui.util.AccessorProxy;
-import cn.ussshenzhou.t88.gui.util.LayoutHelper;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 
@@ -36,7 +35,7 @@ public class TadaParametersScrollPanel extends ParametersScrollPanel {
 
     private void addDemoLimitToolTip() {
         Map.ofEntries(
-                Map.entry(speed,"0.0 ~ 0.5"),
+                Map.entry(speed, "0.0 ~ 0.5"),
                 Map.entry(lifeTime, "0 ~ 100"),
                 Map.entry(amount, "0 ~ 10"),
                 Map.entry(vx, "-1.0 ~ 1.0"),
@@ -73,8 +72,9 @@ public class TadaParametersScrollPanel extends ParametersScrollPanel {
     @Override
     public void layout() {
         super.layout();
-        int xGap = vy.getXT() - vx.getXT() - vx.getWidth();
-        LayoutHelper.BLeftOfA(speed, xGap, vxD, vx.getWidth() * 3 + 2 * xGap, vx.getHeight());
+        //int xGap = vy.getXT() - vx.getXT() - vx.getWidth();
+        //LayoutHelper.BLeftOfA(speed, xGap, vxD, vx.getWidth() * 3 + 2 * xGap, vx.getHeight());
+        speed.setAbsBounds(vx.getXT(), vx.getYT(), vx.getWidth() * 3, vx.getHeight());
     }
 
     @Override

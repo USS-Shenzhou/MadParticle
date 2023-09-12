@@ -120,5 +120,7 @@
   "gui.mp.wel.hide": "Hide Forever",
 
   "item.madparticle.tada": "Tada",
-  "item.madparticle.tada.tip": "Press [§lshift§r] to copy the command inside to clipboard"
+  "item.madparticle.tada.tip": "Press [§lshift§r] to copy the command inside to clipboard",
+  "item.madparticle.tada.mode.pulse": "Pulse Mode",
+  "item.madparticle.tada.mode.con": "Continuous Mode"
 }

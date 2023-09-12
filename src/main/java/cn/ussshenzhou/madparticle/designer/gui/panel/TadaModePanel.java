@@ -5,6 +5,7 @@ import cn.ussshenzhou.madparticle.command.MadParticleCommand;
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.CommandStringSelectList;
+import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
 import cn.ussshenzhou.madparticle.network.MakeTadaPacket;
 import cn.ussshenzhou.madparticle.particle.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
@@ -43,9 +44,10 @@ public class TadaModePanel extends HelperModePanel {
         super();
         make.setOnPress(button -> {
             NetworkHelper.sendToServer(new MakeTadaPacket(
+                    //teacon demo
                     Minecraft.getInstance().player.isCreative() ?
                             command.getEditBox().getValue()
-                            : command.getEditBox().getValue().replaceFirst("mp", "mp_demo")
+                            : command.getEditBox().getValue().replaceFirst("mp ", "mp_demo ")
             ));
         });
         this.add(make);
@@ -202,7 +204,10 @@ public class TadaModePanel extends HelperModePanel {
             getVec3ArgAndFill(panel.xD, panel.yD, panel.zD, "spawnDiffuse", s, map);
             getVec3ArgAndFill(panel.vx, panel.vy, panel.vz, "spawnSpeed", s, map);
 
-            List.of(panel.xPos, panel.yPos, panel.zPos).forEach(singleVec3EditBox -> singleVec3EditBox.getComponent().setValue(i == 0 ? "~" : "="));
+            List.of(panel.xPos, panel.yPos, panel.zPos).forEach(singleVec3EditBox -> {
+                singleVec3EditBox.getComponent().setValue(i == 0 ? "~" : "=");
+                ((EditBoxAccessor) singleVec3EditBox.getComponent()).setDisplayPos(0);
+            });
             var a = map.get("spawnSpeed").getRange().get(s).split(" ");
             double vx = Double.parseDouble(a[0]);
             double vy = Double.parseDouble(a[1]);

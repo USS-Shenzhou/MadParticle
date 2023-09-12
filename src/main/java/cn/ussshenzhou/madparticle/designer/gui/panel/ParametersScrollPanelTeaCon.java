@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.command.inheritable.*;
+import cn.ussshenzhou.madparticle.designer.gui.widegt.MetaParameterPanel;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
 import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
 import cn.ussshenzhou.madparticle.mixin.ParticleAccessor;
@@ -16,7 +17,6 @@ import cn.ussshenzhou.t88.gui.combine.TTitledSuggestedEditBox;
 import cn.ussshenzhou.t88.gui.util.AccessorProxy;
 import cn.ussshenzhou.t88.gui.util.ArgumentSuggestionsDispatcher;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
-import org.joml.Vector2i;
 import cn.ussshenzhou.t88.gui.widegt.TButton;
 import cn.ussshenzhou.t88.gui.widegt.TEditBox;
 import cn.ussshenzhou.t88.gui.widegt.TScrollPanel;
@@ -42,6 +42,7 @@ import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.fml.ModList;
+import org.joml.Vector2i;
 
 import java.util.Map;
 import java.util.stream.Stream;
@@ -52,8 +53,8 @@ import java.util.stream.Stream;
 @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
 public class ParametersScrollPanelTeaCon extends TScrollPanel {
     public static final Vector2i BUTTON_SIZE = TButton.RECOMMEND_SIZE;
-    private boolean isChild = false;
-    private final static boolean IS_SHIMMER_EXIST = ModList.get().isLoaded("shimmer");
+    protected boolean isChild = false;
+    protected final static boolean IS_SHIMMER_EXIST = ModList.get().isLoaded("shimmer");
 
     //lane 1
     public final TTitledSuggestedEditBox target = new TTitledSuggestedEditBox(
@@ -150,6 +151,9 @@ public class ParametersScrollPanelTeaCon extends TScrollPanel {
             scaleBegin = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.scale_begin"), FloatArgumentType.floatArg(0, 5)),
             scaleEnd = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.scale_end"), FloatArgumentType.floatArg(0, 5));
 
+    //meta
+    public final MetaParameterPanel metaPanel = new MetaParameterPanel();
+
     public ParametersScrollPanelTeaCon() {
         super();
         init1();
@@ -160,8 +164,45 @@ public class ParametersScrollPanelTeaCon extends TScrollPanel {
         init6();
         init7();
         init8();
-        setChild(true);
+        //setChild(true);
         initTooltip();
+        this.add(metaPanel);
+        addDemoLimitToolTip();
+    }
+
+    private void addDemoLimitToolTip() {
+        Map.ofEntries(
+                Map.entry(lifeTime, "0 ~ 100"),
+                Map.entry(amount, "0 ~ 10"),
+                Map.entry(vx, "-1.0 ~ 1.0"),
+                Map.entry(vy, "-1.0 ~ 1.0"),
+                Map.entry(vz, "-1.0 ~ 1.0"),
+                Map.entry(vxD, "-1 ~ 1.0"),
+                Map.entry(vyD, "-1.0 ~ 1.0"),
+                Map.entry(vzD, "-1.0 ~ 1.0"),
+                Map.entry(r, "0 ~ 10"),
+                Map.entry(g, "0 ~ 10"),
+                Map.entry(b, "0 ~ 10"),
+                Map.entry(horizontalCollision, "-2 ~ 2"),
+                Map.entry(verticalCollision, "-2 ~ 2"),
+                Map.entry(collisionTime, "0 ~ 3"),
+                Map.entry(xDeflection, "-0.5 ~ 0.5"),
+                Map.entry(xDeflection2, "-0.5 ~ 0.5"),
+                Map.entry(zDeflection, "-0.5 ~ 0.5"),
+                Map.entry(zDeflection2, "-0.5 ~ 0.5"),
+                Map.entry(roll, "-0.5 ~ 0.5"),
+                Map.entry(horizontalInteract, "-2 ~ 2"),
+                Map.entry(verticalInteract, "-2 ~ 2"),
+                Map.entry(friction, "0 ~ 1"),
+                Map.entry(friction2, "0 ~ 1"),
+                Map.entry(gravity, "-0.5 ~ 0.5"),
+                Map.entry(gravity2, "-0.5 ~ 0.5"),
+                Map.entry(bloomStrength, "0 / 1"),
+                Map.entry(alphaBegin, "0 ~ 1"),
+                Map.entry(alphaEnd, "0 ~ 1"),
+                Map.entry(scaleBegin, "0 ~ 5"),
+                Map.entry(scaleEnd, "0 ~ 5")
+        ).forEach((w, t) -> w.getComponent().setTooltip(Tooltip.create(Component.literal(t))));
     }
 
     public void initTooltip() {
@@ -384,19 +425,21 @@ public class ParametersScrollPanelTeaCon extends TScrollPanel {
         LayoutHelper.BRightOfA(zDeflection2, xGap, zDeflection);
         //lane 8
         LayoutHelper.BBottomOfA(bloomStrength, yGap, roll, stdTitledEditBox);
-
         LayoutHelper.BBottomOfA(scaleEnd, yGap, zDeflection2, stdTitledEditBox);
         LayoutHelper.BLeftOfA(scaleBegin, xGap, scaleEnd);
         LayoutHelper.BLeftOfA(scale, xGap, scaleBegin, stdTitledButton);
         LayoutHelper.BLeftOfA(alphaEnd, xGap, scale, stdTitledEditBox);
         LayoutHelper.BLeftOfA(alphaBegin, xGap, alphaEnd);
         LayoutHelper.BLeftOfA(alpha, xGap, alphaBegin, stdTitledButton);
+        //meta
+        metaPanel.passGap(xGap, yGap);
+        LayoutHelper.BBottomOfA(metaPanel, 2 * yGap, bloomStrength, getUsableWidth() - xGap, metaPanel.getPreferredSize().y);
         super.layout();
     }
 
     //TODO set bloomStrength
 
-    private Vector2i calculateStdTitledEditBox(Vector2i size, int gap) {
+    protected Vector2i calculateStdTitledEditBox(Vector2i size, int gap) {
         return new Vector2i(
                 (getUsableWidth() - size.x - 8 * gap) / 7,
                 20 + 12
@@ -450,14 +493,14 @@ public class ParametersScrollPanelTeaCon extends TScrollPanel {
             collisionTime.getComponent().setArgument(IntegerArgumentType.integer(0, 3));
             Stream.of(horizontalCollision, verticalCollision, horizontalInteract, verticalInteract).forEach(editBox -> editBox.getComponent().setArgument(DoubleArgumentType.doubleArg(-2, 2)));
             roll.getComponent().setArgument(FloatArgumentType.floatArg(-0.5f, 0.5f));
-            Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg(0,10)));
+            Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg(0, 10)));
             bloomStrength.getComponent().setArgument(FloatArgumentType.floatArg(0, 1));
             Stream.of(alpha, scale).forEach(button -> button.removeElement(ChangeMode.INHERIT));
             amount.getComponent().setEditable(true);
         }
     }
 
-    private void tryFillDefault() {
+    protected void tryFillDefault() {
         ArgumentSuggestionsDispatcher<ParticleOptions> dispatcher = new ArgumentSuggestionsDispatcher<>();
         dispatcher.register(Commands.argument("particle", ParticleArgument.particle(Commands.createValidationContext(VanillaRegistries.createLookup()))));
         CommandSourceStack sourceStack = Minecraft.getInstance().player.createCommandSourceStack();
@@ -501,7 +544,7 @@ public class ParametersScrollPanelTeaCon extends TScrollPanel {
         }
     }
 
-    private <V> void ifClearThenSet(TTitledComponent<? extends TEditBox> tTitled, V value) {
+    protected <V> void ifClearThenSet(TTitledComponent<? extends TEditBox> tTitled, V value) {
         ifClearThenSet(tTitled.getComponent(), value);
     }
 
@@ -535,7 +578,7 @@ public class ParametersScrollPanelTeaCon extends TScrollPanel {
         Stream.of(collisionTime, horizontalCollision, verticalCollision, friction, friction2, gravity, gravity2, xDeflection, xDeflection2, zDeflection, zDeflection2, roll)
                 .forEach(titled -> append(builder, titled, 0));
         append(builder, interact);
-        Stream.of(horizontalInteract, verticalInteract).forEach(titled -> append(builder, titled));
+        Stream.of(horizontalInteract, verticalInteract).forEach(titled -> append(builder, titled, 0));
         append(builder, renderType);
         Stream.of(r, g, b).forEach(titled -> append(builder, titled));
         append(builder, bloomStrength, 0);
@@ -544,6 +587,7 @@ public class ParametersScrollPanelTeaCon extends TScrollPanel {
         Stream.of(scaleBegin, scaleEnd).forEach(titled -> append(builder, titled));
         append(builder, scale);
         append(builder, whoCanSee.getComponent().getEditBox(), "@a");
+        metaPanel.wrap(builder);
         return builder.toString();
     }
 

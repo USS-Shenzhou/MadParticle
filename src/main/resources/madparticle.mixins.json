@@ -6,7 +6,7 @@
   "refmap": "madparticle.refmap.json",
   "mixins": [
     "CommandsMixin",
-    "FallbackResourceManagerMixin",
+    "MultiPackResourceManagerMixin",
     "LocalCoordinatesAccessor",
     "WorldCoordinatesAccessor"
   ],

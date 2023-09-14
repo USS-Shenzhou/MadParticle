@@ -3,18 +3,18 @@ package cn.ussshenzhou.madparticle.particle;
 import cn.ussshenzhou.madparticle.MadParticle;
 import com.mojang.logging.LogUtils;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 
@@ -32,18 +32,19 @@ import java.util.*;
  * <p>
  * Particle texture name in json: modid:leaves modid:leaves__1
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CustomParticleRegistry {
     public static final LinkedHashMap<ResourceLocation, List<ResourceLocation>> CUSTOM_PARTICLES_TYPE_NAMES_AND_TEXTURES = new LinkedHashMap<>();
     public static final LinkedHashSet<ParticleType<SimpleParticleType>> CUSTOM_PARTICLE_TYPES = new LinkedHashSet<>();
     public static final LinkedHashSet<ResourceLocation> ALL_TEXTURES = new LinkedHashSet<>();
+    public static File gameDir = FMLPaths.GAMEDIR.get().toFile();
 
     @SubscribeEvent
     public static void registerParticleType(RegisterEvent event) {
-        if (!event.getRegistryKey().equals(ForgeRegistries.Keys.PARTICLE_TYPES)){
+        if (!event.getRegistryKey().equals(ForgeRegistries.Keys.PARTICLE_TYPES)) {
             return;
         }
-        File particleDir = new File(Minecraft.getInstance().gameDirectory, "customparticles");
+        File particleDir = new File(gameDir, "customparticles");
         if (!particleDir.exists() || !particleDir.isDirectory()) {
             particleDir.mkdir();
             return;
@@ -65,13 +66,8 @@ public class CustomParticleRegistry {
             ALL_TEXTURES.addAll(textureNames);
             ParticleType<SimpleParticleType> particleType = new SimpleParticleType(false);
             CUSTOM_PARTICLE_TYPES.add(particleType);
-            event.register(ForgeRegistries.Keys.PARTICLE_TYPES, particleTypeName, () -> particleType);
+            event.register(ForgeRegistries.PARTICLE_TYPES.getRegistryKey(), particleTypeName, () -> particleType);
         });
-    }
-
-    @SubscribeEvent
-    public static void onParticleProviderRegistry(RegisterParticleProvidersEvent event) {
-        CUSTOM_PARTICLE_TYPES.forEach(particleType -> event.registerSpecial(particleType, new GeneralNullProvider()));
     }
 
     public static final String MOD_ID_SPLIT = "~";
@@ -144,13 +140,20 @@ public class CustomParticleRegistry {
 
     public static File textureResLocToFile(ResourceLocation location) throws FileNotFoundException {
         String name = location.toString().replace(MadParticle.MOD_ID + ":", "").replace(":", MOD_ID_SPLIT).replace("__", "#") + ".png";
-        File file = new File(Minecraft.getInstance().gameDirectory, "customparticles/" + name);
+        File file = new File(gameDir, "customparticles/" + name);
         if (!file.exists()) {
             throw new FileNotFoundException();
         }
         return file;
     }
 
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public static void onParticleProviderRegistry(RegisterParticleProvidersEvent event) {
+        CUSTOM_PARTICLE_TYPES.forEach(particleType -> event.registerSpriteSet(particleType, pSprites -> new GeneralNullProvider()));
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public static class GeneralNullProvider implements ParticleProvider<SimpleParticleType> {
 
         public GeneralNullProvider() {
@@ -159,7 +162,7 @@ public class CustomParticleRegistry {
         @Nullable
         @Override
         public Particle createParticle(SimpleParticleType pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
-            return new CustomParticle(pLevel, pX, pY, pZ);
+            return null;
         }
     }
 }

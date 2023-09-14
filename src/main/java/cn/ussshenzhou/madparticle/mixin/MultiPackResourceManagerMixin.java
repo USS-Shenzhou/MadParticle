@@ -5,6 +5,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.FallbackResourceManager;
+import net.minecraft.server.packs.resources.MultiPackResourceManager;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.spongepowered.asm.mixin.Final;
@@ -17,19 +18,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
 /**
  * @author USS_Shenzhou
  */
-@Mixin(FallbackResourceManager.class)
-public class FallbackResourceManagerMixin {
+@Mixin(MultiPackResourceManager.class)
+public class MultiPackResourceManagerMixin {
 
     @Shadow
     @Final
-    public List<FallbackResourceManager.PackEntry> fallbacks;
+    private Map<String, FallbackResourceManager> namespacedManagers;
 
     @Inject(method = "listResources", at = @At("RETURN"))
     private void madParticleFakeResourceJson(String pPath, Predicate<ResourceLocation> pFilter, CallbackInfoReturnable<Map<ResourceLocation, Resource>> cir) {
@@ -37,7 +37,7 @@ public class FallbackResourceManagerMixin {
             return;
         }
         Map<ResourceLocation, Resource> map = cir.getReturnValue();
-        PackResources resources = fallbacks.get(0).resources();
+        PackResources resources = namespacedManagers.values().stream().toList().get(0).fallbacks.get(0).resources();
         CustomParticleRegistry.CUSTOM_PARTICLE_TYPES.forEach(particleType -> {
             ResourceLocation original = ForgeRegistries.PARTICLE_TYPES.getKey(particleType);
             String s = String.format(
@@ -62,7 +62,7 @@ public class FallbackResourceManagerMixin {
             return;
         }
         Map<ResourceLocation, Resource> map = cir.getReturnValue();
-        PackResources resources = fallbacks.get(0).resources();
+        PackResources resources = namespacedManagers.values().stream().toList().get(0).fallbacks.get(0).resources();
         CustomParticleRegistry.ALL_TEXTURES.forEach(textureResourceLocation -> {
             try {
                 //noinspection resource

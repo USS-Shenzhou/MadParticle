@@ -209,13 +209,14 @@ public class TadaModePanel extends HelperModePanel {
                 ((EditBoxAccessor) singleVec3EditBox.getComponent()).setDisplayPos(0);
             });
             var a = map.get("spawnSpeed").getRange().get(s).split(" ");
-            double vx = Double.parseDouble(a[0]);
-            double vy = Double.parseDouble(a[1]);
-            double vz = Double.parseDouble(a[2]);
-            var speed = Math.sqrt(vx * vx + vy * vy + vz * vz);
-            panel.speed.getComponent().setValue(String.format("%.3f", speed));
+            if (i == 0) {
+                double vx = Double.parseDouble(a[0]);
+                double vy = Double.parseDouble(a[1]);
+                double vz = Double.parseDouble(a[2]);
+                var speed = (vx + vy + vz) / 3;
+                panel.speed.getComponent().setValue(String.format("%.3f", speed));
+            }
             AccessorProxy.EditBoxProxy.setDisplayPos(panel.speed.getComponent(), 0);
-
             getVec3ArgAndFill(panel.vxD, panel.vyD, panel.vzD, "speedDiffuse", s, map);
             getArgAndFill(panel.r, "r", s, map);
             getArgAndFill(panel.g, "g", s, map);

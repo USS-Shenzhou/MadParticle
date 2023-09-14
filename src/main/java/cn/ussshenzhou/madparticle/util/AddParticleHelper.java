@@ -1,7 +1,9 @@
 package cn.ussshenzhou.madparticle.util;
 
+import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
+import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -11,6 +13,8 @@ import net.minecraft.nbt.CompoundTag;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
+
+import static cn.ussshenzhou.madparticle.util.MetaKeys.*;
 
 /**
  * @author USS_Shenzhou
@@ -39,11 +43,11 @@ public class AddParticleHelper {
     }
 
     private static boolean needAsyncCreate(CompoundTag meta) {
-        var keys = meta.tags.keySet();
-        return keys.contains("dx")
-                || keys.contains("dy")
-                || keys.contains("dz")
-                || (keys.contains("tenet") && meta.getBoolean("tenet"))
+        return meta.contains("dx")
+                || meta.contains("dy")
+                || meta.contains("dz")
+                || meta.getBoolean(TENET.get())
+                || meta.getBoolean(PRE_CAL.get())
                 ;
     }
 
@@ -78,9 +82,13 @@ public class AddParticleHelper {
                 double x = fromValueAndDiffuse(option.px(), option.xDiffuse());
                 double y = fromValueAndDiffuse(option.py(), option.yDiffuse());
                 double z = fromValueAndDiffuse(option.pz(), option.zDiffuse());
-                if (!option.alwaysRender().get()
-                        && mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z)
-                        > Minecraft.getInstance().options.renderDistance.get() * 4 * Minecraft.getInstance().options.renderDistance.get() * 4) {
+                if (option.alwaysRender().get()) {
+                    if (ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance) {
+                        if (mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z) > getMaxParticleGenerateDistanceSqr()) {
+                            continue;
+                        }
+                    }
+                } else if (mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z) > getNormalParticleGenerateDistanceSqr()) {
                     continue;
                 }
                 //noinspection DataFlowIssue
@@ -95,5 +103,13 @@ public class AddParticleHelper {
             mc.execute(() -> particles.forEach(particleEngine::add));
             //return particles;
         });
+    }
+
+    public static int getMaxParticleGenerateDistanceSqr() {
+        return 4 * 16 * Minecraft.getInstance().options.renderDistance.get() * 16 * Minecraft.getInstance().options.renderDistance.get();
+    }
+
+    public static int getNormalParticleGenerateDistanceSqr() {
+        return 4 * Minecraft.getInstance().options.renderDistance.get() * 4 * Minecraft.getInstance().options.renderDistance.get();
     }
 }

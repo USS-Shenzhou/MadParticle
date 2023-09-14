@@ -66,14 +66,14 @@ public class MadParticle extends TextureSheetParticle {
     protected final float frictionInitial;
 
     private final CompoundTag meta;
-    private float[] dx = null;
-    private float[] dy = null;
-    private float[] dz = null;
+    private float[] dxComplex = null;
+    private float[] dyComplex = null;
+    private float[] dzComplex = null;
     private int disappearOnCollision = 0;
-    public boolean reverse = false;
-    private float[] xdTrack = null;
-    private float[] ydTrack = null;
-    private float[] zdTrack = null;
+    public TimeMode timeMode = TimeMode.NORMAL;
+    private float[] xTrack = null;
+    private float[] yTrack = null;
+    private float[] zTrack = null;
     private float[] alphaTrack = null;
     private float[] scaleTrack = null;
     private int[] light = null;
@@ -159,6 +159,7 @@ public class MadParticle extends TextureSheetParticle {
             disappearOnCollision = meta.getInt(DISAPPEAR_ON_COLLISION.get());
         }
         handleLight();
+        handlePreCalculate();
         //keep it at last
         handleTenet();
     }
@@ -178,68 +179,99 @@ public class MadParticle extends TextureSheetParticle {
             Expression e = new ExpressionBuilder(meta.getString(DX.get()))
                     .variable("t")
                     .build();
-            dx = new float[length + 1];
+            dxComplex = new float[length + 1];
             for (int i = 0; i <= length; i++) {
                 e.setVariable("t", (double) i / length);
-                dx[i] = (float) e.evaluate();
+                dxComplex[i] = (float) e.evaluate();
             }
         }
         if (meta.contains(DY.get())) {
             Expression e = new ExpressionBuilder(meta.getString(DY.get()))
                     .variable("t")
                     .build();
-            dy = new float[length + 1];
+            dyComplex = new float[length + 1];
             for (int i = 0; i <= length; i++) {
                 e.setVariable("t", (double) i / length);
-                dy[i] = (float) e.evaluate();
+                dyComplex[i] = (float) e.evaluate();
             }
         }
         if (meta.contains(DZ.get())) {
             Expression e = new ExpressionBuilder(meta.getString(DZ.get()))
                     .variable("t")
                     .build();
-            dz = new float[length + 1];
+            dzComplex = new float[length + 1];
             for (int i = 0; i <= length; i++) {
                 e.setVariable("t", (double) i / length);
-                dz[i] = (float) e.evaluate();
+                dzComplex[i] = (float) e.evaluate();
             }
         }
     }
 
-    private void handleTenet() {
-        if (!meta.contains(TENET.get())) {
+    private void handlePreCalculate() {
+        if (!meta.getBoolean(PRE_CAL.get()) || meta.getBoolean(TENET.get())) {
             return;
         }
-        //prepare
-        xdTrack = new float[lifetime];
-        ydTrack = new float[lifetime];
-        zdTrack = new float[lifetime];
+        initRecordArrays();
+        var pos = this.getPos();
+        while (true) {
+            tick();
+            if (removed) {
+                break;
+            } else {
+                record(age - 1);
+            }
+        }
+        //clean and get ready
+        timeMode = TimeMode.PRE_CAL;
+        removed = false;
+        this.age = 0;
+        this.setPos(pos.x, pos.y, pos.z);
+        this.xo = this.x;
+        this.yo = this.y;
+        this.zo = this.z;
+        this.scale(1 / endScale * beginScale);
+        this.scale = beginScale;
+        this.alpha = beginAlpha;
+    }
+
+    private void initRecordArrays() {
+        xTrack = new float[lifetime];
+        yTrack = new float[lifetime];
+        zTrack = new float[lifetime];
         if (endAlpha != beginAlpha) {
             alphaTrack = new float[lifetime];
         }
         if (endScale != beginScale) {
             scaleTrack = new float[lifetime];
         }
-        //int i = lifetime - 1;
-        //fore-run
+    }
+
+    private void record(int i) {
+        xTrack[i] = (float) x;
+        yTrack[i] = (float) y;
+        zTrack[i] = (float) z;
+        if (endAlpha != beginAlpha) {
+            alphaTrack[i] = alpha;
+        }
+        if (endScale != beginScale) {
+            scaleTrack[i] = scale;
+        }
+    }
+
+    private void handleTenet() {
+        if (!meta.getBoolean(TENET.get())) {
+            return;
+        }
+        initRecordArrays();
         while (true) {
             tick();
             if (removed) {
                 break;
-            }
-            int i = lifetime - age;
-            xdTrack[i] = (float) xd;
-            ydTrack[i] = (float) yd;
-            zdTrack[i] = (float) zd;
-            if (endAlpha != beginAlpha) {
-                alphaTrack[i] = alpha;
-            }
-            if (endScale != beginScale) {
-                scaleTrack[i] = scale;
+            } else {
+                record(lifetime - age - 1);
             }
         }
-        //clean and get ready
-        reverse = true;
+        timeMode = TimeMode.REVERSE;
         removed = false;
         this.age = 0;
     }
@@ -264,17 +296,21 @@ public class MadParticle extends TextureSheetParticle {
         this.xo = this.x;
         this.yo = this.y;
         this.zo = this.z;
-        if (this.age++ >= this.lifetime) {
-            this.remove();
-        } else if (!reverse) {
-            normalTick();
-        } else {
+        if (isReversed()) {
             reversedTick();
+        } else if (isPreCalculate()) {
+            preCalculatedTick();
+        } else {
+            normalTick();
         }
         sharedTick();
+        age++;
+        if (this.age >= this.lifetime) {
+            this.remove();
+        }
     }
 
-    private void normalTick() {
+    private void tickAlphaAndSize() {
         //alpha
         this.alpha = alphaMode.lerp(beginAlpha, endAlpha, age, lifetime);
         //size
@@ -283,19 +319,23 @@ public class MadParticle extends TextureSheetParticle {
             this.scale(1 / scale * newScale);
             scale = newScale;
         }
+    }
+
+    private void normalTick() {
+        tickAlphaAndSize();
         //dx dy dz, gravity and deflection
-        if (this.dy != null) {
-            this.yd = MathHelper.getFromT((float) age / lifetime, dy);
+        if (this.dyComplex != null) {
+            this.yd = MathHelper.getFromT((float) age / lifetime, dyComplex);
         } else {
             this.yd -= 0.04 * (double) this.gravity;
         }
-        if (this.dx != null) {
-            this.xd = MathHelper.getFromT((float) age / lifetime, dx);
+        if (this.dxComplex != null) {
+            this.xd = MathHelper.getFromT((float) age / lifetime, dxComplex);
         } else {
             this.xd += 0.04 * this.xDeflection;
         }
-        if (this.dz != null) {
-            this.zd = MathHelper.getFromT((float) age / lifetime, dz);
+        if (this.dzComplex != null) {
+            this.zd = MathHelper.getFromT((float) age / lifetime, dzComplex);
         } else {
             this.zd += 0.04 * this.zDeflection;
         }
@@ -324,29 +364,35 @@ public class MadParticle extends TextureSheetParticle {
             }
         }
         //move
-        this.move(this.xd, this.yd, this.zd);
         this.xd *= this.friction;
         this.yd *= this.friction;
         this.zd *= this.friction;
+        this.move(this.xd, this.yd, this.zd);
+    }
+
+    private void preCalculatedTick() {
+        tickAlphaAndSize();
+        //use setPos instead of move to avoid unexpected changes and special handles of dx/y/z.
+        setPos(xTrack[age], yTrack[age], zTrack[age]);
     }
 
     private void reversedTick() {
         if (endAlpha != beginAlpha) {
-            this.alpha = alphaTrack[age - 1];
+            this.alpha = alphaTrack[age];
         }
         if (endScale != beginScale) {
-            float newScale = scaleTrack[age - 1];
+            float newScale = scaleTrack[age];
             this.scale(1 / scale * newScale);
             scale = newScale;
         }
         //no interact with Entity
-        this.move(-xdTrack[age - 1], -ydTrack[age - 1], -zdTrack[age - 1]);
+        setPos(xTrack[age], yTrack[age], zTrack[age]);
     }
 
     private void sharedTick() {
         //sprite
         if (this.spriteFrom == SpriteFrom.AGE) {
-            if (!reverse) {
+            if (!isReversed()) {
                 setSpriteFromAge(sprites);
             } else {
                 setSpriteFromAgeReversed(sprites);
@@ -355,7 +401,7 @@ public class MadParticle extends TextureSheetParticle {
         //roll
         this.oRoll = this.roll;
         if (!this.onGround) {
-            if (!reverse) {
+            if (!isReversed()) {
                 this.roll += (float) Math.PI * rollSpeed * 2.0F;
             } else {
                 this.roll -= (float) Math.PI * rollSpeed * 2.0F;
@@ -365,35 +411,35 @@ public class MadParticle extends TextureSheetParticle {
 
     public void setSpriteFromAgeReversed(SpriteSet pSprite) {
         if (!this.removed) {
-            this.setSprite(pSprite.get(lifetime - age, this.lifetime));
+            this.setSprite(pSprite.get(lifetime - age - 1, this.lifetime));
         }
-
     }
 
     @SuppressWarnings("AlibabaAvoidDoubleOrFloatEqualCompare")
     @Override
-    public void move(double pX, double pY, double pZ) {
-        double x0 = pX;
-        double y0 = pY;
-        double z0 = pZ;
-        double r2 = pX * pX + pY * pY + pZ * pZ;
-        if (collision && this.hasPhysics && (pX != 0.0D || pY != 0.0D || pZ != 0.0D) && r2 < MAXIMUM_COLLISION_VELOCITY_SQUARED) {
-            Vec3 vec3 = Entity.collideBoundingBox((Entity) null, new Vec3(pX, pY, pZ), this.getBoundingBox(), this.level, List.of());
-            pX = vec3.x;
-            pY = vec3.y;
-            pZ = vec3.z;
+    public void move(double xDelta, double yDelta, double zDelta) {
+        double xDeltaCollided = xDelta;
+        double yDeltaCollided = yDelta;
+        double zDeltaCollided = zDelta;
+        double r2 = xDelta * xDelta + yDelta * yDelta + zDelta * zDelta;
+        boolean c = collision && isNormalTime() && this.hasPhysics && (xDelta != 0.0D || yDelta != 0.0D || zDelta != 0.0D) && r2 < MAXIMUM_COLLISION_VELOCITY_SQUARED;
+        if (c) {
+            Vec3 vec3 = Entity.collideBoundingBox(null, new Vec3(xDelta, yDelta, zDelta), this.getBoundingBox(), this.level, List.of());
+            xDeltaCollided = vec3.x;
+            yDeltaCollided = vec3.y;
+            zDeltaCollided = vec3.z;
         }
-        if (pX != 0.0D || pY != 0.0D || pZ != 0.0D) {
-            this.setBoundingBox(this.getBoundingBox().move(pX, pY, pZ));
+        if (xDelta != 0.0D || yDelta != 0.0D || zDelta != 0.0D) {
+            this.setBoundingBox(this.getBoundingBox().move(xDeltaCollided, yDeltaCollided, zDeltaCollided));
             this.setLocationFromBoundingbox();
         }
-        if (collision) {
+        if (c) {
             //hit XOZ
-            if (y0 != pY) {
+            if (yDeltaCollided != yDelta) {
                 if (bounceCount < bounceTime) {
                     Vec2 v = horizontalRelativeCollision(r2, xd, zd);
                     this.xd = v.x;
-                    this.yd = -y0 * (random.nextDouble() * verticalRelativeCollisionBounce);
+                    this.yd = -yDeltaCollided * (random.nextDouble() * verticalRelativeCollisionBounce);
                     this.zd = v.y;
                     updateAfterCollision();
                 } else {
@@ -404,10 +450,10 @@ public class MadParticle extends TextureSheetParticle {
                 return;
             }
             //hit YOZ
-            if (x0 != pX) {
+            if (xDeltaCollided != xDelta) {
                 if (bounceCount < bounceTime) {
                     Vec2 v = horizontalRelativeCollision(r2, yd, zd);
-                    this.xd = -x0 * (random.nextDouble() * verticalRelativeCollisionBounce);
+                    this.xd = -xDeltaCollided * (random.nextDouble() * verticalRelativeCollisionBounce);
                     this.yd = v.x;
                     this.zd = v.y;
                     updateAfterCollision();
@@ -416,12 +462,12 @@ public class MadParticle extends TextureSheetParticle {
                 return;
             }
             //hit XOY
-            if (z0 != pZ) {
+            if (zDeltaCollided != zDelta) {
                 if (bounceCount < bounceTime) {
                     Vec2 v = horizontalRelativeCollision(r2, xd, yd);
                     this.xd = v.x;
                     this.yd = v.y;
-                    this.zd = -z0 * (random.nextDouble() * verticalRelativeCollisionBounce);
+                    this.zd = -zDeltaCollided * (random.nextDouble() * verticalRelativeCollisionBounce);
                     updateAfterCollision();
                 }
                 this.friction = afterCollisionFriction;
@@ -435,9 +481,9 @@ public class MadParticle extends TextureSheetParticle {
         this.gravity = afterCollisionGravity;
         this.xDeflection = xDeflectionAfterCollision;
         this.zDeflection = zDeflectionAfterCollision;
-        this.dx = null;
-        this.dy = null;
-        this.dz = null;
+        this.dxComplex = null;
+        this.dyComplex = null;
+        this.dzComplex = null;
         if (disappearOnCollision > 0 && bounceCount >= disappearOnCollision) {
             this.remove();
         }
@@ -547,6 +593,24 @@ public class MadParticle extends TextureSheetParticle {
         } else {
             return unmodified & 0b1111_0000_00000000_0000_0000 | ((int) MathHelper.getFromT((float) age / lifetime, light) << 4);
         }
+    }
+
+    private boolean isReversed() {
+        return timeMode == TimeMode.REVERSE;
+    }
+
+    private boolean isPreCalculate() {
+        return timeMode == TimeMode.PRE_CAL;
+    }
+
+    private boolean isNormalTime() {
+        return timeMode == TimeMode.NORMAL;
+    }
+
+    public enum TimeMode {
+        NORMAL,
+        PRE_CAL,
+        REVERSE
     }
 
     public static class Provider implements ParticleProvider<MadParticleOption> {

@@ -23,7 +23,8 @@ public enum MetaKeys {
     DISAPPEAR_ON_COLLISION("disappearOnCollision", IntegerArgumentType.integer(1)),
     TENET("tenet", BOOLEAN),
     LIGHT("light", EXPRESSION_ARGUMENT),
-    PULSE("pulse", BOOLEAN);
+    PULSE("pulse", BOOLEAN),
+    PRE_CAL("preCalculate", BOOLEAN);
 
     private final String key;
     public final ArgumentType<?> inputArgument;
@@ -48,6 +49,7 @@ public enum MetaKeys {
             case "tenet" -> TENET;
             case "light" -> LIGHT;
             case "pulse" -> PULSE;
+            case "preCalculate" -> PRE_CAL;
             default -> null;
         };
     }

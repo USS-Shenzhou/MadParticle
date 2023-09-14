@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.mixin;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.madparticle.util.AddParticleHelper;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -34,13 +35,13 @@ public abstract class LevelRendererMixin {
         ParticleStatus particlestatus = this.calculateParticleLevel(pDecreased);
         if (pForce) {
             if (ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance) {
-                if (camera.getPosition().distanceToSqr(pX, pY, pZ) > 16 * 16 * Minecraft.getInstance().options.renderDistance.get() * Minecraft.getInstance().options.renderDistance.get()) {
+                if (camera.getPosition().distanceToSqr(pX, pY, pZ) > AddParticleHelper.getMaxParticleGenerateDistanceSqr()) {
                     cir.setReturnValue(null);
                 } else {
                     cir.setReturnValue(this.minecraft.particleEngine.createParticle(pOptions, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed));
                 }
             }
-        } else if (camera.getPosition().distanceToSqr(pX, pY, pZ) > 4 * 4 * Minecraft.getInstance().options.renderDistance.get() * Minecraft.getInstance().options.renderDistance.get()) {
+        } else if (camera.getPosition().distanceToSqr(pX, pY, pZ) > AddParticleHelper.getNormalParticleGenerateDistanceSqr()) {
             cir.setReturnValue(null);
         } else {
             cir.setReturnValue(particlestatus == ParticleStatus.MINIMAL ? null : this.minecraft.particleEngine.createParticle(pOptions, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed));

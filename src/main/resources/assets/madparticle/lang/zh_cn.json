@@ -48,7 +48,7 @@
   "gui.mp.de.helper.interact": "玩家互动",
   "gui.mp.de.helper.horizontal_interact": "水平扰动",
   "gui.mp.de.helper.vertical_interact": "垂直扰动",
-  "gui.mp.de.helper.friction": "阻力",
+  "gui.mp.de.helper.friction": "阻力系数",
   "gui.mp.de.helper.friction_after": "二次阻力",
   "gui.mp.de.helper.gravity": "重力",
   "gui.mp.de.helper.gravity_after": "二次重力",

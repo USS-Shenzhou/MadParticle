@@ -323,22 +323,6 @@ public class MadParticle extends TextureSheetParticle {
 
     private void normalTick() {
         tickAlphaAndSize();
-        //dx dy dz, gravity and deflection
-        if (this.dyComplex != null) {
-            this.yd = MathHelper.getFromT((float) age / lifetime, dyComplex);
-        } else {
-            this.yd -= 0.04 * (double) this.gravity;
-        }
-        if (this.dxComplex != null) {
-            this.xd = MathHelper.getFromT((float) age / lifetime, dxComplex);
-        } else {
-            this.xd += 0.04 * this.xDeflection;
-        }
-        if (this.dzComplex != null) {
-            this.zd = MathHelper.getFromT((float) age / lifetime, dzComplex);
-        } else {
-            this.zd += 0.04 * this.zDeflection;
-        }
         //interact with Entity
         if (interactWithEntity) {
             LivingEntity entity = level.getNearestEntity(LivingEntity.class, TargetingConditions.forNonCombat().range(4), null, x, y, z, this.getBoundingBox().inflate(0.7));
@@ -363,10 +347,26 @@ public class MadParticle extends TextureSheetParticle {
                 this.zDeflection = zDeflectionInitial;
             }
         }
-        //move
-        this.xd *= this.friction;
-        this.yd *= this.friction;
-        this.zd *= this.friction;
+        //dx dy dz, gravity and deflection, and friction
+        if (this.dyComplex != null) {
+            this.yd = MathHelper.getFromT((float) age / lifetime, dyComplex);
+        } else {
+            this.yd -= 0.04 * (double) this.gravity;
+            this.yd *= this.friction;
+        }
+        if (this.dxComplex != null) {
+            this.xd = MathHelper.getFromT((float) age / lifetime, dxComplex);
+        } else {
+            this.xd += 0.04 * this.xDeflection;
+            this.xd *= this.friction;
+        }
+        if (this.dzComplex != null) {
+            this.zd = MathHelper.getFromT((float) age / lifetime, dzComplex);
+        } else {
+            this.zd += 0.04 * this.zDeflection;
+            this.zd *= this.friction;
+        }
+        //done
         this.move(this.xd, this.yd, this.zd);
     }
 

@@ -2,6 +2,7 @@ package cn.ussshenzhou.madparticle.command;
 
 import cn.ussshenzhou.madparticle.command.inheritable.*;
 import cn.ussshenzhou.madparticle.network.MadParticlePacket;
+import cn.ussshenzhou.madparticle.network.MadParticleTadaPacket;
 import cn.ussshenzhou.madparticle.particle.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
@@ -157,6 +158,7 @@ public class MadParticleCommandTeaCon {
         initializeFlags();
         String[] commandStrings = commandString.split(" expireThen ");
         MadParticleOption child = null;
+        var sourcePlayer = sourceStack.getPlayer();
         for (int i = commandStrings.length - 1; i >= 0; i--) {
             String s = commandStrings[i];
             if (s.startsWith("/")) {
@@ -183,7 +185,9 @@ public class MadParticleCommandTeaCon {
             } catch (IllegalArgumentException ignored) {
                 metaTag = new CompoundTag();
             }
-
+            if (sendTada && sourcePlayer == null) {
+                return;
+            }
             Vec3 pos = ct.getArgument("spawnPos", Coordinates.class).getPosition(sourceStack);
             Vec3 posDiffuse = ct.getArgument("spawnDiffuse", WorldCoordinates.class).getPosition(sourceStack);
 
@@ -238,12 +242,8 @@ public class MadParticleCommandTeaCon {
             );
             child = father;
         }
-        for (ServerPlayer player : players) {
-            NetworkHelper.getChannel(MadParticlePacket.class).send(
-                    PacketDistributor.PLAYER.with(() -> player),
-                    new MadParticlePacket(child)
-            );
-        }
+        Object packet = sendTada ? new MadParticleTadaPacket(child, sourcePlayer.getUUID()) : new MadParticlePacket(child);
+        players.forEach(player -> NetworkHelper.sendTo(PacketDistributor.PLAYER.with(() -> player), packet));
     }
 
     public static void fastSend(String commandString, CommandSourceStack sourceStack, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {

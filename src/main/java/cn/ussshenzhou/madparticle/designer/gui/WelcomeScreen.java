@@ -14,18 +14,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author USS_Shenzhou
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class WelcomeScreen extends TScreen {
     private static final String LINK = "https://holojaneway.uss-shenzhou.cn/madparticle";
 
@@ -85,20 +77,5 @@ public class WelcomeScreen extends TScreen {
     @Override
     protected void renderBackGround(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
         graphics.fill(0, 0, width, height, 0x80000000);
-    }
-
-    @SubscribeEvent
-    public static void onGetInLevel(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!ConfigHelper.getConfigRead(MadParticleConfig.class).noWelcomeScreen) {
-            CompletableFuture.runAsync(() -> {
-                while (Minecraft.getInstance().screen != null) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-                Minecraft.getInstance().execute(() -> ForgeHooksClient.pushGuiLayer(Minecraft.getInstance(), new WelcomeScreen()));
-            });
-        }
     }
 }

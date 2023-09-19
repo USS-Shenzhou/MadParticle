@@ -28,4 +28,7 @@ public interface ParticleEngineAccessor {
 
     @Accessor
     Map<ResourceLocation, ParticleProvider<?>> getProviders();
+
+    @Accessor
+    Queue<Particle> getParticlesToAdd();
 }

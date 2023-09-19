@@ -71,14 +71,16 @@ public class AddParticleHelper {
     }
 
     private static void asyncCreateParticle(MadParticleOption option) {
-        var particleEngine = mc.particleEngine;
         CompletableFuture.runAsync(() -> {
+            var particleEngine = mc.particleEngine;
             var level = mc.level;
-            var providers = ((ParticleEngineAccessor) particleEngine).getProviders();
+            var accessor = (ParticleEngineAccessor) particleEngine;
+            var providers = accessor.getProviders();
+            int particlesCanAdd = ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue - accessor.getParticlesToAdd().size();
             //noinspection unchecked
             var provider = ((ParticleProvider<MadParticleOption>) providers.get(BuiltInRegistries.PARTICLE_TYPE.getKey(option.getType())));
             LinkedList<Particle> particles = new LinkedList<>();
-            for (int i = 0; i < option.amount(); i++) {
+            for (int i = 0; i < Math.min(option.amount(), particlesCanAdd); i++) {
                 double x = fromValueAndDiffuse(option.px(), option.xDiffuse());
                 double y = fromValueAndDiffuse(option.py(), option.yDiffuse());
                 double z = fromValueAndDiffuse(option.pz(), option.zDiffuse());
@@ -101,7 +103,6 @@ public class AddParticleHelper {
                 );
             }
             mc.execute(() -> particles.forEach(particleEngine::add));
-            //return particles;
         });
     }
 

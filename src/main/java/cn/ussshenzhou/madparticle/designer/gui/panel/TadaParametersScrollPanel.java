@@ -2,11 +2,9 @@ package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
 import cn.ussshenzhou.t88.gui.util.AccessorProxy;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author USS_Shenzhou
@@ -30,43 +28,6 @@ public class TadaParametersScrollPanel extends ParametersScrollPanel {
         tadaMetaPair.key.getEditBox().setEditable(false);
         tadaMetaPair.value.setEditable(false);
         tadaMetaPair.remove.setVisibleT(false);
-        addDemoLimitToolTip();
-    }
-
-    private void addDemoLimitToolTip() {
-        Map.ofEntries(
-                Map.entry(speed, "0.0 ~ 0.5"),
-                Map.entry(lifeTime, "0 ~ 100"),
-                Map.entry(amount, "0 ~ 10"),
-                Map.entry(vx, "-1.0 ~ 1.0"),
-                Map.entry(vy, "-1.0 ~ 1.0"),
-                Map.entry(vz, "-1.0 ~ 1.0"),
-                Map.entry(vxD, "-1 ~ 1.0"),
-                Map.entry(vyD, "-1.0 ~ 1.0"),
-                Map.entry(vzD, "-1.0 ~ 1.0"),
-                Map.entry(r, "0 ~ 10"),
-                Map.entry(g, "0 ~ 10"),
-                Map.entry(b, "0 ~ 10"),
-                Map.entry(horizontalCollision, "-2 ~ 2"),
-                Map.entry(verticalCollision, "-2 ~ 2"),
-                Map.entry(collisionTime, "0 ~ 3"),
-                Map.entry(xDeflection, "-0.5 ~ 0.5"),
-                Map.entry(xDeflection2, "-0.5 ~ 0.5"),
-                Map.entry(zDeflection, "-0.5 ~ 0.5"),
-                Map.entry(zDeflection2, "-0.5 ~ 0.5"),
-                Map.entry(roll, "-0.5 ~ 0.5"),
-                Map.entry(horizontalInteract, "-2 ~ 2"),
-                Map.entry(verticalInteract, "-2 ~ 2"),
-                Map.entry(friction, "0 ~ 1"),
-                Map.entry(friction2, "0 ~ 1"),
-                Map.entry(gravity, "-0.5 ~ 0.5"),
-                Map.entry(gravity2, "-0.5 ~ 0.5"),
-                Map.entry(bloomStrength, "0 / 1"),
-                Map.entry(alphaBegin, "0 ~ 1"),
-                Map.entry(alphaEnd, "0 ~ 1"),
-                Map.entry(scaleBegin, "0 ~ 5"),
-                Map.entry(scaleEnd, "0 ~ 5")
-        ).forEach((w, t) -> w.getComponent().setTooltip(Tooltip.create(Component.literal(t))));
     }
 
     @Override

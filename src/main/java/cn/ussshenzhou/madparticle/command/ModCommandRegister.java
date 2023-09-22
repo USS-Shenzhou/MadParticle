@@ -12,6 +12,5 @@ public class ModCommandRegister {
     @SubscribeEvent
     public static void regCommand(RegisterCommandsEvent event) {
         new MadParticleCommand(event.getDispatcher());
-        new MadParticleCommandTeaCon(event.getDispatcher());
     }
 }

@@ -1,7 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.gui.widegt;
 
 import cn.ussshenzhou.madparticle.designer.gui.panel.ParametersScrollPanel;
-import cn.ussshenzhou.madparticle.designer.gui.panel.ParametersScrollPanelTeaCon;
 import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
 import cn.ussshenzhou.madparticle.util.MetaKeys;
 import cn.ussshenzhou.t88.gui.advanced.TSimpleConstrainedEditBox;
@@ -121,11 +120,7 @@ public class MetaParameterPanel extends TPanel {
         MetaPairPanel pair = new MetaPairPanel();
         pairs.add(pair);
         out().add(pair);
-        //teacon demo
         TComponent p = getParentInstanceOf(ParametersScrollPanel.class);
-        if (p == null) {
-            p = getParentInstanceOf(ParametersScrollPanelTeaCon.class);
-        }
         p.layout();
         return pair;
     }

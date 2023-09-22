@@ -3,7 +3,6 @@ package cn.ussshenzhou.madparticle.designer.gui.widegt;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.t88.gui.combine.TTitledSelectList;
 import cn.ussshenzhou.t88.gui.widegt.TSelectList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
@@ -14,11 +13,6 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
 
     public DesignerModeSelectList() {
         super(Component.translatable("gui.mp.de.mode.title"), new TSelectList<>());
-        this.addElement(DesignerMode.HELPER_TEACON,list->{
-            if (DesignerScreen.getInstance()!=null){
-                DesignerScreen.getInstance().setVisibleMode(DesignerMode.HELPER_TEACON);
-            }
-        });
         this.addElement(DesignerMode.HELPER, list -> {
             if (DesignerScreen.getInstance() != null) {
                 DesignerScreen.getInstance().setVisibleMode(DesignerMode.HELPER);
@@ -45,7 +39,6 @@ public class DesignerModeSelectList extends TTitledSelectList<DesignerModeSelect
     @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
     public enum DesignerMode {
         HELPER("gui.mp.de.mode.helper"),
-        HELPER_TEACON("gui.mp.de.mode.helper.teacon"),
         //LINE("gui.mp.de.mode.line"),
         TADA("gui.mp.de.mode.tada"),
         SETTING("gui.mp.de.mode.setting");

@@ -61,8 +61,6 @@ public class MakeTadaPacket {
                 LogUtils.getLogger().warn("Player {} wants to make a madparticle:tada, but hasn't enough permission level.", sender.getName());
                 return;
             }
-        } else if (command.startsWith("mp_demo")) {
-            makeTada(sender);
         } else {
             LogUtils.getLogger().warn("Player {} wants to make a madparticle:tada, but sent an illegal command text.", sender.getName());
             return;

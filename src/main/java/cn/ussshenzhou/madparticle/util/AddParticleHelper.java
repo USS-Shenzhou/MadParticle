@@ -1,30 +1,51 @@
 package cn.ussshenzhou.madparticle.util;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
+import cn.ussshenzhou.madparticle.network.MadParticlePacket;
+import cn.ussshenzhou.madparticle.particle.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
+import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.SpriteFrom;
 import cn.ussshenzhou.t88.config.ConfigHelper;
+import cn.ussshenzhou.t88.network.NetworkHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.LogicalSidedProvider;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
-import static cn.ussshenzhou.madparticle.util.MetaKeys.*;
+import static cn.ussshenzhou.madparticle.util.MetaKeys.PRE_CAL;
+import static cn.ussshenzhou.madparticle.util.MetaKeys.TENET;
 
 /**
  * @author USS_Shenzhou
  */
 public class AddParticleHelper {
 
+    @OnlyIn(Dist.CLIENT)
     private static Minecraft mc = Minecraft.getInstance();
     private static Random r = new Random();
 
-    public static void addParticle(MadParticleOption option) {
+    public static void addParticleClient(MadParticleOption option) {
         if (mc.level == null) {
             return;
         }
@@ -35,11 +56,116 @@ public class AddParticleHelper {
         }
     }
 
+    public static void addParticleClient(ParticleType<?> targetParticle,
+                                         SpriteFrom spriteFrom, int lifeTime,
+                                         InheritableBoolean alwaysRender, int amount,
+                                         double px, double py, double pz, double xDiffuse, double yDiffuse, double zDiffuse,
+                                         double vx, double vy, double vz, double vxDiffuse, double vyDiffuse, double vzDiffuse,
+                                         float friction, float gravity, InheritableBoolean collision, int bounceTime,
+                                         double horizontalRelativeCollisionDiffuse, double verticalRelativeCollisionBounce,
+                                         float afterCollisionFriction, float afterCollisionGravity,
+                                         InheritableBoolean interactWithEntity,
+                                         double horizontalInteractFactor, double verticalInteractFactor,
+                                         ParticleRenderTypes renderType, float r, float g, float b,
+                                         float beginAlpha, float endAlpha, ChangeMode alphaMode,
+                                         float beginScale, float endScale, ChangeMode scaleMode,
+                                         boolean haveChild, MadParticleOption child,
+                                         float rollSpeed,
+                                         float xDeflection, float xDeflectionAfterCollision,
+                                         float zDeflection, float zDeflectionAfterCollision,
+                                         float bloomFactor,
+                                         CompoundTag meta) {
+        addParticleClient(new MadParticleOption(BuiltInRegistries.PARTICLE_TYPE.getId(targetParticle), spriteFrom, lifeTime, alwaysRender, amount,
+                px, py, pz, xDiffuse, yDiffuse, zDiffuse, vx, vy, vz, vxDiffuse, vyDiffuse, vzDiffuse,
+                friction, gravity, collision, bounceTime, horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce, afterCollisionFriction, afterCollisionGravity,
+                interactWithEntity, horizontalInteractFactor, verticalInteractFactor,
+                renderType, r, g, b, beginAlpha, endAlpha, alphaMode, beginScale, endScale, scaleMode,
+                haveChild, child,
+                rollSpeed,
+                xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision,
+                bloomFactor, meta)
+        );
+    }
+
     /**
      * @apiNote For caller like Rhino js.
      */
-    public static void asyncAddParticle(MadParticleOption option) {
-        Minecraft.getInstance().execute(() -> addParticle(option));
+    public static void addParticleClientAsync(MadParticleOption option) {
+        Minecraft.getInstance().execute(() -> addParticleClient(option));
+    }
+
+    public static void addParticleServer(ServerLevel level, String command) {
+        MinecraftServer server = (MinecraftServer) LogicalSidedProvider.WORKQUEUE.get(LogicalSide.SERVER);
+        var source = new CommandSourceStack(server, Vec3.atLowerCornerOf(level.getSharedSpawnPos()), Vec2.ZERO, level, 4, "Server", Component.literal("Server"), server, null);
+        server.getCommands().performPrefixedCommand(source, command);
+    }
+
+    public static void addParticleServer(ServerLevel level, MadParticleOption option) {
+        level.players().forEach(player -> NetworkHelper.sendTo(PacketDistributor.PLAYER.with(() -> player), new MadParticlePacket(option)));
+    }
+
+    public static void addParticleServer(ServerPlayer from, MadParticleOption option) {
+        NetworkHelper.sendTo(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> from), new MadParticlePacket(option));
+    }
+
+    public static void addParticleServer(ServerLevel level, ParticleType<?> targetParticle,
+                                         SpriteFrom spriteFrom, int lifeTime,
+                                         InheritableBoolean alwaysRender, int amount,
+                                         double px, double py, double pz, double xDiffuse, double yDiffuse, double zDiffuse,
+                                         double vx, double vy, double vz, double vxDiffuse, double vyDiffuse, double vzDiffuse,
+                                         float friction, float gravity, InheritableBoolean collision, int bounceTime,
+                                         double horizontalRelativeCollisionDiffuse, double verticalRelativeCollisionBounce,
+                                         float afterCollisionFriction, float afterCollisionGravity,
+                                         InheritableBoolean interactWithEntity,
+                                         double horizontalInteractFactor, double verticalInteractFactor,
+                                         ParticleRenderTypes renderType, float r, float g, float b,
+                                         float beginAlpha, float endAlpha, ChangeMode alphaMode,
+                                         float beginScale, float endScale, ChangeMode scaleMode,
+                                         boolean haveChild, MadParticleOption child,
+                                         float rollSpeed,
+                                         float xDeflection, float xDeflectionAfterCollision,
+                                         float zDeflection, float zDeflectionAfterCollision,
+                                         float bloomFactor,
+                                         CompoundTag meta) {
+        addParticleServer(level, new MadParticleOption(BuiltInRegistries.PARTICLE_TYPE.getId(targetParticle), spriteFrom, lifeTime, alwaysRender, amount,
+                px, py, pz, xDiffuse, yDiffuse, zDiffuse, vx, vy, vz, vxDiffuse, vyDiffuse, vzDiffuse,
+                friction, gravity, collision, bounceTime, horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce, afterCollisionFriction, afterCollisionGravity,
+                interactWithEntity, horizontalInteractFactor, verticalInteractFactor,
+                renderType, r, g, b, beginAlpha, endAlpha, alphaMode, beginScale, endScale, scaleMode,
+                haveChild, child,
+                rollSpeed,
+                xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision,
+                bloomFactor, meta));
+    }
+
+    public static void addParticleServer(ServerPlayer from, ParticleType<?> targetParticle,
+                                         SpriteFrom spriteFrom, int lifeTime,
+                                         InheritableBoolean alwaysRender, int amount,
+                                         double px, double py, double pz, double xDiffuse, double yDiffuse, double zDiffuse,
+                                         double vx, double vy, double vz, double vxDiffuse, double vyDiffuse, double vzDiffuse,
+                                         float friction, float gravity, InheritableBoolean collision, int bounceTime,
+                                         double horizontalRelativeCollisionDiffuse, double verticalRelativeCollisionBounce,
+                                         float afterCollisionFriction, float afterCollisionGravity,
+                                         InheritableBoolean interactWithEntity,
+                                         double horizontalInteractFactor, double verticalInteractFactor,
+                                         ParticleRenderTypes renderType, float r, float g, float b,
+                                         float beginAlpha, float endAlpha, ChangeMode alphaMode,
+                                         float beginScale, float endScale, ChangeMode scaleMode,
+                                         boolean haveChild, MadParticleOption child,
+                                         float rollSpeed,
+                                         float xDeflection, float xDeflectionAfterCollision,
+                                         float zDeflection, float zDeflectionAfterCollision,
+                                         float bloomFactor,
+                                         CompoundTag meta) {
+        addParticleServer(from, new MadParticleOption(BuiltInRegistries.PARTICLE_TYPE.getId(targetParticle), spriteFrom, lifeTime, alwaysRender, amount,
+                px, py, pz, xDiffuse, yDiffuse, zDiffuse, vx, vy, vz, vxDiffuse, vyDiffuse, vzDiffuse,
+                friction, gravity, collision, bounceTime, horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce, afterCollisionFriction, afterCollisionGravity,
+                interactWithEntity, horizontalInteractFactor, verticalInteractFactor,
+                renderType, r, g, b, beginAlpha, endAlpha, alphaMode, beginScale, endScale, scaleMode,
+                haveChild, child,
+                rollSpeed,
+                xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision,
+                bloomFactor, meta));
     }
 
     private static boolean needAsyncCreate(CompoundTag meta) {

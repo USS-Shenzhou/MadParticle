@@ -49,7 +49,7 @@ public class MadParticlePacket {
 
     @OnlyIn(Dist.CLIENT)
     private void clientHandler() {
-        AddParticleHelper.addParticle(particleOption);
+        AddParticleHelper.addParticleClient(particleOption);
     }
 
 }

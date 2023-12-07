@@ -158,7 +158,7 @@ public class MadParticleCommand {
         sendTada = false;
     }
 
-    public static MadParticleOption assembleOption(String commandString, CommandSourceStack sourceStack, CommandDispatcher<CommandSourceStack> dispatcher) {
+    private static MadParticleOption assembleOption(String commandString, CommandSourceStack sourceStack, CommandDispatcher<CommandSourceStack> dispatcher) {
         initializeFlags();
         String[] commandStrings = commandString.split(" expireThen ");
         MadParticleOption child = null;
@@ -168,7 +168,7 @@ public class MadParticleCommand {
         return child;
     }
 
-    public static void send(MadParticleOption option, CommandSourceStack sourceStack, Collection<ServerPlayer> targetPlayers) {
+    private static void send(MadParticleOption option, CommandSourceStack sourceStack, Collection<ServerPlayer> targetPlayers) {
         var sourcePlayer = sourceStack.getPlayer();
         if (sendTada && sourcePlayer == null) {
             return;

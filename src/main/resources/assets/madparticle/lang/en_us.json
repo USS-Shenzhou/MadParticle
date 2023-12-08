@@ -28,6 +28,7 @@
   "gui.mp.de.helper.render_type.lit": "Lit",
   "gui.mp.de.helper.render_type.translucent": "Translucent",
 
+  "gui.mp.de.helper.render_type.instanced": "Instanced",
   "gui.mp.de.helper.render_type.vanilla_terrain": "Vanilla Terrain",
   "gui.mp.de.helper.render_type.vanilla_opaque": "Vanilla Opaque",
   "gui.mp.de.helper.render_type.vanilla_lit": "Vanilla Lit",

@@ -17,26 +17,21 @@ public class ParticleRenderTypesProxy {
 
     @SuppressWarnings("AlibabaSwitchStatement")
     public static ParticleRenderType getType(ParticleRenderTypes enumType) {
-        switch (enumType) {
-            case TERRAIN_SHEET -> {
-                return irisOn ? ParticleRenderType.TERRAIN_SHEET : MadParticleRenderTypes.TERRAIN_SHEET;
-            }
-            case PARTICLE_SHEET_OPAQUE -> {
-                return irisOn ? ParticleRenderType.PARTICLE_SHEET_OPAQUE : MadParticleRenderTypes.PARTICLE_SHEET_OPAQUE;
-            }
-            case PARTICLE_SHEET_LIT -> {
-                return irisOn ? ParticleRenderType.PARTICLE_SHEET_LIT : MadParticleRenderTypes.PARTICLE_SHEET_LIT;
-            }
-            case PARTICLE_SHEET_TRANSLUCENT -> {
-                return irisOn ? ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT : MadParticleRenderTypes.PARTICLE_SHEET_TRANSLUCENT;
-            }
+        return switch (enumType) {
+            case INSTANCED -> ModParticleRenderTypes.INSTANCED;
+            case TERRAIN_SHEET ->
+                    irisOn ? ParticleRenderType.TERRAIN_SHEET : ModParticleRenderTypes.Traditional.TERRAIN_SHEET;
+            case PARTICLE_SHEET_OPAQUE ->
+                    irisOn ? ParticleRenderType.PARTICLE_SHEET_OPAQUE : ModParticleRenderTypes.Traditional.PARTICLE_SHEET_OPAQUE;
+            case PARTICLE_SHEET_LIT ->
+                    irisOn ? ParticleRenderType.PARTICLE_SHEET_LIT : ModParticleRenderTypes.Traditional.PARTICLE_SHEET_LIT;
+            case PARTICLE_SHEET_TRANSLUCENT ->
+                    irisOn ? ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT : ModParticleRenderTypes.Traditional.PARTICLE_SHEET_TRANSLUCENT;
             /*case CUSTOM -> {
                 return ParticleRenderType.CUSTOM;
             }*/
-            default -> {
-                return ParticleRenderType.NO_RENDER;
-            }
-        }
+            default -> ParticleRenderType.NO_RENDER;
+        };
     }
 
     @SubscribeEvent

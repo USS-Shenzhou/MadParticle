@@ -28,6 +28,7 @@
   "gui.mp.de.helper.render_type.lit": "lit",
   "gui.mp.de.helper.render_type.translucent": "半透明",
 
+  "gui.mp.de.helper.render_type.instanced": "实例化",
   "gui.mp.de.helper.render_type.vanilla_terrain": "原版terrain",
   "gui.mp.de.helper.render_type.vanilla_opaque": "原版不透明",
   "gui.mp.de.helper.render_type.vanilla_lit": "原版lit",

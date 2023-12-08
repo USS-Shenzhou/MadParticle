@@ -532,8 +532,8 @@ public class MadParticle extends TextureSheetParticle {
 
     @Override
     public void render(VertexConsumer pBuffer, Camera pRenderInfo, float pPartialTicks) {
-        if (particleRenderType instanceof MadParticleRenderTypes) {
-            MadParticleBufferBuilder buffer = ((MadParticleRenderTypes) (particleRenderType)).bufferBuilder;
+        if (particleRenderType instanceof ModParticleRenderTypes.Traditional) {
+            MadParticleBufferBuilder buffer = ((ModParticleRenderTypes.Traditional) (particleRenderType)).bufferBuilder;
             //copied from SingleQuadParticle.render for compatability with Rubidium
             Vec3 vec3 = pRenderInfo.getPosition();
             float f = (float) (Mth.lerp((double) pPartialTicks, this.xo, this.x) - vec3.x());

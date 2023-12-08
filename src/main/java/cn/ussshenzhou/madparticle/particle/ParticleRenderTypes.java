@@ -8,6 +8,7 @@ import cn.ussshenzhou.t88.gui.util.ToTranslatableString;
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
 
 public enum ParticleRenderTypes implements ToTranslatableString {
+    INSTANCED("gui.mp.de.helper.render_type.instanced"),
     PARTICLE_SHEET_TRANSLUCENT("gui.mp.de.helper.render_type.translucent"),
     TERRAIN_SHEET("gui.mp.de.helper.render_type.terrain"),
     PARTICLE_SHEET_OPAQUE("gui.mp.de.helper.render_type.opaque"),

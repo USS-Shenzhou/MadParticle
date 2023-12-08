@@ -19,7 +19,7 @@ public class MadParticleBufferBuilder extends BufferBuilder {
     @Override
     public MadParticleBufferBuilder color(int pRed, int pGreen, int pBlue, int pAlpha) {
         VertexFormatElement vertexformatelement = this.currentElement();
-        if (vertexformatelement.getUsage() != MadParticleRenderTypes.NO_NORMALIZED_COLOR) {
+        if (vertexformatelement.getUsage() != ModParticleRenderTypes.Traditional.NO_NORMALIZED_COLOR) {
             return this;
         } else if (vertexformatelement.getType() == VertexFormatElement.Type.FLOAT && vertexformatelement.getCount() == 4) {
             this.putFloat(0, pRed / 255f);
@@ -39,7 +39,7 @@ public class MadParticleBufferBuilder extends BufferBuilder {
     @Override
     public MadParticleBufferBuilder color(float pRed, float pGreen, float pBlue, float pAlpha) {
         VertexFormatElement vertexformatelement = this.currentElement();
-        if (vertexformatelement.getUsage() != MadParticleRenderTypes.NO_NORMALIZED_COLOR) {
+        if (vertexformatelement.getUsage() != ModParticleRenderTypes.Traditional.NO_NORMALIZED_COLOR) {
             return this;
         } else if (vertexformatelement.getType() == VertexFormatElement.Type.FLOAT && vertexformatelement.getCount() == 4) {
             this.putFloat(0, pRed);
@@ -59,7 +59,7 @@ public class MadParticleBufferBuilder extends BufferBuilder {
      */
     public MadParticleBufferBuilder bloomFactor(float bloomFactor) {
         var vertexformatelement = this.currentElement();
-        if (vertexformatelement.getUsage() != MadParticleRenderTypes.BLOOM_FACTOR) {
+        if (vertexformatelement.getUsage() != ModParticleRenderTypes.Traditional.BLOOM_FACTOR) {
             return this;
         } else if (vertexformatelement.getType() == VertexFormatElement.Type.FLOAT && vertexformatelement.getCount() == 1) {
             this.putFloat(0,bloomFactor);

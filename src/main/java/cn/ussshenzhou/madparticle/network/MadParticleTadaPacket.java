@@ -2,7 +2,7 @@ package cn.ussshenzhou.madparticle.network;
 
 import cn.ussshenzhou.madparticle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
-import cn.ussshenzhou.madparticle.particle.ModParticleRegistry;
+import cn.ussshenzhou.madparticle.particle.ModParticleTypeRegistry;
 import cn.ussshenzhou.madparticle.util.MathHelper;
 import cn.ussshenzhou.t88.network.annotation.Consumer;
 import cn.ussshenzhou.t88.network.annotation.Decoder;
@@ -41,7 +41,7 @@ public class MadParticleTadaPacket {
 
     @Decoder
     public MadParticleTadaPacket(FriendlyByteBuf buf) {
-        this.particleOption = MadParticleOption.DESERIALIZER.fromNetwork(ModParticleRegistry.MAD_PARTICLE.get(), buf);
+        this.particleOption = MadParticleOption.DESERIALIZER.fromNetwork(ModParticleTypeRegistry.MAD_PARTICLE.get(), buf);
         this.sourcePlayerUUID = buf.readUUID();
     }
 

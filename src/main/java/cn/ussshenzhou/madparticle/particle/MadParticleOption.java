@@ -65,7 +65,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
             float beginScale = buf.readFloat(), endScale = buf.readFloat();
             ChangeMode scaleMode = buf.readEnum(ChangeMode.class);
             boolean haveChild = buf.readBoolean();
-            MadParticleOption child = haveChild ? MadParticleOption.DESERIALIZER.fromNetwork(ModParticleRegistry.MAD_PARTICLE.get(), buf) : null;
+            MadParticleOption child = haveChild ? MadParticleOption.DESERIALIZER.fromNetwork(ModParticleTypeRegistry.MAD_PARTICLE.get(), buf) : null;
             float rollSpeed = buf.readFloat();
             float xDeflection = buf.readFloat();
             float xDeflectionAfterCollision = buf.readFloat();
@@ -141,7 +141,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
 
     @Override
     public @NotNull ParticleType<?> getType() {
-        return ModParticleRegistry.MAD_PARTICLE.get();
+        return ModParticleTypeRegistry.MAD_PARTICLE.get();
     }
 
     @Override

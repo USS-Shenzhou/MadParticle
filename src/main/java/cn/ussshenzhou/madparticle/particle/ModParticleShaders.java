@@ -22,11 +22,11 @@ public class ModParticleShaders {
         return traditionalParticleShader;
     }
 
-    public static ShaderInstance instancedShader;
-    public static final RenderStateShard.ShaderStateShard INSTANCED_SHADER = new RenderStateShard.ShaderStateShard(() -> instancedShader);
+    public static ShaderInstance instancedParticleShader;
+    public static final RenderStateShard.ShaderStateShard INSTANCED_SHADER = new RenderStateShard.ShaderStateShard(() -> instancedParticleShader);
 
-    public static ShaderInstance getInstancedShader() {
-        return instancedShader;
+    public static ShaderInstance getInstancedParticleShader() {
+        return instancedParticleShader;
     }
 
 
@@ -42,7 +42,7 @@ public class ModParticleShaders {
             event.registerShader(
                     new ShaderInstance(resourceManager,
                             new ResourceLocation(MadParticle.MOD_ID, "instanced_particle"), ModParticleRenderTypes.INSTANCED_FORMAT),
-                    shaderInstance -> instancedShader = shaderInstance
+                    shaderInstance -> instancedParticleShader = shaderInstance
             );
         } catch (Exception e) {
             throw new RuntimeException("failed to load particle shader", e);

@@ -2,7 +2,7 @@ package cn.ussshenzhou.madparticle;
 
 import cn.ussshenzhou.madparticle.command.inheritable.ModCommandArgumentRegistry;
 import cn.ussshenzhou.madparticle.item.ModItemsRegistry;
-import cn.ussshenzhou.madparticle.particle.ModParticleRegistry;
+import cn.ussshenzhou.madparticle.particle.ModParticleTypeRegistry;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
@@ -34,7 +34,7 @@ public class MadParticle {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         MinecraftForge.EVENT_BUS.register(this);
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        ModParticleRegistry.PARTICLE_TYPES.register(modBus);
+        ModParticleTypeRegistry.PARTICLE_TYPES.register(modBus);
         ModCommandArgumentRegistry.COMMAND_ARGUMENTS.register(modBus);
         ModItemsRegistry.ITEMS.register(modBus);
     }

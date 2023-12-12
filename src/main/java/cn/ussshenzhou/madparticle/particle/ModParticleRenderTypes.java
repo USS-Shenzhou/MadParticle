@@ -3,7 +3,7 @@ package cn.ussshenzhou.madparticle.particle;
 import cn.ussshenzhou.madparticle.MadParticle;
 import cn.ussshenzhou.madparticle.mixin.VertexFormatElementUsageAccessor;
 import com.google.common.collect.ImmutableMap;
-import com.lowdragmc.shimmer.client.postprocessing.PostProcessing;
+//import com.lowdragmc.shimmer.client.postprocessing.PostProcessing;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -20,15 +20,17 @@ import static com.mojang.blaze3d.vertex.DefaultVertexFormat.*;
  */
 public class ModParticleRenderTypes {
 
+    public static final InstancedRenderBufferBuilder instancedRenderBufferBuilder = new InstancedRenderBufferBuilder(1024 * 512);
+
     public static final ParticleRenderType INSTANCED = new ParticleRenderType() {
         @Override
         public void begin(BufferBuilder pBuilder, TextureManager pTextureManager) {
-            RenderSystem.setShader(ModParticleShaders::getTraditionalParticleShader);
+            RenderSystem.setShader(ModParticleShaders::getInstancedParticleShader);
             RenderSystem.depthMask(true);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             RenderSystem.enableBlend();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            pBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
+            instancedRenderBufferBuilder.begin(VertexFormat.Mode.QUADS, INSTANCED_FORMAT);
         }
 
         @Override
@@ -37,27 +39,26 @@ public class ModParticleRenderTypes {
         }
     };
 
-        /*public static final VertexFormatElement.Usage INSTANCE_MATRIX =
-            VertexFormatElementUsageAccessor.constructor("INSTANCE_MATRIX", 0,
-                    "INSTANCE_MATRIX",
+    public static final VertexFormatElement.Usage UV_CONTROL =
+            VertexFormatElementUsageAccessor.constructor("UV_CONTROL", 0,
+                    "UV_CONTROL",
                     (pCount, pGlType, pVertexSize, pOffset, pIndex, pStateIndex) -> {
                         GlStateManager._enableVertexAttribArray(pStateIndex);
-                        GlStateManager._vertexAttribPointer(pStateIndex, pCount, pGlType, false, pVertexSize, pOffset);
+                        GlStateManager._vertexAttribIPointer(pStateIndex, pCount, pGlType, pVertexSize, pOffset);
                     },
                     (pIndex, pElementIndex) -> {
                         GlStateManager._disableVertexAttribArray(pElementIndex);
                     });
-    public static final VertexFormatElement ELEMENT_INSTANCE_MATRIX = new VertexFormatElement(0,);*/
 
+    public static final VertexFormatElement ELEMENT_UV_CONTROL = new VertexFormatElement(0, VertexFormatElement.Type.INT, UV_CONTROL, 4);
 
     public static final VertexFormat INSTANCED_FORMAT = new VertexFormat(ImmutableMap.<String, VertexFormatElement>builder()
             .put("Position", ELEMENT_POSITION)
-            .put("UV0", ELEMENT_UV0)
-            .put("Color", Traditional.ELEMENT_COLOR)
-            .put("UV2", ELEMENT_UV2)
+            .put("UVControl", ELEMENT_UV_CONTROL)
+            //.put("Color", Traditional.ELEMENT_COLOR)
+            //.put("UV2", ELEMENT_UV2)
             //.put("InstanceMatrix", )
             .build());
-
 
 
     /**
@@ -163,7 +164,7 @@ public class ModParticleRenderTypes {
             BufferUploader.drawWithShader(bufferBuilder.end());
             MadParticle.runOnShimmer(() -> () -> {
                 GL43.glDrawBuffers(GL43.GL_COLOR_ATTACHMENT0);
-                PostProcessing.getBlockBloom().renderBlockPost();
+                //PostProcessing.getBlockBloom().renderBlockPost();
             });
         }
 

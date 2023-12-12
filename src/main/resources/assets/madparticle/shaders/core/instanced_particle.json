@@ -8,9 +8,10 @@
     "fragment": "madparticle:instanced_particle",
     "attributes": [
         "Position",
-        "UV0",
-        "Color",
-        "UV2",
+        "UVControl",
+        "instanceUV",
+        "instanceColor",
+        "instanceUV2",
         "InstanceMatrix"
     ],
     "samplers": [

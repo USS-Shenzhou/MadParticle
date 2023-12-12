@@ -168,7 +168,7 @@ dependencies {
         jarJar.pin(it, '0.4.8')
     }
 
-    implementation fg.deobf("curse.maven:shimmer-627824:4676467")
+    //implementation fg.deobf("curse.maven:shimmer-627824:4676467")
     def t88FileId = '4721072'
     implementation fg.deobf('curse.maven:t88-663112:' + t88FileId)
     annotationProcessor 'curse.maven:t88-663112:' + t88FileId

@@ -6,19 +6,20 @@
   "refmap": "madparticle.refmap.json",
   "mixins": [
     "CommandsMixin",
-    "MultiPackResourceManagerMixin",
     "LocalCoordinatesAccessor",
+    "MultiPackResourceManagerMixin",
     "WorldCoordinatesAccessor"
   ],
   "client": [
-    "VertexFormatElementUsageAccessor",
-    "TextureManagerAccessor",
-    "ParticleEngineAccessor",
-    "ParticleAccessor",
-    "EditBoxAccessor",
     "AbstractSelectionListAccessor",
+    "EditBoxAccessor",
     "LevelRendererMixin",
-    "ParticleEngineMixin"
+    "ParticleAccessor",
+    "ParticleEngineAccessor",
+    "ParticleEngineMixin",
+    "TextureManagerAccessor",
+    "VertexFormatElementUsageAccessor",
+    "WindowMixin"
   ],
   "injectors": {
     "defaultRequire": 1

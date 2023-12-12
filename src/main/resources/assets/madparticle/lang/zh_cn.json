@@ -79,8 +79,10 @@
   "gui.t88.invalid": "不可用",
 
   "gui.mp.de.mode.setting": "设置",
-  "gui.mp.de.setting.amount": "单队列最大粒子数量",
-  "gui.mp.de.setting.real_force": "限制粒子最大生成距离",
+  "gui.mp.de.setting.amount": "单队列最大数量",
+  "gui.mp.de.setting.real_force": "始终限制最大生成距离",
+  "gui.mp.de.setting.threads": "用于填充Buffer的线程数",
+  "gui.mp.de.setting.threads.zero": "仅主线程",
 
   "gui.mp.de.mode.tada": "喷花筒",
   "gui.mp.de.mode.tada.make": "制作喷花筒",

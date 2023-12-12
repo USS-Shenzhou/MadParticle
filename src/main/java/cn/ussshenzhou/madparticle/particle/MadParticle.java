@@ -9,6 +9,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -522,6 +523,14 @@ public class MadParticle extends TextureSheetParticle {
         return new Vec3(x, y, z);
     }
 
+    public Vector3f getPosition(float partialTicks) {
+        return new Vector3f((float) Mth.lerp(partialTicks, xo, x), (float) Mth.lerp(partialTicks, yo, y), (float) Mth.lerp(partialTicks, zo, z));
+    }
+
+    public float getRoll(float partialTicks) {
+        return Mth.lerp(partialTicks, oRoll, roll);
+    }
+
     public Vec3 getSpeed() {
         return new Vec3(xd, yd, zd);
     }
@@ -530,8 +539,27 @@ public class MadParticle extends TextureSheetParticle {
         return new Vector3f(rCol, gCol, bCol);
     }
 
+    public float getR() {
+        return rCol;
+    }
+
+    public float getG() {
+        return gCol;
+    }
+
+    public float getB() {
+        return bCol;
+    }
+
+    public float getAlpha() {
+        return alpha;
+    }
+
     @Override
     public void render(VertexConsumer pBuffer, Camera pRenderInfo, float pPartialTicks) {
+        if (particleRenderType == ModParticleRenderTypes.INSTANCED) {
+            throw new UnsupportedOperationException();
+        }
         if (particleRenderType instanceof ModParticleRenderTypes.Traditional) {
             MadParticleBufferBuilder buffer = ((ModParticleRenderTypes.Traditional) (particleRenderType)).bufferBuilder;
             //copied from SingleQuadParticle.render for compatability with Rubidium
@@ -587,12 +615,19 @@ public class MadParticle extends TextureSheetParticle {
 
     @Override
     protected int getLightColor(float pPartialTick) {
-        int unmodified = super.getLightColor(pPartialTick);
+        return checkEmit(super.getLightColor(pPartialTick));
+    }
+
+    protected int checkEmit(int levelLight) {
         if (light == null) {
-            return unmodified;
+            return levelLight;
         } else {
-            return unmodified & 0b1111_0000_00000000_0000_0000 | ((int) MathHelper.getFromT((float) age / lifetime, light) << 4);
+            return levelLight & 0b1111_0000_00000000_0000_0000 | ((int) MathHelper.getFromT((float) age / lifetime, light) << 4);
         }
+    }
+
+    public ClientLevel getLevel() {
+        return this.level;
     }
 
     private boolean isReversed() {
@@ -611,6 +646,10 @@ public class MadParticle extends TextureSheetParticle {
         NORMAL,
         PRE_CAL,
         REVERSE
+    }
+
+    public TextureAtlasSprite getSprite() {
+        return sprite;
     }
 
     public static class Provider implements ParticleProvider<MadParticleOption> {

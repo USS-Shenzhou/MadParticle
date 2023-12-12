@@ -2,15 +2,19 @@ package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
+import cn.ussshenzhou.madparticle.particle.InstancedRenderManager;
+import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.util.HorizontalAlignment;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
-import org.joml.Vector2i;
 import cn.ussshenzhou.t88.gui.widegt.*;
 import com.google.common.collect.EvictingQueue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.network.chat.Component;
+import org.joml.Vector2i;
+
+import java.util.List;
 
 /**
  * @author USS_Shenzhou
@@ -25,12 +29,14 @@ public class SettingPanel extends TPanel {
         this.add(container);
         initAmountSlider();
         initRealForce();
+        initThreads();
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     private void initAmountSlider() {
         var amount = new HorizontalTitledOption<>(
                 Component.translatable("gui.mp.de.setting.amount"),
-                new TSlider("", 0x2000, 0x20000, (component, aDouble) -> Component.literal(String.format("%d", aDouble.intValue())), null)
+                new TSlider("", 0x2000, 0xf0000, (component, aDouble) -> Component.literal(String.format("%d", aDouble.intValue())), null)
         );
         amount.actioner.addResponder(d -> {
             int newAmount = (int) amount.actioner.relToAbsValueLinear(d);
@@ -40,6 +46,9 @@ public class SettingPanel extends TPanel {
                 EvictingQueue<Particle> newQueue = EvictingQueue.create(newAmount);
                 newQueue.addAll(p);
                 particles.put(particleRenderType, newQueue);
+                if (particleRenderType == ModParticleRenderTypes.INSTANCED) {
+                    InstancedRenderManager.reload(newQueue);
+                }
             });
         });
         amount.actioner.setAbsValue(ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue);
@@ -57,7 +66,37 @@ public class SettingPanel extends TPanel {
         realForce.actioner.addElement("gui.mp.de.helper.false", b -> {
             ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.limitMaxParticleGenerateDistance = false);
         });
+        realForce.actioner.select(ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance ? 0 : 1);
         container.add(realForce);
+    }
+
+    private void initThreads() {
+        var threads = new HorizontalTitledOption<>(
+                Component.translatable("gui.mp.de.setting.threads"),
+                new TCycleButton<>()
+        );
+        threads.actioner.addElement("gui.mp.de.setting.threads.zero", b -> {
+            ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.bufferFillerThreads = 1);
+            InstancedRenderManager.setThreads(1);
+        });
+        var list = List.of(6, 4, 8, 2, 12);
+        list.forEach(i -> addThreadsNumberElement(threads.actioner, i));
+        int amount = ConfigHelper.getConfigRead(MadParticleConfig.class).bufferFillerThreads;
+        if (!list.contains(amount)) {
+            addThreadsNumberElement(threads.actioner, amount);
+            threads.actioner.select(list.size());
+        } else {
+            threads.actioner.select(list.indexOf(amount));
+        }
+        container.add(threads);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addThreadsNumberElement(TCycleButton actioner, int number) {
+        actioner.addElement(String.valueOf(number), b -> {
+            ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.bufferFillerThreads = number);
+            InstancedRenderManager.setThreads(number);
+        });
     }
 
     @Override

@@ -12,12 +12,15 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import org.lwjgl.opengl.GL43;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import static com.mojang.blaze3d.vertex.DefaultVertexFormat.*;
 
 
 /**
  * @author USS_Shenzhou
  */
+@ParametersAreNonnullByDefault
 public class ModParticleRenderTypes {
 
     public static final InstancedRenderBufferBuilder instancedRenderBufferBuilder = new InstancedRenderBufferBuilder(1024 * 512);
@@ -55,9 +58,6 @@ public class ModParticleRenderTypes {
     public static final VertexFormat INSTANCED_FORMAT = new VertexFormat(ImmutableMap.<String, VertexFormatElement>builder()
             .put("Position", ELEMENT_POSITION)
             .put("UVControl", ELEMENT_UV_CONTROL)
-            //.put("Color", Traditional.ELEMENT_COLOR)
-            //.put("UV2", ELEMENT_UV2)
-            //.put("InstanceMatrix", )
             .build());
 
 
@@ -159,8 +159,6 @@ public class ModParticleRenderTypes {
         public final MadParticleBufferBuilder bufferBuilder = new MadParticleBufferBuilder(1024 * 512);
 
         public void end() {
-            //bufferBuilder.end();
-            //BufferUploader.end(this.bufferBuilder);
             BufferUploader.drawWithShader(bufferBuilder.end());
             MadParticle.runOnShimmer(() -> () -> {
                 GL43.glDrawBuffers(GL43.GL_COLOR_ATTACHMENT0);

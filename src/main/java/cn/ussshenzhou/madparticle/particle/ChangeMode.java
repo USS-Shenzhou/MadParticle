@@ -2,14 +2,14 @@ package cn.ussshenzhou.madparticle.particle;
 
 
 import cn.ussshenzhou.madparticle.util.MathHelper;
-import cn.ussshenzhou.t88.gui.util.ToTranslatableString;
+import cn.ussshenzhou.t88.gui.util.ITranslatable;
 
 /**
  * @author USS_Shenzhou
  */
 
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
-public enum ChangeMode implements ToTranslatableString {
+public enum ChangeMode implements ITranslatable {
 
     LINEAR((begin, end, age, life) -> {
         float x = age / (float) life;
@@ -46,7 +46,7 @@ public enum ChangeMode implements ToTranslatableString {
     }
 
     @Override
-    public String toTranslateKey() {
+    public String translateKey() {
         return translateKey;
     }
 

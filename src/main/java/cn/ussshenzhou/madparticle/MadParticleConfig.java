@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle;
 
+import cn.ussshenzhou.madparticle.particle.TakeOver;
 import cn.ussshenzhou.t88.config.TConfig;
 
 /**
@@ -10,6 +11,8 @@ public class MadParticleConfig implements TConfig {
     public boolean limitMaxParticleGenerateDistance = false;
     public boolean noWelcomeScreen = false;
     public int bufferFillerThreads = 4;
+    public TakeOver takeOverRendering = TakeOver.VANILLA;
+    public TakeOver takeOverTicking = TakeOver.VANILLA;
 
     public MadParticleConfig() {
     }

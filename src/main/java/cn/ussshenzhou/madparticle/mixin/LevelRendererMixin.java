@@ -37,9 +37,9 @@ public abstract class LevelRendererMixin {
             if (ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance) {
                 if (camera.getPosition().distanceToSqr(pX, pY, pZ) > AddParticleHelper.getMaxParticleGenerateDistanceSqr()) {
                     cir.setReturnValue(null);
-                } else {
-                    cir.setReturnValue(this.minecraft.particleEngine.createParticle(pOptions, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed));
                 }
+            } else {
+                cir.setReturnValue(this.minecraft.particleEngine.createParticle(pOptions, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed));
             }
         } else if (camera.getPosition().distanceToSqr(pX, pY, pZ) > AddParticleHelper.getNormalParticleGenerateDistanceSqr()) {
             cir.setReturnValue(null);

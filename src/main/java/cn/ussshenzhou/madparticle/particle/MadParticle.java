@@ -368,7 +368,9 @@ public class MadParticle extends TextureSheetParticle {
             this.zd *= this.friction;
         }
         //done
-        this.move(this.xd, this.yd, this.zd);
+        if (this.xd != 0 || this.yd != 0 || this.zd != 0) {
+            this.move(this.xd, this.yd, this.zd);
+        }
     }
 
     private void preCalculatedTick() {
@@ -525,6 +527,18 @@ public class MadParticle extends TextureSheetParticle {
 
     public Vector3f getPosition(float partialTicks) {
         return new Vector3f((float) Mth.lerp(partialTicks, xo, x), (float) Mth.lerp(partialTicks, yo, y), (float) Mth.lerp(partialTicks, zo, z));
+    }
+
+    public float getX(float partialTicks) {
+        return (float) Mth.lerp(partialTicks, xo, x);
+    }
+
+    public float getY(float partialTicks) {
+        return (float) Mth.lerp(partialTicks, yo, y);
+    }
+
+    public float getZ(float partialTicks) {
+        return (float) Mth.lerp(partialTicks, zo, z);
     }
 
     public float getRoll(float partialTicks) {

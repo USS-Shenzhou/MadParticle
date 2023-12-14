@@ -237,6 +237,6 @@ public class AddParticleHelper {
     }
 
     public static int getNormalParticleGenerateDistanceSqr() {
-        return 4 * Minecraft.getInstance().options.renderDistance.get() * 4 * Minecraft.getInstance().options.renderDistance.get();
+        return 8 * Minecraft.getInstance().options.renderDistance.get() * 8 * Minecraft.getInstance().options.renderDistance.get();
     }
 }

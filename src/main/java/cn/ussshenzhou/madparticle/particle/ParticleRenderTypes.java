@@ -1,13 +1,13 @@
 package cn.ussshenzhou.madparticle.particle;
 
-import cn.ussshenzhou.t88.gui.util.ToTranslatableString;
+import cn.ussshenzhou.t88.gui.util.ITranslatable;
 
 /**
  * @author USS_Shenzhou
  */
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
 
-public enum ParticleRenderTypes implements ToTranslatableString {
+public enum ParticleRenderTypes implements ITranslatable {
     INSTANCED("gui.mp.de.helper.render_type.instanced"),
     PARTICLE_SHEET_TRANSLUCENT("gui.mp.de.helper.render_type.translucent"),
     TERRAIN_SHEET("gui.mp.de.helper.render_type.terrain"),
@@ -23,7 +23,7 @@ public enum ParticleRenderTypes implements ToTranslatableString {
     }
 
     @Override
-    public String toTranslateKey() {
+    public String translateKey() {
         return translateKey;
     }
 }

@@ -4,6 +4,7 @@ import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.particle.InstancedRenderManager;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.collect.EvictingQueue;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -22,6 +23,9 @@ import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -47,16 +51,10 @@ public class ParticleEngineMixin {
         return ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue;
     }
 
-    /*@Shadow
-    @Final
-    private Queue<Particle> particlesToAdd;
-
-    @Inject(method = "add", at = @At("HEAD"), cancellable = true)
-    private void madparticleCancelAddWhenFull(CallbackInfo ci) {
-        if (this.particlesToAdd.size() >= madparticleMaxAmount()) {
-            ci.cancel();
-        }
-    }*/
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/particle/Particle;getRenderType()Lnet/minecraft/client/particle/ParticleRenderType;"))
+    private ParticleRenderType madparticleTakeoverRenderType(Particle instance) {
+        return TakeOver.check(instance);
+    }
 
     @Redirect(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;)V",
             at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;", ordinal = 0),
@@ -74,11 +72,26 @@ public class ParticleEngineMixin {
     @Final
     private TextureManager textureManager;
 
+    @SuppressWarnings("JavaReflectionMemberAccess")
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;)V",
             at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V")
     )
     private void madparticleRenderInstanced(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, LightTexture lightTexture, Camera camera, float partialTicks, Frustum clippingHelper, CallbackInfo ci) {
-        InstancedRenderManager.render(poseStack, bufferSource, lightTexture, camera, partialTicks, clippingHelper, textureManager);
+        try {
+            //if Iris exist
+            Class<?> thisClass = ParticleEngine.class;
+            Field irisParticleRenderingPhase = thisClass.getDeclaredField("phase");
+            irisParticleRenderingPhase.setAccessible(true);
+            Method getPhaseName = irisParticleRenderingPhase.getClass().getMethod("name");
+            String phaseName = (String) getPhaseName.invoke(irisParticleRenderingPhase);
+            if ("TRANSLUCENT".equals(phaseName)) {
+                InstancedRenderManager.render(poseStack, bufferSource, lightTexture, camera, partialTicks, clippingHelper, textureManager);
+            }
+        } catch (NoSuchFieldException | NoSuchMethodException | IllegalAccessException |
+                 InvocationTargetException ignored) {
+            //vanilla
+            InstancedRenderManager.render(poseStack, bufferSource, lightTexture, camera, partialTicks, clippingHelper, textureManager);
+        }
     }
 
     @Shadow

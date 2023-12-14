@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Slice;
 /**
  * @author USS_Shenzhou
  */
-@Mixin(Window.class)
+@Mixin(value = Window.class, priority = 9999)
 public class WindowMixin {
 
     @ModifyConstant(method = "<init>", constant = @Constant(intValue = 2),

@@ -1,14 +1,14 @@
 package cn.ussshenzhou.madparticle.command.inheritable;
 
 
-import cn.ussshenzhou.t88.gui.util.ToTranslatableString;
+import cn.ussshenzhou.t88.gui.util.ITranslatable;
 
 /**
  * @author USS_Shenzhou
  */
 
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
-public enum InheritableBoolean implements ToTranslatableString {
+public enum InheritableBoolean implements ITranslatable {
     TRUE(true, "gui.mp.de.helper.true"),
     FALSE(false, "gui.mp.de.helper.false"),
     INHERIT(false, "gui.mp.de.helper.inherit");
@@ -30,7 +30,7 @@ public enum InheritableBoolean implements ToTranslatableString {
     }
 
     @Override
-    public String toTranslateKey() {
+    public String translateKey() {
         return translateKey;
     }
 }

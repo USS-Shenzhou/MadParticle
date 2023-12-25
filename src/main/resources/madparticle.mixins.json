@@ -17,6 +17,7 @@
     "ParticleAccessor",
     "ParticleEngineAccessor",
     "ParticleEngineMixin",
+    "SuspendedParticleMixin",
     "TextureManagerAccessor",
     "VertexFormatElementUsageAccessor",
     "WindowMixin"

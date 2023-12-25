@@ -1,8 +1,10 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
+import cn.ussshenzhou.madparticle.util.AABBHelper;
 import cn.ussshenzhou.madparticle.util.AddParticleHelper;
 import cn.ussshenzhou.madparticle.util.MathHelper;
+import cn.ussshenzhou.madparticle.util.MovementHelper;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
@@ -14,9 +16,9 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -322,6 +324,18 @@ public class MadParticle extends TextureSheetParticle {
         }
     }
 
+    @Override
+    protected void setSize(float pWidth, float pHeight) {
+        if (pWidth != this.bbWidth || pHeight != this.bbHeight) {
+            this.bbWidth = pWidth;
+            this.bbHeight = pHeight;
+            AABB aabb = this.getBoundingBox();
+            double d0 = (aabb.minX + aabb.maxX - (double) pWidth) / 2.0D;
+            double d1 = (aabb.minZ + aabb.maxZ - (double) pWidth) / 2.0D;
+            this.setBoundingBox(AABBHelper.set(getBoundingBox(), d0, aabb.minY, d1, d0 + (double) this.bbWidth, aabb.minY + (double) this.bbHeight, d1 + (double) this.bbWidth));
+        }
+    }
+
     private void normalTick() {
         tickAlphaAndSize();
         //interact with Entity
@@ -427,13 +441,14 @@ public class MadParticle extends TextureSheetParticle {
         double r2 = xDelta * xDelta + yDelta * yDelta + zDelta * zDelta;
         boolean c = collision && isNormalTime() && this.hasPhysics && (xDelta != 0.0D || yDelta != 0.0D || zDelta != 0.0D) && r2 < MAXIMUM_COLLISION_VELOCITY_SQUARED;
         if (c) {
-            Vec3 vec3 = Entity.collideBoundingBox(null, new Vec3(xDelta, yDelta, zDelta), this.getBoundingBox(), this.level, List.of());
-            xDeltaCollided = vec3.x;
-            yDeltaCollided = vec3.y;
-            zDeltaCollided = vec3.z;
+            Vec3 vec3 = MovementHelper.collideBoundingBox(null, xDelta, yDelta, zDelta, this.getBoundingBox(), this.level, List.of());
+            //Vec3 vec3 = Entity.collideBoundingBox(null, new Vec3(xDelta, yDelta, zDelta), this.getBoundingBox(), this.level, List.of());
+            xDeltaCollided = vec3 == null ? xDelta : vec3.x;
+            yDeltaCollided = vec3 == null ? yDelta : vec3.y;
+            zDeltaCollided = vec3 == null ? zDelta : vec3.z;
         }
         if (xDelta != 0.0D || yDelta != 0.0D || zDelta != 0.0D) {
-            this.setBoundingBox(this.getBoundingBox().move(xDeltaCollided, yDeltaCollided, zDeltaCollided));
+            this.setBoundingBox(AABBHelper.move(this.getBoundingBox(), xDeltaCollided, yDeltaCollided, zDeltaCollided));
             this.setLocationFromBoundingbox();
         }
         if (c) {
@@ -628,7 +643,7 @@ public class MadParticle extends TextureSheetParticle {
     }
 
     @Override
-    protected int getLightColor(float pPartialTick) {
+    public int getLightColor(float pPartialTick) {
         return checkEmit(super.getLightColor(pPartialTick));
     }
 

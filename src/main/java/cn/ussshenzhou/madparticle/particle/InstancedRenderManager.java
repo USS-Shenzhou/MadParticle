@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -47,36 +48,49 @@ public class InstancedRenderManager {
     public static final int AMOUNT_INSTANCE_FLOATS = 4 + 4 + (2 + 2) + AMOUNT_MATRIX_FLOATS;
     public static final int SIZE_INSTANCE_BYTES = AMOUNT_INSTANCE_FLOATS * SIZE_FLOAT_OR_INT_BYTES;
 
-    public static final LinkedHashSet<MadParticle> PARTICLES = Sets.newLinkedHashSetWithExpectedSize(32768);
+    private static final LinkedHashSet<TextureSheetParticle> PARTICLES = Sets.newLinkedHashSetWithExpectedSize(32768);
     private static int threads = ConfigHelper.getConfigRead(MadParticleConfig.class).bufferFillerThreads;
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
     @SuppressWarnings("unchecked")
-    private static HashMap<SimpleBlockPos, Integer>[] LIGHT_CACHES = Stream.generate(() -> new HashMap<String, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
+    private static HashMap<SimpleBlockPos, Integer>[] lightCaches = Stream.generate(() -> new HashMap<String, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
 
     @SuppressWarnings("unchecked")
     public static void setThreads(int amount) {
         if (amount < 0 || amount > 128) {
-            throw new IllegalArgumentException("The amount of threads for filling buffer should between 1 and 128. Correct the config file manually.");
+            throw new IllegalArgumentException("The amount of auxiliary threads should between 1 and 128. Correct the config file manually.");
         }
         threads = amount;
-        LIGHT_CACHES = Stream.generate(() -> new HashMap<String, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
+        lightCaches = Stream.generate(() -> new HashMap<String, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
         fixedThreadPool = Executors.newFixedThreadPool(threads);
     }
 
-    public static void add(MadParticle particle) {
+    public static Executor getFixedThreadPool() {
+        return fixedThreadPool;
+    }
+
+    public static int getThreads() {
+        return threads;
+    }
+
+    public static void add(TextureSheetParticle particle) {
         PARTICLES.add(particle);
     }
 
     public static void reload(Collection<Particle> particles) {
         PARTICLES.clear();
-        particles.forEach(p -> add((MadParticle) p));
+        particles.forEach(p -> add((TextureSheetParticle) p));
     }
 
-    public static void remove(MadParticle particle) {
+    public static void remove(TextureSheetParticle particle) {
         PARTICLES.remove(particle);
     }
 
-    //FIXME disappear after other vanilla translucent particle rendered
+    @SuppressWarnings("SuspiciousMethodCalls")
+    public static void removeAll(Collection<Particle> particle) {
+        PARTICLES.removeAll(particle);
+    }
+
+    //FIXME disappear after other vanilla particle rendered
     public static void render(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, LightTexture lightTexture, Camera camera, float partialTicks, Frustum clippingHelper, TextureManager textureManager) {
         if (PARTICLES.isEmpty()) {
             return;
@@ -100,7 +114,7 @@ public class InstancedRenderManager {
         GL31C.glDrawElementsInstanced(4, 6, 5123, 0, amount);
         shader.clear();
         end(instanceMatrixBuffer, instanceMatrixBufferId);
-        Arrays.stream(LIGHT_CACHES).forEach(HashMap::clear);
+        Arrays.stream(lightCaches).forEach(HashMap::clear);
     }
 
     @SuppressWarnings("unchecked")
@@ -110,7 +124,7 @@ public class InstancedRenderManager {
         for (int i = 0; i < threads; i++) {
             int finalI = i;
             futures[i] = CompletableFuture.runAsync(
-                    () -> partial(LIGHT_CACHES[finalI], finalI * (PARTICLES.size() / threads),
+                    () -> partial(lightCaches[finalI], finalI * (PARTICLES.size() / threads),
                             PARTICLES.size() / threads + (finalI == threads - 1 ? PARTICLES.size() % threads : 0),
                             instanceMatrixBuffer, partialTicks, camera, camPosCompensate, clippingHelper),
                     fixedThreadPool
@@ -142,57 +156,70 @@ public class InstancedRenderManager {
         var camPosCompensate = camera.getPosition().toVector3f().mul(-1);
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
         int amount = 0;
-        for (MadParticle particle : PARTICLES) {
+        for (TextureSheetParticle particle : PARTICLES) {
             if (clippingHelper != null && particle.shouldCull() && !clippingHelper.isVisible(particle.getBoundingBox())) {
                 continue;
             }
-            fillBuffer(LIGHT_CACHES[threads - 1], instanceMatrixBuffer, particle, amount, partialTicks, matrix4f, camera, camPosCompensate, simpleBlockPosSingle);
+            fillBuffer(lightCaches[threads - 1], instanceMatrixBuffer, particle, amount, partialTicks, matrix4f, camera, camPosCompensate, simpleBlockPosSingle);
             amount++;
         }
         return amount;
     }
 
-    private static int getLight(MadParticle particle, BlockPos pos) {
-        return particle.getLevel().hasChunkAt(pos) ? LevelRenderer.getLightColor(particle.getLevel(), pos) : 0;
+    private static int getLight(TextureSheetParticle particle, BlockPos pos) {
+        return particle.level.hasChunkAt(pos) ? LevelRenderer.getLightColor(particle.level, pos) : 0;
     }
 
     /**
+     * HOTSPOT
      * Can you find a way to make it faster?
      */
-    public static void fillBuffer(HashMap<SimpleBlockPos, Integer> lightCache, ByteBuffer buffer, MadParticle particle, int i, float partialTicks, Matrix4f matrix4fSingle, Camera camera, Vector3f camPosCompensate, SimpleBlockPos simpleBlockPosSingle) {
+    public static void fillBuffer(HashMap<SimpleBlockPos, Integer> lightCache, ByteBuffer buffer, TextureSheetParticle particle, int i, float partialTicks, Matrix4f matrix4fSingle, Camera camera, Vector3f camPosCompensate, SimpleBlockPos simpleBlockPosSingle) {
         int start = i * SIZE_INSTANCE_BYTES;
         //uv
-        var sprite = particle.getSprite();
+        var sprite = particle.sprite;
         buffer.putFloat(start, sprite.getU0());
         buffer.putFloat(start + 4, sprite.getU1());
         buffer.putFloat(start + 4 * 2, sprite.getV0());
         buffer.putFloat(start + 4 * 3, sprite.getV1());
         //color
-        buffer.putFloat(start + 4 * 4, particle.getR());
-        buffer.putFloat(start + 4 * 5, particle.getG());
-        buffer.putFloat(start + 4 * 6, particle.getB());
-        buffer.putFloat(start + 4 * 7, particle.getAlpha());
+        buffer.putFloat(start + 4 * 4, particle.rCol);
+        buffer.putFloat(start + 4 * 5, particle.gCol);
+        buffer.putFloat(start + 4 * 6, particle.bCol);
+        buffer.putFloat(start + 4 * 7, particle.alpha);
         //uv2
-        float x = particle.getX(partialTicks);
-        float y = particle.getY(partialTicks);
-        float z = particle.getZ(partialTicks);
+        float x = Mth.lerp(partialTicks, (float) particle.xo, (float) particle.x);
+        float y = Mth.lerp(partialTicks, (float) particle.yo, (float) particle.y);
+        float z = Mth.lerp(partialTicks, (float) particle.zo, (float) particle.z);
         simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
         int l;
-        Integer l1 = lightCache.get(simpleBlockPosSingle);
-        if (l1 == null) {
-            l = getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z));
-            lightCache.put(simpleBlockPosSingle.copy(), l);
+        if (particle instanceof MadParticle madParticle) {
+            Integer l1 = lightCache.get(simpleBlockPosSingle);
+            if (l1 != null) {
+                l = l1;
+            } else {
+                l = getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z));
+                lightCache.put(simpleBlockPosSingle.copy(), l);
+            }
+            l = madParticle.checkEmit(l);
+        } else if (!TakeOver.CUSTOM_LIGHT.contains(particle.getClass())){
+            Integer l1 = lightCache.get(simpleBlockPosSingle);
+            if (l1 != null) {
+                l = l1;
+            } else {
+                l = getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z));
+                lightCache.put(simpleBlockPosSingle.copy(), l);
+            }
         } else {
-            l = l1;
+            l = particle.getLightColor(partialTicks);
         }
-        l = particle.checkEmit(l);
-        buffer.putInt(start + 4 * 8, l & 0xffff);
-        buffer.putInt(start + 4 * 9, l >> 16 & 0xffff);
+        buffer.putInt(start + 4 * 8, l & 0x0000_ffff);
+        buffer.putInt(start + 4 * 9, l >> 16 & 0x0000_ffff);
         //matrix
         matrix4fSingle.identity().translation(x + camPosCompensate.x, y + camPosCompensate.y, z + camPosCompensate.z)
                 .rotate(camera.rotation())
                 .scale(particle.getQuadSize(partialTicks));
-        var r = particle.getRoll(partialTicks);
+        var r = Mth.lerp(partialTicks, particle.oRoll, particle.roll);
         if (r != 0) {
             matrix4fSingle.rotateZ(r);
         }
@@ -252,9 +279,9 @@ public class InstancedRenderManager {
     }
 
     public static int bindBuffer(ByteBuffer buffer, int id) {
-        int bufferPointer = GL15C.glGenBuffers();
-        GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, bufferPointer);
-        GL15C.glBufferData(GL15C.GL_ARRAY_BUFFER, buffer, GL15C.GL_DYNAMIC_DRAW);
+        int bufferId = GL15C.glGenBuffers();
+        GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, bufferId);
+        GL15C.glBufferData(GL15C.GL_ARRAY_BUFFER, buffer, GL15C.GL_STREAM_DRAW);
         GL30C.glBindVertexArray(id);
         int formerSize = 0;
 
@@ -279,9 +306,8 @@ public class InstancedRenderManager {
             formerSize += 4 * SIZE_FLOAT_OR_INT_BYTES;
             GL33C.glVertexAttribDivisor(INSTANCE_MATRIX_INDEX + i, 1);
         }
-        //GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, 0);
-        //GL30C.glBindVertexArray(0);
-        return bufferPointer;
+
+        return bufferId;
     }
 
     public static void end(ByteBuffer instanceMatrixBuffer, int instanceMatrixBufferId) {

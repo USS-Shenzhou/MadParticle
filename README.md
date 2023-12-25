@@ -37,3 +37,11 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 Additional permission under GNU GPL version 3 section 7 for Minecraft mods
 
 If you modify this Program, or any covered work, by linking or combining it with Minecraft, containing parts covered by the terms of Minecraft EULA, the licensors of this Program grant you additional permission to convey the resulting work. Corresponding Source for a non-source form of such a combination shall include the source code for the parts of Minecraft used as well as that of the covered work.
+
+---
+
+---
+
+![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)
+
+Supported by JetBrains

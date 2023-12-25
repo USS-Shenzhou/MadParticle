@@ -28,7 +28,7 @@
   "gui.mp.de.helper.render_type.lit": "§eLit",
   "gui.mp.de.helper.render_type.translucent": "半透明",
 
-  "gui.mp.de.helper.render_type.instanced": "§b实例化",
+  "gui.mp.de.helper.render_type.instanced": "§a实例化",
   "gui.mp.de.helper.render_type.vanilla_terrain": "§e原版terrain",
   "gui.mp.de.helper.render_type.vanilla_opaque": "原版不透明",
   "gui.mp.de.helper.render_type.vanilla_lit": "§e原版lit",
@@ -93,7 +93,7 @@
 
   "gui.mp.de.setting.amount.tooltip": "指定每种渲染类型所能容纳的粒子数量。",
   "gui.mp.de.setting.real_force.tooltip": "“是”：总是取消在两倍于视距之外的所有粒子生成。",
-  "gui.mp.de.setting.threads.tooltip": "此值不应大于你的CPU核心数量。\n建议选择一个略小于你的CPU核心数量的值。\n较大的值可以有效增加渲染效率，但可能会造成偶尔卡顿。\n如果需要，你可以在.minecraft/config/MadParticleConfig.json中更改此值。",
+  "gui.mp.de.setting.threads.tooltip": "此值不应大于你的CPU核心数量。\n建议选择一个略小于你的CPU核心数量的值。\n如果需要，你可以在.minecraft/config/MadParticleConfig.json中更改此值。",
   "gui.mp.de.setting.additional.takeover_render.tooltip": "实例化渲染大部分原版和/或其他Mod的粒子。\n接管其他Mod的粒子渲染可能会产生错误。",
   "gui.mp.de.setting.additional.takeover_tick.tooltip": "并行化计算原版和/或其他Mod的粒子。\n接管其他Mod的粒子计算可能会产生错误。",
 

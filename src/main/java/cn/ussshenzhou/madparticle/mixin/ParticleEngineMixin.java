@@ -1,17 +1,15 @@
 package cn.ussshenzhou.madparticle.mixin;
 
+import cn.ussshenzhou.madparticle.EvictingLinkedHashSetQueue;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.madparticle.particle.InstancedRenderManager;
-import cn.ussshenzhou.madparticle.particle.MadParticle;
-import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
-import cn.ussshenzhou.madparticle.particle.TakeOver;
+import cn.ussshenzhou.madparticle.particle.*;
 import cn.ussshenzhou.t88.config.ConfigHelper;
-import com.google.common.collect.EvictingQueue;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -19,7 +17,10 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -30,6 +31,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
+import java.util.function.Function;
 
 /**
  * @author USS_Shenzhou
@@ -37,19 +39,11 @@ import java.util.Queue;
 @Mixin(ParticleEngine.class)
 public class ParticleEngineMixin {
 
-    @ModifyConstant(method = "lambda$tick$11(Lnet/minecraft/client/particle/ParticleRenderType;)Ljava/util/Queue;", constant = @Constant(intValue = 16384), require = 0)
-    private static int madparticleChangeMaxAmount(int constant) {
-        return madparticleMaxAmount();
+    @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Map;computeIfAbsent(Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;"), index = 1)
+    private Function<ParticleRenderType, Queue<Particle>> madparticleUseEvictingLinkedHashSetQueueInsteadOfEvictingQueue(Function<ParticleRenderType, Queue<Particle>> mappingFunction) {
+        return t -> new EvictingLinkedHashSetQueue<>(16384, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue);
     }
 
-    @ModifyConstant(method = "lambda$tick$11(Lnet/minecraft/client/particle/ParticleRenderType;)Ljava/util/Queue;", constant = @Constant(intValue = 16384), remap = false, require = 0, expect = 0)
-    private static int madparticleChangeMaxAmountOptifineCompatibility(int constant) {
-        return madparticleMaxAmount();
-    }
-
-    private static int madparticleMaxAmount() {
-        return ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue;
-    }
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/particle/Particle;getRenderType()Lnet/minecraft/client/particle/ParticleRenderType;"))
     private ParticleRenderType madparticleTakeoverRenderType(Particle instance) {
@@ -101,19 +95,28 @@ public class ParticleEngineMixin {
     @SuppressWarnings("UnstableApiUsage")
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Queue;add(Ljava/lang/Object;)Z"), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void madparticleAddToInstancedRenderManager(CallbackInfo ci, Particle particle) {
-        if (particle instanceof MadParticle madParticle && madParticle.getRenderType() == ModParticleRenderTypes.INSTANCED) {
-            var queue = (EvictingQueue<Particle>) particles.get(ModParticleRenderTypes.INSTANCED);
+        if (particle instanceof TextureSheetParticle p && TakeOver.check(p) == ModParticleRenderTypes.INSTANCED) {
+            var queue = (EvictingLinkedHashSetQueue<Particle>) particles.get(ModParticleRenderTypes.INSTANCED);
             if (queue.remainingCapacity() == 0) {
                 InstancedRenderManager.remove((MadParticle) queue.peek());
             }
-            InstancedRenderManager.add(madParticle);
+            InstancedRenderManager.add(p);
         }
     }
 
     @Inject(method = "tickParticleList", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void madparticleRemoveFromInstancedRenderManager(Collection<Particle> pParticles, CallbackInfo ci, Iterator<?> iterator, Particle particle) {
-        if (particle instanceof MadParticle madParticle && madParticle.getRenderType() == ModParticleRenderTypes.INSTANCED) {
-            InstancedRenderManager.remove(madParticle);
+        if (particle instanceof TextureSheetParticle p) {
+            InstancedRenderManager.remove(p);
+        }
+    }
+
+    @Inject(method = "tickParticleList", at = @At("HEAD"), cancellable = true)
+    private void madparticleTakeOverTick(Collection<Particle> particles, CallbackInfo ci) {
+        var config = ConfigHelper.getConfigRead(MadParticleConfig.class);
+        if (config.takeOverTicking != TakeOver.NONE && config.bufferFillerThreads > 1) {
+            ParallelTickManager.tickList(particles);
+            ci.cancel();
         }
     }
 }

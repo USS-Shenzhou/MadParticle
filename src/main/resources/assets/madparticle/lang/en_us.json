@@ -28,7 +28,7 @@
   "gui.mp.de.helper.render_type.lit": "§eLit",
   "gui.mp.de.helper.render_type.translucent": "Translucent",
 
-  "gui.mp.de.helper.render_type.instanced": "§bInstanced",
+  "gui.mp.de.helper.render_type.instanced": "§aInstanced",
   "gui.mp.de.helper.render_type.vanilla_terrain": "§eVanilla Terrain",
   "gui.mp.de.helper.render_type.vanilla_opaque": "Vanilla Opaque",
   "gui.mp.de.helper.render_type.vanilla_lit": "§eVanilla Lit",
@@ -119,7 +119,7 @@
 
   "gui.mp.de.setting.amount.tooltip": "Specify the number of particles each rendering type can accommodate.",
   "gui.mp.de.setting.real_force.tooltip": "\"True\": Always cancels the spawning of all particles beyond twice the viewing distance.",
-  "gui.mp.de.setting.threads.tooltip": "This value should not exceed the number of your CPU cores.\nIt is recommended to choose a value slightly less than CPU cores.\nLarger values can effectively increase rendering efficiency but may cause occasional lag.\nIf necessary, you can change this value in .minecraft/config/MadParticleConfig.json.",
+  "gui.mp.de.setting.threads.tooltip": "This value should not exceed the number of your CPU cores.\nIt is recommended to choose a value slightly less than CPU cores.\nIf necessary, you can change this value in .minecraft/config/MadParticleConfig.json.",
   "gui.mp.de.setting.additional.takeover_render.tooltip": "Make most particles of the vanilla game and/or other Mods use instanced rendering.\nTaking over particle rendering from other Mods may lead to errors.",
   "gui.mp.de.setting.additional.takeover_tick.tooltip": "Parallelize ticking particles of the vanilla game and/or other Mods.\nTaking over particle computation from other Mods may lead to errors.",
 

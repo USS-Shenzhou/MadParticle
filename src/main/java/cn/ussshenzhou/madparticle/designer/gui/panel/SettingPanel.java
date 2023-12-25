@@ -1,13 +1,14 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
+import cn.ussshenzhou.madparticle.EvictingLinkedHashSetQueue;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.particle.InstancedRenderManager;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.ParallelTickManager;
 import cn.ussshenzhou.madparticle.particle.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.advanced.TOptionsPanel;
-import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Tooltip;
@@ -25,7 +26,7 @@ public class SettingPanel extends TOptionsPanel {
     public SettingPanel() {
         addOptionSplitter(Component.translatable("gui.mp.de.setting.universal"));
         addOptionSliderDoubleInit(Component.translatable("gui.mp.de.setting.amount"),
-                0x2000, 0xf0000,
+                0x2000, 0x40000,
                 (component, aDouble) -> Component.literal(String.format("%d", aDouble.intValue())),
                 Component.translatable("gui.mp.de.setting.amount.tooltip"),
                 (s, d) -> {
@@ -33,7 +34,7 @@ public class SettingPanel extends TOptionsPanel {
                     ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.maxParticleAmountOfSingleQueue = newAmount);
                     var particles = ((ParticleEngineAccessor) (Minecraft.getInstance().particleEngine)).getParticles();
                     particles.forEach((particleRenderType, p) -> {
-                        EvictingQueue<Particle> newQueue = EvictingQueue.create(newAmount);
+                        EvictingLinkedHashSetQueue<Particle> newQueue = new EvictingLinkedHashSetQueue<>(newAmount);
                         newQueue.addAll(p);
                         particles.put(particleRenderType, newQueue);
                         if (particleRenderType == ModParticleRenderTypes.INSTANCED) {
@@ -56,23 +57,18 @@ public class SettingPanel extends TOptionsPanel {
                     int a = c instanceof String ? 1 : (Integer) c;
                     ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.bufferFillerThreads = a);
                     InstancedRenderManager.setThreads(a);
+                    ParallelTickManager.setThreads(a);
                 }, entry -> entry.getContent() instanceof String ? amount == 1 : amount == (Integer) entry.getContent()
         )
                 .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.threads.tooltip")));
         addOptionSplitter(Component.translatable("gui.mp.de.setting.additional"));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.additional.takeover_render"),
-                List.of(TakeOver.values()), takeOver -> b -> {
-                    ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.takeOverRendering = b.getSelected().getContent());
-                    //TODO
-                },
+                List.of(TakeOver.values()), takeOver -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.takeOverRendering = b.getSelected().getContent()),
                 entry -> entry.getContent() == ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering
         )
                 .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.additional.takeover_render.tooltip")));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.additional.takeover_tick"),
-                List.of(TakeOver.values()), takeOver -> b -> {
-                    ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.takeOverTicking = b.getSelected().getContent());
-                    //TODO
-                },
+                List.of(TakeOver.values()), takeOver -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.takeOverTicking = b.getSelected().getContent()),
                 entry -> entry.getContent() == ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking
         )
                 .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.additional.takeover_tick.tooltip")));

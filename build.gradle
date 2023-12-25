@@ -175,7 +175,7 @@ dependencies {
         jarJar.pin(it, '0.4.8')
     }
 
-    implementation fg.deobf("curse.maven:shimmer-627824:4676467")
+    //implementation fg.deobf("curse.maven:shimmer-627824:4676467")
     if (localFlexibleT88) {
         implementation fg.deobf("blank:t88:0.6.+")
         annotationProcessor "blank:t88:0.5.+"

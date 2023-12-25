@@ -144,9 +144,6 @@ public class InstancedRenderManager {
                 continue;
             }
             var particle = iterator.next();
-            if (clippingHelper != null && particle.shouldCull() && !clippingHelper.isVisible(particle.getBoundingBox())) {
-                continue;
-            }
             fillBuffer(lightCache, buffer, particle, i, partialTicks, matrix4f, camera, camPosCompensate, simpleBlockPosSingle);
         }
     }

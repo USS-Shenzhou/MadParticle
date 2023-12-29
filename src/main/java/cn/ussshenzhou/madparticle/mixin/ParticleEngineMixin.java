@@ -98,7 +98,7 @@ public class ParticleEngineMixin {
         if (particle instanceof TextureSheetParticle p && TakeOver.check(p) == ModParticleRenderTypes.INSTANCED) {
             var queue = (EvictingLinkedHashSetQueue<Particle>) particles.get(ModParticleRenderTypes.INSTANCED);
             if (queue.remainingCapacity() == 0) {
-                InstancedRenderManager.remove((MadParticle) queue.peek());
+                InstancedRenderManager.remove((TextureSheetParticle) queue.peek());
             }
             InstancedRenderManager.add(p);
         }

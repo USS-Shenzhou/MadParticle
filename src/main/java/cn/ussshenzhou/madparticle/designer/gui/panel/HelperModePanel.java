@@ -161,7 +161,8 @@ public class HelperModePanel extends TPanel {
             if (s.startsWith("/")) {
                 s = s.replaceFirst("/", "");
             }
-            if (!s.startsWith("mp") && !s.startsWith("madparticle")) {
+            s = s.replace("madparticle ", "mp ");
+            if (!s.startsWith("mp")) {
                 s = "mp " + s;
             }
             ParseResults<CommandSourceStack> parseResults = MadParticleCommand.justParse(s);

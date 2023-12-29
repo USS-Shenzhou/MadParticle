@@ -19,7 +19,7 @@ public enum TakeOver implements ITranslatable {
 
     private static final HashSet<ParticleRenderType> ACCEPT = Sets.newHashSet(net.minecraft.client.particle.ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT, net.minecraft.client.particle.ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT);
     @SuppressWarnings("unchecked")
-    public static final HashSet<Class<? extends Particle>> VANILLA_AND_MADPARTICLE = Sets.newHashSet(
+    public static final HashSet<Class<? extends Particle>> TICK_VANILLA_AND_MADPARTICLE = Sets.newHashSet(
             MadParticle.class,
             BlockMarker.class,
             TerrainParticle.class,
@@ -56,7 +56,6 @@ public enum TakeOver implements ITranslatable {
             SculkChargeParticle.class,
             SculkChargePopParticle.class,
             LargeSmokeParticle.class,
-            LavaParticle.class,
             NoteParticle.class,
             ExplodeParticle.class,
             PortalParticle.class,
@@ -71,7 +70,7 @@ public enum TakeOver implements ITranslatable {
             GlowParticle.class
     );
     @SuppressWarnings("unchecked")
-    private static final HashSet<Class<? extends TextureSheetParticle>> VANILLA_TRANS_OPAQUE = Sets.newHashSet(
+    private static final HashSet<Class<? extends TextureSheetParticle>> RENDER_VANILLA_TRANS_OPAQUE = Sets.newHashSet(
             SnowflakeParticle.class,
             SpitParticle.class,
             SpellParticle.class,
@@ -111,7 +110,7 @@ public enum TakeOver implements ITranslatable {
             GlowParticle.class
     );
     @SuppressWarnings("unchecked")
-    public static final HashSet<Class<? extends TextureSheetParticle>> CUSTOM_LIGHT = Sets.newHashSet(
+    public static final HashSet<Class<? extends TextureSheetParticle>> RENDER_CUSTOM_LIGHT = Sets.newHashSet(
             EnchantmentTableParticle.class,
             FlameParticle.class,
             SoulParticle.class,
@@ -141,7 +140,7 @@ public enum TakeOver implements ITranslatable {
             case NONE -> originalType;
             case ALL -> ACCEPT.contains(originalType) ? ModParticleRenderTypes.INSTANCED : originalType;
             case VANILLA ->
-                    VANILLA_TRANS_OPAQUE.contains(particle.getClass()) ? ModParticleRenderTypes.INSTANCED : originalType;
+                    RENDER_VANILLA_TRANS_OPAQUE.contains(particle.getClass()) ? ModParticleRenderTypes.INSTANCED : originalType;
         };
     }
 }

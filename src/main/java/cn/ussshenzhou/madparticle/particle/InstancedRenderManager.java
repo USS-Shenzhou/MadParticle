@@ -199,7 +199,7 @@ public class InstancedRenderManager {
                 lightCache.put(simpleBlockPosSingle.copy(), l);
             }
             l = madParticle.checkEmit(l);
-        } else if (!TakeOver.CUSTOM_LIGHT.contains(particle.getClass())){
+        } else if (!TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())){
             Integer l1 = lightCache.get(simpleBlockPosSingle);
             if (l1 != null) {
                 l = l1;

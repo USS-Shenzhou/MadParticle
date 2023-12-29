@@ -12,7 +12,7 @@ public class MadParticleConfig implements TConfig {
     public boolean noWelcomeScreen = false;
     public int bufferFillerThreads = 4;
     public TakeOver takeOverRendering = TakeOver.VANILLA;
-    public TakeOver takeOverTicking = TakeOver.ALL;
+    public TakeOver takeOverTicking = TakeOver.VANILLA;
 
     public MadParticleConfig() {
     }

@@ -31,7 +31,7 @@ public class ParallelTickManager {
         forkJoinPool.submit(() -> {
             var stream = particles.parallelStream();
             if (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking == TakeOver.VANILLA) {
-                stream = stream.filter(particle -> TakeOver.VANILLA_AND_MADPARTICLE.contains(particle.getClass()));
+                stream = stream.filter(particle -> TakeOver.TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass()));
             }
             stream.forEach(particle -> {
                 particle.tick();
@@ -43,7 +43,7 @@ public class ParallelTickManager {
         //tick other mods' particles if needed
         if (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking == TakeOver.VANILLA) {
             particles.parallelStream()
-                    .filter(particle -> !TakeOver.VANILLA_AND_MADPARTICLE.contains(particle.getClass()))
+                    .filter(particle -> !TakeOver.TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass()))
                     .sequential()
                     .forEach(particle -> {
                         particle.tick();

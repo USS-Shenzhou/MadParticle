@@ -18,8 +18,22 @@ public enum TakeOver implements ITranslatable {
     ALL("gui.mp.de.setting.additional.takeover.all");
 
     private static final HashSet<ParticleRenderType> ACCEPT = Sets.newHashSet(net.minecraft.client.particle.ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT, net.minecraft.client.particle.ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT);
+
     @SuppressWarnings("unchecked")
-    public static final HashSet<Class<? extends Particle>> TICK_VANILLA_AND_MADPARTICLE = Sets.newHashSet(
+    public static final HashSet<Class<? extends Particle>> SYNC_TICK_VANILLA_AND_MADPARTICLE = Sets.newHashSet(
+            SimpleAnimatedParticle.class,
+            RisingParticle.class,
+            DustParticleBase.class,
+            BaseAshSmokeParticle.class,
+            AshParticle.class,
+            CherryParticle.class,
+            LavaParticle.class,
+            BreakingItemParticle.class
+    );
+
+
+    @SuppressWarnings("unchecked")
+    public static final HashSet<Class<? extends Particle>> ASYNC_TICK_VANILLA_AND_MADPARTICLE = Sets.newHashSet(
             MadParticle.class,
             BlockMarker.class,
             TerrainParticle.class,

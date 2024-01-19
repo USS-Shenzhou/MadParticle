@@ -4,7 +4,7 @@
   "key.mp.clear_de": "Clear MadParticle Designer",
 
   "gui.mp.designer.title": "Mad Particle Command Designer",
-  "gui.mp.de.mode.title": "Modes",
+  "gui.mp.de.mode.title": "Options",
   "gui.mp.de.mode.helper": "Param.",
   "gui.mp.de.helper.command_chain": "Chain",
   "gui.mp.de.helper.command": "command",
@@ -104,7 +104,7 @@
 
   "gui.t88.invalid": "Invalid",
 
-  "gui.mp.de.mode.setting": "Options",
+  "gui.mp.de.mode.setting": "Settings",
   "gui.mp.de.setting.universal": "  Universal",
   "gui.mp.de.setting.amount": "Max Particle Amount",
   "gui.mp.de.setting.real_force": "Always Limit Max Generate Distance",

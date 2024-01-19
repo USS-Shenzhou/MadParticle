@@ -171,10 +171,10 @@ dependencies {
 
     //implementation fg.deobf("curse.maven:shimmer-627824:4676467")
     if (System.getProperty("idea.active")) {
-        implementation fg.deobf("cn.ussshenzhou:t88:0.6.+"){
+        implementation fg.deobf("cn.ussshenzhou:t88:0.6.0-pre.0"){
             exclude group: "net.minecraftforge", module: "forge"
         }
-        annotationProcessor("cn.ussshenzhou:t88:0.6.+") {
+        annotationProcessor("cn.ussshenzhou:t88:0.6.0-pre.0") {
             exclude group: "net.minecraftforge", module: "forge"
         }
     } else {

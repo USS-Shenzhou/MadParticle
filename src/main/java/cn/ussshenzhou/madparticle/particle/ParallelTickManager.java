@@ -5,6 +5,7 @@ import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.TextureSheetParticle;
 
 import java.util.Collection;
 import java.util.concurrent.ForkJoinPool;
@@ -28,10 +29,13 @@ public class ParallelTickManager {
     }
 
     public static void tickList(Collection<Particle> particles) {
-        forkJoinPool.submit(() -> {
-            var stream = particles.parallelStream();
-            if (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking == TakeOver.VANILLA) {
-                stream = stream.filter(particle -> TakeOver.TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass()));
+        boolean vanillaOnly = ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking == TakeOver.VANILLA;
+        var a = forkJoinPool.submit(() -> {
+            var stream = particles.parallelStream().filter(particle -> particle instanceof TextureSheetParticle);
+            if (vanillaOnly) {
+                stream = stream.filter(particle -> TakeOver.ASYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass()));
+            } else {
+                stream = stream.filter(particle -> !TakeOver.SYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass()));
             }
             stream.forEach(particle -> {
                 particle.tick();
@@ -39,19 +43,22 @@ public class ParallelTickManager {
                     removeCache.put(particle, NULL);
                 }
             });
-        }).join();
+        });
+
         //tick other mods' particles if needed
-        if (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking == TakeOver.VANILLA) {
-            particles.parallelStream()
-                    .filter(particle -> !TakeOver.TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass()))
-                    .sequential()
-                    .forEach(particle -> {
-                        particle.tick();
-                        if (!particle.isAlive()) {
-                            removeCache.put(particle, NULL);
-                        }
-                    });
+        var stream = particles.parallelStream();
+        if (vanillaOnly) {
+            stream = stream.filter(particle -> !TakeOver.ASYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass()));
+        } else {
+            stream = stream.filter(particle -> TakeOver.SYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass()));
         }
+        stream.sequential().forEach(particle -> {
+            particle.tick();
+            if (!particle.isAlive()) {
+                removeCache.put(particle, NULL);
+            }
+        });
+        a.join();
         var r = removeCache.asMap().keySet();
         particles.removeAll(r);
         InstancedRenderManager.removeAll(r);

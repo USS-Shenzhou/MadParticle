@@ -4,7 +4,7 @@
   "key.mp.clear_de": "重新启动设计工具",
 
   "gui.mp.designer.title": "Mad Particle Command Designer",
-  "gui.mp.de.mode.title": "模式",
+  "gui.mp.de.mode.title": "选项",
   "gui.mp.de.mode.helper": "参数",
   "gui.mp.de.helper.command_chain": "命令串",
   "gui.mp.de.helper.command": "命令",

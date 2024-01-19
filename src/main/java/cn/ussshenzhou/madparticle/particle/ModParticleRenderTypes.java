@@ -208,7 +208,7 @@ public class ModParticleRenderTypes {
                 .build());
 
         static {
-            if (MadParticle.isOptifineInstalled) {
+            if (MadParticle.IS_OPTIFINE_INSTALLED) {
                 try {
                     @SuppressWarnings("JavaReflectionMemberAccess")
                     var field = VertexFormat.class.getDeclaredField("colorElementOffset");

@@ -17,17 +17,14 @@ import org.slf4j.Logger;
 import java.util.function.Supplier;
 
 /**
- * TODO:
- * <p>Designer: translocation-priority mode</p>
- *
  * @author USS_Shenzhou
  */
 @Mod("madparticle")
 public class MadParticle {
     public static final String MOD_ID = "madparticle";
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final boolean isOptifineInstalled = isClassFound("net.optifine.reflect.ReflectorClass");
-    public static final boolean isShimmerInstalled = ModList.get().isLoaded("shimmer");
+    public static final boolean IS_OPTIFINE_INSTALLED = isClassFound("net.optifine.reflect.ReflectorClass");
+    public static final boolean IS_SHIMMER_INSTALLED = ModList.get().isLoaded("shimmer");
 
     public MadParticle() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -53,7 +50,7 @@ public class MadParticle {
     }
 
     public static void runOnShimmer(Supplier<Runnable> run) {
-        if (isShimmerInstalled) {
+        if (IS_SHIMMER_INSTALLED) {
             run.get().run();
         }
     }

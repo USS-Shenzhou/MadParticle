@@ -35,7 +35,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 > 为便于理解以及消歧义，我们将原有的*关于Minecraft模组的GNU GPL版本3第7节额外授权*更改为以下表述。
 
-a）当你作为游戏玩家，加载本程序于Minecraft并游玩时，本许可证自动地授予你一切为正常加载本程序于Minecraft并游玩所需要的、且不在GPL-3.0许可证内容中、或是GPL-3.0许可证所不允许的权利。如果GPL-3.0许可证内容与Minecraft EULA或其他Mojang/微软条款产生冲突，以后者为准。
+a）当你作为游戏玩家，加载本程序于Minecraft并游玩时，本许可证自动地授予你一切为正常加载本程序于Minecraft并游玩所必要的、不在GPL-3.0许可证内容中、或是GPL-3.0许可证所不允许的权利。如果GPL-3.0许可证内容与Minecraft EULA或其他Mojang/微软条款产生冲突，以后者为准。
 
 b）当你作为Minecraft模组开发者，在编写其他Minecraft模组并将本程序作为你的前置（依赖）时，使用`cn.usssehnzhou.madparticle.api`包中的所有内容，则这部分内容不受GPL-3.0许可证中有关“传染性”的限制，但你仍然需要醒目地注明使用本程序作为前置（依赖）。
 

@@ -11,6 +11,7 @@
     "WorldCoordinatesAccessor"
   ],
   "client": [
+    "AbstractCommandBlockEditScreenMixin",
     "AbstractSelectionListAccessor",
     "EditBoxAccessor",
     "LevelRendererMixin",

@@ -28,7 +28,7 @@ public class DesignerScreen extends TScreen {
     private final SettingPanel settingPanel = new SettingPanel();
     private final TadaModePanel tadaModePanel = new TadaModePanel();
 
-    public DesignerScreen() {
+    private DesignerScreen() {
         super(Component.translatable("gui.mp.designer.title"));
         this.add(designerModeSelectList);
         this.add(helperModePanel);
@@ -49,6 +49,11 @@ public class DesignerScreen extends TScreen {
         }
         designerScreen = new DesignerScreen();
         return designerScreen;
+    }
+
+    public void initFromCommand(String command) {
+        this.helperModePanel.getCommandEditBox().getEditBox().setValue(command);
+        this.helperModePanel.unwrap();
     }
 
     @Override

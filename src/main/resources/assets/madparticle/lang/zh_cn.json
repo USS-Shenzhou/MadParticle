@@ -1,7 +1,7 @@
 {
   "key.categories.madparticle": "疯狂粒子",
-  "key.mp.call_de": "打开辅助设计工具",
-  "key.mp.clear_de": "重新启动设计工具",
+  "key.mp.call_de": "打开设计器",
+  "key.mp.clear_de": "重新启动设计器",
 
   "gui.mp.designer.title": "Mad Particle Command Designer",
   "gui.mp.de.mode.title": "选项",
@@ -96,6 +96,9 @@
   "gui.mp.de.setting.threads.tooltip": "此值不应大于你的CPU核心数量。\n建议选择一个略小于你的CPU核心数量的值。\n如果需要，你可以在.minecraft/config/MadParticleConfig.json中更改此值。",
   "gui.mp.de.setting.additional.takeover_render.tooltip": "实例化渲染大部分原版和/或其他Mod的粒子。\n接管其他Mod的粒子渲染可能会产生错误。",
   "gui.mp.de.setting.additional.takeover_tick.tooltip": "并行化计算原版和/或其他Mod的粒子。\n接管其他Mod的粒子计算可能会产生错误。",
+
+  "gui.mp.de.setting.additional.optimize_command_block": "改进命令方块编辑界面",
+  "gui.mp.optimize_command_block.to_designer": "在疯狂粒子设计器中编辑",
 
   "gui.mp.de.mode.tada": "喷花筒",
   "gui.mp.de.mode.tada.make": "制作喷花筒",

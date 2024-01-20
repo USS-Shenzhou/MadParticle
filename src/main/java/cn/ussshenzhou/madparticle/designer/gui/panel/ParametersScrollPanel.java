@@ -332,7 +332,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         LayoutHelper.BRightOfA(alwaysRender, xGap, lifeTime, stdTitledButton);
         LayoutHelper.BRightOfA(amount, xGap, alwaysRender, stdTitledEditBox);
         LayoutHelper.BRightOfA(renderType, xGap, amount, stdTitledButton);
-        int w = Minecraft.getInstance().screen.width;
+        int w = getTopParentScreen().width;
         LayoutHelper.BRightOfA(whoCanSee, xGap, renderType,
                 w - renderType.getXT() - renderType.getWidth() - 2 * xGap - (w - getXT() - getUsableWidth()), stdTitledEditBox.y);
         //lane3

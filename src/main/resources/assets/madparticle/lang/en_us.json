@@ -123,6 +123,8 @@
   "gui.mp.de.setting.additional.takeover_render.tooltip": "Make most particles of the vanilla game and/or other Mods use instanced rendering.\nTaking over particle rendering from other Mods may lead to errors.",
   "gui.mp.de.setting.additional.takeover_tick.tooltip": "Parallelize ticking particles of the vanilla game and/or other Mods.\nTaking over particle computation from other Mods may lead to errors.",
 
+  "gui.mp.de.setting.additional.optimize_command_block": "Optimize Command Block Edit Screen",
+  "gui.mp.optimize_command_block.to_designer": "Edit in MadParticle Designer",
 
 
   "gui.mp.de.mode.helper.teacon": "TeaCon",

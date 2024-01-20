@@ -151,7 +151,7 @@ public class HelperModePanel extends TPanel {
     /**
      * @see MadParticleCommand#sendToPlayer(CommandContext, Collection, CommandDispatcher)
      */
-    protected void unwrap() {
+    public void unwrap() {
         this.setParametersScrollPanel(null);
         canHandleCall = false;
         commandStringSelectList.getComponent().clearElement();
@@ -218,6 +218,12 @@ public class HelperModePanel extends TPanel {
         }
         commandStringSelectList.checkChild();
         this.layout();
+        var commandTSelectList = this.commandStringSelectList.getComponent();
+        var commandList = commandTSelectList.getElements();
+        if (!commandList.isEmpty()) {
+            //TODO taskHelper delay 2
+            //commandTSelectList.setSelected(commandList.size() - 1);
+        }
     }
 
     protected <E> void getArgAndSelect(TTitledComponent<? extends TCycleButton<E>> titled, String name, Class<E> clazz, CommandContext<CommandSourceStack> ct) {
@@ -262,5 +268,9 @@ public class HelperModePanel extends TPanel {
 
     protected void getVec3ArgAndFill(TTitledComponent<? extends TEditBox> x, TTitledComponent<? extends TEditBox> y, TTitledComponent<? extends TEditBox> z, String name, String command, Map<String, ParsedArgument<CommandSourceStack, ?>> map) {
         getVec3ArgAndFill(x.getComponent(), y.getComponent(), z.getComponent(), name, command, map);
+    }
+
+    public TSuggestedEditBox getCommandEditBox() {
+        return command;
     }
 }

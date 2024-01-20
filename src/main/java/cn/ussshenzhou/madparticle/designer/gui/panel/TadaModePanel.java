@@ -164,7 +164,7 @@ public class TadaModePanel extends HelperModePanel {
     private int i = 0;
 
     @Override
-    protected void unwrap() {
+    public void unwrap() {
         this.setParametersScrollPanel(null);
         canHandleCall = false;
         commandStringSelectList.getComponent().clearElement();

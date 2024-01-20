@@ -26,7 +26,7 @@ public class SettingPanel extends TOptionsPanel {
     public SettingPanel() {
         addOptionSplitter(Component.translatable("gui.mp.de.setting.universal"));
         addOptionSliderDoubleInit(Component.translatable("gui.mp.de.setting.amount"),
-                0x2000, 0x40000,
+                0x2000, Math.max(0x40000, getConfigRead().maxParticleAmountOfSingleQueue),
                 (component, aDouble) -> Component.literal(String.format("%d", aDouble.intValue())),
                 Component.translatable("gui.mp.de.setting.amount.tooltip"),
                 (s, d) -> {
@@ -41,15 +41,15 @@ public class SettingPanel extends TOptionsPanel {
                             InstancedRenderManager.reload(newQueue);
                         }
                     });
-                }, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue);
+                }, getConfigRead().maxParticleAmountOfSingleQueue);
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.real_force"),
                 List.of("gui.mp.de.helper.true", "gui.mp.de.helper.false"),
                 List.of(b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.limitMaxParticleGenerateDistance = true),
                         b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.limitMaxParticleGenerateDistance = false)),
-                e -> e.getContent().contains(String.valueOf(ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance))
+                e -> e.getContent().contains(String.valueOf(getConfigRead().limitMaxParticleGenerateDistance))
         )
                 .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.real_force.tooltip")));
-        int amount = ConfigHelper.getConfigRead(MadParticleConfig.class).bufferFillerThreads;
+        int amount = getConfigRead().bufferFillerThreads;
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.threads"),
                 Sets.newLinkedHashSet(List.of("gui.mp.de.setting.threads.zero", 6, 4, 8, 2, 12, amount == 1 ? 6 : amount)).stream().toList(),
                 i -> b -> {
@@ -64,13 +64,22 @@ public class SettingPanel extends TOptionsPanel {
         addOptionSplitter(Component.translatable("gui.mp.de.setting.additional"));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.additional.takeover_render"),
                 List.of(TakeOver.values()), takeOver -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.takeOverRendering = b.getSelected().getContent()),
-                entry -> entry.getContent() == ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering
+                entry -> entry.getContent() == getConfigRead().takeOverRendering
         )
                 .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.additional.takeover_render.tooltip")));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.additional.takeover_tick"),
                 List.of(TakeOver.values()), takeOver -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.takeOverTicking = b.getSelected().getContent()),
-                entry -> entry.getContent() == ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking
+                entry -> entry.getContent() == getConfigRead().takeOverTicking
         )
                 .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.additional.takeover_tick.tooltip")));
+        addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.additional.optimize_command_block"),
+                List.of(Boolean.TRUE, Boolean.FALSE),
+                bool -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.optimizeCommandBlockEditScreen = bool),
+                entry -> entry.getContent() == getConfigRead().optimizeCommandBlockEditScreen
+        );
+    }
+
+    private static MadParticleConfig getConfigRead() {
+        return ConfigHelper.getConfigRead(MadParticleConfig.class);
     }
 }

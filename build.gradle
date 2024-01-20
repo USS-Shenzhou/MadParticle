@@ -178,7 +178,7 @@ dependencies {
             exclude group: "net.minecraftforge", module: "forge"
         }
     } else {
-        def t88FileId = '4721072'
+        def t88FileId = '5047389'
         implementation fg.deobf('curse.maven:t88-663112:' + t88FileId)
         annotationProcessor 'curse.maven:t88-663112:' + t88FileId
     }

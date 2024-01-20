@@ -18,7 +18,7 @@ public class ParticleRenderTypesProxy {
     @SuppressWarnings("AlibabaSwitchStatement")
     public static ParticleRenderType getType(ParticleRenderTypes enumType) {
         return switch (enumType) {
-            case INSTANCED -> ModParticleRenderTypes.INSTANCED;
+            case INSTANCED -> irisOn ? ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT : ModParticleRenderTypes.INSTANCED;
             case TERRAIN_SHEET ->
                     irisOn ? ParticleRenderType.TERRAIN_SHEET : ModParticleRenderTypes.Traditional.TERRAIN_SHEET;
             case PARTICLE_SHEET_OPAQUE ->

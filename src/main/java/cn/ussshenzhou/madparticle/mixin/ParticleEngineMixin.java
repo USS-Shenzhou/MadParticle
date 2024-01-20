@@ -4,6 +4,7 @@ import cn.ussshenzhou.madparticle.EvictingLinkedHashSetQueue;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.particle.*;
 import cn.ussshenzhou.t88.config.ConfigHelper;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.particle.Particle;
@@ -104,8 +105,8 @@ public class ParticleEngineMixin {
         }
     }
 
-    @Inject(method = "tickParticleList", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void madparticleRemoveFromInstancedRenderManager(Collection<Particle> pParticles, CallbackInfo ci, Iterator<?> iterator, Particle particle) {
+    @Inject(method = "tickParticleList", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = At.Shift.AFTER))
+    private void madparticleRemoveFromInstancedRenderManager(Collection<Particle> pParticles, CallbackInfo ci, @Local Particle particle) {
         if (particle instanceof TextureSheetParticle p) {
             InstancedRenderManager.remove(p);
         }

@@ -90,6 +90,10 @@ public class InstancedRenderManager {
         PARTICLES.removeAll(particle);
     }
 
+    public static void clear(){
+        PARTICLES.clear();
+    }
+
     //FIXME disappear after other vanilla particle rendered
     public static void render(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, LightTexture lightTexture, Camera camera, float partialTicks, Frustum clippingHelper, TextureManager textureManager) {
         if (PARTICLES.isEmpty()) {
@@ -108,6 +112,11 @@ public class InstancedRenderManager {
         fillVertices(bufferBuilder);
         BufferBuilder.RenderedBuffer renderedBuffer = bufferBuilder.end();
         var vertexBuffer = BufferUploader.upload(renderedBuffer);
+        if (cn.ussshenzhou.madparticle.MadParticle.IS_OPTIFINE_INSTALLED) {
+            GL30C.glBindVertexArray(vertexBuffer.arrayObjectId);
+            GL20C.glEnableVertexAttribArray(1);
+            GL30C.glVertexAttribIPointer(1, 4, GL11C.GL_INT, 28, 3 * 4);
+        }
         int instanceMatrixBufferId = bindBuffer(instanceMatrixBuffer, vertexBuffer.arrayObjectId);
         ShaderInstance shader = RenderSystem.getShader();
         prepare(shader);
@@ -199,7 +208,7 @@ public class InstancedRenderManager {
                 lightCache.put(simpleBlockPosSingle.copy(), l);
             }
             l = madParticle.checkEmit(l);
-        } else if (!TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())){
+        } else if (!TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
             Integer l1 = lightCache.get(simpleBlockPosSingle);
             if (l1 != null) {
                 l = l1;
@@ -273,6 +282,10 @@ public class InstancedRenderManager {
 
         RenderSystem.setupShaderLights(shader);
         shader.apply();
+        if (cn.ussshenzhou.madparticle.MadParticle.IS_OPTIFINE_INSTALLED){
+            //TODO if optifine shader using
+            GL20C.glUseProgram(shader.getId());
+        }
     }
 
     public static int bindBuffer(ByteBuffer buffer, int id) {

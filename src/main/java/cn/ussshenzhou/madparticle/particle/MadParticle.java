@@ -681,6 +681,10 @@ public class MadParticle extends TextureSheetParticle {
         return sprite;
     }
 
+    public boolean isInteractWithEntity() {
+        return interactWithEntity;
+    }
+
     public static class Provider implements ParticleProvider<MadParticleOption> {
 
         public Provider() {

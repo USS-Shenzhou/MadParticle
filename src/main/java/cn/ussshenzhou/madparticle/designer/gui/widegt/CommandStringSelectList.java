@@ -104,7 +104,11 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
         return false;
     }
 
-    public static class SubCommand {
+    public SubCommand addSubCommand(ParametersScrollPanel parametersScrollPanel) {
+        return new SubCommand(parametersScrollPanel);
+    }
+
+    public class SubCommand {
         public final ParametersScrollPanel parametersScrollPanel;
 
         public SubCommand() {
@@ -113,6 +117,7 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
 
         public SubCommand(ParametersScrollPanel parametersScrollPanel) {
             this.parametersScrollPanel = parametersScrollPanel;
+            add(parametersScrollPanel);
         }
 
         @Override

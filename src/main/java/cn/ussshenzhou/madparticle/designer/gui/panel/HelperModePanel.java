@@ -211,10 +211,10 @@ public class HelperModePanel extends TPanel {
             getArgAndSelect(panel.collision, "collision", InheritableBoolean.class, ct);
             getArgAndSelect(panel.alpha, "alphaMode", ChangeMode.class, ct);
             getArgAndSelect(panel.scale, "scaleMode", ChangeMode.class, ct);
-            panel.metaPanel.unwrap(ct);
-            commandStringSelectList.addElement(new CommandStringSelectList.SubCommand(panel), list1 -> {
+            commandStringSelectList.addElement(commandStringSelectList.addSubCommand(panel), list1 -> {
                 list1.getParentInstanceOf(HelperModePanel.class).setParametersScrollPanel(list1.getSelected().getContent().getParametersScrollPanel());
             });
+            panel.metaPanel.unwrap(ct);
         }
         commandStringSelectList.checkChild();
         this.layout();

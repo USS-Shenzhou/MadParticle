@@ -22,7 +22,6 @@ import java.util.List;
  */
 public class SettingPanel extends TOptionsPanel {
 
-    @SuppressWarnings("UnstableApiUsage")
     public SettingPanel() {
         addOptionSplitter(Component.translatable("gui.mp.de.setting.universal"));
         addOptionSliderDoubleInit(Component.translatable("gui.mp.de.setting.amount"),

@@ -33,31 +33,55 @@ public class ParallelTickManager {
         var a = forkJoinPool.submit(() -> {
             var stream = particles.parallelStream().filter(particle -> particle instanceof TextureSheetParticle);
             if (vanillaOnly) {
-                stream = stream.filter(particle -> TakeOver.ASYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass()));
+                stream = stream.filter(particle -> {
+                    if (particle instanceof MadParticle madParticle){
+                        return !madParticle.isInteractWithEntity();
+                    } else {
+                        return TakeOver.ASYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass());
+                    }
+                });
             } else {
-                stream = stream.filter(particle -> !TakeOver.SYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass()));
+                stream = stream.filter(particle -> {
+                    if (particle instanceof MadParticle madParticle){
+                        return !madParticle.isInteractWithEntity();
+                    } else {
+                        return !TakeOver.SYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass());
+                    }
+                });
             }
             stream.forEach(particle -> {
-                particle.tick();
-                if (!particle.isAlive()) {
-                    removeCache.put(particle, NULL);
-                }
-            });
+                        particle.tick();
+                        if (!particle.isAlive()) {
+                            removeCache.put(particle, NULL);
+                        }
+                    });
         });
-
         //tick other mods' particles if needed
         var stream = particles.parallelStream();
         if (vanillaOnly) {
-            stream = stream.filter(particle -> !TakeOver.ASYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass()));
+            stream = stream.filter(particle -> {
+                if (particle instanceof MadParticle madParticle){
+                    return madParticle.isInteractWithEntity();
+                } else {
+                    return !TakeOver.ASYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass());
+                }
+            });
         } else {
-            stream = stream.filter(particle -> TakeOver.SYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass()));
+            stream = stream.filter(particle -> {
+                if (particle instanceof MadParticle madParticle){
+                    return madParticle.isInteractWithEntity();
+                } else {
+                    return TakeOver.SYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass());
+                }
+            });
         }
-        stream.sequential().forEach(particle -> {
-            particle.tick();
-            if (!particle.isAlive()) {
-                removeCache.put(particle, NULL);
-            }
-        });
+        stream.sequential()
+                .forEach(particle -> {
+                    particle.tick();
+                    if (!particle.isAlive()) {
+                        removeCache.put(particle, NULL);
+                    }
+                });
         a.join();
         var r = removeCache.asMap().keySet();
         particles.removeAll(r);

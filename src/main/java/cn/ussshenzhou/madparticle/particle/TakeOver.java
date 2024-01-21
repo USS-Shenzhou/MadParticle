@@ -34,7 +34,6 @@ public enum TakeOver implements ITranslatable {
 
     @SuppressWarnings("unchecked")
     public static final HashSet<Class<? extends Particle>> ASYNC_TICK_VANILLA_AND_MADPARTICLE = Sets.newHashSet(
-            MadParticle.class,
             BlockMarker.class,
             TerrainParticle.class,
             DustColorTransitionParticle.class,

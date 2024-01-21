@@ -1,4 +1,4 @@
-package cn.ussshenzhou.madparticle.util;
+package cn.ussshenzhou.madparticle.api;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
@@ -8,6 +8,7 @@ import cn.ussshenzhou.madparticle.particle.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.SpriteFrom;
+import cn.ussshenzhou.madparticle.util.MathHelper;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.network.NetworkHelper;
 import net.minecraft.client.Minecraft;
@@ -38,6 +39,7 @@ import static cn.ussshenzhou.madparticle.util.MetaKeys.TENET;
 
 /**
  * @author USS_Shenzhou
+ * <br>This file is not subject to the "infectious" restrictions of the GPL-3.0 license. However, you still need to prominently indicate the use of this program as a prerequisite (dependency).
  */
 public class AddParticleHelper {
 

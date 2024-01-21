@@ -3,7 +3,7 @@ package cn.ussshenzhou.madparticle.network;
 import cn.ussshenzhou.madparticle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.ModParticleTypeRegistry;
-import cn.ussshenzhou.madparticle.util.AddParticleHelper;
+import cn.ussshenzhou.madparticle.api.AddParticleHelper;
 import cn.ussshenzhou.t88.network.annotation.Consumer;
 import cn.ussshenzhou.t88.network.annotation.Decoder;
 import cn.ussshenzhou.t88.network.annotation.Encoder;

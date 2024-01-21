@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.mixin;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.madparticle.util.AddParticleHelper;
+import cn.ussshenzhou.madparticle.api.AddParticleHelper;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;

@@ -2,7 +2,7 @@ package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.util.AABBHelper;
-import cn.ussshenzhou.madparticle.util.AddParticleHelper;
+import cn.ussshenzhou.madparticle.api.AddParticleHelper;
 import cn.ussshenzhou.madparticle.util.MathHelper;
 import cn.ussshenzhou.madparticle.util.MovementHelper;
 import com.mojang.blaze3d.vertex.VertexConsumer;

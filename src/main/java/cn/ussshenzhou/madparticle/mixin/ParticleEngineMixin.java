@@ -45,10 +45,18 @@ public class ParticleEngineMixin {
         return t -> new EvictingLinkedHashSetQueue<>(16384, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue);
     }
 
-
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/particle/Particle;getRenderType()Lnet/minecraft/client/particle/ParticleRenderType;"))
     private ParticleRenderType madparticleTakeoverRenderType(Particle instance) {
         return TakeOver.check(instance);
+    }
+
+    @Shadow
+    @Final
+    private Queue<Particle> particlesToAdd;
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void madparticleClearToAdd(CallbackInfo ci) {
+        particlesToAdd.clear();
     }
 
     @Redirect(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;)V",

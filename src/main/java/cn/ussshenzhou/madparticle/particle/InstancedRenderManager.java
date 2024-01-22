@@ -94,6 +94,10 @@ public class InstancedRenderManager {
         PARTICLES.clear();
     }
 
+    public static int amount(){
+        return PARTICLES.size();
+    }
+
     //FIXME disappear after other vanilla particle rendered
     public static void render(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, LightTexture lightTexture, Camera camera, float partialTicks, Frustum clippingHelper, TextureManager textureManager) {
         if (PARTICLES.isEmpty()) {

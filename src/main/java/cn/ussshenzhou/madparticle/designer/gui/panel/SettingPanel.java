@@ -2,12 +2,14 @@ package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.EvictingLinkedHashSetQueue;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.madparticle.designer.gui.ParticleCounterHud;
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.particle.InstancedRenderManager;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.ParallelTickManager;
 import cn.ussshenzhou.madparticle.particle.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
+import cn.ussshenzhou.t88.gui.HudManager;
 import cn.ussshenzhou.t88.gui.advanced.TOptionsPanel;
 import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
@@ -76,6 +78,16 @@ public class SettingPanel extends TOptionsPanel {
                 bool -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.optimizeCommandBlockEditScreen = bool),
                 entry -> entry.getContent() == getConfigRead().optimizeCommandBlockEditScreen
         );
+        addOptionCycleButton(Component.literal("Particle Amount Counter"),
+                List.of(Boolean.FALSE, Boolean.TRUE),
+                bool -> b -> {
+                    if (b.getSelected().getContent()) {
+                        //TODO T88 0.7
+                        HudManager.add(new ParticleCounterHud());
+                    } else {
+                        HudManager.getChildren().stream().filter(t -> t instanceof ParticleCounterHud).findFirst().ifPresent(HudManager::remove);
+                    }
+                });
     }
 
     private static MadParticleConfig getConfigRead() {

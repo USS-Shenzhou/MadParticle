@@ -100,7 +100,6 @@ public class InstancedRenderManager {
         return PARTICLES.size();
     }
 
-    //FIXME disappear after other vanilla particle rendered
     public static void render(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, LightTexture lightTexture, Camera camera, float partialTicks, Frustum clippingHelper, TextureManager textureManager) {
         if (PARTICLES.isEmpty()) {
             return;
@@ -120,14 +119,19 @@ public class InstancedRenderManager {
         BufferBuilder.RenderedBuffer renderedBuffer = bufferBuilder.end();
         var vertexBuffer = BufferUploader.upload(renderedBuffer);
         if (cn.ussshenzhou.madparticle.MadParticle.IS_OPTIFINE_INSTALLED) {
+            //noinspection DataFlowIssue
             GL30C.glBindVertexArray(vertexBuffer.arrayObjectId);
             GL20C.glEnableVertexAttribArray(1);
             GL30C.glVertexAttribIPointer(1, 4, GL11C.GL_INT, 28, 3 * 4);
         }
+        //noinspection DataFlowIssue
         int instanceMatrixBufferId = bindBuffer(instanceMatrixBuffer, vertexBuffer.arrayObjectId);
         ShaderInstance shader = RenderSystem.getShader();
         prepare(shader);
-        GL31C.glDrawElementsInstanced(4, 6, GL11C.GL_UNSIGNED_INT, 0, amount);
+        GL31C.glDrawElementsInstanced(4, 6,
+                RenderSystem.sharedSequentialQuad.hasStorage(65536) ? GL11C.GL_UNSIGNED_INT : GL11C.GL_UNSIGNED_SHORT,
+                0, amount);
+        //noinspection DataFlowIssue
         shader.clear();
         end(instanceMatrixBuffer, instanceMatrixBufferId);
         Arrays.stream(lightCaches).forEach(HashMap::clear);

@@ -6,7 +6,7 @@
 # The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
 modLoader = "javafml" #mandatory
 # A version range to match for said mod loader - for regular FML @Mod it will be the forge version
-loaderVersion = "[46,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+loaderVersion = "[47,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
 # The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
 # Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
 license = "GNU GPL 3.0"
@@ -25,7 +25,7 @@ displayName = "MadParticle" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification <here>
 #updateJSONURL="http://myurl.me/" #optional
 # A URL for the "homepage" for this mod, displayed in the mod UI
-displayURL="https://space.bilibili.com/266675750" #optional
+displayURL="https://holojaneway.uss-shenzhou.cn/madparticle" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
 logoFile="madparticle.png" #optional
 # A text field displayed in the mod UI
@@ -34,7 +34,6 @@ logoFile="madparticle.png" #optional
 authors="USS_Shenzhou" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description = '''
-
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.madparticle]] #optional
@@ -43,7 +42,7 @@ modId = "forge" #mandatory
 # Does this dependency have to exist - if not, ordering below must be specified
 mandatory = true #mandatory
 # The version range of the dependency
-versionRange = "[46,)" #mandatory
+versionRange = "[47,)" #mandatory
 # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
 ordering = "NONE"
 # Side this dependency is applied on - BOTH, CLIENT or SERVER
@@ -65,6 +64,6 @@ side = "CLIENT"
 [[dependencies.madparticle]]
 modId = "t88"
 mandatory = true
-versionRange = "[0.4,)"
+versionRange = "[0.6,)"
 ordering = "NONE"
 side = "BOTH"

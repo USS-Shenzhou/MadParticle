@@ -64,7 +64,7 @@ public class WelcomeScreen extends TScreen {
         LayoutHelper.BBottomOfA(text1, 10, welcome, text1.getPreferredSize());
         LayoutHelper.BBottomOfA(text2, 0, text1, text2.getPreferredSize());
         text3.setAbsBounds(
-                text2.getXT() + text2.getSize().x + 4,
+                text2.getXT() + text2.getSize().x + 2,
                 text2.getYT() - 2,
                 text3.getPreferredSize().add(4, 4)
         );

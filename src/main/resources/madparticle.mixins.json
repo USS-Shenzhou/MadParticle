@@ -19,7 +19,6 @@
     "ParticleEngineAccessor",
     "ParticleEngineMixin",
     "ParticleMixin",
-    "RenderSystemMixin",
     "SuspendedParticleMixin",
     "TextureManagerAccessor",
     "VertexFormatElementUsageAccessor",

@@ -23,6 +23,7 @@ import static com.mojang.blaze3d.vertex.DefaultVertexFormat.*;
 @ParametersAreNonnullByDefault
 public class ModParticleRenderTypes {
 
+    @SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
     public static final InstancedRenderBufferBuilder instancedRenderBufferBuilder = new InstancedRenderBufferBuilder(1024 * 512);
 
     public static final ParticleRenderType INSTANCED = new ParticleRenderType() {
@@ -38,7 +39,7 @@ public class ModParticleRenderTypes {
 
         @Override
         public void end(Tesselator pTesselator) {
-            pTesselator.end();
+            instancedRenderBufferBuilder.end();
         }
     };
 

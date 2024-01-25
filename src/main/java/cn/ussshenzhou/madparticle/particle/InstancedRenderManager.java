@@ -7,6 +7,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
+import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.TextureSheetParticle;
@@ -90,11 +92,11 @@ public class InstancedRenderManager {
         PARTICLES.removeAll(particle);
     }
 
-    public static void clear(){
+    public static void clear() {
         PARTICLES.clear();
     }
 
-    public static int amount(){
+    public static int amount() {
         return PARTICLES.size();
     }
 
@@ -108,6 +110,7 @@ public class InstancedRenderManager {
         ByteBuffer instanceMatrixBuffer = MemoryUtil.memAlloc(PARTICLES.size() * SIZE_INSTANCE_BYTES);
         MemoryUtil.memSet(instanceMatrixBuffer, 0);
         int amount;
+        //TODO add an option of checking visibility
         if (threads <= 1) {
             amount = renderSync(instanceMatrixBuffer, camera, partialTicks, clippingHelper);
         } else {
@@ -124,7 +127,7 @@ public class InstancedRenderManager {
         int instanceMatrixBufferId = bindBuffer(instanceMatrixBuffer, vertexBuffer.arrayObjectId);
         ShaderInstance shader = RenderSystem.getShader();
         prepare(shader);
-        GL31C.glDrawElementsInstanced(4, 6, 5123, 0, amount);
+        GL31C.glDrawElementsInstanced(4, 6, GL11C.GL_UNSIGNED_INT, 0, amount);
         shader.clear();
         end(instanceMatrixBuffer, instanceMatrixBufferId);
         Arrays.stream(lightCaches).forEach(HashMap::clear);
@@ -286,7 +289,7 @@ public class InstancedRenderManager {
 
         RenderSystem.setupShaderLights(shader);
         shader.apply();
-        if (cn.ussshenzhou.madparticle.MadParticle.IS_OPTIFINE_INSTALLED){
+        if (cn.ussshenzhou.madparticle.MadParticle.IS_OPTIFINE_INSTALLED) {
             //TODO if optifine shader using
             GL20C.glUseProgram(shader.getId());
         }

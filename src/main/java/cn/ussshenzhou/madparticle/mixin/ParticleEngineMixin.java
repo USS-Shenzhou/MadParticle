@@ -126,6 +126,8 @@ public class ParticleEngineMixin {
         if (config.takeOverTicking != TakeOver.NONE && config.bufferFillerThreads > 1) {
             ParallelTickManager.tickList(particles);
             ci.cancel();
+        } else {
+            ParallelTickManager.clearCount();
         }
     }
 }

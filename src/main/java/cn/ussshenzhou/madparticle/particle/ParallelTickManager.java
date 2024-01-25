@@ -30,6 +30,10 @@ public class ParallelTickManager {
         return count.get();
     }
 
+    public static void clearCount(){
+        count.set(0);
+    }
+
     private static int threads() {
         return InstancedRenderManager.getThreads();
     }

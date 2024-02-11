@@ -37,8 +37,6 @@ public enum TakeOver implements ITranslatable {
             BlockMarker.class,
             TerrainParticle.class,
             DustColorTransitionParticle.class,
-            HugeExplosionSeedParticle.class,
-            HugeExplosionParticle.class,
             SonicBoomParticle.class,
             FallingDustParticle.class,
             FireworkParticles.OverlayParticle.class,

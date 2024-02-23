@@ -19,7 +19,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 group = 'cn.ussshenzhou'
-version = '0.5.0-pre.1'
+version = '0.5.0.pre.2'
 
 java {
     archivesBaseName = 'madparticle'
@@ -161,7 +161,7 @@ dependencies {
     // Specify the version of Minecraft to use. If this is any group other than 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.20.1-47.0.3'
+    minecraft 'net.minecraftforge:forge:1.20.1-47.2.20'
 
     // https://mvnrepository.com/artifact/net.objecthunter/exp4j
     minecraftLibrary group: 'net.objecthunter', name: 'exp4j', version: '[0.4,0.5)'
@@ -186,6 +186,9 @@ dependencies {
     implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.3.5")) {
         jarJar.ranged(it, "[0.3.5,)")
     }
+
+    //implementation fg.deobf("curse.maven:oculus-581495:5108615")
+    //implementation fg.deobf("curse.maven:embeddium-908741:5110120")
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency

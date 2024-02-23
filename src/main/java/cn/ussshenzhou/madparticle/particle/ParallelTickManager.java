@@ -26,11 +26,11 @@ public class ParallelTickManager {
         forkJoinPool = new ForkJoinPool(amount);
     }
 
-    public static int count(){
+    public static int count() {
         return count.get();
     }
 
-    public static void clearCount(){
+    public static void clearCount() {
         count.set(0);
     }
 
@@ -56,7 +56,7 @@ public class ParallelTickManager {
                     if (particle instanceof MadParticle madParticle) {
                         return !madParticle.isInteractWithEntity();
                     } else {
-                        return !TakeOver.SYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass());
+                        return particle instanceof TextureSheetParticle && !TakeOver.SYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass());
                     }
                 });
             }
@@ -75,7 +75,7 @@ public class ParallelTickManager {
                 if (particle instanceof MadParticle madParticle) {
                     return madParticle.isInteractWithEntity();
                 } else {
-                    return !TakeOver.ASYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass());
+                    return particle instanceof TextureSheetParticle && !TakeOver.ASYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass());
                 }
             });
         } else {
@@ -83,7 +83,7 @@ public class ParallelTickManager {
                 if (particle instanceof MadParticle madParticle) {
                     return madParticle.isInteractWithEntity();
                 } else {
-                    return TakeOver.SYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass());
+                    return !(particle instanceof TextureSheetParticle) || TakeOver.SYNC_TICK_VANILLA_AND_MADPARTICLE.contains(particle.getClass());
                 }
             });
         }

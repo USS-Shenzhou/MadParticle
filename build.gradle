@@ -19,7 +19,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 group = 'cn.ussshenzhou'
-version = '0.5.0.pre.2'
+version = '0.5.1'
 
 java {
     archivesBaseName = 'madparticle'
@@ -187,8 +187,9 @@ dependencies {
         jarJar.ranged(it, "[0.3.5,)")
     }
 
-    //implementation fg.deobf("curse.maven:oculus-581495:5108615")
-    //implementation fg.deobf("curse.maven:embeddium-908741:5110120")
+    implementation fg.deobf("curse.maven:oculus-581495:5108615")
+    implementation fg.deobf("curse.maven:embeddium-908741:5110120")
+
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency

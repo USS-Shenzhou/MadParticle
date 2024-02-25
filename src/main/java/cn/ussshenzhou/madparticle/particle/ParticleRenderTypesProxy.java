@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.particle;
 
+import cn.ussshenzhou.madparticle.MadParticle;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
@@ -11,47 +12,24 @@ import java.lang.reflect.Method;
 /**
  * @author USS_Shenzhou
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ParticleRenderTypesProxy {
-    private static boolean irisOn;
 
     @SuppressWarnings("AlibabaSwitchStatement")
     public static ParticleRenderType getType(ParticleRenderTypes enumType) {
         return switch (enumType) {
-            case INSTANCED -> irisOn ? ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT : ModParticleRenderTypes.INSTANCED;
+            case INSTANCED -> ModParticleRenderTypes.INSTANCED;
             case TERRAIN_SHEET ->
-                    irisOn ? ParticleRenderType.TERRAIN_SHEET : ModParticleRenderTypes.Traditional.TERRAIN_SHEET;
+                    MadParticle.irisOn ? ParticleRenderType.TERRAIN_SHEET : ModParticleRenderTypes.Traditional.TERRAIN_SHEET;
             case PARTICLE_SHEET_OPAQUE ->
-                    irisOn ? ParticleRenderType.PARTICLE_SHEET_OPAQUE : ModParticleRenderTypes.Traditional.PARTICLE_SHEET_OPAQUE;
+                    MadParticle.irisOn ? ParticleRenderType.PARTICLE_SHEET_OPAQUE : ModParticleRenderTypes.Traditional.PARTICLE_SHEET_OPAQUE;
             case PARTICLE_SHEET_LIT ->
-                    irisOn ? ParticleRenderType.PARTICLE_SHEET_LIT : ModParticleRenderTypes.Traditional.PARTICLE_SHEET_LIT;
+                    MadParticle.irisOn ? ParticleRenderType.PARTICLE_SHEET_LIT : ModParticleRenderTypes.Traditional.PARTICLE_SHEET_LIT;
             case PARTICLE_SHEET_TRANSLUCENT ->
-                    irisOn ? ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT : ModParticleRenderTypes.Traditional.PARTICLE_SHEET_TRANSLUCENT;
+                    MadParticle.irisOn ? ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT : ModParticleRenderTypes.Traditional.PARTICLE_SHEET_TRANSLUCENT;
             /*case CUSTOM -> {
                 return ParticleRenderType.CUSTOM;
             }*/
             default -> ParticleRenderType.NO_RENDER;
         };
-    }
-
-    @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
-            irisOn = checkIrisOn();
-        }
-    }
-
-    private static boolean checkIrisOn() {
-        //return true;
-        try {
-            Class<?> irisApi = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
-            Method getInstance = irisApi.getMethod("getInstance");
-            getInstance.setAccessible(true);
-            Method isShaderPackInUse = irisApi.getMethod("isShaderPackInUse");
-            isShaderPackInUse.setAccessible(true);
-            return (boolean) isShaderPackInUse.invoke(getInstance.invoke(null));
-        } catch (Exception ignored) {
-            return false;
-        }
     }
 }

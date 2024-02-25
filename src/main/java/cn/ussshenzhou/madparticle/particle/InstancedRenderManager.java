@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.t88.T88;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -8,14 +9,10 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
-import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.TextureSheetParticle;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
@@ -25,6 +22,8 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.MemoryUtil;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,6 +54,7 @@ public class InstancedRenderManager {
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
     @SuppressWarnings("unchecked")
     private static HashMap<SimpleBlockPos, Integer>[] lightCaches = Stream.generate(() -> new HashMap<String, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
+    private static Field id = null;
 
     @SuppressWarnings("unchecked")
     public static void setThreads(int amount) {
@@ -296,6 +296,27 @@ public class InstancedRenderManager {
         if (cn.ussshenzhou.madparticle.MadParticle.IS_OPTIFINE_INSTALLED) {
             //TODO if optifine shader using
             GL20C.glUseProgram(shader.getId());
+        }
+        if (cn.ussshenzhou.madparticle.MadParticle.irisOn) {
+            //Profiler tells me this is ok. We should trust JVM.
+            try {
+                ShaderInstance translucent = GameRenderer.getParticleShader();
+                Class<? extends ShaderInstance> translucentClass = translucent.getClass();
+                Field writingToAfterTranslucent = translucentClass.getDeclaredField("writingToAfterTranslucent");
+                writingToAfterTranslucent.setAccessible(true);
+                Object irisGlFramebuffer = writingToAfterTranslucent.get(translucent);
+                Field id = irisGlFramebuffer.getClass().getSuperclass().getDeclaredField("id");
+                id.setAccessible(true);
+                int frameBuffer = (int) id.get(irisGlFramebuffer);
+                GL30C.glBindFramebuffer(GL30C.GL_FRAMEBUFFER, frameBuffer);
+            } catch (Exception e) {
+                if (T88.TEST) {
+                    LogUtils.getLogger().error("{}", e.getMessage());
+                }
+            }
+            GL11C.glDepthMask(true);
+            GL11C.glColorMask(true, true, true, true);
+
         }
     }
 

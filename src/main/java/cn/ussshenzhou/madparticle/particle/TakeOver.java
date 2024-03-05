@@ -154,4 +154,10 @@ public enum TakeOver implements ITranslatable {
                     RENDER_VANILLA_TRANS_OPAQUE.contains(particle.getClass()) ? ModParticleRenderTypes.INSTANCED : originalType;
         };
     }
+
+    public enum TickType {
+        SYNC,
+        ASYNC,
+        UNKNOWN
+    }
 }

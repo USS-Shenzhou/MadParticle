@@ -106,8 +106,9 @@ public class InstancedRenderManager {
         }
         InstancedRenderBufferBuilder bufferBuilder = ModParticleRenderTypes.instancedRenderBufferBuilder;
         ModParticleRenderTypes.INSTANCED.begin(bufferBuilder, textureManager);
-        ByteBuffer instanceMatrixBuffer = MemoryUtil.memAlloc(PARTICLES.size() * SIZE_INSTANCE_BYTES);
-        MemoryUtil.memSet(instanceMatrixBuffer, 0);
+        //ByteBuffer instanceMatrixBuffer = MemoryUtil.memAlloc(PARTICLES.size() * SIZE_INSTANCE_BYTES);
+        //MemoryUtil.memSet(instanceMatrixBuffer, 0);
+        ByteBuffer instanceMatrixBuffer = MemoryUtil.memCalloc(PARTICLES.size(), SIZE_INSTANCE_BYTES);
         int amount;
         //TODO add an option of checking visibility
         if (threads <= 1) {

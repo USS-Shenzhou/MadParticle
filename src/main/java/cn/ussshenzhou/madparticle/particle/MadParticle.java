@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
+import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
 import cn.ussshenzhou.madparticle.util.AABBHelper;
 import cn.ussshenzhou.madparticle.api.AddParticleHelper;
 import cn.ussshenzhou.madparticle.util.MathHelper;
@@ -118,6 +119,7 @@ public class MadParticle extends TextureSheetParticle {
         this.afterCollisionFriction = afterCollisionFriction;
         this.afterCollisionGravity = afterCollisionGravity;
         this.interactWithEntity = interactWithEntity;
+        ((ITickType) this).setTickType(interactWithEntity ? TakeOver.TickType.SYNC : TakeOver.TickType.ASYNC);
         this.horizontalInteractFactor = horizontalInteractFactor;
         this.verticalInteractFactor = verticalInteractFactor;
         this.lifetime = lifeTime;
@@ -679,10 +681,6 @@ public class MadParticle extends TextureSheetParticle {
 
     public TextureAtlasSprite getSprite() {
         return sprite;
-    }
-
-    public boolean isInteractWithEntity() {
-        return interactWithEntity;
     }
 
     public static class Provider implements ParticleProvider<MadParticleOption> {

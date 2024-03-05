@@ -7,6 +7,7 @@ import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleRenderType;
@@ -28,10 +29,8 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Function;
 
 /**
@@ -39,6 +38,14 @@ import java.util.function.Function;
  */
 @Mixin(ParticleEngine.class)
 public class ParticleEngineMixin {
+
+    @Shadow
+    public Queue<Particle> particlesToAdd;
+
+    @Inject(method = "<init>", at = @At(value = "TAIL"))
+    private void madparticleMakeBufferAsync(ClientLevel pLevel, TextureManager pTextureManager, CallbackInfo ci) {
+        particlesToAdd = new ConcurrentLinkedDeque<>();
+    }
 
     @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Map;computeIfAbsent(Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;"), index = 1)
     private Function<ParticleRenderType, Queue<Particle>> madparticleUseEvictingLinkedHashSetQueueInsteadOfEvictingQueue(Function<ParticleRenderType, Queue<Particle>> mappingFunction) {
@@ -49,10 +56,6 @@ public class ParticleEngineMixin {
     private ParticleRenderType madparticleTakeoverRenderType(Particle instance) {
         return TakeOver.check(instance);
     }
-
-    @Shadow
-    @Final
-    private Queue<Particle> particlesToAdd;
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void madparticleClearToAdd(CallbackInfo ci) {
@@ -80,6 +83,7 @@ public class ParticleEngineMixin {
             at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V")
     )
     private void madparticleRenderInstanced(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, LightTexture lightTexture, Camera camera, float partialTicks, Frustum clippingHelper, CallbackInfo ci) {
+        //TODO need update
         try {
             //if Iris exist
             Class<?> thisClass = ParticleEngine.class;

@@ -34,12 +34,13 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
-import static cn.ussshenzhou.madparticle.util.MetaKeys.PRE_CAL;
-import static cn.ussshenzhou.madparticle.util.MetaKeys.TENET;
+import static cn.ussshenzhou.madparticle.util.MetaKeys.*;
 
 /**
  * @author USS_Shenzhou
- * <br>This file is not subject to the "infectious" restrictions of the GPL-3.0 license. However, you still need to prominently indicate the use of this program as a prerequisite (dependency).
+ * <br>This file is not subject to the "infectious" restrictions of the GPL-3.0 license,
+ * Which means you can call these method like this file is licensed under LGPL.
+ * <br>However, you still need to prominently indicate the use of this program as a prerequisite (dependency).
  */
 public class AddParticleHelper {
 
@@ -171,12 +172,12 @@ public class AddParticleHelper {
     }
 
     private static boolean needAsyncCreate(CompoundTag meta) {
-        return meta.contains("dx")
-                || meta.contains("dy")
-                || meta.contains("dz")
+        return meta.contains(DX.get())
+                || meta.contains(DY.get())
+                || meta.contains(DZ.get())
+                || meta.contains(LIGHT.get())
                 || meta.getBoolean(TENET.get())
-                || meta.getBoolean(PRE_CAL.get())
-                ;
+                || meta.getBoolean(PRE_CAL.get());
     }
 
     private static void syncCreateParticle(MadParticleOption option) {
@@ -230,7 +231,7 @@ public class AddParticleHelper {
                         )
                 );
             }
-            mc.execute(() -> particles.forEach(particleEngine::add));
+            particleEngine.particlesToAdd.addAll(particles);
         });
     }
 

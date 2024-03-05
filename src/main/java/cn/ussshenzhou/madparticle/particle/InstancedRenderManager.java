@@ -298,6 +298,7 @@ public class InstancedRenderManager {
             GL20C.glUseProgram(shader.getId());
         }
         if (cn.ussshenzhou.madparticle.MadParticle.irisOn) {
+            //Borrow iris particle shader's frame buffer.
             //Profiler tells me this is ok. We should trust JVM.
             try {
                 ShaderInstance translucent = GameRenderer.getParticleShader();

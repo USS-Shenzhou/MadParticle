@@ -9,6 +9,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.TextureSheetParticle;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,44 +45,41 @@ public class ParallelTickManager {
     public static void tickList(Collection<Particle> particles) {
         count.set(0);
         boolean vanillaOnly = ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking == TakeOver.VANILLA;
-        var tickAsync = forkJoinPool.submit(() -> {
-            var stream = particles.parallelStream().filter(particle -> particle instanceof TextureSheetParticle);
+        var pickAndTick = forkJoinPool.submit(() -> particles.parallelStream().forEach(particle -> {
             if (vanillaOnly) {
-                stream = stream.filter(particle -> getTickType(particle) == TakeOver.TickType.ASYNC);
-            } else {
-                stream = stream.filter(particle -> getTickType(particle) != TakeOver.TickType.SYNC);
-            }
-            stream.forEach(particle -> {
-                particle.tick();
-                count.incrementAndGet();
-                if (!particle.isAlive()) {
-                    removeCache.put(particle, NULL);
+                if (getTickType(particle) == TakeOver.TickType.ASYNC) {
+                    asyncTick(particle);
+                } else {
+                    syncTickCache.put(particle, NULL);
                 }
-            });
-        });
-        //tick other mods' particles if needed
-        var tickSync = forkJoinPool.submit(() -> {
-            var stream = particles.parallelStream();
-            if (vanillaOnly) {
-                stream = stream.filter(particle -> getTickType(particle) != TakeOver.TickType.ASYNC);
             } else {
-                stream = stream.filter(particle -> getTickType(particle) == TakeOver.TickType.SYNC);
+                if (getTickType(particle) != TakeOver.TickType.SYNC) {
+                    asyncTick(particle);
+                } else {
+                    syncTickCache.put(particle, NULL);
+                }
             }
-            stream.forEach(particle -> syncTickCache.put(particle, NULL));
-        });
-        tickSync.join();
+        }));
+        pickAndTick.join();
         syncTickCache.asMap().keySet().forEach(particle -> {
             particle.tick();
             if (!particle.isAlive()) {
                 removeCache.put(particle, NULL);
             }
         });
-        tickAsync.join();
         var r = removeCache.asMap().keySet();
         particles.removeAll(r);
         InstancedRenderManager.removeAll(r);
         removeCache.invalidateAll();
         syncTickCache.invalidateAll();
+    }
+
+    private static void asyncTick(Particle p) {
+        p.tick();
+        count.incrementAndGet();
+        if (!p.isAlive()) {
+            removeCache.put(p, NULL);
+        }
     }
 
     private static TakeOver.TickType getTickType(Particle particle) {

@@ -27,6 +27,9 @@ public enum ChangeMode implements ITranslatable {
      * Stop use Function: too many memory consumed.
      */
     public float lerp(float begin, float end, int age, int life) {
+        if (begin == end) {
+            return begin;
+        }
         float x = age / (float) life;
         return switch (this) {
             case LINEAR -> begin + (end - begin) * x;

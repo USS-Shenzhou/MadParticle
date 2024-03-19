@@ -6,10 +6,8 @@ import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.TextureSheetParticle;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,8 +19,8 @@ public class ParallelTickManager {
     private static ForkJoinPool forkJoinPool = new ForkJoinPool(threads());
     public static Cache<Particle, Object> removeCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(65536).build();
     public static Cache<Particle, Object> syncTickCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(65536).build();
-    public static Object NULL = new Object();
-    private static AtomicInteger count = new AtomicInteger(0);
+    public static final Object NULL = new Object();
+    private static final AtomicInteger count = new AtomicInteger(0);
 
     public static void setThreads(int amount) {
         removeCache = CacheBuilder.newBuilder().concurrencyLevel(amount).initialCapacity(65536).build();

@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import org.antlr.v4.runtime.misc.Array2DHashSet;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.*;
@@ -25,10 +26,7 @@ import org.lwjgl.system.MemoryUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -49,12 +47,11 @@ public class InstancedRenderManager {
     public static final int AMOUNT_INSTANCE_FLOATS = 4 + 4 + (2 + 2) + AMOUNT_MATRIX_FLOATS;
     public static final int SIZE_INSTANCE_BYTES = AMOUNT_INSTANCE_FLOATS * SIZE_FLOAT_OR_INT_BYTES;
 
-    private static final LinkedHashSet<TextureSheetParticle> PARTICLES = Sets.newLinkedHashSetWithExpectedSize(32768);
+    private static final Set<TextureSheetParticle> PARTICLES = Sets.newLinkedHashSetWithExpectedSize(32768);
     private static int threads = ConfigHelper.getConfigRead(MadParticleConfig.class).bufferFillerThreads;
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
     @SuppressWarnings("unchecked")
     private static HashMap<SimpleBlockPos, Integer>[] lightCaches = Stream.generate(() -> new HashMap<String, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
-    private static Field id = null;
 
     @SuppressWarnings("unchecked")
     public static void setThreads(int amount) {

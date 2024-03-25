@@ -17,14 +17,12 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import org.antlr.v4.runtime.misc.Array2DHashSet;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.MemoryUtil;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -47,20 +45,22 @@ public class InstancedRenderManager {
     public static final int AMOUNT_INSTANCE_FLOATS = 4 + 4 + (2 + 2) + AMOUNT_MATRIX_FLOATS;
     public static final int SIZE_INSTANCE_BYTES = AMOUNT_INSTANCE_FLOATS * SIZE_FLOAT_OR_INT_BYTES;
 
-    private static final Set<TextureSheetParticle> PARTICLES = Sets.newLinkedHashSetWithExpectedSize(32768);
-    private static int threads = ConfigHelper.getConfigRead(MadParticleConfig.class).bufferFillerThreads;
+    private static int threads = Mth.clamp(ConfigHelper.getConfigRead(MadParticleConfig.class).bufferFillerThreads, 1, Integer.MAX_VALUE);
+    @SuppressWarnings("unchecked")
+    private static LinkedHashSet<TextureSheetParticle>[] PARTICLES = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(32768)).limit(threads).toArray(LinkedHashSet[]::new);
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
     @SuppressWarnings("unchecked")
-    private static HashMap<SimpleBlockPos, Integer>[] lightCaches = Stream.generate(() -> new HashMap<String, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
+    private static HashMap<SimpleBlockPos, Integer>[] LIGHT_CACHE = Stream.generate(() -> new HashMap<String, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
 
     @SuppressWarnings("unchecked")
     public static void setThreads(int amount) {
-        if (amount < 0 || amount > 128) {
+        if (amount <= 0 || amount > 128) {
             throw new IllegalArgumentException("The amount of auxiliary threads should between 1 and 128. Correct the config file manually.");
         }
         threads = amount;
-        lightCaches = Stream.generate(() -> new HashMap<String, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
+        PARTICLES = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(32768)).limit(threads).toArray(LinkedHashSet[]::new);
         fixedThreadPool = Executors.newFixedThreadPool(threads);
+        LIGHT_CACHE = Stream.generate(() -> new HashMap<String, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
     }
 
     public static Executor getFixedThreadPool() {
@@ -71,41 +71,61 @@ public class InstancedRenderManager {
         return threads;
     }
 
+    private static LinkedHashSet<TextureSheetParticle> findSmallestSet() {
+        LinkedHashSet<TextureSheetParticle> r = PARTICLES[0];
+        int minSize = r.size();
+        for (int i = 1; i < threads; i++) {
+            if (PARTICLES[i].size() < minSize) {
+                r = PARTICLES[i];
+                minSize = r.size();
+            }
+        }
+        return r;
+    }
+
     public static void add(TextureSheetParticle particle) {
-        PARTICLES.add(particle);
+        findSmallestSet().add(particle);
     }
 
     public static void reload(Collection<Particle> particles) {
-        PARTICLES.clear();
+        clear();
         particles.forEach(p -> add((TextureSheetParticle) p));
     }
 
     public static void remove(TextureSheetParticle particle) {
-        PARTICLES.remove(particle);
+        for (int i = 0; i < threads; i++) {
+            if (PARTICLES[i].remove(particle)) {
+                break;
+            }
+        }
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
     public static void removeAll(Collection<Particle> particle) {
-        PARTICLES.removeAll(particle);
+        Arrays.stream(PARTICLES).forEach(set -> set.removeAll(particle));
     }
 
     public static void clear() {
-        PARTICLES.clear();
+        Arrays.stream(PARTICLES).forEach(HashSet::clear);
     }
 
     public static int amount() {
-        return PARTICLES.size();
+        int size = 0;
+        for (int i = 0; i < threads; i++) {
+            size += PARTICLES[i].size();
+        }
+        return size;
     }
 
     public static void render(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, LightTexture lightTexture, Camera camera, float partialTicks, Frustum clippingHelper, TextureManager textureManager) {
-        if (PARTICLES.isEmpty()) {
+        if (amount() == 0) {
             return;
         }
         InstancedRenderBufferBuilder bufferBuilder = ModParticleRenderTypes.instancedRenderBufferBuilder;
         ModParticleRenderTypes.INSTANCED.begin(bufferBuilder, textureManager);
         //ByteBuffer instanceMatrixBuffer = MemoryUtil.memAlloc(PARTICLES.size() * SIZE_INSTANCE_BYTES);
         //MemoryUtil.memSet(instanceMatrixBuffer, 0);
-        ByteBuffer instanceMatrixBuffer = MemoryUtil.memCalloc(PARTICLES.size(), SIZE_INSTANCE_BYTES);
+        ByteBuffer instanceMatrixBuffer = MemoryUtil.memCalloc(amount(), SIZE_INSTANCE_BYTES);
         int amount;
         //TODO add an option of checking visibility
         if (threads <= 1) {
@@ -132,7 +152,7 @@ public class InstancedRenderManager {
         //noinspection DataFlowIssue
         shader.clear();
         end(instanceMatrixBuffer, instanceMatrixBufferId);
-        Arrays.stream(lightCaches).forEach(HashMap::clear);
+        Arrays.stream(LIGHT_CACHE).forEach(HashMap::clear);
     }
 
     @SuppressWarnings("unchecked")
@@ -142,27 +162,26 @@ public class InstancedRenderManager {
         for (int i = 0; i < threads; i++) {
             int finalI = i;
             futures[i] = CompletableFuture.runAsync(
-                    () -> partial(lightCaches[finalI], finalI * (PARTICLES.size() / threads),
-                            PARTICLES.size() / threads + (finalI == threads - 1 ? PARTICLES.size() % threads : 0),
-                            instanceMatrixBuffer, partialTicks, camera, camPosCompensate, clippingHelper),
+                    () -> partial(finalI, instanceMatrixBuffer, partialTicks, camera, camPosCompensate, clippingHelper),
                     fixedThreadPool
             );
         }
         CompletableFuture.allOf(futures).join();
-        return PARTICLES.size();
+        return amount();
     }
 
-    private static void partial(HashMap<SimpleBlockPos, Integer> lightCache, int start, int length, ByteBuffer buffer, float partialTicks, Camera camera, Vector3f camPosCompensate, Frustum clippingHelper) {
+    private static void partial(int group, ByteBuffer buffer, float partialTicks, Camera camera, Vector3f camPosCompensate, Frustum clippingHelper) {
+        HashMap<SimpleBlockPos, Integer> lightCache = LIGHT_CACHE[group];
         Matrix4f matrix4f = new Matrix4f();
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
-        var iterator = PARTICLES.iterator();
-        for (int i = 0; i < start + length && iterator.hasNext(); i++) {
-            if (i < start) {
-                iterator.next();
-                continue;
-            }
-            var particle = iterator.next();
-            fillBuffer(lightCache, buffer, particle, i, partialTicks, matrix4f, camera, camPosCompensate, simpleBlockPosSingle);
+        var set = PARTICLES[group];
+        int index = 0;
+        for (int i = 0; i < group; i++) {
+            index += PARTICLES[i].size();
+        }
+        for (TextureSheetParticle particle : set) {
+            fillBuffer(lightCache, buffer, particle, index, partialTicks, matrix4f, camera, camPosCompensate, simpleBlockPosSingle);
+            index++;
         }
     }
 
@@ -171,11 +190,11 @@ public class InstancedRenderManager {
         var camPosCompensate = camera.getPosition().toVector3f().mul(-1);
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
         int amount = 0;
-        for (TextureSheetParticle particle : PARTICLES) {
+        for (TextureSheetParticle particle : PARTICLES[0]) {
             if (clippingHelper != null && particle.shouldCull() && !clippingHelper.isVisible(particle.getBoundingBox())) {
                 continue;
             }
-            fillBuffer(lightCaches[threads - 1], instanceMatrixBuffer, particle, amount, partialTicks, matrix4f, camera, camPosCompensate, simpleBlockPosSingle);
+            fillBuffer(LIGHT_CACHE[threads - 1], instanceMatrixBuffer, particle, amount, partialTicks, matrix4f, camera, camPosCompensate, simpleBlockPosSingle);
             amount++;
         }
         return amount;
@@ -189,8 +208,8 @@ public class InstancedRenderManager {
      * HOTSPOT
      * Can you find a way to make it faster?
      */
-    public static void fillBuffer(HashMap<SimpleBlockPos, Integer> lightCache, ByteBuffer buffer, TextureSheetParticle particle, int i, float partialTicks, Matrix4f matrix4fSingle, Camera camera, Vector3f camPosCompensate, SimpleBlockPos simpleBlockPosSingle) {
-        int start = i * SIZE_INSTANCE_BYTES;
+    public static void fillBuffer(HashMap<SimpleBlockPos, Integer> lightCache, ByteBuffer buffer, TextureSheetParticle particle, int index, float partialTicks, Matrix4f matrix4fSingle, Camera camera, Vector3f camPosCompensate, SimpleBlockPos simpleBlockPosSingle) {
+        int start = index * SIZE_INSTANCE_BYTES;
         //uv
         var sprite = particle.sprite;
         buffer.putFloat(start, sprite.getU0());

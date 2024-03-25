@@ -27,7 +27,7 @@ public class SettingPanel extends TOptionsPanel {
     public SettingPanel() {
         addOptionSplitter(Component.translatable("gui.mp.de.setting.universal"));
         addOptionSliderDoubleInit(Component.translatable("gui.mp.de.setting.amount"),
-                0x2000, Math.max(0x40000, getConfigRead().maxParticleAmountOfSingleQueue),
+                0x2000, Math.max(1000000, getConfigRead().maxParticleAmountOfSingleQueue),
                 (component, aDouble) -> Component.literal(String.format("%d", aDouble.intValue())),
                 Component.translatable("gui.mp.de.setting.amount.tooltip"),
                 (s, d) -> {

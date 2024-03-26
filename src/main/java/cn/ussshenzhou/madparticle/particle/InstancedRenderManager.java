@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import org.apache.commons.lang3.ArrayUtils;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.*;
@@ -50,7 +51,7 @@ public class InstancedRenderManager {
     private static LinkedHashSet<TextureSheetParticle>[] PARTICLES = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(32768)).limit(threads).toArray(LinkedHashSet[]::new);
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
     @SuppressWarnings("unchecked")
-    private static HashMap<SimpleBlockPos, Integer>[] LIGHT_CACHE = Stream.generate(() -> new HashMap<String, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
+    private static HashMap<Long, Integer>[] LIGHT_CACHE = Stream.generate(() -> new HashMap<Long, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
 
     @SuppressWarnings("unchecked")
     public static void setThreads(int amount) {
@@ -71,8 +72,8 @@ public class InstancedRenderManager {
         return threads;
     }
 
-    private static LinkedHashSet<TextureSheetParticle> findSmallestSet() {
-        LinkedHashSet<TextureSheetParticle> r = PARTICLES[0];
+    private static HashSet<TextureSheetParticle> findSmallestSet() {
+        HashSet<TextureSheetParticle> r = PARTICLES[0];
         int minSize = r.size();
         for (int i = 1; i < threads; i++) {
             if (PARTICLES[i].size() < minSize) {
@@ -172,7 +173,7 @@ public class InstancedRenderManager {
     }
 
     private static void partial(int group, ByteBuffer buffer, float partialTicks, Camera camera, Vector3f camPosCompensate, Frustum clippingHelper) {
-        HashMap<SimpleBlockPos, Integer> lightCache = LIGHT_CACHE[group];
+        HashMap<Long, Integer> lightCache = LIGHT_CACHE[group];
         Matrix4f matrix4f = new Matrix4f();
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
         var set = PARTICLES[group];
@@ -209,7 +210,7 @@ public class InstancedRenderManager {
      * HOTSPOT
      * Can you find a way to make it faster?
      */
-    public static void fillBuffer(HashMap<SimpleBlockPos, Integer> lightCache, ByteBuffer buffer, TextureSheetParticle particle, int index, float partialTicks, Matrix4f matrix4fSingle, Camera camera, Vector3f camPosCompensate, SimpleBlockPos simpleBlockPosSingle) {
+    public static void fillBuffer(HashMap<Long, Integer> lightCache, ByteBuffer buffer, TextureSheetParticle particle, int index, float partialTicks, Matrix4f matrix4fSingle, Camera camera, Vector3f camPosCompensate, SimpleBlockPos simpleBlockPosSingle) {
         int start = index * SIZE_INSTANCE_BYTES;
         //uv
         var sprite = particle.sprite;
@@ -227,23 +228,24 @@ public class InstancedRenderManager {
         float y = Mth.lerp(partialTicks, (float) particle.yo, (float) particle.y);
         float z = Mth.lerp(partialTicks, (float) particle.zo, (float) particle.z);
         simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
+        Long pos = simpleBlockPosSingle.asLong();
         int l;
         if (particle instanceof MadParticle madParticle) {
-            Integer l1 = lightCache.get(simpleBlockPosSingle);
+            Integer l1 = lightCache.get(pos);
             if (l1 != null) {
                 l = l1;
             } else {
                 l = getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z));
-                lightCache.put(simpleBlockPosSingle.copy(), l);
+                lightCache.put(pos, l);
             }
             l = madParticle.checkEmit(l);
         } else if (!TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
-            Integer l1 = lightCache.get(simpleBlockPosSingle);
+            Integer l1 = lightCache.get(pos);
             if (l1 != null) {
                 l = l1;
             } else {
                 l = getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z));
-                lightCache.put(simpleBlockPosSingle.copy(), l);
+                lightCache.put(pos, l);
             }
         } else {
             l = particle.getLightColor(partialTicks);
@@ -417,6 +419,23 @@ public class InstancedRenderManager {
             } else {
                 return this.x == pos.x && this.y == pos.y && this.z == pos.z;
             }
+        }
+
+        private static final int PACKED_X_LENGTH = 1 + Mth.log2(Mth.smallestEncompassingPowerOfTwo(30000000));
+        private static final int PACKED_Z_LENGTH = PACKED_X_LENGTH;
+        public static final int PACKED_Y_LENGTH = 64 - PACKED_X_LENGTH - PACKED_Z_LENGTH;
+        private static final long PACKED_X_MASK = (1L << PACKED_X_LENGTH) - 1L;
+        private static final long PACKED_Y_MASK = (1L << PACKED_Y_LENGTH) - 1L;
+        private static final long PACKED_Z_MASK = (1L << PACKED_Z_LENGTH) - 1L;
+        private static final int Y_OFFSET = 0;
+        private static final int Z_OFFSET = PACKED_Y_LENGTH;
+        private static final int X_OFFSET = PACKED_Y_LENGTH + PACKED_Z_LENGTH;
+
+        public long asLong() {
+            long i = 0L;
+            i |= ((long)x & PACKED_X_MASK) << X_OFFSET;
+            i |= ((long) y & PACKED_Y_MASK);
+            return i | ((long)z & PACKED_Z_MASK) << Z_OFFSET;
         }
     }
 }

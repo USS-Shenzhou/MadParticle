@@ -59,6 +59,13 @@ public class AddParticleHelper {
         }
     }
 
+    public static void addParticleClientAsync2Async(MadParticleOption option) {
+        if (mc.level == null) {
+            return;
+        }
+        asyncCreateParticle(option);
+    }
+
     public static void addParticleClient(ParticleType<?> targetParticle,
                                          SpriteFrom spriteFrom, int lifeTime,
                                          InheritableBoolean alwaysRender, int amount,
@@ -93,6 +100,15 @@ public class AddParticleHelper {
     /**
      * @apiNote For caller like Rhino js.
      */
+    public static void addParticleClientAsync2Default(MadParticleOption option) {
+        Minecraft.getInstance().execute(() -> addParticleClient(option));
+    }
+
+    /**
+     * @apiNote For caller like Rhino js.
+     * @deprecated Use {@link AddParticleHelper#addParticleClientAsync2Default} instead
+     */
+    @Deprecated
     public static void addParticleClientAsync(MadParticleOption option) {
         Minecraft.getInstance().execute(() -> addParticleClient(option));
     }

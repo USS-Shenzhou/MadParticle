@@ -102,7 +102,8 @@ public class InstancedRenderManager {
 
     @SuppressWarnings("SuspiciousMethodCalls")
     public static void removeAll(Collection<Particle> particle) {
-        Arrays.stream(PARTICLES).forEach(set -> set.removeAll(particle));
+        //Arrays.stream(PARTICLES).forEach(set -> set.removeAll(particle));
+        particle.stream().filter(p -> p instanceof TextureSheetParticle).forEach(p -> remove((TextureSheetParticle) p));
     }
 
     public static void clear() {

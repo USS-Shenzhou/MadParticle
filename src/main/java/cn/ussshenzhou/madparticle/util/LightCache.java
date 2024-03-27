@@ -18,11 +18,10 @@ public class LightCache {
     private static int yRange = 256;
 
     /**
-     * short:
-     * <br/>0 0 0 0_0 0 0 0___0 0 0 1_0 0 0 0
-     * <br/>____|______|_____________|______|
-     * <br/>isCal.ed_value______isCal.ed_value
-     * <br/>___odd________________even_____
+     * byte:
+     * <br/>0 0 0 0_0 0 0 0
+     * <br/>______|_____|__
+     * <br/>isCal.ed__value
      */
     private byte[][][] cache = new byte[xRange * 2][zRange * 2][yRange * 2];
     /**
@@ -31,15 +30,12 @@ public class LightCache {
     @SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
     private final ConcurrentHashMap<Long, Integer> outside = new ConcurrentHashMap<>(32768);
 
+
     public LightCache() {
     }
 
     public void invalidateAll() {
-        IntStream.range(0, cache.length).parallel().forEach(i ->
-                IntStream.range(0, cache[i].length).forEach(j ->
-                        Arrays.fill(cache[i][j], (byte) 0)
-                )
-        );
+
         outside.clear();
     }
 

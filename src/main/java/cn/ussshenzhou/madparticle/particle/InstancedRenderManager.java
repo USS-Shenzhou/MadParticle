@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.t88.T88;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.collect.Sets;
@@ -10,6 +11,7 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.*;
@@ -17,7 +19,12 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import org.apache.commons.lang3.ArrayUtils;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.EventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.*;
@@ -25,7 +32,10 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -50,8 +60,18 @@ public class InstancedRenderManager {
     @SuppressWarnings("unchecked")
     private static LinkedHashSet<TextureSheetParticle>[] PARTICLES = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(32768)).limit(threads).toArray(LinkedHashSet[]::new);
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
-    @SuppressWarnings("unchecked")
-    private static HashMap<Long, Integer>[] LIGHT_CACHE = Stream.generate(() -> new HashMap<Long, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
+    private static final LightCache LIGHT_CACHE = new LightCache();
+
+    static {
+        MinecraftForge.EVENT_BUS.register(InstancedRenderManager.class);
+    }
+
+    @SubscribeEvent
+    public static void refreshLightCache(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            LIGHT_CACHE.invalidateAll();
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public static void setThreads(int amount) {
@@ -61,7 +81,6 @@ public class InstancedRenderManager {
         threads = amount;
         PARTICLES = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(32768)).limit(threads).toArray(LinkedHashSet[]::new);
         fixedThreadPool = Executors.newFixedThreadPool(threads);
-        LIGHT_CACHE = Stream.generate(() -> new HashMap<String, Integer>(16384)).limit(threads).toArray(HashMap[]::new);
     }
 
     public static Executor getFixedThreadPool() {
@@ -154,7 +173,6 @@ public class InstancedRenderManager {
         //noinspection DataFlowIssue
         shader.clear();
         end(instanceMatrixBuffer, instanceMatrixBufferId);
-        Arrays.stream(LIGHT_CACHE).forEach(HashMap::clear);
     }
 
     @SuppressWarnings("unchecked")
@@ -173,7 +191,6 @@ public class InstancedRenderManager {
     }
 
     private static void partial(int group, ByteBuffer buffer, float partialTicks, Camera camera, Vector3f camPosCompensate, Frustum clippingHelper) {
-        HashMap<Long, Integer> lightCache = LIGHT_CACHE[group];
         Matrix4f matrix4f = new Matrix4f();
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
         var set = PARTICLES[group];
@@ -182,7 +199,7 @@ public class InstancedRenderManager {
             index += PARTICLES[i].size();
         }
         for (TextureSheetParticle particle : set) {
-            fillBuffer(lightCache, buffer, particle, index, partialTicks, matrix4f, camera, camPosCompensate, simpleBlockPosSingle);
+            fillBuffer(buffer, particle, group, index, partialTicks, matrix4f, camera, camPosCompensate, simpleBlockPosSingle);
             index++;
         }
     }
@@ -196,7 +213,7 @@ public class InstancedRenderManager {
             if (clippingHelper != null && particle.shouldCull() && !clippingHelper.isVisible(particle.getBoundingBox())) {
                 continue;
             }
-            fillBuffer(LIGHT_CACHE[threads - 1], instanceMatrixBuffer, particle, amount, partialTicks, matrix4f, camera, camPosCompensate, simpleBlockPosSingle);
+            fillBuffer(instanceMatrixBuffer, particle, threads - 1, amount, partialTicks, matrix4f, camera, camPosCompensate, simpleBlockPosSingle);
             amount++;
         }
         return amount;
@@ -210,7 +227,7 @@ public class InstancedRenderManager {
      * HOTSPOT
      * Can you find a way to make it faster?
      */
-    public static void fillBuffer(HashMap<Long, Integer> lightCache, ByteBuffer buffer, TextureSheetParticle particle, int index, float partialTicks, Matrix4f matrix4fSingle, Camera camera, Vector3f camPosCompensate, SimpleBlockPos simpleBlockPosSingle) {
+    public static void fillBuffer(ByteBuffer buffer, TextureSheetParticle particle, int group, int index, float partialTicks, Matrix4f matrix4fSingle, Camera camera, Vector3f camPosCompensate, SimpleBlockPos simpleBlockPosSingle) {
         int start = index * SIZE_INSTANCE_BYTES;
         //uv
         var sprite = particle.sprite;
@@ -228,27 +245,14 @@ public class InstancedRenderManager {
         float y = Mth.lerp(partialTicks, (float) particle.yo, (float) particle.y);
         float z = Mth.lerp(partialTicks, (float) particle.zo, (float) particle.z);
         simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
-        Long pos = simpleBlockPosSingle.asLong();
         int l;
         if (particle instanceof MadParticle madParticle) {
-            Integer l1 = lightCache.get(pos);
-            if (l1 != null) {
-                l = l1;
-            } else {
-                l = getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z));
-                lightCache.put(pos, l);
-            }
+            l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, () -> getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z)));
             l = madParticle.checkEmit(l);
-        } else if (!TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
-            Integer l1 = lightCache.get(pos);
-            if (l1 != null) {
-                l = l1;
-            } else {
-                l = getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z));
-                lightCache.put(pos, l);
-            }
-        } else {
+        } else if (TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
             l = particle.getLightColor(partialTicks);
+        } else {
+            l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, () ->  getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z)));
         }
         buffer.putInt(start + 4 * 8, l & 0x0000_ffff);
         buffer.putInt(start + 4 * 9, l >> 16 & 0x0000_ffff);
@@ -419,23 +423,6 @@ public class InstancedRenderManager {
             } else {
                 return this.x == pos.x && this.y == pos.y && this.z == pos.z;
             }
-        }
-
-        private static final int PACKED_X_LENGTH = 1 + Mth.log2(Mth.smallestEncompassingPowerOfTwo(30000000));
-        private static final int PACKED_Z_LENGTH = PACKED_X_LENGTH;
-        public static final int PACKED_Y_LENGTH = 64 - PACKED_X_LENGTH - PACKED_Z_LENGTH;
-        private static final long PACKED_X_MASK = (1L << PACKED_X_LENGTH) - 1L;
-        private static final long PACKED_Y_MASK = (1L << PACKED_Y_LENGTH) - 1L;
-        private static final long PACKED_Z_MASK = (1L << PACKED_Z_LENGTH) - 1L;
-        private static final int Y_OFFSET = 0;
-        private static final int Z_OFFSET = PACKED_Y_LENGTH;
-        private static final int X_OFFSET = PACKED_Y_LENGTH + PACKED_Z_LENGTH;
-
-        public long asLong() {
-            long i = 0L;
-            i |= ((long)x & PACKED_X_MASK) << X_OFFSET;
-            i |= ((long) y & PACKED_Y_MASK);
-            return i | ((long)z & PACKED_Z_MASK) << Z_OFFSET;
         }
     }
 }

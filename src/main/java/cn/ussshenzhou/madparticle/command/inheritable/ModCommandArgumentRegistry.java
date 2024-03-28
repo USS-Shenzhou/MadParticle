@@ -5,12 +5,15 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+
+import java.util.function.Supplier;
+
 
 /**
  * @author USS_Shenzhou
@@ -34,10 +37,10 @@ public class ModCommandArgumentRegistry {
     }
 
 
-    public static DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENTS = DeferredRegister.create(ForgeRegistries.COMMAND_ARGUMENT_TYPES, MadParticle.MOD_ID);
+    public static DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENTS = DeferredRegister.create(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, MadParticle.MOD_ID);
 
-    public static RegistryObject<ArgumentTypeInfo<?, ?>> INHERITABLE_INT = COMMAND_ARGUMENTS.register("inheritable_integer", () -> inheritableIntegerArgumentInfo);
-    public static RegistryObject<ArgumentTypeInfo<?, ?>> INHERITABLE_FLOAT = COMMAND_ARGUMENTS.register("inheritable_float", () -> inheritableFloatArgumentInfo);
-    public static RegistryObject<ArgumentTypeInfo<?, ?>> INHERITABLE_DOUBLE = COMMAND_ARGUMENTS.register("inheritable_double", () -> inheritableDoubleArgumentInfo);
-    public static RegistryObject<ArgumentTypeInfo<?, ?>> INHERITABLE_VEC3 = COMMAND_ARGUMENTS.register("inheritable_vec3", () -> inheritableVec3ArgumentInfo);
+    public static Supplier<ArgumentTypeInfo<?, ?>> INHERITABLE_INT = COMMAND_ARGUMENTS.register("inheritable_integer", () -> inheritableIntegerArgumentInfo);
+    public static Supplier<ArgumentTypeInfo<?, ?>> INHERITABLE_FLOAT = COMMAND_ARGUMENTS.register("inheritable_float", () -> inheritableFloatArgumentInfo);
+    public static Supplier<ArgumentTypeInfo<?, ?>> INHERITABLE_DOUBLE = COMMAND_ARGUMENTS.register("inheritable_double", () -> inheritableDoubleArgumentInfo);
+    public static Supplier<ArgumentTypeInfo<?, ?>> INHERITABLE_VEC3 = COMMAND_ARGUMENTS.register("inheritable_vec3", () -> inheritableVec3ArgumentInfo);
 }

@@ -12,7 +12,6 @@
   ],
   "client": [
     "AbstractCommandBlockEditScreenMixin",
-    "AbstractSelectionListAccessor",
     "EditBoxAccessor",
     "LevelRendererMixin",
     "ParticleAccessor",
@@ -21,8 +20,7 @@
     "ParticleMixin",
     "SuspendedParticleMixin",
     "TextureManagerAccessor",
-    "VertexFormatElementUsageAccessor",
-    "WindowMixin"
+    "VertexFormatElementUsageAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

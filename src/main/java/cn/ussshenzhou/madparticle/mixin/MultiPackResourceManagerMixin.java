@@ -2,12 +2,13 @@ package cn.ussshenzhou.madparticle.mixin;
 
 import cn.ussshenzhou.madparticle.particle.CustomParticleRegistry;
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.FallbackResourceManager;
 import net.minecraft.server.packs.resources.MultiPackResourceManager;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -39,7 +40,7 @@ public class MultiPackResourceManagerMixin {
         Map<ResourceLocation, Resource> map = cir.getReturnValue();
         PackResources resources = namespacedManagers.values().stream().toList().get(0).fallbacks.get(0).resources();
         CustomParticleRegistry.CUSTOM_PARTICLE_TYPES.forEach(particleType -> {
-            ResourceLocation original = ForgeRegistries.PARTICLE_TYPES.getKey(particleType);
+            ResourceLocation original = BuiltInRegistries.PARTICLE_TYPE.getKey(particleType);
             String s = String.format(
                     """
                             {

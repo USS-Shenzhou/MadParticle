@@ -14,6 +14,11 @@ public class MadParticleConfig implements TConfig {
     public TakeOver takeOverRendering = TakeOver.ALL;
     public TakeOver takeOverTicking = TakeOver.VANILLA;
     public boolean optimizeCommandBlockEditScreen = true;
+    @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
+    public int lightCacheXZRange = 512;
+    @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
+    public int lightCacheYRange = 256;
+    public boolean forceMaxLight = false;
 
     public MadParticleConfig() {
     }

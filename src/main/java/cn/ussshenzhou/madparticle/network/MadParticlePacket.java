@@ -1,20 +1,15 @@
 package cn.ussshenzhou.madparticle.network;
 
 import cn.ussshenzhou.madparticle.MadParticle;
+import cn.ussshenzhou.madparticle.api.AddParticleHelper;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.ModParticleTypeRegistry;
-import cn.ussshenzhou.madparticle.api.AddParticleHelper;
-import cn.ussshenzhou.t88.network.annotation.Consumer;
+import cn.ussshenzhou.t88.network.annotation.ClientHandler;
 import cn.ussshenzhou.t88.network.annotation.Decoder;
 import cn.ussshenzhou.t88.network.annotation.Encoder;
 import cn.ussshenzhou.t88.network.annotation.NetPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 /**
  * @author USS_Shenzhou
@@ -37,18 +32,8 @@ public class MadParticlePacket {
         particleOption.writeToNetwork(buf);
     }
 
-
-    @Consumer
-    public void handler(Supplier<NetworkEvent.Context> context) {
-        if (context.get().getDirection().equals(NetworkDirection.PLAY_TO_SERVER)) {
-
-        } else {
-            clientHandler();
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void clientHandler() {
+    @ClientHandler
+    public void clientHandler(PlayPayloadContext contextSupplier) {
         AddParticleHelper.addParticleClient(particleOption);
     }
 

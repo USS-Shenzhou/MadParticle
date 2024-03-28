@@ -42,7 +42,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 import java.util.Map;
 import java.util.stream.Stream;

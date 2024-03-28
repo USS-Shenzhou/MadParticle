@@ -3,17 +3,16 @@ package cn.ussshenzhou.madparticle.network;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.designer.gui.WelcomeScreen;
 import cn.ussshenzhou.t88.config.ConfigHelper;
-import cn.ussshenzhou.t88.network.annotation.Consumer;
+import cn.ussshenzhou.t88.network.annotation.ClientHandler;
 import cn.ussshenzhou.t88.network.annotation.Decoder;
 import cn.ussshenzhou.t88.network.annotation.Encoder;
 import cn.ussshenzhou.t88.network.annotation.NetPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -35,17 +34,9 @@ public class SendWelcomePacket {
     public void write(FriendlyByteBuf buf) {
     }
 
-
-    @Consumer
-    public void handler(Supplier<NetworkEvent.Context> context) {
-        if (context.get().getDirection().equals(NetworkDirection.PLAY_TO_SERVER)) {
-        } else {
-            clientHandler();
-        }
-    }
-
+    @ClientHandler
     @OnlyIn(Dist.CLIENT)
-    private void clientHandler() {
+    public void clientHandler(PlayPayloadContext contextSupplier) {
         if (!ConfigHelper.getConfigRead(MadParticleConfig.class).noWelcomeScreen) {
             CompletableFuture.runAsync(() -> {
                 while (Minecraft.getInstance().screen != null) {
@@ -54,7 +45,7 @@ public class SendWelcomePacket {
                     } catch (InterruptedException ignored) {
                     }
                 }
-                Minecraft.getInstance().execute(() -> ForgeHooksClient.pushGuiLayer(Minecraft.getInstance(), new WelcomeScreen()));
+                Minecraft.getInstance().execute(() -> ClientHooks.pushGuiLayer(Minecraft.getInstance(), new WelcomeScreen()));
             });
         }
     }

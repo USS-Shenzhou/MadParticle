@@ -112,7 +112,7 @@ gradle-app.setting
 **/build/
 
 # Common working directory
-run/
+client/
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
@@ -120,3 +120,4 @@ run/
 /src/generated/
 /.cache/
 /.fleet/
+/runs/

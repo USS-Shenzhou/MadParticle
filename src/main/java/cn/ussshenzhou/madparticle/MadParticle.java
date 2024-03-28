@@ -5,15 +5,14 @@ import cn.ussshenzhou.madparticle.item.ModItemsRegistry;
 import cn.ussshenzhou.madparticle.particle.ModParticleTypeRegistry;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.logging.LogUtils;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Method;
@@ -30,14 +29,13 @@ public class MadParticle {
     public static final boolean IS_SHIMMER_INSTALLED = ModList.get().isLoaded("shimmer");
     public static boolean irisOn;
 
-    public MadParticle() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
-        MinecraftForge.EVENT_BUS.register(this);
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        ModParticleTypeRegistry.PARTICLE_TYPES.register(modBus);
-        ModCommandArgumentRegistry.COMMAND_ARGUMENTS.register(modBus);
-        ModItemsRegistry.ITEMS.register(modBus);
+    public MadParticle(IEventBus modEventBus) {
+        modEventBus.addListener(this::setup);
+        modEventBus.addListener(this::clientSetup);
+        NeoForge.EVENT_BUS.register(this);
+        ModParticleTypeRegistry.PARTICLE_TYPES.register(modEventBus);
+        ModCommandArgumentRegistry.COMMAND_ARGUMENTS.register(modEventBus);
+        ModItemsRegistry.ITEMS.register(modEventBus);
     }
 
     public boolean isModLoaded(String modID) {

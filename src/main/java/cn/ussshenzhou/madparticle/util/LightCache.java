@@ -1,5 +1,7 @@
 package cn.ussshenzhou.madparticle.util;
 
+import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import org.lwjgl.system.MemoryUtil;
@@ -12,9 +14,8 @@ import java.util.function.Supplier;
  * @author USS_Shenzhou
  */
 public class LightCache {
-    private static int xRange = 512;
-    private static int zRange = 512;
-    private static int yRange = 256;
+    private static final int XZ_RANGE = ConfigHelper.getConfigRead(MadParticleConfig.class).lightCacheXZRange;
+    private static final int Y_RANGE = ConfigHelper.getConfigRead(MadParticleConfig.class).lightCacheYRange;
 
     /**
      * byte:
@@ -23,8 +24,8 @@ public class LightCache {
      * <br/>isCal.ed__value
      */
     @SuppressWarnings("FieldMayBeFinal")
-    private volatile byte[][][] bright = new byte[xRange * 2][zRange * 2][yRange];
-    private final ByteBuffer modify = MemoryUtil.memCalloc(xRange * 2 * zRange * 2 * yRange * 2 / 8);
+    private volatile byte[][][] bright = new byte[XZ_RANGE * 2][XZ_RANGE * 2][Y_RANGE];
+    private final ByteBuffer modify = MemoryUtil.memCalloc(XZ_RANGE * 2 * XZ_RANGE * 2 * Y_RANGE * 2 / 8);
     /**
      * Pos in long,packed light in int
      */
@@ -43,11 +44,11 @@ public class LightCache {
     public int getOrCompute(int x, int y, int z, Supplier<Integer> computer) {
         if (isInRange(x, y, z)) {
             var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-            int rx = Mth.floor(x - camera.x) + xRange;
-            int ry = Mth.floor(y - camera.y) + yRange;
-            int rz = Mth.floor(z - camera.z) + zRange;
+            int rx = Mth.floor(x - camera.x) + XZ_RANGE;
+            int ry = Mth.floor(y - camera.y) + Y_RANGE;
+            int rz = Mth.floor(z - camera.z) + XZ_RANGE;
             byte value = bright[rx][rz][ry / 2];
-            int i = rx * zRange * 2 * yRange * 2 / 8 + rz * yRange * 2 / 8 + ry / 8;
+            int i = rx * XZ_RANGE * 2 * Y_RANGE * 2 / 8 + rz * Y_RANGE * 2 / 8 + ry / 8;
             byte mod = modify.get(i);
             if ((mod >>> ry % 8 & 1) == 0) {
                 int packetLight = computer.get();
@@ -78,7 +79,7 @@ public class LightCache {
 
     private boolean isInRange(int x, int y, int z) {
         var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        return Math.abs(x - camera.x) < xRange && Math.abs(y - camera.y) < yRange && Math.abs(z - camera.z) < zRange;
+        return Math.abs(x - camera.x) < XZ_RANGE && Math.abs(y - camera.y) < Y_RANGE && Math.abs(z - camera.z) < XZ_RANGE;
     }
 
     private static final int PACKED_X_LENGTH = 1 + Mth.log2(Mth.smallestEncompassingPowerOfTwo(30000000));

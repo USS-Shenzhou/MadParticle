@@ -24,11 +24,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.LogicalSidedProvider;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.neoforge.common.util.LogicalSidedProvider;
+import net.neoforged.neoforge.network.PacketDistributor;
+
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -120,11 +121,11 @@ public class AddParticleHelper {
     }
 
     public static void addParticleServer(ServerLevel level, MadParticleOption option) {
-        level.players().forEach(player -> NetworkHelper.sendTo(PacketDistributor.PLAYER.with(() -> player), new MadParticlePacket(option)));
+        level.players().forEach(player -> NetworkHelper.sendTo(PacketDistributor.PLAYER.with(player), new MadParticlePacket(option)));
     }
 
     public static void addParticleServer(ServerPlayer from, MadParticleOption option) {
-        NetworkHelper.sendTo(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> from), new MadParticlePacket(option));
+        NetworkHelper.sendTo(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(from), new MadParticlePacket(option));
     }
 
     public static void addParticleServer(ServerLevel level, ParticleType<?> targetParticle,

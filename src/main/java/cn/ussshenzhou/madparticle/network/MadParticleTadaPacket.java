@@ -4,7 +4,7 @@ import cn.ussshenzhou.madparticle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.ModParticleTypeRegistry;
 import cn.ussshenzhou.madparticle.util.MathHelper;
-import cn.ussshenzhou.t88.network.annotation.Consumer;
+import cn.ussshenzhou.t88.network.annotation.ClientHandler;
 import cn.ussshenzhou.t88.network.annotation.Decoder;
 import cn.ussshenzhou.t88.network.annotation.Encoder;
 import cn.ussshenzhou.t88.network.annotation.NetPacket;
@@ -17,10 +17,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.Random;
 import java.util.UUID;
@@ -51,18 +50,9 @@ public class MadParticleTadaPacket {
         buf.writeUUID(sourcePlayerUUID);
     }
 
-
-    @Consumer
-    public void handler(Supplier<NetworkEvent.Context> context) {
-        if (context.get().getDirection().equals(NetworkDirection.PLAY_TO_SERVER)) {
-
-        } else {
-            clientHandler();
-        }
-    }
-
+    @ClientHandler
     @OnlyIn(Dist.CLIENT)
-    private void clientHandler() {
+    public void clientHandler(PlayPayloadContext contextSupplier) {
         Level level = Minecraft.getInstance().level;
         if (level != null) {
             Random r = new Random();

@@ -3,9 +3,9 @@ package cn.ussshenzhou.madparticle.designer;
 import cn.ussshenzhou.madparticle.network.SendWelcomePacket;
 import cn.ussshenzhou.t88.network.NetworkHelper;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 /**
  * @author USS_Shenzhou

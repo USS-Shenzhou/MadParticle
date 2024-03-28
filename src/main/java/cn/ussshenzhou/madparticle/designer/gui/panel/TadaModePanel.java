@@ -26,8 +26,8 @@ import com.mojang.brigadier.context.ParsedArgument;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.List;
 import java.util.Map;
@@ -75,7 +75,7 @@ public class TadaModePanel extends HelperModePanel {
     }
 
     private void initCommand() {
-        MinecraftForge.EVENT_BUS.unregister(command);
+        NeoForge.EVENT_BUS.unregister(command);
         remove(this.command);
         this.command = new TSuggestedEditBox(MadParticleCommand::new) {
 
@@ -93,7 +93,7 @@ public class TadaModePanel extends HelperModePanel {
 
             @Override
             public void onFinalClose() {
-                MinecraftForge.EVENT_BUS.unregister(this);
+                NeoForge.EVENT_BUS.unregister(this);
             }
 
             @Override
@@ -132,7 +132,7 @@ public class TadaModePanel extends HelperModePanel {
             }
         };
         add(this.command);
-        MinecraftForge.EVENT_BUS.register(command);
+        NeoForge.EVENT_BUS.register(command);
         command.getEditBox().setFocused(false);
         command.getEditBox().setMaxLength(32500);
     }

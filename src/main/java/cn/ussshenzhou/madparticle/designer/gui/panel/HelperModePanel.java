@@ -23,8 +23,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.Collection;
 import java.util.Map;
@@ -52,7 +52,7 @@ public class HelperModePanel extends TPanel {
 
         @Override
         public void onFinalClose() {
-            MinecraftForge.EVENT_BUS.unregister(this);
+            NeoForge.EVENT_BUS.unregister(this);
         }
 
         @Override
@@ -104,7 +104,7 @@ public class HelperModePanel extends TPanel {
         this.add(commandStringSelectList);
         this.add(unwrap);
         unwrap.setVisibleT(false);
-        MinecraftForge.EVENT_BUS.register(command);
+        NeoForge.EVENT_BUS.register(command);
         copy.setOnPress(pButton -> {
             Minecraft.getInstance().keyboardHandler.setClipboard(command.getEditBox().getValue());
             //TODO: copied!

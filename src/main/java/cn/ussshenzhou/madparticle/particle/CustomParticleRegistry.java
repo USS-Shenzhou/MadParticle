@@ -8,15 +8,16 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -41,7 +42,7 @@ public class CustomParticleRegistry {
 
     @SubscribeEvent
     public static void registerParticleType(RegisterEvent event) {
-        if (!event.getRegistryKey().equals(ForgeRegistries.Keys.PARTICLE_TYPES)) {
+        if (!event.getRegistryKey().equals(BuiltInRegistries.PARTICLE_TYPE.key())) {
             return;
         }
         File particleDir = new File(gameDir, "customparticles");
@@ -66,7 +67,7 @@ public class CustomParticleRegistry {
             ALL_TEXTURES.addAll(textureNames);
             ParticleType<SimpleParticleType> particleType = new SimpleParticleType(false);
             CUSTOM_PARTICLE_TYPES.add(particleType);
-            event.register(ForgeRegistries.PARTICLE_TYPES.getRegistryKey(), particleTypeName, () -> particleType);
+            event.register(BuiltInRegistries.PARTICLE_TYPE.key(), particleTypeName, () -> particleType);
         });
     }
 

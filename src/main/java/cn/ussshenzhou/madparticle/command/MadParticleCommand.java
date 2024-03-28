@@ -33,8 +33,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.server.command.EnumArgument;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.server.command.EnumArgument;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -174,7 +174,7 @@ public class MadParticleCommand {
             return;
         }
         Object packet = sendTada ? new MadParticleTadaPacket(option, sourcePlayer.getUUID()) : new MadParticlePacket(option);
-        targetPlayers.forEach(player -> NetworkHelper.sendTo(PacketDistributor.PLAYER.with(() -> player), packet));
+        targetPlayers.forEach(player -> NetworkHelper.sendTo(PacketDistributor.PLAYER.with(player), packet));
     }
 
     private static MadParticleOption wrap(@Nullable MadParticleOption child, String[] commandStrings, int index, CommandSourceStack sourceStack, CommandDispatcher<CommandSourceStack> dispatcher) {

@@ -16,7 +16,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 import org.joml.Vector2i;
 
 import java.util.Arrays;
@@ -134,7 +134,7 @@ public class MetaParameterPanel extends TPanel {
             pairs.remove(this);
             out().remove(this);
             out().getParentInstanceOf(ParametersScrollPanel.class).layout();
-            MinecraftForge.EVENT_BUS.post(new TWidgetContentUpdatedEvent(out()));
+            NeoForge.EVENT_BUS.post(new TWidgetContentUpdatedEvent(out()));
         });
 
         public MetaPairPanel() {

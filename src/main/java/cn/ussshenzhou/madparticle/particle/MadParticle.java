@@ -22,7 +22,7 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -696,7 +696,7 @@ public class MadParticle extends TextureSheetParticle {
             ParticleType<?> particleType = BuiltInRegistries.PARTICLE_TYPE.byId(target);
             if (particleType != null) {
                 ParticleEngineAccessor particleEngineAccessor = (ParticleEngineAccessor) Minecraft.getInstance().particleEngine;
-                SpriteSet spriteSet = particleEngineAccessor.getSpriteSets().get(ForgeRegistries.PARTICLE_TYPES.getKey(particleType));
+                SpriteSet spriteSet = particleEngineAccessor.getSpriteSets().get(BuiltInRegistries.PARTICLE_TYPE.getKey(particleType));
                 if (spriteSet != null) {
                     return new MadParticle(pLevel, spriteSet, op.spriteFrom(),
                             pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed,

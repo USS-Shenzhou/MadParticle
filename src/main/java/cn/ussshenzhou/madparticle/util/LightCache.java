@@ -1,13 +1,12 @@
 package cn.ussshenzhou.madparticle.util;
 
-import cn.ussshenzhou.madparticle.particle.InstancedRenderManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
+import org.lwjgl.system.MemoryUtil;
 
-import java.util.Arrays;
+import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
 /**
  * @author USS_Shenzhou
@@ -23,7 +22,9 @@ public class LightCache {
      * <br/>______|_____|__
      * <br/>isCal.ed__value
      */
-    private byte[][][] cache = new byte[xRange * 2][zRange * 2][yRange * 2];
+    @SuppressWarnings("FieldMayBeFinal")
+    private volatile byte[][][] bright = new byte[xRange * 2][zRange * 2][yRange];
+    private final ByteBuffer modify = MemoryUtil.memCalloc(xRange * 2 * zRange * 2 * yRange * 2 / 8);
     /**
      * Pos in long,packed light in int
      */
@@ -35,7 +36,7 @@ public class LightCache {
     }
 
     public void invalidateAll() {
-
+        MemoryUtil.memSet(modify, 0);
         outside.clear();
     }
 
@@ -45,10 +46,13 @@ public class LightCache {
             int rx = Mth.floor(x - camera.x) + xRange;
             int ry = Mth.floor(y - camera.y) + yRange;
             int rz = Mth.floor(z - camera.z) + zRange;
-            byte value = cache[rx][rz][ry];
-            if (value >>> 4 == 0) {
+            byte value = bright[rx][rz][ry / 2];
+            int i = rx * zRange * 2 * yRange * 2 / 8 + rz * yRange * 2 / 8 + ry / 8;
+            byte mod = modify.get(i);
+            if ((mod >>> ry % 8 & 1) == 0) {
                 int packetLight = computer.get();
-                cache[rx][rz][ry] = (byte) (getMax(packetLight) | 0x10);
+                bright[rx][rz][ry / 2] = (byte) (getMax(packetLight) << ry % 2);
+                modify.put(i, (byte) (mod | 1 << ry % 8));
                 return packetLight;
             } else {
                 return value << 4 & 0xf0;

@@ -66,10 +66,16 @@ public class InstancedRenderManager {
         MinecraftForge.EVENT_BUS.register(InstancedRenderManager.class);
     }
 
+    static int t = 0;
+
     @SubscribeEvent
     public static void refreshLightCache(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
-            LIGHT_CACHE.invalidateAll();
+            if (t % 20 == 0) {
+                LIGHT_CACHE.invalidateAll();
+                t = 0;
+            }
+            t++;
         }
     }
 
@@ -252,7 +258,7 @@ public class InstancedRenderManager {
         } else if (TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
             l = particle.getLightColor(partialTicks);
         } else {
-            l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, () ->  getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z)));
+            l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, () -> getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z)));
         }
         buffer.putInt(start + 4 * 8, l & 0x0000_ffff);
         buffer.putInt(start + 4 * 9, l >> 16 & 0x0000_ffff);

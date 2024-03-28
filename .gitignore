@@ -118,3 +118,5 @@ run/
 !gradle-wrapper.jar
 
 /src/generated/
+/.cache/
+/.fleet/

@@ -301,12 +301,10 @@ public class MadParticle extends TextureSheetParticle {
         this.xo = this.x;
         this.yo = this.y;
         this.zo = this.z;
-        if (isReversed()) {
-            reversedTick();
-        } else if (isPreCalculate()) {
-            preCalculatedTick();
-        } else {
-            normalTick();
+        switch (timeMode){
+            case NORMAL -> normalTick();
+            case PRE_CAL -> preCalculatedTick();
+            case REVERSE -> reversedTick();
         }
         sharedTick();
         age++;
@@ -418,12 +416,14 @@ public class MadParticle extends TextureSheetParticle {
             }
         }
         //roll
-        this.oRoll = this.roll;
-        if (!this.onGround) {
-            if (!isReversed()) {
-                this.roll += (float) Math.PI * rollSpeed * 2.0F;
-            } else {
-                this.roll -= (float) Math.PI * rollSpeed * 2.0F;
+        if (rollSpeed != 0) {
+            this.oRoll = this.roll;
+            if (!this.onGround) {
+                if (!isReversed()) {
+                    this.roll += (float) Math.PI * rollSpeed * 2.0F;
+                } else {
+                    this.roll -= (float) Math.PI * rollSpeed * 2.0F;
+                }
             }
         }
     }

@@ -4,6 +4,9 @@ import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -14,8 +17,8 @@ import java.util.function.Supplier;
  * @author USS_Shenzhou
  */
 public class LightCache {
-    private static final int XZ_RANGE = ConfigHelper.getConfigRead(MadParticleConfig.class).lightCacheXZRange;
-    private static final int Y_RANGE = ConfigHelper.getConfigRead(MadParticleConfig.class).lightCacheYRange;
+    private static int XZ_RANGE = ConfigHelper.getConfigRead(MadParticleConfig.class).lightCacheXZRange;
+    private static int Y_RANGE = ConfigHelper.getConfigRead(MadParticleConfig.class).lightCacheYRange;
 
     /**
      * byte:
@@ -24,7 +27,7 @@ public class LightCache {
      * <br/>isCal.ed__value
      */
     @SuppressWarnings("FieldMayBeFinal")
-    private volatile byte[][][] bright = new byte[XZ_RANGE * 2][XZ_RANGE * 2][Y_RANGE];
+    private volatile byte[][][] bright = new byte[XZ_RANGE * 2][XZ_RANGE * 2][Y_RANGE * 2];
     private final ByteBuffer modify = MemoryUtil.memCalloc(XZ_RANGE * 2 * XZ_RANGE * 2 * Y_RANGE * 2 / 8);
     /**
      * Pos in long,packed light in int
@@ -34,6 +37,20 @@ public class LightCache {
 
 
     public LightCache() {
+        NeoForge.EVENT_BUS.register(this);
+    }
+
+    static int t = 0;
+
+    @SubscribeEvent
+    public void refreshLightCache(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.END && !ConfigHelper.getConfigRead(MadParticleConfig.class).forceMaxLight) {
+            if (t % 20 == 0) {
+                this.invalidateAll();
+                t = 0;
+            }
+            t++;
+        }
     }
 
     public void invalidateAll() {
@@ -47,16 +64,16 @@ public class LightCache {
             int rx = Mth.floor(x - camera.x) + XZ_RANGE;
             int ry = Mth.floor(y - camera.y) + Y_RANGE;
             int rz = Mth.floor(z - camera.z) + XZ_RANGE;
-            byte value = bright[rx][rz][ry / 2];
+            byte value = bright[rx][rz][ry];
             int i = rx * XZ_RANGE * 2 * Y_RANGE * 2 / 8 + rz * Y_RANGE * 2 / 8 + ry / 8;
             byte mod = modify.get(i);
             if ((mod >>> ry % 8 & 1) == 0) {
                 int packetLight = computer.get();
-                bright[rx][rz][ry / 2] = (byte) (getMax(packetLight) << ry % 2);
+                bright[rx][rz][ry] = (byte) ((packetLight >>> 4 & 0xf) | (packetLight >>> 16 & 0xf0));
                 modify.put(i, (byte) (mod | 1 << ry % 8));
                 return packetLight;
             } else {
-                return value << 4 & 0xf0;
+                return (value << 16 & 0xf0_0000) | (value << 4 & 0xf0);
             }
         } else {
             Long pos = asLong(x, y, z);

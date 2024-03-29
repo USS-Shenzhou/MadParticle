@@ -100,6 +100,16 @@
   "gui.mp.de.setting.additional.optimize_command_block": "改进命令方块编辑界面",
   "gui.mp.optimize_command_block.to_designer": "在疯狂粒子设计器中编辑",
 
+  "gui.mp.de.setting.additional.counter": "粒子计数器",
+  "gui.mp.de.setting.light": "光照缓存",
+  "gui.mp.de.setting.light.hor": "水平范围",
+  "gui.mp.de.setting.light.ver": "垂直范围",
+  "gui.mp.de.setting.light.hor.tooltip": "设置快速缓存的X/Z轴半径。\n范围外的光照将会降级为稍慢的缓存。\n更大的值可以增加缓存的命中率但也会消耗更多内存。\n§6需要重新启动游戏。",
+  "gui.mp.de.setting.light.ver.tooltip": "设置快速缓存的Y轴半径。\n范围外的光照将会降级为稍慢的缓存。\n更大的值可以增加缓存的命中率但也会消耗更多内存。\n§6需要重新启动游戏。",
+  "gui.mo.de.setting.light.ram": "额外内存占用",
+  "gui.mo.de.setting.light.force": "强制光照为15",
+  "gui.mo.de.setting.light.force.tooltip": "所有粒子将会以最大光照等级（15）渲染。\n计算速度更快。",
+
   "gui.mp.de.mode.tada": "喷花筒",
   "gui.mp.de.mode.tada.make": "制作喷花筒",
 

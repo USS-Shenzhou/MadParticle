@@ -57,21 +57,16 @@ public class InstancedRenderManager {
     private static LinkedHashSet<TextureSheetParticle>[] PARTICLES = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(32768)).limit(threads).toArray(LinkedHashSet[]::new);
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
     private static final LightCache LIGHT_CACHE = new LightCache();
+    private static boolean forceMaxLight = false;
 
     static {
-        NeoForge.EVENT_BUS.register(InstancedRenderManager.class);
+        NeoForge.EVENT_BUS.addListener(InstancedRenderManager::checkForceMaxLight);
     }
 
-    static int t = 0;
-
     @SubscribeEvent
-    public static void refreshLightCache(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
-            if (t % 20 == 0) {
-                LIGHT_CACHE.invalidateAll();
-                t = 0;
-            }
-            t++;
+    public static void checkForceMaxLight(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
+            forceMaxLight = ConfigHelper.getConfigRead(MadParticleConfig.class).forceMaxLight;
         }
     }
 
@@ -81,7 +76,9 @@ public class InstancedRenderManager {
             throw new IllegalArgumentException("The amount of auxiliary threads should between 1 and 128. Correct the config file manually.");
         }
         threads = amount;
+        var p = PARTICLES;
         PARTICLES = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(32768)).limit(threads).toArray(LinkedHashSet[]::new);
+        Arrays.stream(p).forEach(set -> set.forEach(InstancedRenderManager::add));
         fixedThreadPool = Executors.newFixedThreadPool(threads);
     }
 
@@ -246,18 +243,23 @@ public class InstancedRenderManager {
         float x = Mth.lerp(partialTicks, (float) particle.xo, (float) particle.x);
         float y = Mth.lerp(partialTicks, (float) particle.yo, (float) particle.y);
         float z = Mth.lerp(partialTicks, (float) particle.zo, (float) particle.z);
-        simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
-        int l;
-        if (particle instanceof MadParticle madParticle) {
-            l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, () -> getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z)));
-            l = madParticle.checkEmit(l);
-        } else if (TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
-            l = particle.getLightColor(partialTicks);
+        if (forceMaxLight) {
+            buffer.putInt(start + 4 * 8, 240);
+            //buffer.putInt(start + 4 * 9, 0);
         } else {
-            l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, () -> getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z)));
+            simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
+            int l;
+            if (particle instanceof MadParticle madParticle) {
+                l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, () -> getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z)));
+                l = madParticle.checkEmit(l);
+            } else if (TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
+                l = particle.getLightColor(partialTicks);
+            } else {
+                l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, () -> getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z)));
+            }
+            buffer.putInt(start + 4 * 8, l & 0x0000_ffff);
+            buffer.putInt(start + 4 * 9, l >> 16 & 0x0000_ffff);
         }
-        buffer.putInt(start + 4 * 8, l & 0x0000_ffff);
-        buffer.putInt(start + 4 * 9, l >> 16 & 0x0000_ffff);
         //matrix
         matrix4fSingle.identity().translation(x + camPosCompensate.x, y + camPosCompensate.y, z + camPosCompensate.z)
                 .rotate(camera.rotation())

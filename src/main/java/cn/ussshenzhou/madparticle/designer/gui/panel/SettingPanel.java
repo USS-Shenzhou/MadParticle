@@ -11,6 +11,9 @@ import cn.ussshenzhou.madparticle.particle.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.HudManager;
 import cn.ussshenzhou.t88.gui.advanced.TOptionsPanel;
+import cn.ussshenzhou.t88.gui.util.HorizontalAlignment;
+import cn.ussshenzhou.t88.gui.widegt.TCycleButton;
+import cn.ussshenzhou.t88.gui.widegt.TLabel;
 import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Tooltip;
@@ -23,6 +26,7 @@ import java.util.List;
  * @author USS_Shenzhou
  */
 public class SettingPanel extends TOptionsPanel {
+    TLabel ramUsage;
 
     public SettingPanel() {
         addOptionSplitter(Component.translatable("gui.mp.de.setting.universal"));
@@ -78,7 +82,7 @@ public class SettingPanel extends TOptionsPanel {
                 bool -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.optimizeCommandBlockEditScreen = bool),
                 entry -> entry.getContent() == getConfigRead().optimizeCommandBlockEditScreen
         );
-        addOptionCycleButton(Component.literal("Particle Amount Counter"),
+        addOptionCycleButton(Component.translatable("gui.mp.de.setting.additional.counter"),
                 List.of(Boolean.FALSE, Boolean.TRUE),
                 bool -> b -> {
                     if (b.getSelected().getContent()) {
@@ -88,6 +92,49 @@ public class SettingPanel extends TOptionsPanel {
                         HudManager.getChildren().stream().filter(t -> t instanceof ParticleCounterHud).findFirst().ifPresent(HudManager::remove);
                     }
                 });
+        addOptionSplitter(Component.translatable("gui.mp.de.setting.light"));
+        addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.light.hor"),
+                Sets.newLinkedHashSet(List.of(16, 64, 128, 256, 512, getConfigRead().lightCacheXZRange)).stream().toList(),
+                integer -> i -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.lightCacheXZRange = i.getSelected().getContent()),
+                entry -> entry.getContent() == getConfigRead().lightCacheXZRange).getB()
+                .setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.light.hor.tooltip")));
+        addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.light.ver"),
+                Sets.newLinkedHashSet(List.of(16, 64, 128, 256, 512, getConfigRead().lightCacheYRange)).stream().toList(),
+                integer -> i -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.lightCacheYRange = i.getSelected().getContent()),
+                entry -> entry.getContent() == getConfigRead().lightCacheYRange).getB()
+                .setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.light.ver.tooltip")));
+        ramUsage = addOption(Component.translatable("gui.mo.de.setting.light.ram"), new TLabel()).getB()
+                .setHorizontalAlignment(HorizontalAlignment.LEFT);
+        addOptionCycleButtonInit(Component.translatable("gui.mo.de.setting.light.force"),
+                List.of(Boolean.TRUE, Boolean.FALSE),
+                bool -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.forceMaxLight = bool),
+                entry -> entry.getContent() == getConfigRead().forceMaxLight).getB()
+                .setTooltip(Tooltip.create(Component.translatable("gui.mo.de.setting.light.force.tooltip")));
+    }
+
+    @Override
+    public void tickT() {
+        long xz = getConfigRead().lightCacheXZRange;
+        long y = getConfigRead().lightCacheYRange;
+        long bytes = xz * 2 * xz * 2 * y * 2 + xz * xz * y;
+        ramUsage.setText(Component.literal(convertBytes(bytes)));
+        super.tickT();
+    }
+
+    public static String convertBytes(long bytes) {
+        double k = 1024;
+        double m = k * 1024;
+        double g = m * 1024;
+
+        if (bytes < k) {
+            return bytes + " Byte";
+        } else if (bytes < m) {
+            return String.format("%.2f", bytes / k) + " KiB";
+        } else if (bytes < g) {
+            return String.format("%.2f", bytes / m) + " MiB";
+        } else {
+            return String.format("%.2f", bytes / g) + " GiB";
+        }
     }
 
     private static MadParticleConfig getConfigRead() {

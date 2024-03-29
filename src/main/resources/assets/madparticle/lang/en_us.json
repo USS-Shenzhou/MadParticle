@@ -127,7 +127,7 @@
   "gui.mp.optimize_command_block.to_designer": "Edit in MadParticle Designer",
 
   "gui.mp.de.setting.additional.counter": "Particle Amount Counter",
-  "gui.mp.de.setting.light": "Light Cache",
+  "gui.mp.de.setting.light": "  Light Cache",
   "gui.mp.de.setting.light.hor": "Horizontal Range",
   "gui.mp.de.setting.light.ver": "Vertical Range",
   "gui.mp.de.setting.light.hor.tooltip": "Set the X/Z radius of Fast Cache.\nLocations outside the range will be degraded to the normal cache.\nBigger value will increase the hit rate but will also need more RAM.\n§6Need to restart the game.",

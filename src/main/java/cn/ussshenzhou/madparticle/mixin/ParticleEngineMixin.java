@@ -92,12 +92,12 @@ public class ParticleEngineMixin {
             Method getPhaseName = irisParticleRenderingPhase.getClass().getMethod("name");
             String phaseName = (String) getPhaseName.invoke(irisParticleRenderingPhase);
             if ("TRANSLUCENT".equals(phaseName)) {
-                InstancedRenderManager.render(poseStack, bufferSource, lightTexture, camera, partialTicks, clippingHelper, textureManager);
+                InstancedRenderManager.render(camera, partialTicks, clippingHelper, textureManager);
             }
         } catch (NoSuchFieldException | NoSuchMethodException | IllegalAccessException |
                  InvocationTargetException ignored) {
             //vanilla
-            InstancedRenderManager.render(poseStack, bufferSource, lightTexture, camera, partialTicks, clippingHelper, textureManager);
+            InstancedRenderManager.render(camera, partialTicks, clippingHelper, textureManager);
         }
     }
 

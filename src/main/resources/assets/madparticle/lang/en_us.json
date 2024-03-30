@@ -118,10 +118,10 @@
   "gui.mp.de.setting.additional.takeover.all": "Vanilla and Other Mods",
 
   "gui.mp.de.setting.amount.tooltip": "Specify max amount of particles (each rendering type can accommodate).",
-  "gui.mp.de.setting.real_force.tooltip": "true: Always cancels the spawning of all particles beyond twice the viewing distance.\n§7Performance impact：§ausually low",
-  "gui.mp.de.setting.threads.tooltip": "Recommend to choose a value equal to CPU cores.\nLarger values can improve performance, but may affect the operation of other programs.\n§7If necessary, you can change this value in .minecraft/config/MadParticleConfig.json.\n§7Performance impact：§chigh",
-  "gui.mp.de.setting.additional.takeover_render.tooltip": "Make most particles of the vanilla game and/or other Mods use instanced rendering.\n§6Taking over particle rendering from other Mods may lead to errors.\n§7Performance impact：§chigh",
-  "gui.mp.de.setting.additional.takeover_tick.tooltip": "Parallelize ticking particles of the vanilla game and/or other Mods.\n§6Taking over particle computation from other Mods may lead to errors.\n§7Performance impact：§chigh",
+  "gui.mp.de.setting.real_force.tooltip": "true: Always cancels the spawning of all particles beyond twice the viewing distance.\n§7Performance impact：§b●",
+  "gui.mp.de.setting.threads.tooltip": "Recommend to choose a value equal to CPU cores.\nLarger values can improve performance, but may affect the operation of other programs.\n§7If necessary, you can change this value in .minecraft/config/MadParticleConfig.json.\n§7Performance impact：§4●●●●●",
+  "gui.mp.de.setting.additional.takeover_render.tooltip": "Make most particles of the vanilla game and/or other Mods use instanced rendering.\n§6Taking over particle rendering from other Mods may lead to errors.\n§7Performance impact：§c●●●●",
+  "gui.mp.de.setting.additional.takeover_tick.tooltip": "Parallelize ticking particles of the vanilla game and/or other Mods.\n§6Taking over particle computation from other Mods may lead to errors.\n§7Performance impact：§c●●●●",
 
   "gui.mp.de.setting.additional.optimize_command_block": "Optimize Command Block Edit Screen",
   "gui.mp.optimize_command_block.to_designer": "Edit in MadParticle Designer",
@@ -130,11 +130,11 @@
   "gui.mp.de.setting.light": "  Light Cache",
   "gui.mp.de.setting.light.hor": "Horizontal Range",
   "gui.mp.de.setting.light.ver": "Vertical Range",
-  "gui.mp.de.setting.light.hor.tooltip": "Set the X/Z radius of Fast Cache.\nLarger values improve performance but also consume more RAM.\n§6Need to restart the game.\n§7Performance impact：§6medium",
-  "gui.mp.de.setting.light.ver.tooltip": "Set the Y radius of Fast Cache.\nLarger values improve performance but also consume more RAM.\n§6Need to restart the game.\n§7Performance impact：§6medium",
+  "gui.mp.de.setting.light.hor.tooltip": "Set the X/Z radius of Fast Cache.\nLarger values improve performance but also consume more RAM.\n§6Need to restart the game.\n§7Performance impact：§a●●",
+  "gui.mp.de.setting.light.ver.tooltip": "Set the Y radius of Fast Cache.\nLarger values improve performance but also consume more RAM.\n§6Need to restart the game.\n§7Performance impact：§a●●",
   "gui.mo.de.setting.light.ram": "Extra RAM Usage",
   "gui.mo.de.setting.light.force": "Force Light at 15",
-  "gui.mo.de.setting.light.force.tooltip": "true：All Particles will render with max light (15), faster.\n§7Performance impact：§6medium",
+  "gui.mo.de.setting.light.force.tooltip": "true：All Particles will render with max light (15), faster.\n§7Performance impact：§6●●●",
 
   "gui.mp.de.mode.helper.teacon": "TeaCon",
 

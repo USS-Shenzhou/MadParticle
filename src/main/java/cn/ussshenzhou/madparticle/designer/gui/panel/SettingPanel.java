@@ -48,10 +48,10 @@ public class SettingPanel extends TOptionsPanel {
                     });
                 }, getConfigRead().maxParticleAmountOfSingleQueue);
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.real_force"),
-                List.of("gui.mp.de.helper.true", "gui.mp.de.helper.false"),
+                List.of(Boolean.TRUE, Boolean.FALSE),
                 List.of(b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.limitMaxParticleGenerateDistance = true),
                         b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.limitMaxParticleGenerateDistance = false)),
-                e -> e.getContent().contains(String.valueOf(getConfigRead().limitMaxParticleGenerateDistance))
+                e -> e.getContent() == getConfigRead().limitMaxParticleGenerateDistance
         )
                 .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.real_force.tooltip")));
         int amount = getConfigRead().bufferFillerThreads;

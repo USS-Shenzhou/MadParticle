@@ -33,7 +33,7 @@ public class LightCache {
      * Pos in long,packed light in int
      */
     @SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
-    private final ConcurrentHashMap<Long, Integer> outside = new ConcurrentHashMap<>(32768);
+    private final ConcurrentHashMap<Long, Integer> outside = new ConcurrentHashMap<>();
 
 
     public LightCache() {

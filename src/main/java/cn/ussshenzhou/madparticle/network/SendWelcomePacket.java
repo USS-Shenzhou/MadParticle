@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.network;
 
+import cn.ussshenzhou.madparticle.MadParticle;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.designer.gui.WelcomeScreen;
 import cn.ussshenzhou.t88.config.ConfigHelper;
@@ -20,7 +21,7 @@ import java.util.function.Supplier;
 /**
  * @author USS_Shenzhou
  */
-@NetPacket
+@NetPacket(modid = MadParticle.MOD_ID)
 public class SendWelcomePacket {
 
     public SendWelcomePacket() {

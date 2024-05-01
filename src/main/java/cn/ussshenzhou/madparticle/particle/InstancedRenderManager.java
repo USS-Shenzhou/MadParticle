@@ -39,7 +39,6 @@ import java.util.stream.Stream;
 /**
  * @author USS_Shenzhou
  */
-@SuppressWarnings("MapOrSetKeyShouldOverrideHashCodeEquals")
 public class InstancedRenderManager {
     public static final int INSTANCE_UV_INDEX = 2;
     public static final int INSTANCE_COLOR_INDEX = 3;

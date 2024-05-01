@@ -340,7 +340,7 @@ public class MadParticle extends TextureSheetParticle {
         tickAlphaAndSize();
         //interact with Entity
         if (interactWithEntity) {
-            LivingEntity entity = level.getNearestEntity(LivingEntity.class, TargetingConditions.forNonCombat().range(4), null, x, y, z, this.getBoundingBox().inflate(0.7));
+            LivingEntity entity = level.getNearestEntity(LivingEntity.class, TargetingConditions.forNonCombat().range(2), null, x, y, z, this.getBoundingBox().inflate(0.4));
             if (entity != null) {
                 Vec3 v = entity.getDeltaMovement();
                 this.xd += v.x * random.nextFloat() * horizontalInteractFactor;

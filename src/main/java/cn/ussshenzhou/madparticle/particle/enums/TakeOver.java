@@ -1,6 +1,7 @@
-package cn.ussshenzhou.madparticle.particle;
+package cn.ussshenzhou.madparticle.particle.enums;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.util.ITranslatable;
 import com.google.common.collect.Sets;

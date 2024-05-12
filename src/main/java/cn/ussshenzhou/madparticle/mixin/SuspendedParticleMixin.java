@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.mixin;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.madparticle.particle.TakeOver;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.core.particles.ParticleGroup;
 import org.spongepowered.asm.mixin.Mixin;

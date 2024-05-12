@@ -1,4 +1,4 @@
-package cn.ussshenzhou.madparticle.particle;
+package cn.ussshenzhou.madparticle.particle.enums;
 
 
 import cn.ussshenzhou.madparticle.util.MathHelper;

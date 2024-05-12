@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.mixin;
 
 import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
-import cn.ussshenzhou.madparticle.particle.TakeOver;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.util.RandomSource;

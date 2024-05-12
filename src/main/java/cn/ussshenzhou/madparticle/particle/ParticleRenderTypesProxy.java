@@ -1,13 +1,8 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.MadParticle;
+import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
 import net.minecraft.client.particle.ParticleRenderType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.event.TickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-
-import java.lang.reflect.Method;
 
 /**
  * @author USS_Shenzhou

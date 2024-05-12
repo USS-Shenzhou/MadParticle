@@ -1,6 +1,9 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
+import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
+import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.core.particles.ParticleOptions;

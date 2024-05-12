@@ -1,6 +1,6 @@
 package cn.ussshenzhou.madparticle;
 
-import cn.ussshenzhou.madparticle.particle.TakeOver;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.t88.config.TConfig;
 
 /**

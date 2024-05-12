@@ -1,7 +1,8 @@
-package cn.ussshenzhou.madparticle.particle;
+package cn.ussshenzhou.madparticle.particle.optimize;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

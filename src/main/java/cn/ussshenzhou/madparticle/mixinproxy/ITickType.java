@@ -1,6 +1,6 @@
 package cn.ussshenzhou.madparticle.mixinproxy;
 
-import cn.ussshenzhou.madparticle.particle.TakeOver;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 
 /**
  * @author USS_Shenzhou

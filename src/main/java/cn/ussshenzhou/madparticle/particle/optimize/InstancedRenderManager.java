@@ -1,6 +1,9 @@
-package cn.ussshenzhou.madparticle.particle;
+package cn.ussshenzhou.madparticle.particle.optimize;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.madparticle.particle.MadParticle;
+import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.t88.T88;
 import cn.ussshenzhou.t88.config.ConfigHelper;
@@ -8,7 +11,6 @@ import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Camera;
 import net.minecraft.client.particle.Particle;
@@ -21,7 +23,6 @@ import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.TickEvent;
-import org.joml.Matrix4f;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.MemoryUtil;
 

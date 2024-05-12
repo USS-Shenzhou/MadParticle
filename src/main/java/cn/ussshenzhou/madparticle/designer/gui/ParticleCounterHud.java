@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.gui;
 
-import cn.ussshenzhou.madparticle.particle.InstancedRenderManager;
-import cn.ussshenzhou.madparticle.particle.ParallelTickManager;
+import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderManager;
+import cn.ussshenzhou.madparticle.particle.optimize.ParallelTickManager;
 import cn.ussshenzhou.t88.gui.widegt.TLabel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;

@@ -1,5 +1,6 @@
-package cn.ussshenzhou.madparticle.particle;
+package cn.ussshenzhou.madparticle.particle.optimize;
 
+import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 

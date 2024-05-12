@@ -3,6 +3,7 @@ package cn.ussshenzhou.madparticle.particle.optimize;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.t88.T88;

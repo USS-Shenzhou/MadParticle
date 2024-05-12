@@ -4,6 +4,8 @@ import cn.ussshenzhou.madparticle.EvictingLinkedHashSetQueue;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.designer.gui.ParticleCounterHud;
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
+import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
+import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderManager;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.optimize.ParallelTickManager;
@@ -65,6 +67,15 @@ public class SettingPanel extends TOptionsPanel {
                 }, entry -> entry.getContent() instanceof String ? amount == 1 : amount == (Integer) entry.getContent()
         )
                 .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.threads.tooltip")));
+        addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.universal.translucent"),
+                List.of(TranslucentMethod.values()),
+                method -> b -> {
+                    ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.translucentMethod = method);
+                    b.setTooltip(Tooltip.create(Component.translatable(method.translateKey() + ".tooltip")));
+                }, entry -> entry.getContent() == getConfigRead().translucentMethod
+        );
+
+
         addOptionSplitter(Component.translatable("gui.mp.de.setting.additional"));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.additional.takeover_render"),
                 List.of(TakeOver.values()), takeOver -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.takeOverRendering = b.getSelected().getContent()),
@@ -91,6 +102,8 @@ public class SettingPanel extends TOptionsPanel {
                         HudManager.getChildren().stream().filter(t -> t instanceof ParticleCounterHud).findFirst().ifPresent(HudManager::remove);
                     }
                 });
+
+
         addOptionSplitter(Component.translatable("gui.mp.de.setting.light"));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.light.hor"),
                 Sets.newLinkedHashSet(List.of(16, 64, 128, 256, 512, getConfigRead().lightCacheXZRange)).stream().toList(),
@@ -109,6 +122,12 @@ public class SettingPanel extends TOptionsPanel {
                 bool -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.forceMaxLight = bool),
                 entry -> entry.getContent() == getConfigRead().forceMaxLight).getB()
                 .setTooltip(Tooltip.create(Component.translatable("gui.mo.de.setting.light.force.tooltip")));
+        addOptionCycleButtonInit(Component.translatable("gui.mo.de.setting.light.update"),
+                List.of(LightCacheRefreshInterval.values()),
+                interval -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.lightCacheRefreshInterval = interval),
+                entry -> entry.getContent() == getConfigRead().lightCacheRefreshInterval
+        )
+                .getB().setTooltip(Tooltip.create(Component.translatable("gui.mo.de.setting.light.update.tooltip")));
     }
 
     @Override

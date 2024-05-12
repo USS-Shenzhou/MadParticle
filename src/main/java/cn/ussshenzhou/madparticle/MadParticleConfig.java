@@ -1,6 +1,8 @@
 package cn.ussshenzhou.madparticle;
 
+import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
+import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.t88.config.TConfig;
 
 /**
@@ -19,6 +21,8 @@ public class MadParticleConfig implements TConfig {
     @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
     public int lightCacheYRange = 64;
     public boolean forceMaxLight = false;
+    public TranslucentMethod translucentMethod = TranslucentMethod.DEPTH_TRUE;
+    public LightCacheRefreshInterval lightCacheRefreshInterval = LightCacheRefreshInterval.TICK10;
 
     public MadParticleConfig() {
     }

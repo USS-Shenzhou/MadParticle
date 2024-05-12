@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.util;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
@@ -20,15 +21,9 @@ public class LightCache {
     private static int XZ_RANGE = ConfigHelper.getConfigRead(MadParticleConfig.class).lightCacheXZRange;
     private static int Y_RANGE = ConfigHelper.getConfigRead(MadParticleConfig.class).lightCacheYRange;
 
-    /**
-     * byte:
-     * <br/>0 0 0 0_0 0 0 0
-     * <br/>______|_____|__
-     * <br/>isCal.ed__value
-     */
     @SuppressWarnings("FieldMayBeFinal")
     private volatile byte[][][] bright = new byte[XZ_RANGE * 2][XZ_RANGE * 2][Y_RANGE * 2];
-    private final ByteBuffer modify = MemoryUtil.memCalloc(XZ_RANGE * 2 * XZ_RANGE * 2 * Y_RANGE * 2 / 8);
+    private final ByteBuffer modifyFlag = MemoryUtil.memCalloc(XZ_RANGE * 2 * XZ_RANGE * 2 * Y_RANGE * 2 / 8);
     /**
      * Pos in long,packed light in int
      */
@@ -44,17 +39,32 @@ public class LightCache {
 
     @SubscribeEvent
     public void refreshLightCache(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.END && !ConfigHelper.getConfigRead(MadParticleConfig.class).forceMaxLight) {
-            if (t % 20 == 0) {
+        var config = ConfigHelper.getConfigRead(MadParticleConfig.class);
+        if (event.phase == TickEvent.Phase.END && !config.forceMaxLight) {
+            var interval = config.lightCacheRefreshInterval;
+            if (interval == LightCacheRefreshInterval.FRAME) {
+                return;
+            }
+            t++;
+            if (t % interval.getInterval() == 0) {
                 this.invalidateAll();
                 t = 0;
             }
-            t++;
+        }
+    }
+
+    @SubscribeEvent
+    public void refreshLightCache(TickEvent.RenderTickEvent event) {
+        var config = ConfigHelper.getConfigRead(MadParticleConfig.class);
+        if (event.phase == TickEvent.Phase.START && !config.forceMaxLight) {
+            if (config.lightCacheRefreshInterval == LightCacheRefreshInterval.FRAME) {
+                invalidateAll();
+            }
         }
     }
 
     public void invalidateAll() {
-        MemoryUtil.memSet(modify, 0);
+        MemoryUtil.memSet(modifyFlag, 0);
         outside.clear();
     }
 
@@ -66,11 +76,11 @@ public class LightCache {
             int rz = Mth.floor(z - camera.z) + XZ_RANGE;
             byte value = bright[rx][rz][ry];
             int i = rx * XZ_RANGE * 2 * Y_RANGE * 2 / 8 + rz * Y_RANGE * 2 / 8 + ry / 8;
-            byte mod = modify.get(i);
+            byte mod = modifyFlag.get(i);
             if ((mod >>> ry % 8 & 1) == 0) {
                 int packetLight = computer.get();
                 bright[rx][rz][ry] = (byte) ((packetLight >>> 4 & 0xf) | (packetLight >>> 16 & 0xf0));
-                modify.put(i, (byte) (mod | 1 << ry % 8));
+                modifyFlag.put(i, (byte) (mod | 1 << ry % 8));
                 return packetLight;
             } else {
                 return (value << 16 & 0xf0_0000) | (value << 4 & 0xf0);

@@ -651,7 +651,7 @@ public class MadParticle extends TextureSheetParticle {
         return checkEmit(super.getLightColor(pPartialTick));
     }
 
-    protected int checkEmit(int levelLight) {
+    public int checkEmit(int levelLight) {
         if (light == null) {
             return levelLight;
         } else {

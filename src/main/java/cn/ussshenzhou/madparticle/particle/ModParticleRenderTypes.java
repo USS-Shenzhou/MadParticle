@@ -1,8 +1,11 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.MadParticle;
+import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.mixin.VertexFormatElementUsageAccessor;
+import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderBufferBuilder;
+import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.collect.ImmutableMap;
 //import com.lowdragmc.shimmer.client.postprocessing.PostProcessing;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -31,7 +34,7 @@ public class ModParticleRenderTypes {
         @Override
         public void begin(BufferBuilder pBuilder, TextureManager pTextureManager) {
             RenderSystem.setShader(ModParticleShaders::getInstancedParticleShader);
-            RenderSystem.depthMask(true);
+            RenderSystem.depthMask(ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.DEPTH_TRUE);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             RenderSystem.enableBlend();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);

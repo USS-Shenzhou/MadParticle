@@ -90,10 +90,17 @@
   "gui.mp.de.setting.additional.takeover.none": "不接管",
   "gui.mp.de.setting.additional.takeover.vanilla": "仅原版",
   "gui.mp.de.setting.additional.takeover.all": "原版及其他Mod",
+  "gui.mp.de.setting.universal.translucent": "半透明处理方式",
+  "gui.mp.de.setting.universal.translucent.true": "深度测试：启用",
+  "gui.mp.de.setting.universal.translucent.true.tooltip": "原版方法\n适用于不透明粒子占多数的场景。\n§7性能影响：§b●",
+  "gui.mp.de.setting.universal.translucent.false": "深度测试：禁用",
+  "gui.mp.de.setting.universal.translucent.false.tooltip": "简单混合，但能糊弄过去。\n适用于同种半透明粒子占多数的场景。\n§7性能影响：§b●",
+  "gui.mp.de.setting.universal.translucent.oit": "OIT",
+  "gui.mp.de.setting.universal.translucent.oit.tooltip": "制作中\n§7性能影响：§b●",
 
   "gui.mp.de.setting.amount.tooltip": "指定（每种渲染类型所能容纳的）粒子数量上限.",
   "gui.mp.de.setting.real_force.tooltip": "true：总是取消在两倍于视距之外的所有粒子生成.\n§7性能影响：§b●",
-  "gui.mp.de.setting.threads.tooltip": "建议选择一个等于你的CPU核心数量的值.\n更大的值可以提高性能,但可能会影响其他程序运行.\n§7如果需要,你可以在.minecraft/config/MadParticleConfig.json中更改此值.\n§7性能影响：§4●●●●●",
+  "gui.mp.de.setting.threads.tooltip": "建议选择一个等于你的CPU核心数量的值.\n较大的值可以提高性能,但可能会影响其他程序运行.\n§7如果需要,你可以在.minecraft/config/MadParticleConfig.json中更改此值.\n§7性能影响：§4●●●●●",
   "gui.mp.de.setting.additional.takeover_render.tooltip": "实例化渲染大部分原版和/或其他Mod的粒子.\n§6接管其他Mod的粒子渲染可能会产生错误.\n§7性能影响：§c●●●●",
   "gui.mp.de.setting.additional.takeover_tick.tooltip": "并行化计算原版和/或其他Mod的粒子.\n§6接管其他Mod的粒子计算可能会产生错误.\n§7性能影响：§c●●●●",
 
@@ -109,6 +116,14 @@
   "gui.mo.de.setting.light.ram": "额外内存占用",
   "gui.mo.de.setting.light.force": "强制光照为15",
   "gui.mo.de.setting.light.force.tooltip": "true：所有粒子将会以最大光照等级(15)渲染,计算速度更快.\n§7性能影响：§6●●●",
+  "gui.mo.de.setting.light.update": "刷新间隔",
+  "gui.mo.de.setting.light.update.tick20": "每20Tick",
+  "gui.mo.de.setting.light.update.tick10": "每10Tick",
+  "gui.mo.de.setting.light.update.tick5": "每5Tick",
+  "gui.mo.de.setting.light.update.tick1": "每Tick",
+  "gui.mo.de.setting.light.update.frame": "每帧",
+  "gui.mo.de.setting.light.update.tooltip": "设置光照缓存的刷新频率。\n更大的值适合高速移动，但也会消耗更多性能。\n§7性能影响：§c●●●●",
+
 
   "gui.mp.de.mode.tada": "喷花筒",
   "gui.mp.de.mode.tada.make": "制作喷花筒",

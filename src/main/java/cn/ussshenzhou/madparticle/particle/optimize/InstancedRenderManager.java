@@ -213,10 +213,6 @@ public class InstancedRenderManager {
         return amount;
     }
 
-    private static int getLight(TextureSheetParticle particle, BlockPos pos) {
-        return particle.level.hasChunkAt(pos) ? LevelRenderer.getLightColor(particle.level, pos) : 0;
-    }
-
     /**
      * HOTSPOT
      * Can you find a way to make it faster?
@@ -245,12 +241,12 @@ public class InstancedRenderManager {
             simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
             int l;
             if (particle instanceof MadParticle madParticle) {
-                l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, () -> getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z)));
+                l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, particle, simpleBlockPosSingle);
                 l = madParticle.checkEmit(l);
             } else if (TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
                 l = particle.getLightColor(partialTicks);
             } else {
-                l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, () -> getLight(particle, new BlockPos(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z)));
+                l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, particle, simpleBlockPosSingle);
             }
             buffer.putFloat(start + 4 * 8, (float) (l & 0x0000_ffff));
             buffer.putFloat(start + 4 * 9, (float) (l >> 16 & 0x0000_ffff));
@@ -380,7 +376,7 @@ public class InstancedRenderManager {
     }
 
     public static class SimpleBlockPos {
-        private int x, y, z;
+        public int x, y, z;
 
         public SimpleBlockPos(int x, int y, int z) {
             this.x = x;

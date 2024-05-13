@@ -141,7 +141,7 @@
   "gui.mp.de.setting.light.ver.tooltip": "Set the Y radius of Fast Cache.\nLarger values improve performance but also consume more RAM.\n§6Need to restart the game.\n§7Performance impact：§a●●",
   "gui.mo.de.setting.light.ram": "Extra RAM Usage",
   "gui.mo.de.setting.light.force": "Force Light at 15",
-  "gui.mo.de.setting.light.force.tooltip": "true：All particles will render with max light (15), faster.\n§7Performance impact：§c●●●●",
+  "gui.mo.de.setting.light.force.tooltip": "true：All particles will render with max light (15), faster.\n§7Performance impact：§4●●●●●",
   "gui.mo.de.setting.light.update": "Refresh Interval",
   "gui.mo.de.setting.light.update.tick20": "Every 20 Ticks",
   "gui.mo.de.setting.light.update.tick10": "Every 10 Ticks",

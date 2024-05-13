@@ -115,7 +115,7 @@
   "gui.mp.de.setting.light.ver.tooltip": "设置快速缓存的Y轴半径.\n更大的值可以提高性能但也会消耗更多内存.\n§6需要重新启动游戏.\n§7性能影响：§a●●",
   "gui.mo.de.setting.light.ram": "额外内存占用",
   "gui.mo.de.setting.light.force": "强制光照为15",
-  "gui.mo.de.setting.light.force.tooltip": "true：所有粒子将会以最大光照等级(15)渲染,计算速度更快.\n§7性能影响：§6●●●",
+  "gui.mo.de.setting.light.force.tooltip": "true：所有粒子将会以最大光照等级(15)渲染,计算速度更快.\n§7性能影响：§4●●●●●",
   "gui.mo.de.setting.light.update": "刷新间隔",
   "gui.mo.de.setting.light.update.tick20": "每20Tick",
   "gui.mo.de.setting.light.update.tick10": "每10Tick",

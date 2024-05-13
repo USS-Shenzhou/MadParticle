@@ -44,6 +44,9 @@ public class ModParticleRenderTypes {
         @Override
         public void end(Tesselator pTesselator) {
             instancedRenderBufferBuilder.end();
+            if (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.DEPTH_FALSE) {
+                RenderSystem.depthMask(true);
+            }
         }
     };
 

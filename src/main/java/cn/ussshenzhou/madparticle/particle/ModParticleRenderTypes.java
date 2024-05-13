@@ -19,6 +19,7 @@ import org.lwjgl.opengl.GL43;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import static com.mojang.blaze3d.vertex.DefaultVertexFormat.*;
+import static org.lwjgl.opengl.GL40C.*;
 
 
 /**
@@ -28,7 +29,7 @@ import static com.mojang.blaze3d.vertex.DefaultVertexFormat.*;
 public class ModParticleRenderTypes {
 
     @SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
-    public static final InstancedRenderBufferBuilder instancedRenderBufferBuilder = new InstancedRenderBufferBuilder(1024 * 512);
+    public static final InstancedRenderBufferBuilder instancedBufferBuilder = new InstancedRenderBufferBuilder(1024 * 512);
 
     public static final ParticleRenderType INSTANCED = new ParticleRenderType() {
         @Override
@@ -38,15 +39,31 @@ public class ModParticleRenderTypes {
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             RenderSystem.enableBlend();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            instancedRenderBufferBuilder.begin(VertexFormat.Mode.QUADS, INSTANCED_FORMAT);
+            instancedBufferBuilder.begin(VertexFormat.Mode.QUADS, INSTANCED_FORMAT);
         }
 
         @Override
         public void end(Tesselator pTesselator) {
-            instancedRenderBufferBuilder.end();
-            if (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.DEPTH_FALSE) {
-                RenderSystem.depthMask(true);
-            }
+            instancedBufferBuilder.end();
+        }
+    };
+
+    public static final ParticleRenderType INSTANCED_OIT = new ParticleRenderType() {
+        @Override
+        public void begin(BufferBuilder pBuilder, TextureManager pTextureManager) {
+            RenderSystem.setShader(ModParticleShaders::getInstancedParticleShaderOit);
+            RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
+            glDepthMask(false);
+            glEnable(GL_BLEND);
+            glBlendFunci(0, GL_ONE, GL_ONE);
+            glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+            glBlendEquation(GL_FUNC_ADD);
+            instancedBufferBuilder.begin(VertexFormat.Mode.QUADS, INSTANCED_FORMAT);
+        }
+
+        @Override
+        public void end(Tesselator pTesselator) {
+            instancedBufferBuilder.end();
         }
     };
 

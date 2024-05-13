@@ -3,23 +3,25 @@ package cn.ussshenzhou.madparticle.particle.optimize;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
-import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
+import cn.ussshenzhou.madparticle.particle.ModParticleShaders;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
+import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.t88.T88;
 import cn.ussshenzhou.t88.config.ConfigHelper;
+import cn.ussshenzhou.t88.gui.event.ResizeHudEvent;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -37,6 +39,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
+
+import static org.lwjgl.opengl.GL40C.*;
 
 /**
  * @author USS_Shenzhou
@@ -57,11 +61,71 @@ public class InstancedRenderManager {
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
     private static final LightCache LIGHT_CACHE = new LightCache();
     private static boolean forceMaxLight = false;
+    private static final int OIT_FBO, ACCUM_TEXTURE, REVEAL_TEXTURE, DEPTH_TEXTURE, POST_VAO, POST_VBO;
 
     static {
         NeoForge.EVENT_BUS.addListener(InstancedRenderManager::checkForceMaxLight);
+        NeoForge.EVENT_BUS.addListener(InstancedRenderManager::windowResize);
+        ACCUM_TEXTURE = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, ACCUM_TEXTURE);
+        initOitTexture();
+        REVEAL_TEXTURE = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, REVEAL_TEXTURE);
+        initOitTexture();
+        DEPTH_TEXTURE = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, DEPTH_TEXTURE);
+        var window = Minecraft.getInstance().getWindow();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window.getWidth(), window.getHeight(), 0, GL_RGBA, GL_HALF_FLOAT, (ByteBuffer) null);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        OIT_FBO = glGenFramebuffers();
+        glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ACCUM_TEXTURE, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, REVEAL_TEXTURE, 0);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+        var translucentDrawBuffers = new int[]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+        glDrawBuffers(translucentDrawBuffers);
+        POST_VAO = glGenVertexArrays();
+        POST_VBO = glGenBuffers();
+        glBindVertexArray(POST_VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, POST_VBO);
+        var quadVertices = new float[]{
+                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+                1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+                1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+                1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+                -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f
+        };
+        glBufferData(GL_ARRAY_BUFFER, quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * 4, 0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * 4, 3 * 4);
+        glBindVertexArray(0);
     }
 
+    private static void initOitTexture() {
+        var window = Minecraft.getInstance().getWindow();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window.getWidth(), window.getHeight(), 0, GL_RGBA, GL_HALF_FLOAT, (ByteBuffer) null);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    /**
+     * Manual reg.
+     */
+    @SubscribeEvent
+    public static void windowResize(ResizeHudEvent event) {
+        glBindTexture(GL_TEXTURE_2D, ACCUM_TEXTURE);
+        initOitTexture();
+        glBindTexture(GL_TEXTURE_2D, REVEAL_TEXTURE);
+        initOitTexture();
+    }
+
+    /**
+     * Manual reg.
+     */
     @SubscribeEvent
     public static void checkForceMaxLight(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
@@ -118,7 +182,6 @@ public class InstancedRenderManager {
         }
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
     public static void removeAll(Collection<Particle> particle) {
         //Arrays.stream(PARTICLES).forEach(set -> set.removeAll(particle));
         particle.stream().filter(p -> p instanceof TextureSheetParticle).forEach(p -> remove((TextureSheetParticle) p));
@@ -140,37 +203,55 @@ public class InstancedRenderManager {
         if (amount() == 0) {
             return;
         }
-        InstancedRenderBufferBuilder bufferBuilder = ModParticleRenderTypes.instancedRenderBufferBuilder;
-        ModParticleRenderTypes.INSTANCED.begin(bufferBuilder, textureManager);
-        //ByteBuffer instanceMatrixBuffer = MemoryUtil.memAlloc(PARTICLES.size() * SIZE_INSTANCE_BYTES);
-        //MemoryUtil.memSet(instanceMatrixBuffer, 0);
+        //-----prepare var
+        InstancedRenderBufferBuilder bufferBuilder = ModParticleRenderTypes.instancedBufferBuilder;
         ByteBuffer instanceMatrixBuffer = MemoryUtil.memCalloc(amount(), SIZE_INSTANCE_BYTES);
         int amount;
+        //-----prepare shader
+        prepareShader(textureManager, bufferBuilder);
+        //-----fill vbo
         //TODO add an option of checking visibility
         if (threads <= 1) {
             amount = renderSync(instanceMatrixBuffer, camera, partialTicks, clippingHelper);
         } else {
             amount = renderAsync(instanceMatrixBuffer, camera, partialTicks, clippingHelper);
         }
+        //-----fill 4 vertices
         fillVertices(bufferBuilder);
         BufferBuilder.RenderedBuffer renderedBuffer = bufferBuilder.end();
         var vertexBuffer = BufferUploader.upload(renderedBuffer);
+        //-----set opengl state
+        assert vertexBuffer != null;
         if (cn.ussshenzhou.madparticle.MadParticle.IS_OPTIFINE_INSTALLED) {
-            //noinspection DataFlowIssue
             GL30C.glBindVertexArray(vertexBuffer.arrayObjectId);
             GL20C.glEnableVertexAttribArray(1);
             GL30C.glVertexAttribIPointer(1, 4, GL11C.GL_INT, 28, 3 * 4);
         }
-        //noinspection DataFlowIssue
         int instanceMatrixBufferId = bindBuffer(instanceMatrixBuffer, vertexBuffer.arrayObjectId);
         ShaderInstance shader = RenderSystem.getShader();
-        prepare(camera, shader);
+        assert shader != null;
+        prepareFinal(camera, shader);
+        //-----draw
         GL31C.glDrawElementsInstanced(4, 6,
                 RenderSystem.sharedSequentialQuad.hasStorage(65536) ? GL11C.GL_UNSIGNED_INT : GL11C.GL_UNSIGNED_SHORT,
                 0, amount);
-        //noinspection DataFlowIssue
+        if (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.OIT) {
+            oitPost();
+        }
+        //-----done and clean up
         shader.clear();
-        end(instanceMatrixBuffer, instanceMatrixBufferId);
+        cleanUp(instanceMatrixBuffer, instanceMatrixBufferId);
+    }
+
+    private static void prepareShader(TextureManager textureManager, InstancedRenderBufferBuilder bufferBuilder) {
+        if (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.OIT) {
+            ModParticleRenderTypes.INSTANCED_OIT.begin(bufferBuilder, textureManager);
+            glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
+            glClearBufferfv(GL_COLOR, 0, new float[]{0, 0, 0, 0});
+            glClearBufferfv(GL_COLOR, 1, new float[]{1, 1, 1, 1});
+        } else {
+            ModParticleRenderTypes.INSTANCED.begin(bufferBuilder, textureManager);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -274,7 +355,7 @@ public class InstancedRenderManager {
         bufferBuilder.uvControl(1, 0, 0, 1).endVertex();
     }
 
-    public static void prepare(Camera camera, ShaderInstance shader) {
+    public static void prepareFinal(Camera camera, ShaderInstance shader) {
         for (int i1 = 0; i1 < 12; ++i1) {
             int textureId = RenderSystem.getShaderTexture(i1);
             shader.setSampler("Sampler" + i1, textureId);
@@ -314,13 +395,13 @@ public class InstancedRenderManager {
         var quat = camera.rotation();
         //noinspection DataFlowIssue
         shader.getUniform("CamQuat").set(quat.x, quat.y, quat.z, quat.w);
-
         RenderSystem.setupShaderLights(shader);
         shader.apply();
         if (cn.ussshenzhou.madparticle.MadParticle.IS_OPTIFINE_INSTALLED) {
             //TODO if optifine shader using
             GL20C.glUseProgram(shader.getId());
         }
+        //TODO need update
         if (cn.ussshenzhou.madparticle.MadParticle.irisOn) {
             //Borrow iris particle shader's frame buffer.
             //Profiler tells me this is ok. We should trust JVM.
@@ -341,8 +422,20 @@ public class InstancedRenderManager {
             }
             GL11C.glDepthMask(true);
             GL11C.glColorMask(true, true, true, true);
-
         }
+    }
+
+    private static void oitPost() {
+        glBindFramebuffer(GL_FRAMEBUFFER, Minecraft.getInstance().getMainRenderTarget().frameBufferId);
+        RenderSystem.setShader(ModParticleShaders::getInstancedParticleShaderOitPost);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        assert RenderSystem.getShader() != null;
+        RenderSystem.getShader().setSampler("accum", ACCUM_TEXTURE);
+        RenderSystem.getShader().setSampler("reveal", REVEAL_TEXTURE);
+        RenderSystem.getShader().apply();
+        glBindVertexArray(POST_VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
     public static int bindBuffer(ByteBuffer buffer, int id) {
@@ -365,7 +458,7 @@ public class InstancedRenderManager {
         return bufferId;
     }
 
-    public static void end(ByteBuffer instanceMatrixBuffer, int instanceMatrixBufferId) {
+    public static void cleanUp(ByteBuffer instanceMatrixBuffer, int instanceMatrixBufferId) {
         for (int i = 0; i < 3; i++) {
             GL33C.glDisableVertexAttribArray(INSTANCE_UV_INDEX + i);
         }

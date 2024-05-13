@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.MadParticle;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +30,20 @@ public class ModParticleShaders {
         return instancedParticleShader;
     }
 
+    public static ShaderInstance instancedParticleShaderOit;
+    public static final RenderStateShard.ShaderStateShard INSTANCED_SHADER_OIT = new RenderStateShard.ShaderStateShard(() -> instancedParticleShaderOit);
+
+    public static ShaderInstance getInstancedParticleShaderOit() {
+        return instancedParticleShaderOit;
+    }
+
+    public static ShaderInstance instancedParticleShaderOitPost;
+    public static final RenderStateShard.ShaderStateShard INSTANCED_SHADER_OIT_POST = new RenderStateShard.ShaderStateShard(() -> instancedParticleShaderOitPost);
+
+    public static ShaderInstance getInstancedParticleShaderOitPost() {
+        return instancedParticleShaderOitPost;
+    }
+
 
     @SubscribeEvent
     public static void registerShader(RegisterShadersEvent event) {
@@ -43,6 +58,16 @@ public class ModParticleShaders {
                     new ShaderInstance(resourceManager,
                             new ResourceLocation(MadParticle.MOD_ID, "instanced_particle"), ModParticleRenderTypes.INSTANCED_FORMAT),
                     shaderInstance -> instancedParticleShader = shaderInstance
+            );
+            event.registerShader(
+                    new ShaderInstance(resourceManager,
+                            new ResourceLocation(MadParticle.MOD_ID, "instanced_particle_oit"), ModParticleRenderTypes.INSTANCED_FORMAT),
+                    shaderInstance -> instancedParticleShaderOit = shaderInstance
+            );
+            event.registerShader(
+                    new ShaderInstance(resourceManager,
+                            new ResourceLocation(MadParticle.MOD_ID, "instanced_particle_oit_post"), DefaultVertexFormat.POSITION_TEX),
+                    shaderInstance -> instancedParticleShaderOitPost = shaderInstance
             );
         } catch (Exception e) {
             throw new RuntimeException("failed to load particle shader", e);

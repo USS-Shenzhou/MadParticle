@@ -54,6 +54,8 @@ public class InstancedRenderManager {
     public static final int SIZE_FLOAT_OR_INT_BYTES = 4;
     public static final int AMOUNT_INSTANCE_FLOATS = 4 + 4 + 4 + 3;
     public static final int SIZE_INSTANCE_BYTES = AMOUNT_INSTANCE_FLOATS * SIZE_FLOAT_OR_INT_BYTES;
+    public static final float[] ACCUM_INIT = {0, 0, 0, 0};
+    public static final float[] REVEAL_INIT = {1};
 
     private static int threads = Mth.clamp(ConfigHelper.getConfigRead(MadParticleConfig.class).bufferFillerThreads, 1, Integer.MAX_VALUE);
     @SuppressWarnings("unchecked")
@@ -65,13 +67,10 @@ public class InstancedRenderManager {
 
     static {
         NeoForge.EVENT_BUS.addListener(InstancedRenderManager::checkForceMaxLight);
-        NeoForge.EVENT_BUS.addListener(InstancedRenderManager::windowResize);
+        NeoForge.EVENT_BUS.addListener(InstancedRenderManager::onWindowResize);
         ACCUM_TEXTURE = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, ACCUM_TEXTURE);
-        initOitTexture();
         REVEAL_TEXTURE = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, REVEAL_TEXTURE);
-        initOitTexture();
+        resetOitTexture();
         DEPTH_TEXTURE = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, DEPTH_TEXTURE);
         var window = Minecraft.getInstance().getWindow();
@@ -104,9 +103,14 @@ public class InstancedRenderManager {
         glBindVertexArray(0);
     }
 
-    private static void initOitTexture() {
+    private static void resetOitTexture() {
         var window = Minecraft.getInstance().getWindow();
+        glBindTexture(GL_TEXTURE_2D, ACCUM_TEXTURE);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window.getWidth(), window.getHeight(), 0, GL_RGBA, GL_HALF_FLOAT, (ByteBuffer) null);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, REVEAL_TEXTURE);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R16, window.getWidth(), window.getHeight(), 0, GL_RGBA, GL_HALF_FLOAT, (ByteBuffer) null);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -116,11 +120,8 @@ public class InstancedRenderManager {
      * Manual reg.
      */
     @SubscribeEvent
-    public static void windowResize(ResizeHudEvent event) {
-        glBindTexture(GL_TEXTURE_2D, ACCUM_TEXTURE);
-        initOitTexture();
-        glBindTexture(GL_TEXTURE_2D, REVEAL_TEXTURE);
-        initOitTexture();
+    public static void onWindowResize(ResizeHudEvent event) {
+        resetOitTexture();
     }
 
     /**
@@ -245,10 +246,7 @@ public class InstancedRenderManager {
 
     private static void prepareShader(TextureManager textureManager, InstancedRenderBufferBuilder bufferBuilder) {
         if (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.OIT) {
-            ModParticleRenderTypes.INSTANCED_OIT.begin(bufferBuilder, textureManager);
-            glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
-            glClearBufferfv(GL_COLOR, 0, new float[]{0, 0, 0, 0});
-            glClearBufferfv(GL_COLOR, 1, new float[]{1, 1, 1, 1});
+            oitPre(textureManager, bufferBuilder);
         } else {
             ModParticleRenderTypes.INSTANCED.begin(bufferBuilder, textureManager);
         }
@@ -423,6 +421,13 @@ public class InstancedRenderManager {
             GL11C.glDepthMask(true);
             GL11C.glColorMask(true, true, true, true);
         }
+    }
+
+    private static void oitPre(TextureManager textureManager, InstancedRenderBufferBuilder bufferBuilder) {
+        ModParticleRenderTypes.INSTANCED_OIT.begin(bufferBuilder, textureManager);
+        glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
+        glClearBufferfv(GL_COLOR, 0, ACCUM_INIT);
+        glClearBufferfv(GL_COLOR, 1, REVEAL_INIT);
     }
 
     private static void oitPost() {

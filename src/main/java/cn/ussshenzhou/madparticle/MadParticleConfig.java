@@ -21,7 +21,7 @@ public class MadParticleConfig implements TConfig {
     @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
     public int lightCacheYRange = 64;
     public boolean forceMaxLight = false;
-    public TranslucentMethod translucentMethod = TranslucentMethod.DEPTH_TRUE;
+    public TranslucentMethod translucentMethod = TranslucentMethod.OIT;
     public LightCacheRefreshInterval lightCacheRefreshInterval = LightCacheRefreshInterval.TICK10;
 
     public MadParticleConfig() {

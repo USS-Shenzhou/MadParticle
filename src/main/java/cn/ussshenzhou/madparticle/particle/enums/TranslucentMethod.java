@@ -8,7 +8,6 @@ import cn.ussshenzhou.t88.gui.util.ITranslatable;
 public enum TranslucentMethod implements ITranslatable {
     DEPTH_TRUE("gui.mp.de.setting.universal.translucent.true"),
     DEPTH_FALSE("gui.mp.de.setting.universal.translucent.false"),
-    //TODO
     OIT("gui.mp.de.setting.universal.translucent.oit");
 
     private final String translationKey;

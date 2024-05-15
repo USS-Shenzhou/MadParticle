@@ -63,24 +63,21 @@ public class InstancedRenderManager {
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
     private static final LightCache LIGHT_CACHE = new LightCache();
     private static boolean forceMaxLight = false;
-    private static final int OIT_FBO, ACCUM_TEXTURE, REVEAL_TEXTURE, DEPTH_TEXTURE, POST_VAO, POST_VBO;
+    private static final int OIT_FBO, ACCUM_TEXTURE, REVEAL_TEXTURE,POST_VAO, POST_VBO;
 
     static {
         NeoForge.EVENT_BUS.addListener(InstancedRenderManager::checkForceMaxLight);
         NeoForge.EVENT_BUS.addListener(InstancedRenderManager::onWindowResize);
+        OIT_FBO = glGenFramebuffers();
         ACCUM_TEXTURE = glGenTextures();
         REVEAL_TEXTURE = glGenTextures();
         resetOitTexture();
-        DEPTH_TEXTURE = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, DEPTH_TEXTURE);
         var window = Minecraft.getInstance().getWindow();
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window.getWidth(), window.getHeight(), 0, GL_RGBA, GL_HALF_FLOAT, (ByteBuffer) null);
         glBindTexture(GL_TEXTURE_2D, 0);
-        OIT_FBO = glGenFramebuffers();
         glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ACCUM_TEXTURE, 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, REVEAL_TEXTURE, 0);
-        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
         var translucentDrawBuffers = new int[]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
         glDrawBuffers(translucentDrawBuffers);
         POST_VAO = glGenVertexArrays();
@@ -114,6 +111,8 @@ public class InstancedRenderManager {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, Minecraft.getInstance().getMainRenderTarget().getDepthTextureId(), 0);
     }
 
     /**
@@ -434,6 +433,7 @@ public class InstancedRenderManager {
         glBindFramebuffer(GL_FRAMEBUFFER, Minecraft.getInstance().getMainRenderTarget().frameBufferId);
         RenderSystem.setShader(ModParticleShaders::getInstancedParticleShaderOitPost);
         glEnable(GL_BLEND);
+        glDepthMask(true);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         assert RenderSystem.getShader() != null;
         RenderSystem.getShader().setSampler("accum", ACCUM_TEXTURE);

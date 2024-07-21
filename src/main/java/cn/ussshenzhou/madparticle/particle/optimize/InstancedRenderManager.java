@@ -63,7 +63,7 @@ public class InstancedRenderManager {
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
     private static final LightCache LIGHT_CACHE = new LightCache();
     private static boolean forceMaxLight = false;
-    private static final int OIT_FBO, ACCUM_TEXTURE, REVEAL_TEXTURE,POST_VAO, POST_VBO;
+    private static final int OIT_FBO, ACCUM_TEXTURE, REVEAL_TEXTURE, POST_VAO, POST_VBO;
 
     static {
         NeoForge.EVENT_BUS.addListener(InstancedRenderManager::checkForceMaxLight);
@@ -237,6 +237,8 @@ public class InstancedRenderManager {
                 0, amount);
         if (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.OIT) {
             oitPost();
+        } else {
+            RenderSystem.depthMask(true);
         }
         //-----done and clean up
         shader.clear();

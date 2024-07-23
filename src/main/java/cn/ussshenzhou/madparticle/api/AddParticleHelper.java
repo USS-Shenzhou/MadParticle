@@ -121,11 +121,11 @@ public class AddParticleHelper {
     }
 
     public static void addParticleServer(ServerLevel level, MadParticleOption option) {
-        level.players().forEach(player -> NetworkHelper.sendTo(PacketDistributor.PLAYER.with(player), new MadParticlePacket(option)));
+        level.players().forEach(player -> NetworkHelper.sendToPlayer(player, new MadParticlePacket(option)));
     }
 
     public static void addParticleServer(ServerPlayer from, MadParticleOption option) {
-        NetworkHelper.sendTo(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(from), new MadParticlePacket(option));
+        NetworkHelper.sendToPlayersTrackingEntityAndSelf(from, new MadParticlePacket(option));
     }
 
     public static void addParticleServer(ServerLevel level, ParticleType<?> targetParticle,

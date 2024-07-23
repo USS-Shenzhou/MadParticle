@@ -10,13 +10,13 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 
 /**
  * @author USS_Shenzhou
@@ -44,9 +44,9 @@ public class LightCache {
     static int t = 0;
 
     @SubscribeEvent
-    public void refreshLightCache(TickEvent.ClientTickEvent event) {
+    public void refreshLightCache(ClientTickEvent.Post event) {
         var config = ConfigHelper.getConfigRead(MadParticleConfig.class);
-        if (event.phase == TickEvent.Phase.END && !config.forceMaxLight) {
+        if (!config.forceMaxLight) {
             var interval = config.lightCacheRefreshInterval;
             if (interval == LightCacheRefreshInterval.FRAME) {
                 return;
@@ -60,9 +60,9 @@ public class LightCache {
     }
 
     @SubscribeEvent
-    public void refreshLightCache(TickEvent.RenderTickEvent event) {
+    public void refreshLightCache(RenderFrameEvent.Pre event) {
         var config = ConfigHelper.getConfigRead(MadParticleConfig.class);
-        if (event.phase == TickEvent.Phase.START && !config.forceMaxLight) {
+        if (!config.forceMaxLight) {
             if (config.lightCacheRefreshInterval == LightCacheRefreshInterval.FRAME) {
                 invalidateAll();
             }

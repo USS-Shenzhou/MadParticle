@@ -2,11 +2,12 @@ package cn.ussshenzhou.madparticle;
 
 import cn.ussshenzhou.madparticle.command.inheritable.ModCommandArgumentRegistry;
 import cn.ussshenzhou.madparticle.item.ModItemsRegistry;
+import cn.ussshenzhou.madparticle.item.component.ModDataComponent;
 import cn.ussshenzhou.madparticle.particle.ModParticleTypeRegistry;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.logging.LogUtils;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
@@ -36,6 +37,7 @@ public class MadParticle {
         ModParticleTypeRegistry.PARTICLE_TYPES.register(modEventBus);
         ModCommandArgumentRegistry.COMMAND_ARGUMENTS.register(modEventBus);
         ModItemsRegistry.ITEMS.register(modEventBus);
+        ModDataComponent.DATA_COMPONENTS.register(modEventBus);
     }
 
     public boolean isModLoaded(String modID) {
@@ -66,18 +68,16 @@ public class MadParticle {
     }
 
     @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            try {
-                Class<?> irisApi = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
-                Method getInstance = irisApi.getMethod("getInstance");
-                getInstance.setAccessible(true);
-                Method isShaderPackInUse = irisApi.getMethod("isShaderPackInUse");
-                isShaderPackInUse.setAccessible(true);
-                irisOn = (boolean) isShaderPackInUse.invoke(getInstance.invoke(null));
-            } catch (Exception ignored) {
-                irisOn = false;
-            }
+    public void onClientTick(ClientTickEvent.Pre event) {
+        try {
+            Class<?> irisApi = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
+            Method getInstance = irisApi.getMethod("getInstance");
+            getInstance.setAccessible(true);
+            Method isShaderPackInUse = irisApi.getMethod("isShaderPackInUse");
+            isShaderPackInUse.setAccessible(true);
+            irisOn = (boolean) isShaderPackInUse.invoke(getInstance.invoke(null));
+        } catch (Exception ignored) {
+            irisOn = false;
         }
     }
 }

@@ -13,14 +13,10 @@ public class ParticleRenderTypesProxy {
     public static ParticleRenderType getType(ParticleRenderTypes enumType) {
         return switch (enumType) {
             case INSTANCED -> ModParticleRenderTypes.INSTANCED;
-            case TERRAIN_SHEET ->
-                    MadParticle.irisOn ? ParticleRenderType.TERRAIN_SHEET : ModParticleRenderTypes.Traditional.TERRAIN_SHEET;
-            case PARTICLE_SHEET_OPAQUE ->
-                    MadParticle.irisOn ? ParticleRenderType.PARTICLE_SHEET_OPAQUE : ModParticleRenderTypes.Traditional.PARTICLE_SHEET_OPAQUE;
-            case PARTICLE_SHEET_LIT ->
-                    MadParticle.irisOn ? ParticleRenderType.PARTICLE_SHEET_LIT : ModParticleRenderTypes.Traditional.PARTICLE_SHEET_LIT;
-            case PARTICLE_SHEET_TRANSLUCENT ->
-                    MadParticle.irisOn ? ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT : ModParticleRenderTypes.Traditional.PARTICLE_SHEET_TRANSLUCENT;
+            case TERRAIN_SHEET -> ParticleRenderType.TERRAIN_SHEET;
+            case PARTICLE_SHEET_OPAQUE -> ParticleRenderType.PARTICLE_SHEET_OPAQUE;
+            case PARTICLE_SHEET_LIT -> ParticleRenderType.PARTICLE_SHEET_LIT;
+            case PARTICLE_SHEET_TRANSLUCENT -> ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
             /*case CUSTOM -> {
                 return ParticleRenderType.CUSTOM;
             }*/

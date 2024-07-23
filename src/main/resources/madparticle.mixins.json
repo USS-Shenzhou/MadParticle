@@ -19,8 +19,7 @@
     "ParticleEngineMixin",
     "ParticleMixin",
     "SuspendedParticleMixin",
-    "TextureManagerAccessor",
-    "VertexFormatElementUsageAccessor"
+    "TextureManagerAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

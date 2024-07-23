@@ -47,7 +47,7 @@ public class SettingPanel extends TOptionsPanel {
                             InstancedRenderManager.reload(newQueue);
                         }
                     });
-                }, getConfigRead().maxParticleAmountOfSingleQueue);
+                }, getConfigRead().maxParticleAmountOfSingleQueue, false);
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.real_force"),
                 List.of(Boolean.TRUE, Boolean.FALSE),
                 List.of(b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.limitMaxParticleGenerateDistance = true),

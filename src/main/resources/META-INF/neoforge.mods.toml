@@ -54,6 +54,10 @@ authors="${mod_authors}" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''${mod_description}'''
 
+## The file is relative to the output directory of the resources, or the root path inside the jar when compiled
+## The 'resources' directory represents the root output directory of the resources
+enumExtensions="META-INF/enumextensions.json"
+
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
 [[mixins]]
 config="${mod_id}.mixins.json"
@@ -97,7 +101,7 @@ side="BOTH"
 [[dependencies.${mod_id}]]
 modId="t88"
 type="required"
-versionRange="[0.8,)"
+versionRange="[0.9,)"
 ordering="NONE"
 side="BOTH"
 

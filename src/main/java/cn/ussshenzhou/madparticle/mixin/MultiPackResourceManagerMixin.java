@@ -52,7 +52,7 @@ public class MultiPackResourceManagerMixin {
                     CustomParticleRegistry.listToJsonString(CustomParticleRegistry.CUSTOM_PARTICLES_TYPE_NAMES_AND_TEXTURES.get(original))
             );
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(s.getBytes());
-            ResourceLocation jsonLocation = new ResourceLocation(original.getNamespace(), "particles/" + original.getPath() + ".json");
+            ResourceLocation jsonLocation = ResourceLocation.fromNamespaceAndPath(original.getNamespace(), "particles/" + original.getPath() + ".json");
             map.put(jsonLocation, new Resource(resources, () -> byteArrayInputStream));
         });
     }
@@ -68,7 +68,7 @@ public class MultiPackResourceManagerMixin {
             try {
                 //noinspection resource
                 FileInputStream fileInputStream = new FileInputStream(CustomParticleRegistry.textureResLocToFile(textureResourceLocation));
-                ResourceLocation pngLocation = new ResourceLocation(textureResourceLocation.getNamespace(), "textures/particle/" + textureResourceLocation.getPath() + ".png");
+                ResourceLocation pngLocation = ResourceLocation.fromNamespaceAndPath(textureResourceLocation.getNamespace(), "textures/particle/" + textureResourceLocation.getPath() + ".png");
                 map.put(pngLocation, new Resource(resources, () -> fileInputStream));
             } catch (IOException ignored) {
                 LogUtils.getLogger().error("Failed to find file of texture {}. Check if it is a valid name.", textureResourceLocation);

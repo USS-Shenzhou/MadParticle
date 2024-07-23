@@ -6,10 +6,15 @@ import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -35,61 +40,54 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                                 CompoundTag meta
 
 ) implements ParticleOptions {
-    public static final Deserializer<MadParticleOption> DESERIALIZER = new Deserializer<MadParticleOption>() {
-        @Override
-        public MadParticleOption fromCommand(ParticleType<MadParticleOption> pParticleType, StringReader pReader) throws CommandSyntaxException {
-            return null;
-        }
 
-        @Override
-        public MadParticleOption fromNetwork(ParticleType<MadParticleOption> pParticleType, FriendlyByteBuf buf) {
-            int targetParticle = buf.readInt();
-            SpriteFrom spriteFrom = buf.readEnum(SpriteFrom.class);
-            int lifeTime = buf.readInt();
-            InheritableBoolean alwaysRender = buf.readEnum(InheritableBoolean.class);
-            int amount = buf.readInt();
-            double px = buf.readDouble(), py = buf.readDouble(), pz = buf.readDouble();
-            double xDiffuse = buf.readDouble(), yDiffuse = buf.readDouble(), zDiffuse = buf.readDouble();
-            double vx = buf.readDouble(), vy = buf.readDouble(), vz = buf.readDouble();
-            double vxDiffuse = buf.readDouble(), vyDiffuse = buf.readDouble(), vzDiffuse = buf.readDouble();
-            float friction = buf.readFloat();
-            float gravity = buf.readFloat();
-            InheritableBoolean collision = buf.readEnum(InheritableBoolean.class);
-            int bounceTime = buf.readInt();
-            double horizontalRelativeCollisionDiffuse = buf.readDouble(), verticalRelativeCollisionBounce = buf.readDouble();
-            float afterCollisionFriction = buf.readFloat();
-            float afterCollisionGravity = buf.readFloat();
-            InheritableBoolean interactWithEntity = buf.readEnum(InheritableBoolean.class);
-            double horizontalInteractFactor = buf.readDouble(), verticalInteractFactor = buf.readDouble();
-            ParticleRenderTypes renderType = buf.readEnum(ParticleRenderTypes.class);
-            float r = buf.readFloat(), g = buf.readFloat(), b = buf.readFloat();
-            float beginAlpha = buf.readFloat(), endAlpha = buf.readFloat();
-            ChangeMode alphaMode = buf.readEnum(ChangeMode.class);
-            float beginScale = buf.readFloat(), endScale = buf.readFloat();
-            ChangeMode scaleMode = buf.readEnum(ChangeMode.class);
-            boolean haveChild = buf.readBoolean();
-            MadParticleOption child = haveChild ? MadParticleOption.DESERIALIZER.fromNetwork(ModParticleTypeRegistry.MAD_PARTICLE.get(), buf) : null;
-            float rollSpeed = buf.readFloat();
-            float xDeflection = buf.readFloat();
-            float xDeflectionAfterCollision = buf.readFloat();
-            float zDeflection = buf.readFloat();
-            float zDeflectionAfterCollision = buf.readFloat();
-            float bloomFactor = buf.readFloat();
-            CompoundTag meta = buf.readNbt();
-            return new MadParticleOption(targetParticle, spriteFrom, lifeTime, alwaysRender, amount,
-                    px, py, pz, xDiffuse, yDiffuse, zDiffuse, vx, vy, vz, vxDiffuse, vyDiffuse, vzDiffuse,
-                    friction, gravity, collision, bounceTime, horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce, afterCollisionFriction, afterCollisionGravity,
-                    interactWithEntity, horizontalInteractFactor, verticalInteractFactor,
-                    renderType, r, g, b, beginAlpha, endAlpha, alphaMode, beginScale, endScale, scaleMode,
-                    haveChild, child,
-                    rollSpeed,
-                    xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision,
-                    bloomFactor, meta
-            );
-        }
-    };
+    public static MadParticleOption fromNetwork(FriendlyByteBuf buf) {
+        int targetParticle = buf.readInt();
+        SpriteFrom spriteFrom = buf.readEnum(SpriteFrom.class);
+        int lifeTime = buf.readInt();
+        InheritableBoolean alwaysRender = buf.readEnum(InheritableBoolean.class);
+        int amount = buf.readInt();
+        double px = buf.readDouble(), py = buf.readDouble(), pz = buf.readDouble();
+        double xDiffuse = buf.readDouble(), yDiffuse = buf.readDouble(), zDiffuse = buf.readDouble();
+        double vx = buf.readDouble(), vy = buf.readDouble(), vz = buf.readDouble();
+        double vxDiffuse = buf.readDouble(), vyDiffuse = buf.readDouble(), vzDiffuse = buf.readDouble();
+        float friction = buf.readFloat();
+        float gravity = buf.readFloat();
+        InheritableBoolean collision = buf.readEnum(InheritableBoolean.class);
+        int bounceTime = buf.readInt();
+        double horizontalRelativeCollisionDiffuse = buf.readDouble(), verticalRelativeCollisionBounce = buf.readDouble();
+        float afterCollisionFriction = buf.readFloat();
+        float afterCollisionGravity = buf.readFloat();
+        InheritableBoolean interactWithEntity = buf.readEnum(InheritableBoolean.class);
+        double horizontalInteractFactor = buf.readDouble(), verticalInteractFactor = buf.readDouble();
+        ParticleRenderTypes renderType = buf.readEnum(ParticleRenderTypes.class);
+        float r = buf.readFloat(), g = buf.readFloat(), b = buf.readFloat();
+        float beginAlpha = buf.readFloat(), endAlpha = buf.readFloat();
+        ChangeMode alphaMode = buf.readEnum(ChangeMode.class);
+        float beginScale = buf.readFloat(), endScale = buf.readFloat();
+        ChangeMode scaleMode = buf.readEnum(ChangeMode.class);
+        boolean haveChild = buf.readBoolean();
+        MadParticleOption child = haveChild ? fromNetwork(buf) : null;
+        float rollSpeed = buf.readFloat();
+        float xDeflection = buf.readFloat();
+        float xDeflectionAfterCollision = buf.readFloat();
+        float zDeflection = buf.readFloat();
+        float zDeflectionAfterCollision = buf.readFloat();
+        float bloomFactor = buf.readFloat();
+        CompoundTag meta = buf.readNbt();
+        return new MadParticleOption(targetParticle, spriteFrom, lifeTime, alwaysRender, amount,
+                px, py, pz, xDiffuse, yDiffuse, zDiffuse, vx, vy, vz, vxDiffuse, vyDiffuse, vzDiffuse,
+                friction, gravity, collision, bounceTime, horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce, afterCollisionFriction, afterCollisionGravity,
+                interactWithEntity, horizontalInteractFactor, verticalInteractFactor,
+                renderType, r, g, b, beginAlpha, endAlpha, alphaMode, beginScale, endScale, scaleMode,
+                haveChild, child,
+                rollSpeed,
+                xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision,
+                bloomFactor, meta
+        );
+    }
 
-    @Override
+
     public void writeToNetwork(FriendlyByteBuf buf) {
         buf.writeInt(targetParticle);
         buf.writeEnum(spriteFrom);
@@ -145,11 +143,6 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
     @Override
     public @NotNull ParticleType<?> getType() {
         return ModParticleTypeRegistry.MAD_PARTICLE.get();
-    }
-
-    @Override
-    public @NotNull String writeToString() {
-        return "MadParticle";
     }
 
     /*public MadParticleOption copy(){

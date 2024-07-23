@@ -13,10 +13,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.ClientHooks;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
 /**
  * @author USS_Shenzhou
@@ -37,7 +36,7 @@ public class SendWelcomePacket {
 
     @ClientHandler
     @OnlyIn(Dist.CLIENT)
-    public void clientHandler(PlayPayloadContext contextSupplier) {
+    public void clientHandler(IPayloadContext context) {
         if (!ConfigHelper.getConfigRead(MadParticleConfig.class).noWelcomeScreen) {
             CompletableFuture.runAsync(() -> {
                 while (Minecraft.getInstance().screen != null) {

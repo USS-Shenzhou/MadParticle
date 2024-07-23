@@ -3,6 +3,7 @@ package cn.ussshenzhou.madparticle.designer;
 import cn.ussshenzhou.madparticle.network.SendWelcomePacket;
 import cn.ussshenzhou.t88.network.NetworkHelper;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
@@ -10,7 +11,7 @@ import net.neoforged.fml.common.Mod;
 /**
  * @author USS_Shenzhou
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.GAME)
 public class WelcomeScreenListener {
 
     @SubscribeEvent

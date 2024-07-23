@@ -3,6 +3,8 @@ package cn.ussshenzhou.madparticle.network;
 import cn.ussshenzhou.madparticle.MadParticle;
 import cn.ussshenzhou.madparticle.item.ModItemsRegistry;
 import cn.ussshenzhou.madparticle.item.Tada;
+import cn.ussshenzhou.madparticle.item.component.ModDataComponent;
+import cn.ussshenzhou.madparticle.item.component.TadaComponent;
 import cn.ussshenzhou.t88.network.annotation.Decoder;
 import cn.ussshenzhou.t88.network.annotation.Encoder;
 import cn.ussshenzhou.t88.network.annotation.NetPacket;
@@ -11,7 +13,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.function.Supplier;
 
@@ -37,32 +39,27 @@ public class MakeTadaPacket {
     }
 
     @ServerHandler
-    public void serverHandler(PlayPayloadContext contextSupplier) {
-        var sender = contextSupplier.player();
-        if (sender.isEmpty()) {
-            return;
-        }
+    public void serverHandler(IPayloadContext context) {
+        var sender = context.player();
         if (command.startsWith("/")) {
             command = command.replaceFirst("/", "");
         }
         if (command.startsWith("mp ") || command.startsWith("madparticle")) {
-            if (sender.get().hasPermissions(2)) {
-                makeTada((ServerPlayer) sender.get());
+            if (sender.hasPermissions(2)) {
+                makeTada((ServerPlayer) sender);
             } else {
-                LogUtils.getLogger().warn("Player {} wants to make a madparticle:tada, but hasn't enough permission level.", sender.get().getName());
+                LogUtils.getLogger().warn("Player {} wants to make a madparticle:tada, but hasn't enough permission level.", sender.getName());
                 return;
             }
         } else {
-            LogUtils.getLogger().warn("Player {} wants to make a madparticle:tada, but sent an illegal command text.", sender.get().getName());
+            LogUtils.getLogger().warn("Player {} wants to make a madparticle:tada, but sent an illegal command text.", sender.getName());
             return;
         }
     }
 
     private void makeTada(ServerPlayer player) {
         ItemStack tada = new ItemStack(ModItemsRegistry.TADA.get());
-        var tag = tada.getOrCreateTag();
-        tag.putString(Tada.TAG_COMMAND, command);
-        tag.putBoolean(Tada.PULSE, command.contains("\"pulse\":1") || command.contains("\"pulse\":true"));
+        tada.set(ModDataComponent.TADA_COMPONENT,new TadaComponent(command,command.contains("\"pulse\":1") || command.contains("\"pulse\":true")));
         player.getInventory().add(tada);
     }
 }

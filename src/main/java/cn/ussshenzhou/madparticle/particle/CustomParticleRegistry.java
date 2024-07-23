@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
@@ -33,7 +34,7 @@ import java.util.*;
  * <p>
  * Particle texture name in json: modid:leaves modid:leaves__1
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class CustomParticleRegistry {
     public static final LinkedHashMap<ResourceLocation, List<ResourceLocation>> CUSTOM_PARTICLES_TYPE_NAMES_AND_TEXTURES = new LinkedHashMap<>();
     public static final LinkedHashSet<ParticleType<SimpleParticleType>> CUSTOM_PARTICLE_TYPES = new LinkedHashSet<>();
@@ -81,7 +82,7 @@ public class CustomParticleRegistry {
         }
         name = name.replace(MOD_ID_SPLIT, ":");
         try {
-            return new ResourceLocation(name);
+            return ResourceLocation.parse(name);
         } catch (ResourceLocationException ignored) {
             LogUtils.getLogger().error("Failed to register particle {}. This is not a valid resource location.", file.getName());
             return null;
@@ -121,7 +122,7 @@ public class CustomParticleRegistry {
             s = MadParticle.MOD_ID + ":" + s;
         }
         try {
-            return new ResourceLocation(s);
+            return ResourceLocation.parse(s);
         } catch (ResourceLocationException ignored) {
             LogUtils.getLogger().error("Failed to register texture {}. This is not a valid resource location.", file.getName());
             return null;

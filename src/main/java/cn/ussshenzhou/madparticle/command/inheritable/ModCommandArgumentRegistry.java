@@ -1,16 +1,14 @@
 package cn.ussshenzhou.madparticle.command.inheritable;
 
 import cn.ussshenzhou.madparticle.MadParticle;
-import com.mojang.brigadier.arguments.ArgumentType;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.function.Supplier;
 
@@ -18,7 +16,7 @@ import java.util.function.Supplier;
 /**
  * @author USS_Shenzhou
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class ModCommandArgumentRegistry {
 
     private static SingletonArgumentInfo<InheritableIntegerArgument> inheritableIntegerArgumentInfo = SingletonArgumentInfo.contextFree(InheritableIntegerArgument::inheritableInteger);

@@ -174,7 +174,7 @@ public class MadParticleCommand {
             return;
         }
         Object packet = sendTada ? new MadParticleTadaPacket(option, sourcePlayer.getUUID()) : new MadParticlePacket(option);
-        targetPlayers.forEach(player -> NetworkHelper.sendTo(PacketDistributor.PLAYER.with(player), packet));
+        targetPlayers.forEach(player -> NetworkHelper.sendToPlayer(player, packet));
     }
 
     private static MadParticleOption wrap(@Nullable MadParticleOption child, String[] commandStrings, int index, CommandSourceStack sourceStack, CommandDispatcher<CommandSourceStack> dispatcher) {

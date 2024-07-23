@@ -27,7 +27,7 @@ public class ParticlePreviewPanel extends TPanel {
     public void updateParticle(String particleCommandText) {
         try {
             ParticleEngineAccessor particleEngineAccessor = (ParticleEngineAccessor) Minecraft.getInstance().particleEngine;
-            SpriteSet spriteSet = particleEngineAccessor.getSpriteSets().get(new ResourceLocation(particleCommandText));
+            SpriteSet spriteSet = particleEngineAccessor.getSpriteSets().get(ResourceLocation.parse(particleCommandText));
             if (spriteSet == null) {
                 throw new Exception();
             }

@@ -59,7 +59,6 @@ public enum TakeOver implements ITranslatable {
             DragonBreathParticle.class,
             DripParticle.class,
             DustParticle.class,
-            EnchantmentTableParticle.class,
             EndRodParticle.class,
             FallingDustParticle.class,
             WakeParticle.class,
@@ -98,7 +97,6 @@ public enum TakeOver implements ITranslatable {
             DragonBreathParticle.class,
             DripParticle.class,
             DustParticle.class,
-            EnchantmentTableParticle.class,
             EndRodParticle.class,
             FallingDustParticle.class,
             WakeParticle.class,
@@ -123,7 +121,6 @@ public enum TakeOver implements ITranslatable {
     );
     @SuppressWarnings("unchecked")
     public static final HashSet<Class<? extends TextureSheetParticle>> RENDER_CUSTOM_LIGHT = Sets.newHashSet(
-            EnchantmentTableParticle.class,
             FlameParticle.class,
             SoulParticle.class,
             SculkChargeParticle.class,

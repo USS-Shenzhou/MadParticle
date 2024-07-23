@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
@@ -13,15 +14,8 @@ import net.neoforged.fml.common.Mod;
 /**
  * @author zomb-676
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT, modid = MadParticle.MOD_ID)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT, modid = MadParticle.MOD_ID)
 public class ModParticleShaders {
-
-    public static ShaderInstance traditionalParticleShader;
-    public static final RenderStateShard.ShaderStateShard TRADITIONAL_SHADER = new RenderStateShard.ShaderStateShard(() -> ModParticleShaders.traditionalParticleShader);
-
-    public static ShaderInstance getTraditionalParticleShader() {
-        return traditionalParticleShader;
-    }
 
     public static ShaderInstance instancedParticleShader;
     public static final RenderStateShard.ShaderStateShard INSTANCED_SHADER = new RenderStateShard.ShaderStateShard(() -> instancedParticleShader);
@@ -51,22 +45,17 @@ public class ModParticleShaders {
         try {
             event.registerShader(
                     new ShaderInstance(resourceManager,
-                            new ResourceLocation(MadParticle.MOD_ID, "particle"), ModParticleRenderTypes.Traditional.TRADITIONAL_FORMAT),
-                    shaderInstance -> traditionalParticleShader = shaderInstance
-            );
-            event.registerShader(
-                    new ShaderInstance(resourceManager,
-                            new ResourceLocation(MadParticle.MOD_ID, "instanced_particle"), ModParticleRenderTypes.INSTANCED_FORMAT),
+                            ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle"), ModParticleRenderTypes.INSTANCED_FORMAT),
                     shaderInstance -> instancedParticleShader = shaderInstance
             );
             event.registerShader(
                     new ShaderInstance(resourceManager,
-                            new ResourceLocation(MadParticle.MOD_ID, "instanced_particle_oit"), ModParticleRenderTypes.INSTANCED_FORMAT),
+                            ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"), ModParticleRenderTypes.INSTANCED_FORMAT),
                     shaderInstance -> instancedParticleShaderOit = shaderInstance
             );
             event.registerShader(
                     new ShaderInstance(resourceManager,
-                            new ResourceLocation(MadParticle.MOD_ID, "instanced_particle_oit_post"), DefaultVertexFormat.POSITION_TEX),
+                            ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit_post"), DefaultVertexFormat.POSITION_TEX),
                     shaderInstance -> instancedParticleShaderOitPost = shaderInstance
             );
         } catch (Exception e) {

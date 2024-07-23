@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyModifier;
@@ -15,7 +16,7 @@ import org.lwjgl.glfw.GLFW;
 /**
  * @author USS_Shenzhou
  */
-@Mod.EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class DesignerKeyInput {
     public static final KeyMapping CALL_OUT_DESIGNER = new KeyMapping(
             "key.mp.call_de", KeyConflictContext.UNIVERSAL, KeyModifier.ALT,

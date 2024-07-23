@@ -91,11 +91,6 @@ public class DesignerScreen extends TScreen {
         settingPanel.tickT();*/
     }
 
-    @Override
-    protected void renderBackGround(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
-        graphics.fill(0, 0, width, height, 0x80000000);
-    }
-
     public DesignerModeSelectList getDesignerModeSelectList() {
         return designerModeSelectList;
     }

@@ -19,7 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.Random;
 import java.util.UUID;
@@ -40,7 +40,7 @@ public class MadParticleTadaPacket {
 
     @Decoder
     public MadParticleTadaPacket(FriendlyByteBuf buf) {
-        this.particleOption = MadParticleOption.DESERIALIZER.fromNetwork(ModParticleTypeRegistry.MAD_PARTICLE.get(), buf);
+        this.particleOption = MadParticleOption.fromNetwork(buf);
         this.sourcePlayerUUID = buf.readUUID();
     }
 
@@ -52,7 +52,7 @@ public class MadParticleTadaPacket {
 
     @ClientHandler
     @OnlyIn(Dist.CLIENT)
-    public void clientHandler(PlayPayloadContext contextSupplier) {
+    public void clientHandler(IPayloadContext context) {
         Level level = Minecraft.getInstance().level;
         if (level != null) {
             Random r = new Random();

@@ -12,8 +12,6 @@ import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.event.ResizeHudEvent;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Camera;
@@ -47,8 +45,8 @@ import static org.lwjgl.opengl.GL40C.*;
  * @author USS_Shenzhou
  */
 public class InstancedRenderManager {
-    public static final int INSTANCE_UV_INDEX = 1;
-    public static final int INSTANCE_XYZ_INDEX = 4;
+    public static final int INSTANCE_UV_INDEX = 0;
+    public static final int INSTANCE_XYZ_INDEX = INSTANCE_UV_INDEX + 3;
 
     public static final int SIZE_FLOAT_OR_INT_BYTES = 4;
     public static final int AMOUNT_INSTANCE_FLOATS = 4 + 4 + 4 + 3;
@@ -62,11 +60,19 @@ public class InstancedRenderManager {
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
     private static final LightCache LIGHT_CACHE = new LightCache();
     private static boolean forceMaxLight = false;
-    private static final int OIT_FBO, ACCUM_TEXTURE, REVEAL_TEXTURE, POST_VAO, POST_VBO;
+    private static final int VAO, EBO, OIT_FBO, ACCUM_TEXTURE, REVEAL_TEXTURE, POST_VAO, POST_VBO;
 
     static {
         NeoForge.EVENT_BUS.addListener(InstancedRenderManager::checkForceMaxLight);
         NeoForge.EVENT_BUS.addListener(InstancedRenderManager::onWindowResize);
+        VAO = glGenVertexArrays();
+        EBO = glGenBuffers();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        var ebo = new int[]{
+                0, 1, 2,
+                2, 3, 0
+        };
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, ebo, GL_STATIC_DRAW);
         OIT_FBO = glGenFramebuffers();
         ACCUM_TEXTURE = glGenTextures();
         REVEAL_TEXTURE = glGenTextures();
@@ -92,10 +98,6 @@ public class InstancedRenderManager {
                 -1.0f, -1.0f, 0.0f, 0.0f, 0.0f
         };
         glBufferData(GL_ARRAY_BUFFER, quadVertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * 4, 0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * 4, 3 * 4);
         glBindVertexArray(0);
     }
 
@@ -203,31 +205,22 @@ public class InstancedRenderManager {
         //-----prepare var
         ByteBuffer instanceMatrixBuffer = MemoryUtil.memCalloc(amount(), SIZE_INSTANCE_BYTES);
         int amount;
-        //-----prepare shader
-        var bufferBuilder = prepareShader(textureManager);
+        prepareShader(textureManager);
         //-----fill vbo
-        //TODO add an option of checking visibility
         if (threads <= 1) {
             amount = renderSync(instanceMatrixBuffer, camera, partialTicks, clippingHelper);
         } else {
             amount = renderAsync(instanceMatrixBuffer, camera, partialTicks, clippingHelper);
         }
-        //-----fill 4 vertices
-        fillVertices(bufferBuilder);
-        var renderedBuffer = bufferBuilder.build();
-        if (renderedBuffer == null) {
-            return;
-        }
-        var vertexBuffer = BufferUploader.upload(renderedBuffer);
         //-----set opengl state
-        int instanceMatrixBufferId = bindBuffer(instanceMatrixBuffer, vertexBuffer.arrayObjectId);
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        int instanceMatrixBufferId = bindBuffer(instanceMatrixBuffer);
         ShaderInstance shader = RenderSystem.getShader();
         assert shader != null;
         prepareFinal(camera, shader);
         //-----draw
-        GL31C.glDrawElementsInstanced(4, 6,
-                RenderSystem.sharedSequentialQuad.hasStorage(65536) ? GL11C.GL_UNSIGNED_INT : GL11C.GL_UNSIGNED_SHORT,
-                0, amount);
+        GL31C.glDrawElementsInstanced(4, 6, GL11C.GL_UNSIGNED_INT, 0, amount);
         if (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.OIT) {
             oitPost();
         } else {
@@ -238,11 +231,14 @@ public class InstancedRenderManager {
         cleanUp(instanceMatrixBuffer, instanceMatrixBufferId);
     }
 
-    private static BufferBuilder prepareShader(TextureManager textureManager) {
+    private static void prepareShader(TextureManager textureManager) {
         if (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.OIT) {
-            return oitPre(textureManager);
+            ModParticleRenderTypes.INSTANCED_OIT.begin(Tesselator.getInstance(), textureManager);
+            glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
+            glClearBufferfv(GL_COLOR, 0, ACCUM_INIT);
+            glClearBufferfv(GL_COLOR, 1, REVEAL_INIT);
         } else {
-            return ModParticleRenderTypes.INSTANCED.begin(Tesselator.getInstance(), textureManager);
+            ModParticleRenderTypes.INSTANCED.begin(Tesselator.getInstance(), textureManager);
         }
     }
 
@@ -332,21 +328,39 @@ public class InstancedRenderManager {
         buffer.putFloat(start + 4 * 14, z);
     }
 
-    public static void fillVertices(BufferBuilder bufferBuilder) {
-        bufferBuilder.addVertex(1, -1, 0);
-        //bufferBuilder.uvControl(0, 1, 0, 1);
-
-        bufferBuilder.addVertex(1, 1, 0);
-        //bufferBuilder.uvControl(0, 1, 1, 0);
-
-        bufferBuilder.addVertex(-1, 1, 0);
-        //bufferBuilder.uvControl(1, 0, 1, 0);
-
-        bufferBuilder.addVertex(-1, -1, 0);
-        //bufferBuilder.uvControl(1, 0, 0, 1);
+    public static void prepareFinal(Camera camera, ShaderInstance shader) {
+        prepareSamplerAndUniform(camera, shader);
+        RenderSystem.setupShaderLights(shader);
+        shader.apply();
+        if (cn.ussshenzhou.madparticle.MadParticle.IS_OPTIFINE_INSTALLED) {
+            //TODO if optifine shader using
+            glUseProgram(shader.getId());
+        }
+        //TODO need update
+        if (cn.ussshenzhou.madparticle.MadParticle.irisOn) {
+            //Borrow iris particle shader's frame buffer.
+            //Profiler tells me this is ok. We should trust JVM.
+            try {
+                ShaderInstance translucent = GameRenderer.getParticleShader();
+                Class<? extends ShaderInstance> translucentClass = translucent.getClass();
+                Field writingToAfterTranslucent = translucentClass.getDeclaredField("writingToAfterTranslucent");
+                writingToAfterTranslucent.setAccessible(true);
+                Object irisGlFramebuffer = writingToAfterTranslucent.get(translucent);
+                Field id = irisGlFramebuffer.getClass().getSuperclass().getDeclaredField("id");
+                id.setAccessible(true);
+                int frameBuffer = (int) id.get(irisGlFramebuffer);
+                glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+            } catch (Exception e) {
+                if (T88.TEST) {
+                    LogUtils.getLogger().error("{}", e.getMessage());
+                }
+            }
+            GL11C.glDepthMask(true);
+            GL11C.glColorMask(true, true, true, true);
+        }
     }
 
-    public static void prepareFinal(Camera camera, ShaderInstance shader) {
+    private static void prepareSamplerAndUniform(Camera camera, ShaderInstance shader) {
         for (int i1 = 0; i1 < 12; ++i1) {
             int textureId = RenderSystem.getShaderTexture(i1);
             shader.setSampler("Sampler" + i1, textureId);
@@ -386,42 +400,6 @@ public class InstancedRenderManager {
         var quat = camera.rotation();
         //noinspection DataFlowIssue
         shader.getUniform("CamQuat").set(quat.x, quat.y, quat.z, quat.w);
-        RenderSystem.setupShaderLights(shader);
-        shader.apply();
-        if (cn.ussshenzhou.madparticle.MadParticle.IS_OPTIFINE_INSTALLED) {
-            //TODO if optifine shader using
-            GL20C.glUseProgram(shader.getId());
-        }
-        //TODO need update
-        if (cn.ussshenzhou.madparticle.MadParticle.irisOn) {
-            //Borrow iris particle shader's frame buffer.
-            //Profiler tells me this is ok. We should trust JVM.
-            try {
-                ShaderInstance translucent = GameRenderer.getParticleShader();
-                Class<? extends ShaderInstance> translucentClass = translucent.getClass();
-                Field writingToAfterTranslucent = translucentClass.getDeclaredField("writingToAfterTranslucent");
-                writingToAfterTranslucent.setAccessible(true);
-                Object irisGlFramebuffer = writingToAfterTranslucent.get(translucent);
-                Field id = irisGlFramebuffer.getClass().getSuperclass().getDeclaredField("id");
-                id.setAccessible(true);
-                int frameBuffer = (int) id.get(irisGlFramebuffer);
-                GL30C.glBindFramebuffer(GL30C.GL_FRAMEBUFFER, frameBuffer);
-            } catch (Exception e) {
-                if (T88.TEST) {
-                    LogUtils.getLogger().error("{}", e.getMessage());
-                }
-            }
-            GL11C.glDepthMask(true);
-            GL11C.glColorMask(true, true, true, true);
-        }
-    }
-
-    private static BufferBuilder oitPre(TextureManager textureManager) {
-        var builder = ModParticleRenderTypes.INSTANCED_OIT.begin(Tesselator.getInstance(), textureManager);
-        glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
-        glClearBufferfv(GL_COLOR, 0, ACCUM_INIT);
-        glClearBufferfv(GL_COLOR, 1, REVEAL_INIT);
-        return builder;
     }
 
     private static void oitPost() {
@@ -435,36 +413,39 @@ public class InstancedRenderManager {
         RenderSystem.getShader().setSampler("reveal", REVEAL_TEXTURE);
         RenderSystem.getShader().apply();
         glBindVertexArray(POST_VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, POST_VBO);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * 4, 0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * 4, 3 * 4);
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
-    public static int bindBuffer(ByteBuffer buffer, int id) {
-        int bufferId = GL15C.glGenBuffers();
-        GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, bufferId);
-        GL15C.glBufferData(GL15C.GL_ARRAY_BUFFER, buffer, GL15C.GL_STREAM_DRAW);
-        GL30C.glBindVertexArray(id);
+    public static int bindBuffer(ByteBuffer buffer) {
+        int bufferId = glGenBuffers();
+        glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+        glBufferData(GL_ARRAY_BUFFER, buffer, GL_STREAM_DRAW);
         int formerSize = 0;
         for (int i = 0; i < 3; i++) {
-            GL33C.glEnableVertexAttribArray(INSTANCE_UV_INDEX + i);
-            GL20C.glVertexAttribPointer(INSTANCE_UV_INDEX + i, 4, GL11C.GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
+            glEnableVertexAttribArray(INSTANCE_UV_INDEX + i);
+            glVertexAttribPointer(INSTANCE_UV_INDEX + i, 4, GL11C.GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
             formerSize += 4 * SIZE_FLOAT_OR_INT_BYTES;
-            GL33C.glVertexAttribDivisor(INSTANCE_UV_INDEX + i, 1);
+            glVertexAttribDivisor(INSTANCE_UV_INDEX + i, 1);
         }
-
-        GL33C.glEnableVertexAttribArray(INSTANCE_XYZ_INDEX);
-        GL20C.glVertexAttribPointer(INSTANCE_XYZ_INDEX, 3, GL11C.GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
-        GL33C.glVertexAttribDivisor(INSTANCE_XYZ_INDEX, 1);
-
+        glEnableVertexAttribArray(INSTANCE_XYZ_INDEX);
+        glVertexAttribPointer(INSTANCE_XYZ_INDEX, 3, GL11C.GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
+        glVertexAttribDivisor(INSTANCE_XYZ_INDEX, 1);
         return bufferId;
     }
 
     public static void cleanUp(ByteBuffer instanceMatrixBuffer, int instanceMatrixBufferId) {
         for (int i = 0; i < 3; i++) {
-            GL33C.glDisableVertexAttribArray(INSTANCE_UV_INDEX + i);
+            glDisableVertexAttribArray(INSTANCE_UV_INDEX + i);
         }
-        GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, 0);
-        GL15C.glDeleteBuffers(instanceMatrixBufferId);
-        GL30C.glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glDeleteBuffers(instanceMatrixBufferId);
+        glBindVertexArray(0);
         MemoryUtil.memFree(instanceMatrixBuffer);
     }
 

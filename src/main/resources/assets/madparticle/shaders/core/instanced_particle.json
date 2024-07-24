@@ -7,7 +7,6 @@
   "vertex": "madparticle:instanced_particle",
   "fragment": "madparticle:instanced_particle",
   "attributes": [
-    "Position",
     "instanceUV",
     "instanceColor",
     "instanceUV2SizeRoll",

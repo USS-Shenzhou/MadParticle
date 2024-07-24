@@ -2,11 +2,10 @@
 
 #moj_import <fog.glsl>
 
-layout (location=0) in vec3 Position;
-layout (location=1) in vec4 instanceUV;
-layout (location=2) in vec4 instanceColor;
-layout (location=3) in vec4 instanceUV2SizeRoll;
-layout (location=4) in vec3 instanceXYZ;
+layout (location=0) in vec4 instanceUV;
+layout (location=1) in vec4 instanceColor;
+layout (location=2) in vec4 instanceUV2SizeRoll;
+layout (location=3) in vec3 instanceXYZ;
 
 uniform sampler2D Sampler2;
 uniform mat4 ModelViewMat;
@@ -20,11 +19,17 @@ out float vertexDistance;
 out vec2 texCoord0;
 out vec4 vertexColor;
 
-const ivec4 uvControlArray[4] = ivec4[4](
+const ivec4 UV_CONTROL[4] = ivec4[4](
     ivec4(0, 1, 0, 1),
     ivec4(0, 1, 1, 0),
     ivec4(1, 0, 1, 0),
     ivec4(1, 0, 0, 1)
+);
+const ivec3 RELATIVE[4] = ivec3[4](
+    ivec3(1, -1, 0),
+    ivec3(1, 1, 0),
+    ivec3(-1, 1, 0),
+    ivec3(-1, -1, 0)
 );
 
 mat4 rotate(vec4 quat, mat4 matrix);
@@ -47,10 +52,10 @@ void main() {
     m = rotateZ(instanceUV2SizeRoll.w, m);
 
 
-    gl_Position = ProjMat * ModelViewMat * m * vec4(Position, 1.0);
+    gl_Position = ProjMat * ModelViewMat * m * vec4(RELATIVE[gl_VertexID %4], 1.0);
 
     vertexDistance = fog_distance(instanceXYZ, FogShape);
-    ivec4 uvControl = uvControlArray[gl_VertexID % 4];
+    ivec4 uvControl = UV_CONTROL[gl_VertexID % 4];
     texCoord0 = vec2(instanceUV.x * uvControl.x + instanceUV.y * uvControl.y, instanceUV.z * uvControl.z + instanceUV.w * uvControl.w);
     vertexColor = instanceColor * texelFetch(Sampler2, ivec2(instanceUV2SizeRoll.xy) / 16, 0);
 }

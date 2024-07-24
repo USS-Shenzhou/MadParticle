@@ -13,7 +13,7 @@ public class MadParticleConfig implements TConfig {
     public boolean limitMaxParticleGenerateDistance = false;
     public boolean noWelcomeScreen = false;
     public int bufferFillerThreads = 4;
-    public TakeOver takeOverRendering = TakeOver.ALL;
+    public TakeOver takeOverRendering = TakeOver.VANILLA;
     public TakeOver takeOverTicking = TakeOver.VANILLA;
     public boolean optimizeCommandBlockEditScreen = true;
     @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
@@ -22,7 +22,7 @@ public class MadParticleConfig implements TConfig {
     public int lightCacheYRange = 64;
     public boolean forceMaxLight = false;
     public TranslucentMethod translucentMethod = TranslucentMethod.OIT;
-    public LightCacheRefreshInterval lightCacheRefreshInterval = LightCacheRefreshInterval.TICK10;
+    public LightCacheRefreshInterval lightCacheRefreshInterval = LightCacheRefreshInterval.FRAME;
 
     public MadParticleConfig() {
     }

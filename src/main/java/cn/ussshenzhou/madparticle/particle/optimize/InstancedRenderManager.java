@@ -203,19 +203,19 @@ public class InstancedRenderManager {
             return;
         }
         //-----prepare var
-        ByteBuffer instanceMatrixBuffer = MemoryUtil.memCalloc(amount(), SIZE_INSTANCE_BYTES);
+        long instanceMatrixBufferBaseAddress = MemoryUtil.getAllocator(false).calloc(1, (long) amount() * SIZE_INSTANCE_BYTES);
         int amount;
         prepareShader(textureManager);
         //-----fill vbo
         if (threads <= 1) {
-            amount = renderSync(instanceMatrixBuffer, camera, partialTicks, clippingHelper);
+            amount = renderSync(instanceMatrixBufferBaseAddress, camera, partialTicks, clippingHelper);
         } else {
-            amount = renderAsync(instanceMatrixBuffer, camera, partialTicks, clippingHelper);
+            amount = renderAsync(instanceMatrixBufferBaseAddress, camera, partialTicks, clippingHelper);
         }
         //-----set opengl state
         glBindVertexArray(VAO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        int instanceMatrixBufferId = bindBuffer(instanceMatrixBuffer);
+        int instanceMatrixBufferId = bindBuffer(instanceMatrixBufferBaseAddress);
         ShaderInstance shader = RenderSystem.getShader();
         assert shader != null;
         prepareFinal(camera, shader);
@@ -228,7 +228,7 @@ public class InstancedRenderManager {
         }
         //-----done and clean up
         shader.clear();
-        cleanUp(instanceMatrixBuffer, instanceMatrixBufferId);
+        cleanUp(instanceMatrixBufferBaseAddress, instanceMatrixBufferId);
     }
 
     private static void prepareShader(TextureManager textureManager) {
@@ -243,12 +243,12 @@ public class InstancedRenderManager {
     }
 
     @SuppressWarnings("unchecked")
-    public static int renderAsync(ByteBuffer instanceMatrixBuffer, Camera camera, float partialTicks, Frustum clippingHelper) {
+    public static int renderAsync(long instanceMatrixBufferBaseAddress, Camera camera, float partialTicks, Frustum clippingHelper) {
         CompletableFuture<Void>[] futures = new CompletableFuture[threads];
         for (int i = 0; i < threads; i++) {
             int finalI = i;
             futures[i] = CompletableFuture.runAsync(
-                    () -> partial(finalI, instanceMatrixBuffer, partialTicks, clippingHelper),
+                    () -> partial(finalI, instanceMatrixBufferBaseAddress, partialTicks, clippingHelper),
                     fixedThreadPool
             );
         }
@@ -256,7 +256,7 @@ public class InstancedRenderManager {
         return amount();
     }
 
-    private static void partial(int group, ByteBuffer buffer, float partialTicks, Frustum clippingHelper) {
+    private static void partial(int group, long buffer, float partialTicks, Frustum clippingHelper) {
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
         var set = PARTICLES[group];
         int index = 0;
@@ -269,7 +269,7 @@ public class InstancedRenderManager {
         }
     }
 
-    public static int renderSync(ByteBuffer instanceMatrixBuffer, Camera camera, float partialTicks, Frustum clippingHelper) {
+    public static int renderSync(long instanceMatrixBuffer, Camera camera, float partialTicks, Frustum clippingHelper) {
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
         int amount = 0;
         for (TextureSheetParticle particle : PARTICLES[0]) {
@@ -286,25 +286,25 @@ public class InstancedRenderManager {
      * HOTSPOT
      * Can you find a way to make it faster?
      */
-    public static void fillBuffer(ByteBuffer buffer, TextureSheetParticle particle, int index, float partialTicks, SimpleBlockPos simpleBlockPosSingle) {
-        int start = index * SIZE_INSTANCE_BYTES;
+    public static void fillBuffer(long buffer, TextureSheetParticle particle, int index, float partialTicks, SimpleBlockPos simpleBlockPosSingle) {
+        long start = buffer + (long) index * SIZE_INSTANCE_BYTES;
         //uv
         var sprite = particle.sprite;
-        buffer.putFloat(start, sprite.getU0());
-        buffer.putFloat(start + 4, sprite.getU1());
-        buffer.putFloat(start + 4 * 2, sprite.getV0());
-        buffer.putFloat(start + 4 * 3, sprite.getV1());
+        MemoryUtil.memPutFloat(start, sprite.getU0());
+        MemoryUtil.memPutFloat(start + 4, sprite.getU1());
+        MemoryUtil.memPutFloat(start + 4 * 2, sprite.getV0());
+        MemoryUtil.memPutFloat(start + 4 * 3, sprite.getV1());
         //color
-        buffer.putFloat(start + 4 * 4, particle.rCol);
-        buffer.putFloat(start + 4 * 5, particle.gCol);
-        buffer.putFloat(start + 4 * 6, particle.bCol);
-        buffer.putFloat(start + 4 * 7, particle.alpha);
+        MemoryUtil.memPutFloat(start + 4 * 4, particle.rCol);
+        MemoryUtil.memPutFloat(start + 4 * 5, particle.gCol);
+        MemoryUtil.memPutFloat(start + 4 * 6, particle.bCol);
+        MemoryUtil.memPutFloat(start + 4 * 7, particle.alpha);
         //uv2
         float x = Mth.lerp(partialTicks, (float) particle.xo, (float) particle.x);
         float y = Mth.lerp(partialTicks, (float) particle.yo, (float) particle.y);
         float z = Mth.lerp(partialTicks, (float) particle.zo, (float) particle.z);
         if (forceMaxLight) {
-            buffer.putFloat(start + 4 * 8, 240f);
+            MemoryUtil.memPutFloat(start + 4 * 8, 240f);
         } else {
             simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
             int l;
@@ -316,16 +316,16 @@ public class InstancedRenderManager {
             } else {
                 l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, particle, simpleBlockPosSingle);
             }
-            buffer.putFloat(start + 4 * 8, (float) (l & 0x0000_ffff));
-            buffer.putFloat(start + 4 * 9, (float) (l >> 16 & 0x0000_ffff));
+            MemoryUtil.memPutFloat(start + 4 * 8, (float) (l & 0x0000_ffff));
+            MemoryUtil.memPutFloat(start + 4 * 9, (float) (l >> 16 & 0x0000_ffff));
         }
         //size/roll
-        buffer.putFloat(start + 4 * 10, particle.getQuadSize(partialTicks));
-        buffer.putFloat(start + 4 * 11, Mth.lerp(partialTicks, particle.oRoll, particle.roll));
+        MemoryUtil.memPutFloat(start + 4 * 10, particle.getQuadSize(partialTicks));
+        MemoryUtil.memPutFloat(start + 4 * 11, Mth.lerp(partialTicks, particle.oRoll, particle.roll));
         //xyz
-        buffer.putFloat(start + 4 * 12, x);
-        buffer.putFloat(start + 4 * 13, y);
-        buffer.putFloat(start + 4 * 14, z);
+        MemoryUtil.memPutFloat(start + 4 * 12, x);
+        MemoryUtil.memPutFloat(start + 4 * 13, y);
+        MemoryUtil.memPutFloat(start + 4 * 14, z);
     }
 
     public static void prepareFinal(Camera camera, ShaderInstance shader) {
@@ -421,10 +421,10 @@ public class InstancedRenderManager {
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
-    public static int bindBuffer(ByteBuffer buffer) {
+    public static int bindBuffer(long buffer) {
         int bufferId = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-        glBufferData(GL_ARRAY_BUFFER, buffer, GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, MemoryUtil.memByteBuffer(buffer, amount() * SIZE_INSTANCE_BYTES), GL_STREAM_DRAW);
         int formerSize = 0;
         for (int i = 0; i < 3; i++) {
             glEnableVertexAttribArray(INSTANCE_UV_INDEX + i);
@@ -438,7 +438,7 @@ public class InstancedRenderManager {
         return bufferId;
     }
 
-    public static void cleanUp(ByteBuffer instanceMatrixBuffer, int instanceMatrixBufferId) {
+    public static void cleanUp(long instanceMatrixBuffer, int instanceMatrixBufferId) {
         for (int i = 0; i < 3; i++) {
             glDisableVertexAttribArray(INSTANCE_UV_INDEX + i);
         }
@@ -446,7 +446,7 @@ public class InstancedRenderManager {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glDeleteBuffers(instanceMatrixBufferId);
         glBindVertexArray(0);
-        MemoryUtil.memFree(instanceMatrixBuffer);
+        MemoryUtil.getAllocator(false).free(instanceMatrixBuffer);
     }
 
     public static class SimpleBlockPos {

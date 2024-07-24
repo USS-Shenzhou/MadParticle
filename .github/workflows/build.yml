@@ -7,10 +7,10 @@
 
 name: test-build
 on:
-  #push:
-  #  paths:
-  #    - 'src/**'
-  #    - 'build.gradle'
+  push:
+    paths:
+      - 'src/**'
+      - 'build.gradle'
   pull_request:
       paths:
       - 'src/**'

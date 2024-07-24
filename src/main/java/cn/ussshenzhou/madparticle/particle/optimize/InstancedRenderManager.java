@@ -333,16 +333,16 @@ public class InstancedRenderManager {
     }
 
     public static void fillVertices(BufferBuilder bufferBuilder) {
-        bufferBuilder.addVertex(-1, -1, 0);
+        bufferBuilder.addVertex(1, -1, 0);
         //bufferBuilder.uvControl(0, 1, 0, 1);
 
-        bufferBuilder.addVertex(-1, 1, 0);
+        bufferBuilder.addVertex(1, 1, 0);
         //bufferBuilder.uvControl(0, 1, 1, 0);
 
-        bufferBuilder.addVertex(1, 1, 0);
+        bufferBuilder.addVertex(-1, 1, 0);
         //bufferBuilder.uvControl(1, 0, 1, 0);
 
-        bufferBuilder.addVertex(1, -1, 0);
+        bufferBuilder.addVertex(-1, -1, 0);
         //bufferBuilder.uvControl(1, 0, 0, 1);
     }
 

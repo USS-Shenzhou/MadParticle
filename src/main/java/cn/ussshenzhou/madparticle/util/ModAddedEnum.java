@@ -9,7 +9,7 @@ import net.neoforged.fml.common.asm.enumextension.EnumProxy;
  */
 public class ModAddedEnum {
     public static final EnumProxy<VertexFormatElement.Usage> UV_CONTROL = new EnumProxy<>(
-            VertexFormatElement.Usage.class, "T88_UV_CONTROL", (VertexFormatElement.Usage.SetupState) (size, type, stride, pointer, index) -> {
+            VertexFormatElement.Usage.class, "madparticle:uv_control", (VertexFormatElement.Usage.SetupState) (size, type, stride, pointer, index) -> {
         GlStateManager._enableVertexAttribArray(index);
         GlStateManager._vertexAttribIPointer(index, size, type, stride, pointer);
     });

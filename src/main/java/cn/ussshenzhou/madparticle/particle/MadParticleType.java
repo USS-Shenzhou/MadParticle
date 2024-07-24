@@ -17,8 +17,6 @@ import org.jetbrains.annotations.NotNull;
  * @author USS_Shenzhou
  */
 public class MadParticleType extends ParticleType<MadParticleOption> {
-    private final MapCodec<MadParticleOption> mapCodec = MapCodec.unit(null);
-    private final StreamCodec<? super RegistryFriendlyByteBuf, MadParticleOption> streamCodec = StreamCodec.ofMember(MadParticleOption::writeToNetwork, MadParticleOption::fromNetwork);
 
     protected MadParticleType() {
         super(true);
@@ -26,11 +24,11 @@ public class MadParticleType extends ParticleType<MadParticleOption> {
 
     @Override
     public @NotNull MapCodec<MadParticleOption> codec() {
-        return mapCodec;
+        return MadParticleOption.MAP_CODEC;
     }
 
     @Override
     public @NotNull StreamCodec<? super RegistryFriendlyByteBuf, MadParticleOption> streamCodec() {
-        return streamCodec;
+        return MadParticleOption.STREAM_CODEC;
     }
 }

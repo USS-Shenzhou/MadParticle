@@ -8,7 +8,6 @@
   "fragment": "madparticle:instanced_particle",
   "attributes": [
     "Position",
-    "UVControl",
     "instanceUV",
     "instanceColor",
     "instanceUV2SizeRoll",

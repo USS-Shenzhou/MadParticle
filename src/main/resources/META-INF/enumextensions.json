@@ -2,12 +2,12 @@
   "entries": [
     {
       "enum": "com/mojang/blaze3d/vertex/VertexFormatElement$Usage",
-      "name": "T88_UV_CONTROL",
-      "constructor": "(Ljava/lang/String;ILjava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormatElement$Usage$SetupState;)V",
-      "parameters": [
-        "T88_UV_CONTROL",
-        null
-      ]
+      "name": "MADPARTICLE_UV_CONTROL",
+      "constructor": "(Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormatElement$Usage$SetupState;)V",
+      "parameters": {
+        "class": "cn/ussshenzhou/madparticle/util/ModAddedEnum",
+        "field": "UV_CONTROL"
+      }
     }
   ]
 }

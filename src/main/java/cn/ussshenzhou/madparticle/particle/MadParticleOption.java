@@ -4,16 +4,12 @@ import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
 import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.netty.buffer.ByteBuf;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,6 +36,9 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                                 CompoundTag meta
 
 ) implements ParticleOptions {
+    public static final MapCodec<MadParticleOption> MAP_CODEC = MapCodec.unit(null);
+    public static final StreamCodec<? super RegistryFriendlyByteBuf, MadParticleOption> STREAM_CODEC = StreamCodec.ofMember(MadParticleOption::writeToNetwork, MadParticleOption::fromNetwork);
+
 
     public static MadParticleOption fromNetwork(FriendlyByteBuf buf) {
         int targetParticle = buf.readInt();

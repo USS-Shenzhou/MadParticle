@@ -12,6 +12,7 @@ import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.event.ResizeHudEvent;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.logging.LogUtils;
@@ -46,10 +47,8 @@ import static org.lwjgl.opengl.GL40C.*;
  * @author USS_Shenzhou
  */
 public class InstancedRenderManager {
-    public static final int INSTANCE_UV_INDEX = 2;
-    public static final int INSTANCE_COLOR_INDEX = 3;
-    public static final int INSTANCE_UV2_SIZE_ROLL_INDEX = 4;
-    public static final int INSTANCE_XYZ_INDEX = 5;
+    public static final int INSTANCE_UV_INDEX = 1;
+    public static final int INSTANCE_XYZ_INDEX = 4;
 
     public static final int SIZE_FLOAT_OR_INT_BYTES = 4;
     public static final int AMOUNT_INSTANCE_FLOATS = 4 + 4 + 4 + 3;
@@ -205,7 +204,7 @@ public class InstancedRenderManager {
         ByteBuffer instanceMatrixBuffer = MemoryUtil.memCalloc(amount(), SIZE_INSTANCE_BYTES);
         int amount;
         //-----prepare shader
-        InstancedRenderBufferBuilder bufferBuilder = prepareShader(textureManager);
+        var bufferBuilder = prepareShader(textureManager);
         //-----fill vbo
         //TODO add an option of checking visibility
         if (threads <= 1) {
@@ -221,11 +220,6 @@ public class InstancedRenderManager {
         }
         var vertexBuffer = BufferUploader.upload(renderedBuffer);
         //-----set opengl state
-        if (cn.ussshenzhou.madparticle.MadParticle.IS_OPTIFINE_INSTALLED) {
-            GL30C.glBindVertexArray(vertexBuffer.arrayObjectId);
-            GL20C.glEnableVertexAttribArray(1);
-            GL30C.glVertexAttribIPointer(1, 4, GL11C.GL_INT, 28, 3 * 4);
-        }
         int instanceMatrixBufferId = bindBuffer(instanceMatrixBuffer, vertexBuffer.arrayObjectId);
         ShaderInstance shader = RenderSystem.getShader();
         assert shader != null;
@@ -244,11 +238,11 @@ public class InstancedRenderManager {
         cleanUp(instanceMatrixBuffer, instanceMatrixBufferId);
     }
 
-    private static InstancedRenderBufferBuilder prepareShader(TextureManager textureManager) {
+    private static BufferBuilder prepareShader(TextureManager textureManager) {
         if (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.OIT) {
             return oitPre(textureManager);
         } else {
-            return (InstancedRenderBufferBuilder) ModParticleRenderTypes.INSTANCED.begin(Tesselator.getInstance(), textureManager);
+            return ModParticleRenderTypes.INSTANCED.begin(Tesselator.getInstance(), textureManager);
         }
     }
 
@@ -315,7 +309,6 @@ public class InstancedRenderManager {
         float z = Mth.lerp(partialTicks, (float) particle.zo, (float) particle.z);
         if (forceMaxLight) {
             buffer.putFloat(start + 4 * 8, 240f);
-            //buffer.putInt(start + 4 * 9, 0);
         } else {
             simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
             int l;
@@ -339,18 +332,18 @@ public class InstancedRenderManager {
         buffer.putFloat(start + 4 * 14, z);
     }
 
-    public static void fillVertices(InstancedRenderBufferBuilder bufferBuilder) {
+    public static void fillVertices(BufferBuilder bufferBuilder) {
         bufferBuilder.addVertex(-1, -1, 0);
-        bufferBuilder.uvControl(0, 1, 0, 1);
+        //bufferBuilder.uvControl(0, 1, 0, 1);
 
         bufferBuilder.addVertex(-1, 1, 0);
-        bufferBuilder.uvControl(0, 1, 1, 0);
+        //bufferBuilder.uvControl(0, 1, 1, 0);
 
         bufferBuilder.addVertex(1, 1, 0);
-        bufferBuilder.uvControl(1, 0, 1, 0);
+        //bufferBuilder.uvControl(1, 0, 1, 0);
 
         bufferBuilder.addVertex(1, -1, 0);
-        bufferBuilder.uvControl(1, 0, 0, 1);
+        //bufferBuilder.uvControl(1, 0, 0, 1);
     }
 
     public static void prepareFinal(Camera camera, ShaderInstance shader) {
@@ -423,12 +416,12 @@ public class InstancedRenderManager {
         }
     }
 
-    private static InstancedRenderBufferBuilder oitPre(TextureManager textureManager) {
+    private static BufferBuilder oitPre(TextureManager textureManager) {
         var builder = ModParticleRenderTypes.INSTANCED_OIT.begin(Tesselator.getInstance(), textureManager);
         glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
         glClearBufferfv(GL_COLOR, 0, ACCUM_INIT);
         glClearBufferfv(GL_COLOR, 1, REVEAL_INIT);
-        return (InstancedRenderBufferBuilder) builder;
+        return builder;
     }
 
     private static void oitPost() {

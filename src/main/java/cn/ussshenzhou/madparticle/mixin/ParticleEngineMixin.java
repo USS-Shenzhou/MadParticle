@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * @author USS_Shenzhou
@@ -65,7 +66,7 @@ public class ParticleEngineMixin {
         particlesToAdd.clear();
     }
 
-    @Redirect(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;)V",
+    @Redirect(method = "render(Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;Ljava/util/function/Predicate;)V",
             at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;", ordinal = 0),
             remap = false
     )
@@ -81,26 +82,12 @@ public class ParticleEngineMixin {
     @Final
     private TextureManager textureManager;
 
-    @SuppressWarnings("JavaReflectionMemberAccess")
-    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;)V",
-            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V")
+    @Inject(method = "render(Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;Ljava/util/function/Predicate;)V",
+            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;depthMask(Z)V", shift = At.Shift.BEFORE)
     )
-    private void madparticleRenderInstanced(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, LightTexture lightTexture, Camera camera, float partialTicks, Frustum clippingHelper, CallbackInfo ci) {
-        //TODO need update
-        try {
-            //if Iris exist
-            Class<?> thisClass = ParticleEngine.class;
-            Field irisParticleRenderingPhase = thisClass.getDeclaredField("phase");
-            irisParticleRenderingPhase.setAccessible(true);
-            Method getPhaseName = irisParticleRenderingPhase.getClass().getMethod("name");
-            String phaseName = (String) getPhaseName.invoke(irisParticleRenderingPhase);
-            if ("TRANSLUCENT".equals(phaseName)) {
-                InstancedRenderManager.render(camera, partialTicks, clippingHelper, textureManager);
-            }
-        } catch (NoSuchFieldException | NoSuchMethodException | IllegalAccessException |
-                 InvocationTargetException ignored) {
-            //vanilla
-            InstancedRenderManager.render(camera, partialTicks, clippingHelper, textureManager);
+    private void madparticleRenderInstanced(LightTexture lightTexture, Camera camera, float partialTick, Frustum frustum, Predicate<ParticleRenderType> renderTypePredicate, CallbackInfo ci) {
+        if (renderTypePredicate.test(ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT)) {
+            InstancedRenderManager.render(camera, partialTick, frustum, textureManager);
         }
     }
 
@@ -108,7 +95,6 @@ public class ParticleEngineMixin {
     @Final
     private Map<ParticleRenderType, Queue<Particle>> particles;
 
-    @SuppressWarnings("UnstableApiUsage")
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Queue;add(Ljava/lang/Object;)Z"), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void madparticleAddToInstancedRenderManager(CallbackInfo ci, Particle particle) {
         if (particle instanceof TextureSheetParticle p && TakeOver.check(p) == ModParticleRenderTypes.INSTANCED) {

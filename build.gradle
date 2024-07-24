@@ -112,8 +112,7 @@ dependencies {
             exclude group: "net.minecraftforge", module: "forge"
         }*/
     } else {
-        //TODO
-        def t88FileId = '5047389'
+        def t88FileId = '5556872'
         implementation 'curse.maven:t88-663112:' + t88FileId
         annotationProcessor 'curse.maven:t88-663112:' + t88FileId
     }
@@ -194,4 +193,28 @@ idea {
         downloadSources = true
         downloadJavadoc = true
     }
+}
+
+tasks.register("runWithRenderDoc", Exec) {
+    def javaExecTask = tasks.withType(JavaExec).named("runClient").get()
+    def javaHome = javaExecTask.javaLauncher.get().metadata.installationPath.asFile.absolutePath
+
+    commandLine = [
+            "C:\\Program Files\\RenderDoc\\renderdoccmd.exe",
+            "capture",
+            "--opt-hook-children",
+            "--wait-for-exit",
+            "--working-dir",
+            ".",
+            "$javaHome\\bin\\java.exe",
+            "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005",
+            "-Xmx64m",
+            "-Xms64m",
+            "-Dorg.gradle.appname=gradlew",
+            "-Dorg.gradle.java.home=$javaHome",
+            "-classpath",
+            "gradle/wrapper/gradle-wrapper.jar",
+            "org.gradle.wrapper.GradleWrapperMain",
+            "runClient"
+    ]
 }

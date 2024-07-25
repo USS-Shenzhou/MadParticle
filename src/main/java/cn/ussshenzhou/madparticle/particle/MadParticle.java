@@ -45,11 +45,11 @@ public class MadParticle extends TextureSheetParticle {
     protected final float beginGravity;
     protected boolean collision;
     protected final int bounceTime;
-    protected final double horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce;
+    protected final float horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce;
     protected final float afterCollisionFriction;
     protected final float afterCollisionGravity;
     protected final boolean interactWithEntity;
-    protected final double horizontalInteractFactor, verticalInteractFactor;
+    protected final float horizontalInteractFactor, verticalInteractFactor;
     protected final ParticleRenderType particleRenderType;
     protected final float beginAlpha, endAlpha;
     protected final ChangeMode alphaMode;
@@ -88,8 +88,8 @@ public class MadParticle extends TextureSheetParticle {
     public MadParticle(ClientLevel pLevel, SpriteSet spriteSet, SpriteFrom spriteFrom,
                        double pX, double pY, double pZ, double vx, double vy, double vz,
                        float friction, float gravity, boolean collision, int bounceTime,
-                       double horizontalRelativeCollisionDiffuse, double verticalRelativeCollisionBounce, float afterCollisionFriction, float afterCollisionGravity,
-                       boolean interactWithEntity, double horizontalInteractFactor, double verticalInteractFactor,
+                       float horizontalRelativeCollisionDiffuse, float verticalRelativeCollisionBounce, float afterCollisionFriction, float afterCollisionGravity,
+                       boolean interactWithEntity, float horizontalInteractFactor, float verticalInteractFactor,
                        int lifeTime, ParticleRenderType renderType,
                        float r, float g, float b,
                        float beginAlpha, float endAlpha, ChangeMode alphaMode,

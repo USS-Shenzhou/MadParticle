@@ -24,7 +24,8 @@ public enum MetaKeys {
     TENET("tenet", BOOLEAN),
     LIGHT("light", EXPRESSION_ARGUMENT),
     PULSE("pulse", BOOLEAN),
-    PRE_CAL("preCalculate", BOOLEAN);
+    PRE_CAL("preCalculate", BOOLEAN),
+    HALF_PRECISION("halfPrecision", BOOLEAN);
 
     private final String key;
     public final ArgumentType<?> inputArgument;
@@ -50,6 +51,7 @@ public enum MetaKeys {
             case "light" -> LIGHT;
             case "pulse" -> PULSE;
             case "preCalculate" -> PRE_CAL;
+            case "halfPrecision" -> HALF_PRECISION;
             default -> null;
         };
     }

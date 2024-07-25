@@ -63,8 +63,8 @@ public class MadParticleCommand {
                                                                                                         .then(Commands.argument("speedDiffuse", Vec3Argument.vec3(false))
                                                                                                                 .then(Commands.argument("collision", EnumArgument.enumArgument(InheritableBoolean.class))
                                                                                                                         .then(Commands.argument("bounceTime", InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE, COMMAND_LENGTH))
-                                                                                                                                .then(Commands.argument("horizontalRelativeCollisionDiffuse", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
-                                                                                                                                        .then(Commands.argument("verticalRelativeCollisionBounce", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
+                                                                                                                                .then(Commands.argument("horizontalRelativeCollisionDiffuse", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
+                                                                                                                                        .then(Commands.argument("verticalRelativeCollisionBounce", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
                                                                                                                                                 .then(Commands.argument("friction", FloatArgumentType.floatArg())
                                                                                                                                                         .then(Commands.argument("afterCollisionFriction", FloatArgumentType.floatArg())
                                                                                                                                                                 .then(Commands.argument("gravity", FloatArgumentType.floatArg())
@@ -75,8 +75,8 @@ public class MadParticleCommand {
                                                                                                                                                                                                         .then(Commands.argument("zDeflectionAfterCollision", FloatArgumentType.floatArg())
                                                                                                                                                                                                                 .then(Commands.argument("rollSpeed", InheritableFloatArgument.inheritableFloat())
                                                                                                                                                                                                                         .then(Commands.argument("interactWithEntity", EnumArgument.enumArgument(InheritableBoolean.class))
-                                                                                                                                                                                                                                .then(Commands.argument("horizontalInteractFactor", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
-                                                                                                                                                                                                                                        .then(Commands.argument("verticalInteractFactor", InheritableDoubleArgument.inheritableDouble(COMMAND_LENGTH))
+                                                                                                                                                                                                                                .then(Commands.argument("horizontalInteractFactor", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
+                                                                                                                                                                                                                                        .then(Commands.argument("verticalInteractFactor", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
                                                                                                                                                                                                                                                 .then(Commands.argument("renderType", EnumArgument.enumArgument(ParticleRenderTypes.class))
                                                                                                                                                                                                                                                         .then(Commands.argument("r", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
                                                                                                                                                                                                                                                                 .then(Commands.argument("g", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
@@ -216,20 +216,20 @@ public class MadParticleCommand {
                 ct.getArgument("alwaysRender", InheritableBoolean.class),
                 ct.getArgument("amount", Integer.class),
                 pos.x, pos.y, pos.z,
-                posDiffuse.x, posDiffuse.y, posDiffuse.z,
+                (float) posDiffuse.x, (float) posDiffuse.y, (float) posDiffuse.z,
                 speed.x, speed.y, speed.z,
-                speedDiffuse.x, speedDiffuse.y, speedDiffuse.z,
+                (float) speedDiffuse.x, (float) speedDiffuse.y, (float) speedDiffuse.z,
                 ct.getArgument("friction", Float.class),
                 ct.getArgument("gravity", Float.class),
                 ct.getArgument("collision", InheritableBoolean.class),
                 ct.getArgument("bounceTime", Integer.class),
-                ct.getArgument("horizontalRelativeCollisionDiffuse", Double.class),
-                ct.getArgument("verticalRelativeCollisionBounce", Double.class),
+                ct.getArgument("horizontalRelativeCollisionDiffuse", Float.class),
+                ct.getArgument("verticalRelativeCollisionBounce", Float.class),
                 ct.getArgument("afterCollisionFriction", Float.class),
                 ct.getArgument("afterCollisionGravity", Float.class),
                 ct.getArgument("interactWithEntity", InheritableBoolean.class),
-                ct.getArgument("horizontalInteractFactor", Double.class),
-                ct.getArgument("verticalInteractFactor", Double.class),
+                ct.getArgument("horizontalInteractFactor", Float.class),
+                ct.getArgument("verticalInteractFactor", Float.class),
                 ct.getArgument("renderType", ParticleRenderTypes.class),
                 ct.getArgument("r", Float.class), ct.getArgument("g", Float.class), ct.getArgument("b", Float.class),
                 ct.getArgument("beginAlpha", Float.class),
@@ -255,6 +255,7 @@ public class MadParticleCommand {
         InheritableCommandDispatcher<CommandSourceStack> inheritableCommandDispatcher = new InheritableCommandDispatcher<>(dispatcher.getRoot());
         ParseResults<CommandSourceStack> parseResults = inheritableCommandDispatcher.parse(new InheritableStringReader(commandString), sourceStack);
         CommandContext<CommandSourceStack> ctPre = parseResults.getContext().build(commandString);
+        //execute at/as run mp
         CommandContext<CommandSourceStack> ctExe = CommandHelper.getContextHasArgument(ctPre, "targets", EntitySelector.class);
         if (ctExe != null) {
             try {

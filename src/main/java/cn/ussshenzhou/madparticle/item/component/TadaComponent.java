@@ -1,14 +1,12 @@
 package cn.ussshenzhou.madparticle.item.component;
 
-import cn.ussshenzhou.t88.util.MutableDataComponent;
+import cn.ussshenzhou.t88.magic.MutableDataComponent;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.neoforged.neoforge.common.MutableDataComponentHolder;
 
 public record TadaComponent(String command, boolean pulse, boolean used) implements MutableDataComponent<TadaComponent> {
 

@@ -113,10 +113,10 @@ dependencies {
 
     //implementation fg.deobf("curse.maven:shimmer-627824:4676467")
     if (System.getProperty("idea.active")) {
-        implementation("cn.ussshenzhou:t88:0.9.+")
-        annotationProcessor("cn.ussshenzhou:t88:0.9.+")
+        implementation("cn.ussshenzhou:t88:0.+")
+        annotationProcessor("cn.ussshenzhou:t88:0.+")
     } else {
-        def t88FileId = '5560995'
+        def t88FileId = '5618199'
         implementation 'curse.maven:t88-663112:' + t88FileId
         annotationProcessor 'curse.maven:t88-663112:' + t88FileId
     }

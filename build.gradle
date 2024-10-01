@@ -3,7 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.155'
+    id 'net.neoforged.gradle.userdev' version '7.0.165'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -27,6 +27,9 @@ repositories {
     }
     mavenCentral()
     mavenLocal()
+    flatDir {
+        dir 'libs'
+    }
 }
 
 base {
@@ -113,12 +116,36 @@ dependencies {
 
     //implementation fg.deobf("curse.maven:shimmer-627824:4676467")
     if (System.getProperty("idea.active")) {
-        implementation("cn.ussshenzhou:t88:0.+")
-        annotationProcessor("cn.ussshenzhou:t88:0.+")
+        implementation("cn.ussshenzhou:t88:0.+") {
+            exclude group: "curse.maven", module: "irisshaders-455508"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-renderer-api-v1"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-api-base"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-rendering-data-attachment-v1"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-block-view-api-v2"
+        }
+        annotationProcessor("cn.ussshenzhou:t88:0.+") {
+            exclude group: "curse.maven", module: "irisshaders-455508"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-renderer-api-v1"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-api-base"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-rendering-data-attachment-v1"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-block-view-api-v2"
+        }
     } else {
-        def t88FileId = '5618199'
-        implementation 'curse.maven:t88-663112:' + t88FileId
-        annotationProcessor 'curse.maven:t88-663112:' + t88FileId
+        def t88FileId = '5745052'
+        implementation('curse.maven:t88-663112:' + t88FileId) {
+            exclude group: "curse.maven", module: "irisshaders-455508"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-renderer-api-v1"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-api-base"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-rendering-data-attachment-v1"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-block-view-api-v2"
+        }
+        annotationProcessor('curse.maven:t88-663112:' + t88FileId) {
+            exclude group: "curse.maven", module: "irisshaders-455508"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-renderer-api-v1"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-api-base"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-rendering-data-attachment-v1"
+            exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-block-view-api-v2"
+        }
     }
 
     // Example mod dependency with JEI
@@ -126,6 +153,9 @@ dependencies {
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
     // compileOnly "mezz.jei:jei-${mc_version}-forge-api:${jei_version}"
     // runtimeOnly "mezz.jei:jei-${mc_version}-forge:${jei_version}"
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "curse.maven:irisshaders-455508:5765375"
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar

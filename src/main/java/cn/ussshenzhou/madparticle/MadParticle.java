@@ -28,6 +28,7 @@ public class MadParticle {
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final boolean IS_OPTIFINE_INSTALLED = isClassFound("net.optifine.reflect.ReflectorClass");
     public static final boolean IS_SHIMMER_INSTALLED = ModList.get().isLoaded("shimmer");
+    public static final boolean IS_IRIS_INSTALLED = ModList.get().isLoaded("iris");
     public static boolean irisOn;
 
     public MadParticle(IEventBus modEventBus) {
@@ -38,10 +39,6 @@ public class MadParticle {
         ModCommandArgumentRegistry.COMMAND_ARGUMENTS.register(modEventBus);
         ModItemsRegistry.ITEMS.register(modEventBus);
         ModDataComponent.DATA_COMPONENTS.register(modEventBus);
-    }
-
-    public boolean isModLoaded(String modID) {
-        return ModList.get().isLoaded(modID);
     }
 
     public static boolean isClassFound(String className) {

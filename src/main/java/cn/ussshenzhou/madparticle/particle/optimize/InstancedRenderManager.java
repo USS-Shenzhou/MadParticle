@@ -25,9 +25,12 @@ import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.MemoryUtil;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -39,6 +42,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
+import static cn.ussshenzhou.madparticle.MadParticle.IS_IRIS_INSTALLED;
+import static cn.ussshenzhou.madparticle.MadParticle.irisOn;
 import static org.lwjgl.opengl.GL40C.*;
 
 /**
@@ -104,7 +109,7 @@ public class InstancedRenderManager {
     private static void resetOitTexture() {
         var window = Minecraft.getInstance().getWindow();
         glBindTexture(GL_TEXTURE_2D, ACCUM_TEXTURE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, window.getWidth(), window.getHeight(), 0, GL_RGBA, GL_HALF_FLOAT, (ByteBuffer) null);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window.getWidth(), window.getHeight(), 0, GL_RGBA, GL_HALF_FLOAT, (ByteBuffer) null);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, REVEAL_TEXTURE);
@@ -220,8 +225,9 @@ public class InstancedRenderManager {
         assert shader != null;
         prepareFinal(camera, shader);
         //-----draw
+        GL11C.glColorMask(true, true, true, true);
         GL31C.glDrawElementsInstanced(4, 6, GL11C.GL_UNSIGNED_INT, 0, amount);
-        if (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.OIT) {
+        if (isOitOn()) {
             oitPost();
         } else {
             RenderSystem.depthMask(true);
@@ -231,12 +237,13 @@ public class InstancedRenderManager {
         cleanUp(instanceMatrixBufferBaseAddress, instanceMatrixBufferId);
     }
 
+    private static boolean isOitOn() {
+        return ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.OIT;
+    }
+
     private static void prepareShader(TextureManager textureManager) {
-        if (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.OIT) {
+        if (isOitOn()) {
             ModParticleRenderTypes.INSTANCED_OIT.begin(Tesselator.getInstance(), textureManager);
-            glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
-            glClearBufferfv(GL_COLOR, 0, ACCUM_INIT);
-            glClearBufferfv(GL_COLOR, 1, REVEAL_INIT);
         } else {
             ModParticleRenderTypes.INSTANCED.begin(Tesselator.getInstance(), textureManager);
         }
@@ -336,27 +343,30 @@ public class InstancedRenderManager {
             //TODO if optifine shader using
             glUseProgram(shader.getId());
         }
-        //TODO need update
-        if (cn.ussshenzhou.madparticle.MadParticle.irisOn) {
-            //Borrow iris particle shader's frame buffer.
-            //Profiler tells me this is ok. We should trust JVM.
-            try {
-                ShaderInstance translucent = GameRenderer.getParticleShader();
-                Class<? extends ShaderInstance> translucentClass = translucent.getClass();
-                Field writingToAfterTranslucent = translucentClass.getDeclaredField("writingToAfterTranslucent");
-                writingToAfterTranslucent.setAccessible(true);
-                Object irisGlFramebuffer = writingToAfterTranslucent.get(translucent);
-                Field id = irisGlFramebuffer.getClass().getSuperclass().getDeclaredField("id");
-                id.setAccessible(true);
-                int frameBuffer = (int) id.get(irisGlFramebuffer);
-                glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-            } catch (Exception e) {
-                if (T88.TEST) {
-                    LogUtils.getLogger().error("{}", e.getMessage());
-                }
-            }
+        if (isOitOn()) {
+            glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
+        } else if (irisOn) {
+            borrowAndBindIrisFramebuffer();
+        }
+    }
+
+    @SuppressWarnings("ExtractMethodRecommender")
+    private static void borrowAndBindIrisFramebuffer() {
+        try {
+            ShaderInstance translucent = GameRenderer.getParticleShader();
+            Class<? extends ShaderInstance> translucentClass = translucent.getClass();
+            Field writingToAfterTranslucent = translucentClass.getDeclaredField("writingToAfterTranslucent");
+            writingToAfterTranslucent.setAccessible(true);
+            Object irisGlFramebuffer = writingToAfterTranslucent.get(translucent);
+            Field id = irisGlFramebuffer.getClass().getSuperclass().getDeclaredField("id");
+            id.setAccessible(true);
+            int frameBuffer = (int) id.get(irisGlFramebuffer);
+            glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
             GL11C.glDepthMask(true);
-            GL11C.glColorMask(true, true, true, true);
+        } catch (Exception e) {
+            if (T88.TEST) {
+                LogUtils.getLogger().error("{}", e.toString());
+            }
         }
     }
 
@@ -403,7 +413,11 @@ public class InstancedRenderManager {
     }
 
     private static void oitPost() {
-        glBindFramebuffer(GL_FRAMEBUFFER, Minecraft.getInstance().getMainRenderTarget().frameBufferId);
+        if (irisOn) {
+            borrowAndBindIrisFramebuffer();
+        } else {
+            glBindFramebuffer(GL_FRAMEBUFFER, Minecraft.getInstance().getMainRenderTarget().frameBufferId);
+        }
         RenderSystem.setShader(ModParticleShaders::getInstancedParticleShaderOitPost);
         glEnable(GL_BLEND);
         glDepthMask(true);
@@ -418,6 +432,7 @@ public class InstancedRenderManager {
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * 4, 0);
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * 4, 3 * 4);
+        GL11C.glColorMask(true, true, true, true);
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
@@ -447,6 +462,10 @@ public class InstancedRenderManager {
         glDeleteBuffers(instanceMatrixBufferId);
         glBindVertexArray(0);
         MemoryUtil.getAllocator(false).free(instanceMatrixBuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
+        glClearBufferfv(GL_COLOR, 0, ACCUM_INIT);
+        glClearBufferfv(GL_COLOR, 1, REVEAL_INIT);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     public static class SimpleBlockPos {

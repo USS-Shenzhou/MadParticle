@@ -70,6 +70,7 @@ runs {
 
         dependencies {
             runtime project.configurations.libraries
+            runtime 'net.objecthunter:exp4j:0.4.+'
         }
     }
 

@@ -604,14 +604,19 @@ public class MadParticle extends TextureSheetParticle {
 
     @Override
     public int getLightColor(float pPartialTick) {
-        return checkEmit(super.getLightColor(pPartialTick));
+        int l = super.getLightColor(pPartialTick);
+        if (light == null) {
+            return l;
+        } else {
+            return l & 0b1111_0000_00000000_0000_0000 | ((int) MathHelper.getFromT((float) age / lifetime, light) << 4);
+        }
     }
 
-    public int checkEmit(int levelLight) {
+    public byte checkEmit(byte levelLight) {
         if (light == null) {
             return levelLight;
         } else {
-            return levelLight & 0b1111_0000_00000000_0000_0000 | ((int) MathHelper.getFromT((float) age / lifetime, light) << 4);
+            return (byte) (levelLight | ((int) MathHelper.getFromT((float) age / lifetime, light) << 4));
         }
     }
 

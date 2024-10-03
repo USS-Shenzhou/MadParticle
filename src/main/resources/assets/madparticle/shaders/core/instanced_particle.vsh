@@ -2,10 +2,16 @@
 
 #moj_import <fog.glsl>
 
-layout (location=0) in vec4 instanceUV;
-layout (location=1) in vec4 instanceColor;
-layout (location=2) in vec4 instanceUV2SizeRoll;
-layout (location=3) in vec4 instanceXYZExtraLight;
+//single float
+layout (location=0) in vec4 instanceXYZRoll;
+//half float
+layout (location=1) in vec4 instanceUV;
+//half float
+layout (location=2) in vec4 instanceColor;
+//single float
+layout (location=3) in vec2 sizeExtraLight;
+//4+4 byte
+layout (location=4) in int instanceUV2;
 
 uniform sampler2D Sampler2;
 uniform mat4 ModelViewMat;
@@ -39,25 +45,26 @@ void main() {
     //matrix4fSingle.identity()
     mat4 m = mat4(1.0);
     //.translation(x + camPosCompensate.x, y + camPosCompensate.y, z + camPosCompensate.z)
-    m[3][0] = instanceXYZExtraLight.x - CamXYZ.x;
-    m[3][1] = instanceXYZExtraLight.y - CamXYZ.y;
-    m[3][2] = instanceXYZExtraLight.z - CamXYZ.z;
+    m[3][0] = instanceXYZRoll.x - CamXYZ.x;
+    m[3][1] = instanceXYZRoll.y - CamXYZ.y;
+    m[3][2] = instanceXYZRoll.z - CamXYZ.z;
     //.rotate(camera.rotation())
     m = rotate(CamQuat, m);
     //.scale(particle.getQuadSize(partialTicks));
-    m[0] *= instanceUV2SizeRoll.z;
-    m[1] *= instanceUV2SizeRoll.z;
-    m[2] *= instanceUV2SizeRoll.z;
+    m[0] *= sizeExtraLight.x;
+    m[1] *= sizeExtraLight.x;
+    m[2] *= sizeExtraLight.x;
     //matrix4fSingle.rotateZ(roll);
-    m = rotateZ(instanceUV2SizeRoll.w, m);
+    m = rotateZ(instanceXYZRoll.w, m);
 
 
-    gl_Position = ProjMat * ModelViewMat * m * vec4(RELATIVE[gl_VertexID %4], 1.0);
+    gl_Position = ProjMat * ModelViewMat * m * vec4(RELATIVE[gl_VertexID % 4], 1.0);
 
-    vertexDistance = fog_distance(instanceXYZExtraLight.xyz, FogShape);
+    vertexDistance = fog_distance(instanceXYZRoll.xyz, FogShape);
     ivec4 uvControl = UV_CONTROL[gl_VertexID % 4];
     texCoord0 = vec2(instanceUV.x * uvControl.x + instanceUV.y * uvControl.y, instanceUV.z * uvControl.z + instanceUV.w * uvControl.w);
-    vertexColor = vec4(instanceColor.xyz * instanceXYZExtraLight.w , instanceColor.w) * texelFetch(Sampler2, ivec2(instanceUV2SizeRoll.xy) / 16, 0);
+    ivec2 uv2 = ivec2(instanceUV2 & 0x0F, (instanceUV2 >> 4) & 0x0F);
+    vertexColor = vec4(instanceColor.xyz * sizeExtraLight.y, instanceColor.w) * texelFetch(Sampler2, uv2, 0);
 }
 
 mat4 rotate(vec4 quat, mat4 matrix) {

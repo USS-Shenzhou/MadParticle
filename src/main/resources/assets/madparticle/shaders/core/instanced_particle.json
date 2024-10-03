@@ -7,10 +7,11 @@
   "vertex": "madparticle:instanced_particle",
   "fragment": "madparticle:instanced_particle",
   "attributes": [
+    "instanceXYZRoll",
     "instanceUV",
     "instanceColor",
-    "instanceUV2SizeRoll",
-    "instanceXYZExtraLight"
+    "sizeExtraLight",
+    "instanceUV2"
   ],
   "samplers": [
     {

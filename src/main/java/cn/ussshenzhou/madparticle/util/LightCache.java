@@ -32,7 +32,7 @@ public class LightCache {
      * Pos in long,packed light in int
      */
     @SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
-    private final ConcurrentHashMap<Long, Integer> outside = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, Byte> outside = new ConcurrentHashMap<>();
 
     private static final ThreadLocal<BlockPos.MutableBlockPos> MUTABLE_BLOCK_POS = ThreadLocal.withInitial(BlockPos.MutableBlockPos::new);
 
@@ -74,7 +74,7 @@ public class LightCache {
         outside.clear();
     }
 
-    public int getOrCompute(int x, int y, int z, TextureSheetParticle particle, InstancedRenderManager.SimpleBlockPos simpleBlockPos) {
+    public byte getOrCompute(int x, int y, int z, TextureSheetParticle particle, InstancedRenderManager.SimpleBlockPos simpleBlockPos) {
         if (isInRange(x, y, z)) {
             var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             int rx = Mth.floor(x - camera.x) + XZ_RANGE;
@@ -84,24 +84,28 @@ public class LightCache {
             int i = rx * XZ_RANGE * 2 * Y_RANGE * 2 / 8 + rz * Y_RANGE * 2 / 8 + ry / 8;
             byte mod = modifyFlag.get(i);
             if ((mod >>> ry % 8 & 1) == 0) {
-                int packetLight = getLight(particle, simpleBlockPos);
-                bright[rx][rz][ry] = (byte) ((packetLight >>> 4 & 0xf) | (packetLight >>> 16 & 0xf0));
+                bright[rx][rz][ry] = compressPackedLight(getLight(particle, simpleBlockPos));
                 modifyFlag.put(i, (byte) (mod | 1 << ry % 8));
-                return packetLight;
+                return bright[rx][rz][ry];
             } else {
-                return (value << 16 & 0xf0_0000) | (value << 4 & 0xf0);
+                return value;
             }
         } else {
             Long pos = asLong(x, y, z);
             var s = outside.get(pos);
             if (s == null) {
-                var r = getLight(particle, simpleBlockPos);
+                int packetLight = compressPackedLight(getLight(particle, simpleBlockPos));
+                byte r = (byte) ((packetLight >>> 4 & 0xf) | (packetLight >>> 16 & 0xf0));
                 outside.put(pos, r);
                 return r;
             } else {
                 return s;
             }
         }
+    }
+
+    public static byte compressPackedLight(int packetLight) {
+        return (byte) ((packetLight >>> 4 & 0xf) | (packetLight >>> 16 & 0xf0));
     }
 
     public static int getLight(TextureSheetParticle particle, InstancedRenderManager.SimpleBlockPos simpleBlockPosSingle) {

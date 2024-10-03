@@ -25,12 +25,9 @@ import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.items.IItemHandler;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.MemoryUtil;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -42,7 +39,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
-import static cn.ussshenzhou.madparticle.MadParticle.IS_IRIS_INSTALLED;
 import static cn.ussshenzhou.madparticle.MadParticle.irisOn;
 import static org.lwjgl.opengl.GL40C.*;
 
@@ -50,11 +46,8 @@ import static org.lwjgl.opengl.GL40C.*;
  * @author USS_Shenzhou
  */
 public class InstancedRenderManager {
-    public static final int INSTANCE_UV_INDEX = 0;
-
-    public static final int SIZE_FLOAT_OR_INT_BYTES = 4;
-    public static final int AMOUNT_INSTANCE_FLOATS = 4 + 4 + 4 + 4;
-    public static final int SIZE_INSTANCE_BYTES = AMOUNT_INSTANCE_FLOATS * SIZE_FLOAT_OR_INT_BYTES;
+    public static final int ROW0_SIZE = 4 * 4, ROW1_SIZE = 2 * 4, ROW2_SIZE = 2 * 4, ROW3_SIZE = 4 * 2, ROW4_SIZE = 1;
+    public static final int SIZE_INSTANCE_BYTES = ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + ROW3_SIZE + ROW4_SIZE;
     public static final float[] ACCUM_INIT = {0, 0, 0, 0};
     public static final float[] REVEAL_INIT = {1};
 
@@ -293,64 +286,77 @@ public class InstancedRenderManager {
         glBindBuffer(GL_ARRAY_BUFFER, bufferId);
         glBufferData(GL_ARRAY_BUFFER, MemoryUtil.memByteBuffer(buffer, amount() * SIZE_INSTANCE_BYTES), GL_STREAM_DRAW);
         int formerSize = 0;
-        for (int i = 0; i < 4; i++) {
-            glEnableVertexAttribArray(INSTANCE_UV_INDEX + i);
-            glVertexAttribPointer(INSTANCE_UV_INDEX + i, 4, GL11C.GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
-            formerSize += 4 * SIZE_FLOAT_OR_INT_BYTES;
-            glVertexAttribDivisor(INSTANCE_UV_INDEX + i, 1);
-        }
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 4, GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
+        formerSize += ROW0_SIZE;
+        glVertexAttribDivisor(0, 1);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_HALF_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
+        formerSize += ROW1_SIZE;
+        glVertexAttribDivisor(1, 1);
+
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 4, GL_HALF_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
+        formerSize += ROW2_SIZE;
+        glVertexAttribDivisor(2, 1);
+
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 2, GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
+        formerSize += ROW3_SIZE;
+        glVertexAttribDivisor(3, 1);
+
+        glEnableVertexAttribArray(4);
+        glVertexAttribIPointer(4, 1, GL_BYTE, SIZE_INSTANCE_BYTES, formerSize);
+        glVertexAttribDivisor(4, 1);
         return bufferId;
     }
 
-    /**
-     * HOTSPOT
-     * Can you find a way to make it faster?
-     */
+    @SuppressWarnings("PointlessArithmeticExpression")
     public static void fillBuffer(long buffer, TextureSheetParticle particle, int index, float partialTicks, SimpleBlockPos simpleBlockPosSingle) {
         long start = buffer + (long) index * SIZE_INSTANCE_BYTES;
-        //uv
-        var sprite = particle.sprite;
-        MemoryUtil.memPutFloat(start, sprite.getU0());
-        MemoryUtil.memPutFloat(start + 4, sprite.getU1());
-        MemoryUtil.memPutFloat(start + 4 * 2, sprite.getV0());
-        MemoryUtil.memPutFloat(start + 4 * 3, sprite.getV1());
-        //color
-        MemoryUtil.memPutFloat(start + 4 * 4, particle.rCol);
-        MemoryUtil.memPutFloat(start + 4 * 5, particle.gCol);
-        MemoryUtil.memPutFloat(start + 4 * 6, particle.bCol);
-        MemoryUtil.memPutFloat(start + 4 * 7, particle.alpha);
-        //uv2
+        //xyz roll
         float x = Mth.lerp(partialTicks, (float) particle.xo, (float) particle.x);
         float y = Mth.lerp(partialTicks, (float) particle.yo, (float) particle.y);
         float z = Mth.lerp(partialTicks, (float) particle.zo, (float) particle.z);
+        MemoryUtil.memPutFloat(start + 4 * 0, x);
+        MemoryUtil.memPutFloat(start + 4 * 1, y);
+        MemoryUtil.memPutFloat(start + 4 * 2, z);
+        MemoryUtil.memPutFloat(start + 4 * 3, Mth.lerp(partialTicks, particle.oRoll, particle.roll));
+        //uv
+        var sprite = particle.sprite;
+        MemoryUtil.memPutShort(start + ROW0_SIZE + 2 * 0, Float.floatToFloat16(sprite.getU0()));
+        MemoryUtil.memPutShort(start + ROW0_SIZE + 2 * 1, Float.floatToFloat16(sprite.getU1()));
+        MemoryUtil.memPutShort(start + ROW0_SIZE + 2 * 2, Float.floatToFloat16(sprite.getV0()));
+        MemoryUtil.memPutShort(start + ROW0_SIZE + 2 * 3, Float.floatToFloat16(sprite.getV1()));
+        //color
+        MemoryUtil.memPutShort(start + ROW0_SIZE + ROW1_SIZE + 2 * 0, Float.floatToFloat16(particle.rCol));
+        MemoryUtil.memPutShort(start + ROW0_SIZE + ROW1_SIZE + 2 * 1, Float.floatToFloat16(particle.gCol));
+        MemoryUtil.memPutShort(start + ROW0_SIZE + ROW1_SIZE + 2 * 2, Float.floatToFloat16(particle.bCol));
+        MemoryUtil.memPutShort(start + ROW0_SIZE + ROW1_SIZE + 2 * 3, Float.floatToFloat16(particle.alpha));
+        //size extraLight
+        MemoryUtil.memPutFloat(start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + 4 * 0, particle.getQuadSize(partialTicks));
+        if (irisOn && particle instanceof MadParticle madParticle) {
+            MemoryUtil.memPutFloat(start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + 4 * 1, madParticle.getBloomFactor());
+        } else {
+            MemoryUtil.memPutFloat(start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + 4 * 1, 1);
+        }
+        //uv2
         if (forceMaxLight) {
-            MemoryUtil.memPutFloat(start + 4 * 8, 240f);
+            MemoryUtil.memPutByte(start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + ROW3_SIZE, (byte) 0b1111_1111);
         } else {
             simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
-            int l;
+            byte l;
             if (particle instanceof MadParticle madParticle) {
                 l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, particle, simpleBlockPosSingle);
                 l = madParticle.checkEmit(l);
             } else if (TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
-                l = particle.getLightColor(partialTicks);
+                l = LightCache.compressPackedLight(particle.getLightColor(partialTicks));
             } else {
                 l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, particle, simpleBlockPosSingle);
             }
-            MemoryUtil.memPutFloat(start + 4 * 8, (float) (l & 0x0000_ffff));
-            MemoryUtil.memPutFloat(start + 4 * 9, (float) (l >> 16 & 0x0000_ffff));
-        }
-        //size/roll
-        MemoryUtil.memPutFloat(start + 4 * 10, particle.getQuadSize(partialTicks));
-        MemoryUtil.memPutFloat(start + 4 * 11, Mth.lerp(partialTicks, particle.oRoll, particle.roll));
-        //xyz
-        MemoryUtil.memPutFloat(start + 4 * 12, x);
-        MemoryUtil.memPutFloat(start + 4 * 13, y);
-        MemoryUtil.memPutFloat(start + 4 * 14, z);
-        //extra light
-        if (irisOn && particle instanceof MadParticle madParticle) {
-            MemoryUtil.memPutFloat(start + 4 * 15, madParticle.getBloomFactor());
-        } else {
-            MemoryUtil.memPutFloat(start + 4 * 15, 1);
+            MemoryUtil.memPutByte(start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + ROW3_SIZE, l);
         }
     }
 
@@ -460,8 +466,8 @@ public class InstancedRenderManager {
     }
 
     public static void cleanUp(long instanceMatrixBuffer, int instanceMatrixBufferId) {
-        for (int i = 0; i < 3; i++) {
-            glDisableVertexAttribArray(INSTANCE_UV_INDEX + i);
+        for (int i = 0; i < 4; i++) {
+            glDisableVertexAttribArray(i);
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

@@ -362,7 +362,7 @@ public class InstancedRenderManager {
             id.setAccessible(true);
             int frameBuffer = (int) id.get(irisGlFramebuffer);
             glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-            GL11C.glDepthMask(true);
+            GL11C.glDepthMask(ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.DEPTH_TRUE);
         } catch (Exception e) {
             if (T88.TEST) {
                 LogUtils.getLogger().error("{}", e.toString());

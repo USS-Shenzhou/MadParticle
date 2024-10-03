@@ -27,7 +27,6 @@ public class MadParticle {
     public static final String MOD_ID = "madparticle";
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final boolean IS_OPTIFINE_INSTALLED = isClassFound("net.optifine.reflect.ReflectorClass");
-    public static final boolean IS_SHIMMER_INSTALLED = ModList.get().isLoaded("shimmer");
     public static final boolean IS_IRIS_INSTALLED = ModList.get().isLoaded("iris");
     public static boolean irisOn;
 
@@ -47,12 +46,6 @@ public class MadParticle {
             return true;
         } catch (ClassNotFoundException e) {
             return false;
-        }
-    }
-
-    public static void runOnShimmer(Supplier<Runnable> run) {
-        if (IS_SHIMMER_INSTALLED) {
-            run.get().run();
         }
     }
 

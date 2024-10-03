@@ -72,7 +72,7 @@
   "gui.mp.de.helper.scale_begin": "Initial",
   "gui.mp.de.helper.scale_end": "Final",
   "gui.mp.de.helper.unwrap": "Unwrap",
-  "gui.mp.de.helper.bloom_factor": "Bloom",
+  "gui.mp.de.helper.bloom_factor": "Ext.Light",
 
   "gui.mp.de.helper.x_diffuse.tooltip": "Spawn Position Error on X Axis",
   "gui.mp.de.helper.y_diffuse.tooltip": "Spawn Position Error on Y Axis",
@@ -99,6 +99,7 @@
   "gui.mp.de.helper.scale_end.tooltip": "Final Scale",
   "gui.mp.de.helper.always.tooltip": "Force Spawn",
   "gui.mp.de.helper.render_type.tooltip": "RenderType",
+  "gui.mp.de.helper.bloom_factor.tooltip": "Extra Lightness",
 
   "gui.mp.de.helper.meta.title": "Meta Parameters",
 

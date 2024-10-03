@@ -54,7 +54,6 @@ import java.util.stream.Stream;
 public class ParametersScrollPanel extends TScrollPanel {
     public static final Vector2i BUTTON_SIZE = TButton.RECOMMEND_SIZE;
     protected boolean isChild = false;
-    protected final static boolean IS_SHIMMER_EXIST = ModList.get().isLoaded("shimmer");
 
     //lane 1
     public final TTitledSuggestedEditBox target = new TTitledSuggestedEditBox(
@@ -145,7 +144,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             alpha = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.alpha")),
             scale = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.scale"));
     public final TTitledSimpleConstrainedEditBox
-            bloomStrength = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.bloom_factor"), IntegerArgumentType.integer(0, 1)),
+            bloomStrength = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.bloom_factor"), FloatArgumentType.floatArg(1, 255)),
             alphaBegin = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.alpha_begin"), FloatArgumentType.floatArg()),
             alphaEnd = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.alpha_end"), FloatArgumentType.floatArg()),
             scaleBegin = new TTitledSimpleConstrainedEditBox(Component.translatable("gui.mp.de.helper.scale_begin"), FloatArgumentType.floatArg()),
@@ -298,10 +297,6 @@ public class ParametersScrollPanel extends TScrollPanel {
         Stream.of(ChangeMode.values()).forEach(alpha::addElement);
         Stream.of(ChangeMode.values()).forEach(scale::addElement);
         this.addAll(bloomStrength, alpha, scale, alphaBegin, alphaEnd, scaleBegin, scaleEnd);
-        if (!IS_SHIMMER_EXIST) {
-            bloomStrength.getComponent().setEditable(false);
-            AccessorProxy.EditBoxProxy.setDisplayPos(bloomStrength.getComponent(), 0);
-        }
     }
 
     @Override
@@ -440,7 +435,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             roll.getComponent().setArgument(InheritableFloatArgument.inheritableFloat());
             interact.addElement(InheritableBoolean.INHERIT);
             Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(InheritableFloatArgument.inheritableFloat()));
-            bloomStrength.getComponent().setArgument(InheritableFloatArgument.inheritableFloat(0, 1));
+            bloomStrength.getComponent().setArgument(InheritableFloatArgument.inheritableFloat(1, 255));
             Stream.of(alpha, scale).forEach(button -> button.addElement(ChangeMode.INHERIT));
 
             amount.getComponent().setEditable(false);
@@ -456,7 +451,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             Stream.of(horizontalCollision, verticalCollision, horizontalInteract, verticalInteract).forEach(editBox -> editBox.getComponent().setArgument(DoubleArgumentType.doubleArg()));
             roll.getComponent().setArgument(FloatArgumentType.floatArg());
             Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg()));
-            bloomStrength.getComponent().setArgument(FloatArgumentType.floatArg(0, 1));
+            bloomStrength.getComponent().setArgument(FloatArgumentType.floatArg(1, 255));
             Stream.of(alpha, scale).forEach(button -> button.removeElement(ChangeMode.INHERIT));
             amount.getComponent().setEditable(true);
         }
@@ -500,7 +495,7 @@ public class ParametersScrollPanel extends TScrollPanel {
                 ifClearThenSet(roll, accessor.getRoll());
                 ifClearThenSet(accessor.getAlpha(), alphaBegin, alphaEnd);
                 ifClearThenSet(String.format("%.2f", (accessor.getBbHeight() + accessor.getBbWidth()) / 2 / 0.2), scaleBegin, scaleEnd);
-                ifClearThenSet(bloomStrength, isChild ? "=" : "0");
+                ifClearThenSet(bloomStrength, isChild ? "=" : "1");
             }
         } catch (Exception ignored) {
         }
@@ -543,7 +538,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         Stream.of(horizontalInteract, verticalInteract).forEach(titled -> append(builder, titled, 0));
         append(builder, renderType);
         Stream.of(r, g, b).forEach(titled -> append(builder, titled));
-        append(builder, bloomStrength, 0);
+        append(builder, bloomStrength, 1);
         Stream.of(alphaBegin, alphaEnd).forEach(titled -> append(builder, titled));
         append(builder, alpha);
         Stream.of(scaleBegin, scaleEnd).forEach(titled -> append(builder, titled));

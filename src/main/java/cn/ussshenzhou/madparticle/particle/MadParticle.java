@@ -588,6 +588,10 @@ public class MadParticle extends TextureSheetParticle {
         return alpha;
     }
 
+    public float getBloomFactor() {
+        return bloomFactor;
+    }
+
     @Override
     public void render(VertexConsumer pBuffer, Camera pRenderInfo, float pPartialTicks) {
         if (particleRenderType == ModParticleRenderTypes.INSTANCED) {

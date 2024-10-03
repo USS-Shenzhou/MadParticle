@@ -5,7 +5,7 @@
 layout (location=0) in vec4 instanceUV;
 layout (location=1) in vec4 instanceColor;
 layout (location=2) in vec4 instanceUV2SizeRoll;
-layout (location=3) in vec3 instanceXYZ;
+layout (location=3) in vec4 instanceXYZExtraLight;
 
 uniform sampler2D Sampler2;
 uniform mat4 ModelViewMat;
@@ -20,16 +20,16 @@ out vec2 texCoord0;
 out vec4 vertexColor;
 
 const ivec4 UV_CONTROL[4] = ivec4[4](
-    ivec4(0, 1, 0, 1),
-    ivec4(0, 1, 1, 0),
-    ivec4(1, 0, 1, 0),
-    ivec4(1, 0, 0, 1)
+ivec4(0, 1, 0, 1),
+ivec4(0, 1, 1, 0),
+ivec4(1, 0, 1, 0),
+ivec4(1, 0, 0, 1)
 );
 const ivec3 RELATIVE[4] = ivec3[4](
-    ivec3(1, -1, 0),
-    ivec3(1, 1, 0),
-    ivec3(-1, 1, 0),
-    ivec3(-1, -1, 0)
+ivec3(1, -1, 0),
+ivec3(1, 1, 0),
+ivec3(-1, 1, 0),
+ivec3(-1, -1, 0)
 );
 
 mat4 rotate(vec4 quat, mat4 matrix);
@@ -39,9 +39,9 @@ void main() {
     //matrix4fSingle.identity()
     mat4 m = mat4(1.0);
     //.translation(x + camPosCompensate.x, y + camPosCompensate.y, z + camPosCompensate.z)
-    m[3][0] = instanceXYZ.x - CamXYZ.x;
-    m[3][1] = instanceXYZ.y - CamXYZ.y;
-    m[3][2] = instanceXYZ.z - CamXYZ.z;
+    m[3][0] = instanceXYZExtraLight.x - CamXYZ.x;
+    m[3][1] = instanceXYZExtraLight.y - CamXYZ.y;
+    m[3][2] = instanceXYZExtraLight.z - CamXYZ.z;
     //.rotate(camera.rotation())
     m = rotate(CamQuat, m);
     //.scale(particle.getQuadSize(partialTicks));
@@ -54,10 +54,10 @@ void main() {
 
     gl_Position = ProjMat * ModelViewMat * m * vec4(RELATIVE[gl_VertexID %4], 1.0);
 
-    vertexDistance = fog_distance(instanceXYZ, FogShape);
+    vertexDistance = fog_distance(instanceXYZExtraLight.xyz, FogShape);
     ivec4 uvControl = UV_CONTROL[gl_VertexID % 4];
     texCoord0 = vec2(instanceUV.x * uvControl.x + instanceUV.y * uvControl.y, instanceUV.z * uvControl.z + instanceUV.w * uvControl.w);
-    vertexColor = instanceColor * texelFetch(Sampler2, ivec2(instanceUV2SizeRoll.xy) / 16, 0);
+    vertexColor = vec4(instanceColor.xyz * instanceXYZExtraLight.w , instanceColor.w) * texelFetch(Sampler2, ivec2(instanceUV2SizeRoll.xy) / 16, 0);
 }
 
 mat4 rotate(vec4 quat, mat4 matrix) {

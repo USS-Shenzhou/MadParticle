@@ -10,7 +10,7 @@
     "instanceUV",
     "instanceColor",
     "instanceUV2SizeRoll",
-    "instanceXYZ"
+    "instanceXYZExtraLight"
   ],
   "samplers": [
     {

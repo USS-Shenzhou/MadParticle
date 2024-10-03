@@ -51,10 +51,9 @@ import static org.lwjgl.opengl.GL40C.*;
  */
 public class InstancedRenderManager {
     public static final int INSTANCE_UV_INDEX = 0;
-    public static final int INSTANCE_XYZ_INDEX = INSTANCE_UV_INDEX + 3;
 
     public static final int SIZE_FLOAT_OR_INT_BYTES = 4;
-    public static final int AMOUNT_INSTANCE_FLOATS = 4 + 4 + 4 + 3;
+    public static final int AMOUNT_INSTANCE_FLOATS = 4 + 4 + 4 + 4;
     public static final int SIZE_INSTANCE_BYTES = AMOUNT_INSTANCE_FLOATS * SIZE_FLOAT_OR_INT_BYTES;
     public static final float[] ACCUM_INIT = {0, 0, 0, 0};
     public static final float[] REVEAL_INIT = {1};
@@ -333,6 +332,12 @@ public class InstancedRenderManager {
         MemoryUtil.memPutFloat(start + 4 * 12, x);
         MemoryUtil.memPutFloat(start + 4 * 13, y);
         MemoryUtil.memPutFloat(start + 4 * 14, z);
+        //extra light
+        if (irisOn && particle instanceof MadParticle madParticle){
+            MemoryUtil.memPutFloat(start + 4 * 15, madParticle.getBloomFactor());
+        } else {
+            MemoryUtil.memPutFloat(start + 4 * 15, 1);
+        }
     }
 
     public static void prepareFinal(Camera camera, ShaderInstance shader) {
@@ -441,15 +446,12 @@ public class InstancedRenderManager {
         glBindBuffer(GL_ARRAY_BUFFER, bufferId);
         glBufferData(GL_ARRAY_BUFFER, MemoryUtil.memByteBuffer(buffer, amount() * SIZE_INSTANCE_BYTES), GL_STREAM_DRAW);
         int formerSize = 0;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             glEnableVertexAttribArray(INSTANCE_UV_INDEX + i);
             glVertexAttribPointer(INSTANCE_UV_INDEX + i, 4, GL11C.GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
             formerSize += 4 * SIZE_FLOAT_OR_INT_BYTES;
             glVertexAttribDivisor(INSTANCE_UV_INDEX + i, 1);
         }
-        glEnableVertexAttribArray(INSTANCE_XYZ_INDEX);
-        glVertexAttribPointer(INSTANCE_XYZ_INDEX, 3, GL11C.GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
-        glVertexAttribDivisor(INSTANCE_XYZ_INDEX, 1);
         return bufferId;
     }
 

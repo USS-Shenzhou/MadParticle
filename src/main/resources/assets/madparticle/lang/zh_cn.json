@@ -72,7 +72,7 @@
   "gui.mp.de.helper.scale_begin": "初始大小",
   "gui.mp.de.helper.scale_end": "结束大小",
   "gui.mp.de.helper.unwrap": "解析",
-  "gui.mp.de.helper.bloom_factor": "泛光强度",
+  "gui.mp.de.helper.bloom_factor": "额外亮度",
 
   "gui.mp.de.helper.meta.title": "元 指 令 区",
 

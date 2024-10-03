@@ -67,6 +67,13 @@ public class AddParticleHelper {
         asyncCreateParticle(option);
     }
 
+    public static void addParticleClientAsync2Async(MadParticleOption option, float roll) {
+        if (mc.level == null) {
+            return;
+        }
+        asyncCreateParticle(option, roll);
+    }
+
     public static void addParticleClient(ParticleType<?> targetParticle,
                                          SpriteFrom spriteFrom, int lifeTime,
                                          InheritableBoolean alwaysRender, int amount,
@@ -247,6 +254,44 @@ public class AddParticleHelper {
                                 fromValueAndDiffuse(option.vz(), option.vzDiffuse())
                         )
                 );
+            }
+            particleEngine.particlesToAdd.addAll(particles);
+        });
+    }
+
+    private static void asyncCreateParticle(MadParticleOption option, float roll) {
+        CompletableFuture.runAsync(() -> {
+            var particleEngine = mc.particleEngine;
+            var level = mc.level;
+            var accessor = (ParticleEngineAccessor) particleEngine;
+            var providers = accessor.getProviders();
+            int particlesCanAdd = ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue - accessor.getParticlesToAdd().size();
+            //noinspection unchecked
+            var provider = ((ParticleProvider<MadParticleOption>) providers.get(BuiltInRegistries.PARTICLE_TYPE.getKey(option.getType())));
+            LinkedList<Particle> particles = new LinkedList<>();
+            for (int i = 0; i < Math.min(option.amount(), particlesCanAdd); i++) {
+                double x = fromValueAndDiffuse(option.px(), option.xDiffuse());
+                double y = fromValueAndDiffuse(option.py(), option.yDiffuse());
+                double z = fromValueAndDiffuse(option.pz(), option.zDiffuse());
+                if (option.alwaysRender().get()) {
+                    if (ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance) {
+                        if (mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z) > getMaxParticleGenerateDistanceSqr()) {
+                            continue;
+                        }
+                    }
+                } else if (mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z) > getNormalParticleGenerateDistanceSqr()) {
+                    continue;
+                }
+                var p = provider.createParticle(option, level, x, y, z,
+                        fromValueAndDiffuse(option.vx(), option.vxDiffuse()),
+                        fromValueAndDiffuse(option.vy(), option.vyDiffuse()),
+                        fromValueAndDiffuse(option.vz(), option.vzDiffuse())
+                );
+                if (p == null) {
+                    continue;
+                }
+                p.roll = p.oRoll = roll;
+                particles.add(p);
             }
             particleEngine.particlesToAdd.addAll(particles);
         });

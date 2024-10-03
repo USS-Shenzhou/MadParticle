@@ -82,7 +82,7 @@ public class InstancedRenderManager {
         REVEAL_TEXTURE = glGenTextures();
         resetOitTexture();
         var window = Minecraft.getInstance().getWindow();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window.getWidth(), window.getHeight(), 0, GL_RGBA, GL_HALF_FLOAT, (ByteBuffer) null);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, window.getWidth(), window.getHeight(), 0, GL_RGBA, GL_HALF_FLOAT, (ByteBuffer) null);
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ACCUM_TEXTURE, 0);
@@ -288,6 +288,20 @@ public class InstancedRenderManager {
         return amount;
     }
 
+    public static int bindBuffer(long buffer) {
+        int bufferId = glGenBuffers();
+        glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+        glBufferData(GL_ARRAY_BUFFER, MemoryUtil.memByteBuffer(buffer, amount() * SIZE_INSTANCE_BYTES), GL_STREAM_DRAW);
+        int formerSize = 0;
+        for (int i = 0; i < 4; i++) {
+            glEnableVertexAttribArray(INSTANCE_UV_INDEX + i);
+            glVertexAttribPointer(INSTANCE_UV_INDEX + i, 4, GL11C.GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
+            formerSize += 4 * SIZE_FLOAT_OR_INT_BYTES;
+            glVertexAttribDivisor(INSTANCE_UV_INDEX + i, 1);
+        }
+        return bufferId;
+    }
+
     /**
      * HOTSPOT
      * Can you find a way to make it faster?
@@ -333,7 +347,7 @@ public class InstancedRenderManager {
         MemoryUtil.memPutFloat(start + 4 * 13, y);
         MemoryUtil.memPutFloat(start + 4 * 14, z);
         //extra light
-        if (irisOn && particle instanceof MadParticle madParticle){
+        if (irisOn && particle instanceof MadParticle madParticle) {
             MemoryUtil.memPutFloat(start + 4 * 15, madParticle.getBloomFactor());
         } else {
             MemoryUtil.memPutFloat(start + 4 * 15, 1);
@@ -439,20 +453,10 @@ public class InstancedRenderManager {
         glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * 4, 3 * 4);
         GL11C.glColorMask(true, true, true, true);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-    }
-
-    public static int bindBuffer(long buffer) {
-        int bufferId = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-        glBufferData(GL_ARRAY_BUFFER, MemoryUtil.memByteBuffer(buffer, amount() * SIZE_INSTANCE_BYTES), GL_STREAM_DRAW);
-        int formerSize = 0;
-        for (int i = 0; i < 4; i++) {
-            glEnableVertexAttribArray(INSTANCE_UV_INDEX + i);
-            glVertexAttribPointer(INSTANCE_UV_INDEX + i, 4, GL11C.GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
-            formerSize += 4 * SIZE_FLOAT_OR_INT_BYTES;
-            glVertexAttribDivisor(INSTANCE_UV_INDEX + i, 1);
-        }
-        return bufferId;
+        glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
+        glClearBufferfv(GL_COLOR, 0, ACCUM_INIT);
+        glClearBufferfv(GL_COLOR, 1, REVEAL_INIT);
+        glBindFramebuffer(GL_FRAMEBUFFER, Minecraft.getInstance().getMainRenderTarget().frameBufferId);
     }
 
     public static void cleanUp(long instanceMatrixBuffer, int instanceMatrixBufferId) {
@@ -463,11 +467,8 @@ public class InstancedRenderManager {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glDeleteBuffers(instanceMatrixBufferId);
         glBindVertexArray(0);
+        glDepthMask(true);
         MemoryUtil.getAllocator(false).free(instanceMatrixBuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
-        glClearBufferfv(GL_COLOR, 0, ACCUM_INIT);
-        glClearBufferfv(GL_COLOR, 1, REVEAL_INIT);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     public static class SimpleBlockPos {

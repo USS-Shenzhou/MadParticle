@@ -531,7 +531,7 @@ public class MadParticle extends TextureSheetParticle {
     public void remove() {
         super.remove();
         if (this.child != null) {
-            AddParticleHelper.addParticleClientAsync2Async(child.inheritOrContinue(this));
+            AddParticleHelper.addParticleClientAsync2Async(child.inheritOrContinue(this), this.roll);
         }
     }
 

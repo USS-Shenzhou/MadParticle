@@ -60,7 +60,7 @@ void main() {
 
     gl_Position = ProjMat * ModelViewMat * m * vec4(RELATIVE[gl_VertexID % 4], 1.0);
 
-    vertexDistance = fog_distance(instanceXYZRoll.xyz, FogShape);
+    vertexDistance = fog_distance(vec3(instanceXYZRoll.x - CamXYZ.x, instanceXYZRoll.y - CamXYZ.y, instanceXYZRoll.z - CamXYZ.z), FogShape);
     ivec4 uvControl = UV_CONTROL[gl_VertexID % 4];
     texCoord0 = vec2(instanceUV.x * uvControl.x + instanceUV.y * uvControl.y, instanceUV.z * uvControl.z + instanceUV.w * uvControl.w);
     ivec2 uv2 = ivec2(instanceUV2 & 0x0F, (instanceUV2 >> 4) & 0x0F);

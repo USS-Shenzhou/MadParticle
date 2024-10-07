@@ -1,6 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
-import cn.ussshenzhou.madparticle.EvictingLinkedHashSetQueue;
+import cn.ussshenzhou.madparticle.MultiThreadedEqualLinkedHashSetsQueue;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.designer.gui.ParticleCounterHud;
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
@@ -40,7 +40,7 @@ public class SettingPanel extends TOptionsPanel {
                     ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.maxParticleAmountOfSingleQueue = newAmount);
                     var particles = ((ParticleEngineAccessor) (Minecraft.getInstance().particleEngine)).getParticles();
                     particles.forEach((particleRenderType, p) -> {
-                        EvictingLinkedHashSetQueue<Particle> newQueue = new EvictingLinkedHashSetQueue<>(newAmount);
+                        MultiThreadedEqualLinkedHashSetsQueue<Particle> newQueue = new MultiThreadedEqualLinkedHashSetsQueue<>(newAmount);
                         newQueue.addAll(p);
                         particles.put(particleRenderType, newQueue);
                         if (particleRenderType == ModParticleRenderTypes.INSTANCED) {
@@ -55,13 +55,13 @@ public class SettingPanel extends TOptionsPanel {
                 e -> e.getContent() == getConfigRead().limitMaxParticleGenerateDistance
         )
                 .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.real_force.tooltip")));
-        int amount = getConfigRead().bufferFillerThreads;
+        int amount = getConfigRead().getBufferFillerThreads();
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.threads"),
                 Sets.newLinkedHashSet(List.of("gui.mp.de.setting.threads.zero", 6, 4, 8, 2, 12, amount == 1 ? 6 : amount)).stream().toList(),
                 i -> b -> {
                     var c = b.getSelected().getContent();
                     int a = c instanceof String ? 1 : (Integer) c;
-                    ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.bufferFillerThreads = a);
+                    ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.setBufferFillerThreads(a));
                     InstancedRenderManager.setThreads(a);
                     ParallelTickManager.setThreads(a);
                 }, entry -> entry.getContent() instanceof String ? amount == 1 : amount == (Integer) entry.getContent()

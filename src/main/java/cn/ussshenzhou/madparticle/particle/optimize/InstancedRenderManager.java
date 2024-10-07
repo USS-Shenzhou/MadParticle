@@ -51,7 +51,7 @@ public class InstancedRenderManager {
     public static final float[] ACCUM_INIT = {0, 0, 0, 0};
     public static final float[] REVEAL_INIT = {1};
 
-    private static int threads = Mth.clamp(ConfigHelper.getConfigRead(MadParticleConfig.class).bufferFillerThreads, 1, Integer.MAX_VALUE);
+    private static int threads = ConfigHelper.getConfigRead(MadParticleConfig.class).getBufferFillerThreads();
     @SuppressWarnings("unchecked")
     private static LinkedHashSet<TextureSheetParticle>[] PARTICLES = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(32768)).limit(threads).toArray(LinkedHashSet[]::new);
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);

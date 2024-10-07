@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.particle.optimize;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.madparticle.MultiThreadedEqualLinkedHashSetsQueue;
 import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
@@ -10,7 +11,9 @@ import net.minecraft.client.particle.Particle;
 
 import java.util.Collection;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 /**
  * @author USS_Shenzhou
@@ -44,7 +47,7 @@ public class ParallelTickManager {
     public static void tickList(Collection<Particle> particles) {
         count.set(0);
         boolean vanillaOnly = ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking == TakeOver.VANILLA;
-        var pickAndTick = forkJoinPool.submit(() -> particles.parallelStream().forEach(particle -> {
+        Consumer<Particle> ticker = particle -> {
             if (vanillaOnly) {
                 if (getTickType(particle) == TakeOver.TickType.ASYNC) {
                     asyncTick(particle);
@@ -58,8 +61,13 @@ public class ParallelTickManager {
                     syncTickCache.put(particle, NULL);
                 }
             }
-        }));
-        pickAndTick.join();
+        };
+        if (particles instanceof MultiThreadedEqualLinkedHashSetsQueue<Particle> multiThreadedEqualLinkedHashSetsQueue) {
+            multiThreadedEqualLinkedHashSetsQueue.forEach(ticker);
+        } else {
+            ForkJoinTask<?> pickAndTick = forkJoinPool.submit(() -> particles.parallelStream().forEach(ticker));
+            pickAndTick.join();
+        }
         syncTickCache.asMap().keySet().forEach(particle -> {
             particle.tick();
             if (!particle.isAlive()) {
@@ -75,8 +83,8 @@ public class ParallelTickManager {
 
     private static void asyncTick(Particle p) {
         p.tick();
-        count.incrementAndGet();
-        if (!p.isAlive()) {
+        //count.incrementAndGet();
+        if (p.removed) {
             removeCache.put(p, NULL);
         }
     }

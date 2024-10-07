@@ -4,6 +4,7 @@ import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.t88.config.TConfig;
+import net.minecraft.util.Mth;
 
 /**
  * @author USS_Shenzhou
@@ -12,7 +13,7 @@ public class MadParticleConfig implements TConfig {
     public int maxParticleAmountOfSingleQueue = 100000;
     public boolean limitMaxParticleGenerateDistance = false;
     public boolean noWelcomeScreen = false;
-    public int bufferFillerThreads = 8;
+    protected int bufferFillerThreads = 8;
     public TakeOver takeOverRendering = TakeOver.VANILLA;
     public TakeOver takeOverTicking = TakeOver.VANILLA;
     public boolean optimizeCommandBlockEditScreen = true;
@@ -25,5 +26,13 @@ public class MadParticleConfig implements TConfig {
     public LightCacheRefreshInterval lightCacheRefreshInterval = LightCacheRefreshInterval.FRAME;
 
     public MadParticleConfig() {
+    }
+
+    public int getBufferFillerThreads() {
+        return Mth.clamp(bufferFillerThreads, 1, 512);
+    }
+
+    public void setBufferFillerThreads(int bufferFillerThreads) {
+        this.bufferFillerThreads = bufferFillerThreads;
     }
 }

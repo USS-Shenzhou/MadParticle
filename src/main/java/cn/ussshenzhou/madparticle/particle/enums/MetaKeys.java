@@ -1,4 +1,4 @@
-package cn.ussshenzhou.madparticle.util;
+package cn.ussshenzhou.madparticle.particle.enums;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -8,7 +8,7 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 
 import javax.annotation.Nullable;
 
-import static cn.ussshenzhou.madparticle.util.MetaKeys.Util.*;
+import static cn.ussshenzhou.madparticle.particle.enums.MetaKeys.Util.*;
 
 /**
  * @author USS_Shenzhou
@@ -25,7 +25,8 @@ public enum MetaKeys {
     LIGHT("light", EXPRESSION_ARGUMENT),
     PULSE("pulse", BOOLEAN),
     PRE_CAL("preCalculate", BOOLEAN),
-    HALF_PRECISION("halfPrecision", BOOLEAN);
+    HALF_PRECISION("halfPrecision", BOOLEAN),
+    INDEXED("indexed", BOOLEAN);
 
     private final String key;
     public final ArgumentType<?> inputArgument;
@@ -52,6 +53,7 @@ public enum MetaKeys {
             case "pulse" -> PULSE;
             case "preCalculate" -> PRE_CAL;
             case "halfPrecision" -> HALF_PRECISION;
+            case "indexed" -> INDEXED;
             default -> null;
         };
     }

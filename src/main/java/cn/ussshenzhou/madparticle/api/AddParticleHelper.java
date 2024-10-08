@@ -28,14 +28,13 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.common.util.LogicalSidedProvider;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
-import static cn.ussshenzhou.madparticle.util.MetaKeys.*;
+import static cn.ussshenzhou.madparticle.particle.enums.MetaKeys.*;
 
 /**
  * @author USS_Shenzhou

@@ -10,7 +10,6 @@ import cn.ussshenzhou.madparticle.api.AddParticleHelper;
 import cn.ussshenzhou.madparticle.util.MathHelper;
 import cn.ussshenzhou.madparticle.util.MovementHelper;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -28,12 +27,11 @@ import net.minecraft.world.phys.Vec3;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.List;
 
-import static cn.ussshenzhou.madparticle.util.MetaKeys.*;
+import static cn.ussshenzhou.madparticle.particle.enums.MetaKeys.*;
 
 /**
  * @author USS_Shenzhou

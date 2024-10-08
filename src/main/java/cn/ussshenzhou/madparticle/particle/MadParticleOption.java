@@ -4,7 +4,7 @@ import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
 import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
-import cn.ussshenzhou.madparticle.util.MetaKeys;
+import cn.ussshenzhou.madparticle.particle.enums.MetaKeys;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;

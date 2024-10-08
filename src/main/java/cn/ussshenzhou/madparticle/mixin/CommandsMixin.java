@@ -31,7 +31,7 @@ public class CommandsMixin {
                 //execute ... mp ...
                 || pCommand.contains(" mp ")) {
             if (pSource.hasPermission(2)){
-                CompletableFuture.runAsync(() -> MadParticleCommand.fastSend(pCommand, pSource, pSource.getLevel().getPlayers(serverPlayer -> true), dispatcher));
+                CompletableFuture.runAsync(() -> MadParticleCommand.fastSend(pCommand, pSource, dispatcher));
             }
             ci.cancel();
         }

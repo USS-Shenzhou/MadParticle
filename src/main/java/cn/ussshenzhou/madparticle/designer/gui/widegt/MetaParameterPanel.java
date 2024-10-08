@@ -2,7 +2,7 @@ package cn.ussshenzhou.madparticle.designer.gui.widegt;
 
 import cn.ussshenzhou.madparticle.designer.gui.panel.ParametersScrollPanel;
 import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
-import cn.ussshenzhou.madparticle.util.MetaKeys;
+import cn.ussshenzhou.madparticle.particle.enums.MetaKeys;
 import cn.ussshenzhou.t88.gui.advanced.TSimpleConstrainedEditBox;
 import cn.ussshenzhou.t88.gui.advanced.TSuggestedEditBox;
 import cn.ussshenzhou.t88.gui.event.TWidgetContentUpdatedEvent;

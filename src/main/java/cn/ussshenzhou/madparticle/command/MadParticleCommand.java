@@ -7,7 +7,7 @@ import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
-import cn.ussshenzhou.madparticle.util.MetaKeys;
+import cn.ussshenzhou.madparticle.particle.enums.MetaKeys;
 import cn.ussshenzhou.t88.network.NetworkHelper;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -33,7 +33,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.command.EnumArgument;
 
 import javax.annotation.Nullable;
@@ -158,7 +157,7 @@ public class MadParticleCommand {
         sendTada = false;
     }
 
-    private static MadParticleOption assembleOption(String commandString, CommandSourceStack sourceStack, CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static MadParticleOption assembleOption(String commandString, CommandSourceStack sourceStack, CommandDispatcher<CommandSourceStack> dispatcher) {
         initializeFlags();
         String[] commandStrings = commandString.split(" expireThen ");
         MadParticleOption child = null;
@@ -251,22 +250,33 @@ public class MadParticleCommand {
         return father;
     }
 
-    public static void fastSend(String commandString, CommandSourceStack sourceStack, Collection<ServerPlayer> players, CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void fastSend(String commandString, CommandSourceStack sourceStack, CommandDispatcher<CommandSourceStack> dispatcher) {
         InheritableCommandDispatcher<CommandSourceStack> inheritableCommandDispatcher = new InheritableCommandDispatcher<>(dispatcher.getRoot());
         ParseResults<CommandSourceStack> parseResults = inheritableCommandDispatcher.parse(new InheritableStringReader(commandString), sourceStack);
         CommandContext<CommandSourceStack> ctPre = parseResults.getContext().build(commandString);
-        //execute at/as run mp
+        Collection<ServerPlayer> playerList;
+        try {
+            playerList = ctPre.getArgument("whoCanSee", EntitySelector.class).findPlayers(ctPre.getSource());
+        } catch (CommandSyntaxException e) {
+            return;
+        }
         CommandContext<CommandSourceStack> ctExe = CommandHelper.getContextHasArgument(ctPre, "targets", EntitySelector.class);
-        if (ctExe != null) {
+        if (ctExe == null) {
+            var meta = ctPre.getArgument("meta", CompoundTag.class);
+            if (meta.getBoolean(MetaKeys.INDEXED.get())) {
+                IndexedCommandManager.serverPreform(ctPre, playerList, commandString);
+                return;
+            }
+            sendToAssigned(commandString, sourceStack, playerList, dispatcher);
+        } else {
+            //execute at/as run mp
             try {
                 Collection<? extends ServerPlayer> entities = EntityArgument.getPlayers(ctExe, "targets");
                 for (Entity entity : entities) {
-                    CompletableFuture.runAsync(() -> sendToAssigned(commandString, ctPre.getSource().withEntity(entity).withPosition(entity.position()), players, dispatcher));
+                    CompletableFuture.runAsync(() -> sendToAssigned(commandString, ctPre.getSource().withEntity(entity).withPosition(entity.position()), playerList, dispatcher));
                 }
             } catch (CommandSyntaxException ignored) {
             }
-        } else {
-            sendToAssigned(commandString, sourceStack, players, dispatcher);
         }
     }
 

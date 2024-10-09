@@ -44,6 +44,7 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.neoforged.fml.ModList;
 
+import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -518,7 +519,12 @@ public class ParametersScrollPanel extends TScrollPanel {
                 (editBox.getValue().isEmpty() || ((EditBoxAccessor) editBox).getTextColor() == 0x37e2ff)
                         && ((EditBoxAccessor) editBox).isIsEditable()
         ) {
-            editBox.setValue(value.toString());
+            if (value instanceof Double || value instanceof Float) {
+                DecimalFormat df = new DecimalFormat("#.###");
+                editBox.setValue(df.format(value));
+            } else {
+                editBox.setValue(value.toString());
+            }
             editBox.setTextColor(0x37e2ff);
         }
     }

@@ -83,7 +83,7 @@ public class ParallelTickManager {
 
     private static void asyncTick(Particle p) {
         p.tick();
-        //count.incrementAndGet();
+        count.incrementAndGet();
         if (p.removed) {
             removeCache.put(p, NULL);
         }

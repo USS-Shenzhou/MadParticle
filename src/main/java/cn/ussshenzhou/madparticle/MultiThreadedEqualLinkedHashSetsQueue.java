@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle;
 
 import cn.ussshenzhou.t88.config.ConfigHelper;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import com.google.errorprone.annotations.DoNotCall;
 import org.jetbrains.annotations.NotNull;
@@ -11,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -70,7 +72,9 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
     @DoNotCall
     @Override
     public @NotNull Iterator<E> iterator() {
-        return Arrays.stream(linkedHashSets).flatMap(Set::stream).iterator();
+        return Iterators.concat(Arrays.stream(linkedHashSets)
+                .map(Set::iterator)
+                .iterator());
     }
 
     @SuppressWarnings("NullableProblems")

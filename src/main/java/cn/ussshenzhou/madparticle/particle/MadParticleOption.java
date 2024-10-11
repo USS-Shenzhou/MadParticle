@@ -292,26 +292,30 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                 friction, gravity,
                 collision == InheritableBoolean.INHERIT ? InheritableBoolean.wrap(fatherParticle.collision) : collision,
                 bounceTime == Integer.MAX_VALUE ? fatherParticle.bounceTime : bounceTime,
-                horizontalRelativeCollisionDiffuse == Float.MAX_VALUE ? fatherParticle.horizontalRelativeCollisionDiffuse : horizontalRelativeCollisionDiffuse,
-                verticalRelativeCollisionBounce == Float.MAX_VALUE ? fatherParticle.verticalRelativeCollisionBounce : verticalRelativeCollisionBounce,
+                isInherited(horizontalRelativeCollisionDiffuse) ? fatherParticle.horizontalRelativeCollisionDiffuse : horizontalRelativeCollisionDiffuse,
+                isInherited(verticalRelativeCollisionBounce) ? fatherParticle.verticalRelativeCollisionBounce : verticalRelativeCollisionBounce,
                 afterCollisionFriction, afterCollisionGravity,
                 interactWithEntity == InheritableBoolean.INHERIT ? InheritableBoolean.wrap(fatherParticle.interactWithEntity) : interactWithEntity,
-                horizontalInteractFactor == Float.MAX_VALUE ? fatherParticle.horizontalInteractFactor : horizontalInteractFactor,
-                verticalInteractFactor == Float.MAX_VALUE ? fatherParticle.verticalInteractFactor : verticalInteractFactor,
+                isInherited(horizontalInteractFactor) ? fatherParticle.horizontalInteractFactor : horizontalInteractFactor,
+                isInherited(verticalInteractFactor) ? fatherParticle.verticalInteractFactor : verticalInteractFactor,
                 renderType,
-                r == Float.MAX_VALUE ? fatherParticle.getColor().x() : r,
-                g == Float.MAX_VALUE ? fatherParticle.getColor().y() : g,
-                b == Float.MAX_VALUE ? fatherParticle.getColor().z() : b,
+                isInherited(r) ? fatherParticle.getColor().x() : r,
+                isInherited(g) ? fatherParticle.getColor().y() : g,
+                isInherited(b) ? fatherParticle.getColor().z() : b,
                 beginAlpha, endAlpha,
                 alphaMode == ChangeMode.INHERIT ? fatherParticle.alphaMode : alphaMode,
                 beginScale, endScale,
                 scaleMode == ChangeMode.INHERIT ? fatherParticle.scaleMode : scaleMode,
                 haveChild,
                 child,
-                rollSpeed == Float.MAX_VALUE ? fatherParticle.rollSpeed : rollSpeed,
+                isInherited(rollSpeed) ? fatherParticle.rollSpeed : rollSpeed,
                 xDeflection, xDeflectionAfterCollision, zDeflection, zDeflectionAfterCollision,
-                bloomFactor == Float.MAX_VALUE ? fatherParticle.bloomFactor : bloomFactor,
+                isInherited(bloomFactor) ? fatherParticle.bloomFactor : bloomFactor,
                 meta
         );
+    }
+
+    private static boolean isInherited(float f) {
+        return f == Float.MAX_VALUE || Float.isInfinite(f);
     }
 }

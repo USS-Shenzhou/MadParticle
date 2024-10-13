@@ -175,6 +175,9 @@ public class MadParticle extends TextureSheetParticle {
             maxError = meta.getInt(LIFE_ERROR.get()) / 100f;
         }
         lifetime *= (1 + maxError * MathHelper.signedRandom(random));
+        if (lifetime <= 0) {
+            lifetime = 1;
+        }
     }
 
     @SuppressWarnings("SpellCheckingInspection")

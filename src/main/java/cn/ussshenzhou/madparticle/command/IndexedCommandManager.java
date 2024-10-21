@@ -10,16 +10,12 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import net.irisshaders.iris.helpers.Tri;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -41,11 +37,26 @@ public class IndexedCommandManager {
         if (INDEXED_COMMANDS.containsValue(command)) {
             index = INDEXED_COMMANDS.inverse().get(command);
         } else {
-            index = ThreadLocalRandom.current().nextInt();
+            do {
+                index = randomIndex();
+            } while (INDEXED_COMMANDS.containsKey(index));
             INDEXED_COMMANDS.put(index, command);
         }
         var pos = context.getSource().getPosition();
-        players.forEach(player -> NetworkHelper.sendToPlayer(player, new IndexedCommandPacket(pos.x, pos.y, pos.z, index)));
+        int finalIndex = index;
+        players.forEach(player -> NetworkHelper.sendToPlayer(player, new IndexedCommandPacket(pos.x, pos.y, pos.z, finalIndex)));
+    }
+
+    private static int randomIndex() {
+        int index;
+        if (INDEXED_COMMANDS.size() < 512) {
+            index = ThreadLocalRandom.current().nextInt(16384);
+        } else if (INDEXED_COMMANDS.size() < 65536){
+            index = ThreadLocalRandom.current().nextInt(2097152);
+        } else {
+            index = ThreadLocalRandom.current().nextInt();
+        }
+        return index;
     }
 
     public static void clientHandle(IndexedCommandPacket packet) {
@@ -62,6 +73,10 @@ public class IndexedCommandManager {
         if (packet == null) {
             return;
         }
+        if (INDEXED_COMMANDS.get(reply.index) != null) {
+            preform(packet.x, packet.y, packet.z, INDEXED_COMMANDS.get(packet.index));
+            return;
+        }
         CLIENT_BUFFER.remove(packet.index);
         INDEXED_COMMANDS.put(reply.index, reply.command);
         preform(packet.x, packet.y, packet.z, reply.command);
@@ -76,5 +91,10 @@ public class IndexedCommandManager {
 
     public static String getCommand(int index) {
         return INDEXED_COMMANDS.get(index);
+    }
+
+    public static void clear(){
+        INDEXED_COMMANDS.clear();
+        CLIENT_BUFFER.clear();
     }
 }

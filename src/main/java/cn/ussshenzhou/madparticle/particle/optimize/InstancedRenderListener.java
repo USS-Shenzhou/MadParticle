@@ -1,5 +1,6 @@
 package cn.ussshenzhou.madparticle.particle.optimize;
 
+import cn.ussshenzhou.madparticle.command.IndexedCommandManager;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.LevelEvent;
@@ -15,5 +16,6 @@ public class InstancedRenderListener {
     @SubscribeEvent
     public static void onChangeDimension(LevelEvent.Unload event) {
         InstancedRenderManager.clear();
+        IndexedCommandManager.clear();
     }
 }

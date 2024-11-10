@@ -33,11 +33,11 @@ public class VoxelShapeHelper {
 
     private static ArrayVoxelShape setVoxelShape(ArrayVoxelShape thiz, double x0, double x1, double y0, double y1, double z0, double z1) {
         thiz.xs.set(0, x0);
-        thiz.xs.set(0, x1);
+        thiz.xs.set(1, x1);
         thiz.ys.set(0, y0);
-        thiz.ys.set(0, y1);
+        thiz.ys.set(1, y1);
         thiz.zs.set(0, z0);
-        thiz.zs.set(0, z1);
+        thiz.zs.set(1, z1);
         return thiz;
     }
 

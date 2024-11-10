@@ -72,54 +72,48 @@ public class MovementHelper {
         );
         BlockGetter cachedBlockGetter = null;
         long cachedBlockGetterPos = 0;
-        while (true) {
-            if (cursor.advance()) {
-                int i = cursor.nextX();
-                int j = cursor.nextY();
-                int k = cursor.nextZ();
-                int l = cursor.getNextType();
-                if (l == 3) {
-                    continue;
-                }
+        while (cursor.advance()) {
+            int i = cursor.nextX();
+            int j = cursor.nextY();
+            int k = cursor.nextZ();
+            int l = cursor.getNextType();
 
+            if (l != 3) {
                 BlockGetter blockgetter;
                 int x = SectionPos.blockToSectionCoord(i);
                 int z = SectionPos.blockToSectionCoord(k);
-                long p = ChunkPos.asLong(x, z);
-                if (cachedBlockGetter != null && cachedBlockGetterPos == p) {
+                long c = ChunkPos.asLong(i, j);
+                if (cachedBlockGetter != null && cachedBlockGetterPos == z) {
                     blockgetter = cachedBlockGetter;
                 } else {
                     BlockGetter b = level.getChunkForCollisions(x, z);
                     cachedBlockGetter = b;
-                    cachedBlockGetterPos = p;
+                    cachedBlockGetterPos = c;
                     blockgetter = b;
                 }
 
-                if (blockgetter == null) {
-                    continue;
-                }
-                pos.set(i, j, k);
-                BlockState blockstate = blockgetter.getBlockState(pos);
-                if (onlySuffocatingBlocks && !blockstate.isSuffocating(blockgetter, pos) || l == 1 && !blockstate.hasLargeCollisionShape() || l == 2 && !blockstate.is(Blocks.MOVING_PISTON)) {
-                    continue;
-                }
-                VoxelShape voxelshape = blockstate.getCollisionShape(level, pos, context);
-                if (voxelshape == Shapes.block()) {
-                    if (!box.intersects(i, j, k, (double) i + 1.0D, (double) j + 1.0D, (double) k + 1.0D)) {
-                        continue;
-                    }
+                if (blockgetter != null) {
+                    pos.set(i, j, k);
+                    BlockState blockstate = blockgetter.getBlockState(pos);
 
-                    list.add(voxelshape.move(i, j, k));
-                    continue;
+                    if ((!onlySuffocatingBlocks || blockstate.isSuffocating(blockgetter, pos))
+                            && (l != 1 || blockstate.hasLargeCollisionShape())
+                            && (l != 2 || blockstate.is(Blocks.MOVING_PISTON))) {
+
+                        VoxelShape voxelshape = blockstate.getCollisionShape(level, pos, context);
+                        if (voxelshape == Shapes.block()) {
+                            if (box.intersects(i, j, k, (double) i + 1.0, (double) j + 1.0, (double) k + 1.0)) {
+                                list.add(voxelshape.move(i, j, k));
+                            }
+                        } else {
+                            VoxelShape voxelshape1 = voxelshape.move(i, j, k);
+                            if (!voxelshape1.isEmpty() && Shapes.joinIsNotEmpty(voxelshape1, entityShape, BooleanOp.AND)) {
+                                list.add(voxelshape1);
+                            }
+                        }
+                    }
                 }
-                VoxelShape voxelShape1 = voxelshape.move(i, j, k);
-                if (voxelShape1.isEmpty() || !Shapes.joinIsNotEmpty(voxelShape1, entityShape, BooleanOp.AND)) {
-                    continue;
-                }
-                list.add(voxelShape1);
-                continue;
             }
-            break;
         }
     }
 

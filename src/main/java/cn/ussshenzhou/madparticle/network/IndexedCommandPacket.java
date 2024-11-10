@@ -29,7 +29,7 @@ public class IndexedCommandPacket {
         x = buf.readDouble();
         y = buf.readDouble();
         z = buf.readDouble();
-        index = buf.readInt();
+        index = buf.readVarInt();
     }
 
     @Encoder
@@ -37,7 +37,7 @@ public class IndexedCommandPacket {
         buf.writeDouble(x);
         buf.writeDouble(y);
         buf.writeDouble(z);
-        buf.writeInt(index);
+        buf.writeVarInt(index);
     }
 
     @ClientHandler

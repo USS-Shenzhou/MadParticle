@@ -317,34 +317,40 @@ public class InstancedRenderManager {
     public static void fillBuffer(long buffer, TextureSheetParticle particle, int index, float partialTicks, SimpleBlockPos simpleBlockPosSingle) {
         long start = buffer + (long) index * SIZE_INSTANCE_BYTES;
         //xyz roll
-        float x = Mth.lerp(partialTicks, (float) particle.xo, (float) particle.x);
-        float y = Mth.lerp(partialTicks, (float) particle.yo, (float) particle.y);
-        float z = Mth.lerp(partialTicks, (float) particle.zo, (float) particle.z);
-        MemoryUtil.memPutFloat(start + 4 * 0, x);
-        MemoryUtil.memPutFloat(start + 4 * 1, y);
-        MemoryUtil.memPutFloat(start + 4 * 2, z);
-        MemoryUtil.memPutFloat(start + 4 * 3, Mth.lerp(partialTicks, particle.oRoll, particle.roll));
+        float x = (float) (particle.xo + partialTicks * (particle.x - particle.xo));
+        float y = (float) (particle.yo + partialTicks * (particle.y - particle.yo));
+        float z = (float) (particle.zo + partialTicks * (particle.z - particle.zo));
+        //start + 4 * 0
+        MemoryUtil.memPutFloat(start + 0, x);
+        MemoryUtil.memPutFloat(start + 4, y);
+        MemoryUtil.memPutFloat(start + 8, z);
+        MemoryUtil.memPutFloat(start + 12, particle.oRoll + partialTicks * (particle.roll - particle.oRoll));
         //uv
         var sprite = particle.sprite;
-        MemoryUtil.memPutShort(start + ROW0_SIZE + 2 * 0, Float.floatToFloat16(sprite.getU0()));
-        MemoryUtil.memPutShort(start + ROW0_SIZE + 2 * 1, Float.floatToFloat16(sprite.getU1()));
-        MemoryUtil.memPutShort(start + ROW0_SIZE + 2 * 2, Float.floatToFloat16(sprite.getV0()));
-        MemoryUtil.memPutShort(start + ROW0_SIZE + 2 * 3, Float.floatToFloat16(sprite.getV1()));
+        //start + ROW0_SIZE + 2 * 0
+        MemoryUtil.memPutShort(start + 16, Float.floatToFloat16(sprite.u0));
+        MemoryUtil.memPutShort(start + 18, Float.floatToFloat16(sprite.u1));
+        MemoryUtil.memPutShort(start + 20, Float.floatToFloat16(sprite.v0));
+        MemoryUtil.memPutShort(start + 22, Float.floatToFloat16(sprite.v1));
         //color
-        MemoryUtil.memPutShort(start + ROW0_SIZE + ROW1_SIZE + 2 * 0, Float.floatToFloat16(particle.rCol));
-        MemoryUtil.memPutShort(start + ROW0_SIZE + ROW1_SIZE + 2 * 1, Float.floatToFloat16(particle.gCol));
-        MemoryUtil.memPutShort(start + ROW0_SIZE + ROW1_SIZE + 2 * 2, Float.floatToFloat16(particle.bCol));
-        MemoryUtil.memPutShort(start + ROW0_SIZE + ROW1_SIZE + 2 * 3, Float.floatToFloat16(particle.alpha));
+        //start + ROW0_SIZE + ROW1_SIZE + 2 * 0
+        MemoryUtil.memPutShort(start + 24, Float.floatToFloat16(particle.rCol));
+        MemoryUtil.memPutShort(start + 26, Float.floatToFloat16(particle.gCol));
+        MemoryUtil.memPutShort(start + 28, Float.floatToFloat16(particle.bCol));
+        MemoryUtil.memPutShort(start + 30, Float.floatToFloat16(particle.alpha));
         //size extraLight
-        MemoryUtil.memPutFloat(start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + 4 * 0, particle.getQuadSize(partialTicks));
+        //start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + 4 * 0
+        MemoryUtil.memPutFloat(start + 32, particle.getQuadSize(partialTicks));
+        //start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + 4 * 1
         if (irisOn && particle instanceof MadParticle madParticle) {
-            MemoryUtil.memPutFloat(start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + 4 * 1, madParticle.getBloomFactor());
+            MemoryUtil.memPutFloat(start + 36, madParticle.getBloomFactor());
         } else {
-            MemoryUtil.memPutFloat(start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + 4 * 1, 1);
+            MemoryUtil.memPutFloat(start + 36, 1);
         }
         //uv2
+        //start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + ROW3_SIZE
         if (forceMaxLight) {
-            MemoryUtil.memPutByte(start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + ROW3_SIZE, (byte) 0b1111_1111);
+            MemoryUtil.memPutByte(start + 40, (byte) 0b1111_1111);
         } else {
             simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
             byte l;
@@ -356,7 +362,7 @@ public class InstancedRenderManager {
             } else {
                 l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, particle, simpleBlockPosSingle);
             }
-            MemoryUtil.memPutByte(start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + ROW3_SIZE, l);
+            MemoryUtil.memPutByte(start + 40, l);
         }
     }
 

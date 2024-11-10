@@ -174,7 +174,7 @@ public class MadParticle extends TextureSheetParticle {
         if (meta.contains(LIFE_ERROR.get())) {
             maxError = meta.getInt(LIFE_ERROR.get()) / 100f;
         }
-        lifetime *= (1 + maxError * MathHelper.signedRandom(random));
+        lifetime = (int) (lifetime * (1 + maxError * MathHelper.signedRandom(random)));
         if (lifetime <= 0) {
             lifetime = 1;
         }
@@ -318,7 +318,9 @@ public class MadParticle extends TextureSheetParticle {
 
     private void tickAlphaAndSize() {
         //alpha
-        this.alpha = alphaMode.lerp(beginAlpha, endAlpha, age, lifetime);
+        if (endAlpha != beginAlpha) {
+            this.alpha = alphaMode.lerp(beginAlpha, endAlpha, age, lifetime);
+        }
         //size
         if (endScale != beginScale) {
             float newScale = scaleMode.lerp(beginScale, endScale, age, lifetime);

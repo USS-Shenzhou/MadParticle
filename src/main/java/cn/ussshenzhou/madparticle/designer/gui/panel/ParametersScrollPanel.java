@@ -438,8 +438,6 @@ public class ParametersScrollPanel extends TScrollPanel {
             Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(InheritableFloatArgument.inheritableFloat()));
             bloomStrength.getComponent().setArgument(InheritableFloatArgument.inheritableFloat(1, 255));
             Stream.of(alpha, scale).forEach(button -> button.addElement(ChangeMode.INHERIT));
-
-            amount.getComponent().setEditable(false);
         } else {
             spriteFrom.removeElement(SpriteFrom.INHERIT);
             lifeTime.getComponent().setArgument(IntegerArgumentType.integer(0));
@@ -454,7 +452,6 @@ public class ParametersScrollPanel extends TScrollPanel {
             Stream.of(r, g, b).forEach(editBox -> editBox.getComponent().setArgument(FloatArgumentType.floatArg()));
             bloomStrength.getComponent().setArgument(FloatArgumentType.floatArg(1, 255));
             Stream.of(alpha, scale).forEach(button -> button.removeElement(ChangeMode.INHERIT));
-            amount.getComponent().setEditable(true);
         }
     }
 

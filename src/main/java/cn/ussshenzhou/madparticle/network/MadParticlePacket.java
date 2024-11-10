@@ -33,7 +33,7 @@ public class MadParticlePacket {
 
     @ClientHandler
     public void clientHandler(IPayloadContext context) {
-        AddParticleHelper.addParticleClient(particleOption);
+        AddParticleHelper.addParticleClientAsync2Async(particleOption);
     }
 
 }

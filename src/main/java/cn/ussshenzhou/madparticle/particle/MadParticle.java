@@ -19,6 +19,7 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.phys.AABB;
@@ -174,7 +175,7 @@ public class MadParticle extends TextureSheetParticle {
         if (meta.contains(LIFE_ERROR.get())) {
             maxError = meta.getInt(LIFE_ERROR.get()) / 100f;
         }
-        lifetime *= (1 + maxError * MathHelper.signedRandom(random));
+        lifetime = (int) (lifetime * (1 + maxError * MathHelper.signedRandom(random)));
         if (lifetime <= 0) {
             lifetime = 1;
         }
@@ -318,7 +319,9 @@ public class MadParticle extends TextureSheetParticle {
 
     private void tickAlphaAndSize() {
         //alpha
-        this.alpha = alphaMode.lerp(beginAlpha, endAlpha, age, lifetime);
+        if (endAlpha != beginAlpha) {
+            this.alpha = alphaMode.lerp(beginAlpha, endAlpha, age, lifetime);
+        }
         //size
         if (endScale != beginScale) {
             float newScale = scaleMode.lerp(beginScale, endScale, age, lifetime);

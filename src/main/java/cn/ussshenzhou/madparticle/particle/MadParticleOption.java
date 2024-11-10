@@ -276,7 +276,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                 spriteFrom == SpriteFrom.INHERIT ? fatherParticle.spriteFrom : spriteFrom,
                 lifeTime == Integer.MAX_VALUE ? fatherParticle.getLifetime() : lifeTime,
                 alwaysRender,
-                1,
+                amount,
                 px == Double.MAX_VALUE ? fatherParticle.getPos().x : px,
                 py == Double.MAX_VALUE ? fatherParticle.getPos().y : py,
                 pz == Double.MAX_VALUE ? fatherParticle.getPos().z : pz,

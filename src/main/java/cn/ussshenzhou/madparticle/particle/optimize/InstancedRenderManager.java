@@ -207,14 +207,16 @@ public class InstancedRenderManager {
         long instanceMatrixBufferBaseAddress = MemoryUtil.nmemAlloc((long) amount * SIZE_INSTANCE_BYTES);
         prepareShader(textureManager);
         //-----fill vbo
+        int actualAmount;
         if (threads <= 1) {
-            amount = renderSync(instanceMatrixBufferBaseAddress,
+            actualAmount = renderSync(instanceMatrixBufferBaseAddress,
                     instanceMatrixBufferBaseAddress + (long) amount * INSTANCE0_SIZE,
                     camera, partialTicks, clippingHelper);
         } else {
             renderAsync(instanceMatrixBufferBaseAddress,
                     instanceMatrixBufferBaseAddress + (long) amount * INSTANCE0_SIZE,
                     camera, partialTicks, clippingHelper);
+            actualAmount = amount;
         }
         //-----set opengl state
         glBindVertexArray(VAO);
@@ -224,7 +226,7 @@ public class InstancedRenderManager {
         prepareFinal(camera, shader);
         //-----draw
         glColorMask(true, true, true, true);
-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, amount);
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, actualAmount);
         if (isOitOn()) {
             oitPost();
         } else {
@@ -250,24 +252,25 @@ public class InstancedRenderManager {
     @SuppressWarnings("unchecked")
     public static void renderAsync(long buffer0, long buffer1, Camera camera, float partialTicks, Frustum clippingHelper) {
         CompletableFuture<Void>[] futures = new CompletableFuture[threads - 1];
-        for (int i = 0; i < futures.length; i++) {
-            int group = i;
-            futures[i] = CompletableFuture.runAsync(
-                    () -> renderGroup(group, buffer0, buffer1, partialTicks, clippingHelper),
+        int index = 0;
+        for (int group = 0; group < futures.length; group++) {
+            var set = PARTICLES[group];
+            int startIndex = index;
+            futures[group] = CompletableFuture.runAsync(
+                    () -> renderGroup(set, startIndex, buffer0, buffer1, partialTicks, clippingHelper),
                     fixedThreadPool
             );
+            index += set.size();
         }
-        renderGroup(futures.length, buffer0, buffer1, partialTicks, clippingHelper);
+        var lastSet = PARTICLES[futures.length];
+        renderGroup(lastSet, index, buffer0, buffer1, partialTicks, clippingHelper);
         CompletableFuture.allOf(futures).join();
     }
 
-    private static void renderGroup(int group, long buffer0, long buffer1, float partialTicks, Frustum clippingHelper) {
+    private static void renderGroup(LinkedHashSet<TextureSheetParticle> set, int index,
+                                    long buffer0, long buffer1, float partialTicks, Frustum clippingHelper) {
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
-        int index = 0;
-        for (int i = 0; i < group; i++) {
-            index += PARTICLES[i].size();
-        }
-        for (TextureSheetParticle particle : PARTICLES[group]) {
+        for (TextureSheetParticle particle : set) {
             fillBuffer(buffer0, buffer1, particle, index, partialTicks, simpleBlockPosSingle);
             index++;
         }

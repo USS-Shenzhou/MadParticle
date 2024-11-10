@@ -25,7 +25,6 @@ import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import org.lwjgl.opengl.*;
 import org.lwjgl.system.MemoryUtil;
 
 import java.lang.reflect.Field;
@@ -40,14 +39,29 @@ import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 import static cn.ussshenzhou.madparticle.MadParticle.irisOn;
-import static org.lwjgl.opengl.GL40C.*;
+import static org.lwjgl.opengl.GL33C.*;
 
 /**
  * @author USS_Shenzhou
  */
 public class InstancedRenderManager {
+    /**
+     * <pre>{@code
+     * struct Instance0 {
+     *     float4 instanceXYZRoll;
+     *     half4 instanceUV;
+     *     half4 instanceColor;
+     *     float2 sizeExtraLight;
+     * }
+     * struct Instance1 {
+     *     ubyte instanceUV2;
+     * }
+     * }</pre>
+     */
     public static final int ROW0_SIZE = 4 * 4, ROW1_SIZE = 2 * 4, ROW2_SIZE = 2 * 4, ROW3_SIZE = 4 * 2, ROW4_SIZE = 1;
-    public static final int SIZE_INSTANCE_BYTES = ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + ROW3_SIZE + ROW4_SIZE;
+    public static final int INSTANCE0_SIZE = ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + ROW3_SIZE;
+    public static final int INSTANCE1_SIZE = ROW4_SIZE;
+    public static final int SIZE_INSTANCE_BYTES = INSTANCE0_SIZE + INSTANCE1_SIZE;
     public static final float[] ACCUM_INIT = {0, 0, 0, 0};
     public static final float[] REVEAL_INIT = {1};
 
@@ -57,27 +71,16 @@ public class InstancedRenderManager {
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
     private static final LightCache LIGHT_CACHE = new LightCache();
     private static boolean forceMaxLight = false;
-    private static final int VAO, EBO, OIT_FBO, ACCUM_TEXTURE, REVEAL_TEXTURE, POST_VAO, POST_VBO;
+    private static final int VAO, OIT_FBO, ACCUM_TEXTURE, REVEAL_TEXTURE, POST_VAO, POST_VBO;
 
     static {
         NeoForge.EVENT_BUS.addListener(InstancedRenderManager::checkForceMaxLight);
         NeoForge.EVENT_BUS.addListener(InstancedRenderManager::onWindowResize);
         VAO = glGenVertexArrays();
-        EBO = glGenBuffers();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        var ebo = new int[]{
-                0, 1, 2,
-                2, 3, 0
-        };
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, ebo, GL_STATIC_DRAW);
         OIT_FBO = glGenFramebuffers();
         ACCUM_TEXTURE = glGenTextures();
         REVEAL_TEXTURE = glGenTextures();
         resetOitTexture();
-        var window = Minecraft.getInstance().getWindow();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, window.getWidth(), window.getHeight(), 0, GL_RGBA, GL_HALF_FLOAT, (ByteBuffer) null);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ACCUM_TEXTURE, 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, REVEAL_TEXTURE, 0);
         var translucentDrawBuffers = new int[]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
@@ -196,29 +199,32 @@ public class InstancedRenderManager {
     }
 
     public static void render(Camera camera, float partialTicks, Frustum clippingHelper, TextureManager textureManager) {
-        if (amount() == 0) {
+        int amount = amount();
+        if (amount == 0) {
             return;
         }
         //-----prepare var
-        long instanceMatrixBufferBaseAddress = MemoryUtil.getAllocator(false).calloc(1, (long) amount() * SIZE_INSTANCE_BYTES);
-        int amount;
+        long instanceMatrixBufferBaseAddress = MemoryUtil.nmemAlloc((long) amount * SIZE_INSTANCE_BYTES);
         prepareShader(textureManager);
         //-----fill vbo
         if (threads <= 1) {
-            amount = renderSync(instanceMatrixBufferBaseAddress, camera, partialTicks, clippingHelper);
+            amount = renderSync(instanceMatrixBufferBaseAddress,
+                    instanceMatrixBufferBaseAddress + (long) amount * INSTANCE0_SIZE,
+                    camera, partialTicks, clippingHelper);
         } else {
-            amount = renderAsync(instanceMatrixBufferBaseAddress, camera, partialTicks, clippingHelper);
+            renderAsync(instanceMatrixBufferBaseAddress,
+                    instanceMatrixBufferBaseAddress + (long) amount * INSTANCE0_SIZE,
+                    camera, partialTicks, clippingHelper);
         }
         //-----set opengl state
         glBindVertexArray(VAO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        int instanceMatrixBufferId = bindBuffer(instanceMatrixBufferBaseAddress);
+        int instanceMatrixBufferId = bindBuffer(instanceMatrixBufferBaseAddress, amount);
         ShaderInstance shader = RenderSystem.getShader();
         assert shader != null;
         prepareFinal(camera, shader);
         //-----draw
-        GL11C.glColorMask(true, true, true, true);
-        GL31C.glDrawElementsInstanced(4, 6, GL11C.GL_UNSIGNED_INT, 0, amount);
+        glColorMask(true, true, true, true);
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, amount);
         if (isOitOn()) {
             oitPost();
         } else {
@@ -242,88 +248,84 @@ public class InstancedRenderManager {
     }
 
     @SuppressWarnings("unchecked")
-    public static int renderAsync(long instanceMatrixBufferBaseAddress, Camera camera, float partialTicks, Frustum clippingHelper) {
-        CompletableFuture<Void>[] futures = new CompletableFuture[threads];
-        for (int i = 0; i < threads; i++) {
-            int finalI = i;
+    public static void renderAsync(long buffer0, long buffer1, Camera camera, float partialTicks, Frustum clippingHelper) {
+        CompletableFuture<Void>[] futures = new CompletableFuture[threads - 1];
+        for (int i = 0; i < futures.length; i++) {
+            int group = i;
             futures[i] = CompletableFuture.runAsync(
-                    () -> partial(finalI, instanceMatrixBufferBaseAddress, partialTicks, clippingHelper),
+                    () -> renderGroup(group, buffer0, buffer1, partialTicks, clippingHelper),
                     fixedThreadPool
             );
         }
+        renderGroup(futures.length, buffer0, buffer1, partialTicks, clippingHelper);
         CompletableFuture.allOf(futures).join();
-        return amount();
     }
 
-    private static void partial(int group, long buffer, float partialTicks, Frustum clippingHelper) {
+    private static void renderGroup(int group, long buffer0, long buffer1, float partialTicks, Frustum clippingHelper) {
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
-        var set = PARTICLES[group];
         int index = 0;
         for (int i = 0; i < group; i++) {
             index += PARTICLES[i].size();
         }
-        for (TextureSheetParticle particle : set) {
-            fillBuffer(buffer, particle, index, partialTicks, simpleBlockPosSingle);
+        for (TextureSheetParticle particle : PARTICLES[group]) {
+            fillBuffer(buffer0, buffer1, particle, index, partialTicks, simpleBlockPosSingle);
             index++;
         }
     }
 
-    public static int renderSync(long instanceMatrixBuffer, Camera camera, float partialTicks, Frustum clippingHelper) {
+    public static int renderSync(long buffer0, long buffer1, Camera camera, float partialTicks, Frustum clippingHelper) {
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
-        int amount = 0;
+        int index = 0;
         for (TextureSheetParticle particle : PARTICLES[0]) {
             if (clippingHelper != null && !clippingHelper.isVisible(particle.getRenderBoundingBox(partialTicks)) && !clippingHelper.isVisible(particle.getBoundingBox())) {
                 continue;
             }
-            fillBuffer(instanceMatrixBuffer, particle, amount, partialTicks, simpleBlockPosSingle);
-            amount++;
+            fillBuffer(buffer0, buffer1, particle, index, partialTicks, simpleBlockPosSingle);
+            index++;
         }
-        return amount;
+        return index;
     }
 
-    public static int bindBuffer(long buffer) {
+    public static int bindBuffer(long buffer, long amount) {
         int bufferId = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-        glBufferData(GL_ARRAY_BUFFER, MemoryUtil.memByteBuffer(buffer, amount() * SIZE_INSTANCE_BYTES), GL_STREAM_DRAW);
-        int formerSize = 0;
+        nglBufferData(GL_ARRAY_BUFFER, amount * SIZE_INSTANCE_BYTES, buffer, GL_STREAM_DRAW);
 
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 4, GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
-        formerSize += ROW0_SIZE;
+        glVertexAttribPointer(0, 4, GL_FLOAT, false, INSTANCE0_SIZE, 0);
         glVertexAttribDivisor(0, 1);
 
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 4, GL_HALF_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
-        formerSize += ROW1_SIZE;
+        glVertexAttribPointer(1, 4, GL_HALF_FLOAT, false, INSTANCE0_SIZE, 16);
         glVertexAttribDivisor(1, 1);
 
         glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 4, GL_HALF_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
-        formerSize += ROW2_SIZE;
+        glVertexAttribPointer(2, 4, GL_HALF_FLOAT, false, INSTANCE0_SIZE, 24);
         glVertexAttribDivisor(2, 1);
 
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 2, GL_FLOAT, false, SIZE_INSTANCE_BYTES, formerSize);
-        formerSize += ROW3_SIZE;
+        glVertexAttribPointer(3, 2, GL_FLOAT, false, INSTANCE0_SIZE, 32);
         glVertexAttribDivisor(3, 1);
 
         glEnableVertexAttribArray(4);
-        glVertexAttribIPointer(4, 1, GL_BYTE, SIZE_INSTANCE_BYTES, formerSize);
+        glVertexAttribIPointer(4, 1, GL_UNSIGNED_BYTE, INSTANCE1_SIZE, amount * INSTANCE0_SIZE);
         glVertexAttribDivisor(4, 1);
         return bufferId;
     }
 
     @SuppressWarnings("PointlessArithmeticExpression")
-    public static void fillBuffer(long buffer, TextureSheetParticle particle, int index, float partialTicks, SimpleBlockPos simpleBlockPosSingle) {
-        long start = buffer + (long) index * SIZE_INSTANCE_BYTES;
+    public static void fillBuffer(long buffer0, long buffer1,
+                                  TextureSheetParticle particle, int index, float partialTicks,
+                                  SimpleBlockPos simpleBlockPosSingle) {
+        long start = buffer0 + (long) index * 40;
         //xyz roll
         float x = Mth.lerp(partialTicks, (float) particle.xo, (float) particle.x);
         float y = Mth.lerp(partialTicks, (float) particle.yo, (float) particle.y);
         float z = Mth.lerp(partialTicks, (float) particle.zo, (float) particle.z);
-        MemoryUtil.memPutFloat(start + 4 * 0, x);
-        MemoryUtil.memPutFloat(start + 4 * 1, y);
-        MemoryUtil.memPutFloat(start + 4 * 2, z);
-        MemoryUtil.memPutFloat(start + 4 * 3, Mth.lerp(partialTicks, particle.oRoll, particle.roll));
+        MemoryUtil.memPutFloat(start + 0, x);
+        MemoryUtil.memPutFloat(start + 4, y);
+        MemoryUtil.memPutFloat(start + 8, z);
+        MemoryUtil.memPutFloat(start + 12, Mth.lerp(partialTicks, particle.oRoll, particle.roll));
         //uv
         var sprite = particle.sprite;
         MemoryUtil.memPutShort(start + ROW0_SIZE + 2 * 0, Float.floatToFloat16(sprite.getU0()));
@@ -344,7 +346,7 @@ public class InstancedRenderManager {
         }
         //uv2
         if (forceMaxLight) {
-            MemoryUtil.memPutByte(start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + ROW3_SIZE, (byte) 0b1111_1111);
+            MemoryUtil.memPutByte(buffer1 + index, (byte) 0xff);
         } else {
             simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
             byte l;
@@ -356,7 +358,7 @@ public class InstancedRenderManager {
             } else {
                 l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, particle, simpleBlockPosSingle);
             }
-            MemoryUtil.memPutByte(start + ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + ROW3_SIZE, l);
+            MemoryUtil.memPutByte(buffer1 + index, l);
         }
     }
 
@@ -387,7 +389,7 @@ public class InstancedRenderManager {
             id.setAccessible(true);
             int frameBuffer = (int) id.get(irisGlFramebuffer);
             glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-            GL11C.glDepthMask(ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.DEPTH_TRUE);
+            glDepthMask(ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.DEPTH_TRUE);
         } catch (Exception e) {
             if (T88.TEST) {
                 LogUtils.getLogger().error("{}", e.toString());
@@ -457,7 +459,7 @@ public class InstancedRenderManager {
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * 4, 0);
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * 4, 3 * 4);
-        GL11C.glColorMask(true, true, true, true);
+        glColorMask(true, true, true, true);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
         glClearBufferfv(GL_COLOR, 0, ACCUM_INIT);
@@ -474,7 +476,7 @@ public class InstancedRenderManager {
         glDeleteBuffers(instanceMatrixBufferId);
         glBindVertexArray(0);
         glDepthMask(true);
-        MemoryUtil.getAllocator(false).free(instanceMatrixBuffer);
+        MemoryUtil.nmemFree(instanceMatrixBuffer);
     }
 
     public static class SimpleBlockPos {

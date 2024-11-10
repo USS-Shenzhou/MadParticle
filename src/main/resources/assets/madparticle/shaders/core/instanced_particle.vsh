@@ -11,7 +11,7 @@ layout (location=2) in vec4 instanceColor;
 //single float
 layout (location=3) in vec2 sizeExtraLight;
 //4+4 byte
-layout (location=4) in int instanceUV2;
+layout (location=4) in uint instanceUV2;
 
 uniform sampler2D Sampler2;
 uniform mat4 ModelViewMat;
@@ -25,17 +25,17 @@ out float vertexDistance;
 out vec2 texCoord0;
 out vec4 vertexColor;
 
-const ivec4 UV_CONTROL[4] = ivec4[4](
-ivec4(0, 1, 0, 1),
-ivec4(0, 1, 1, 0),
-ivec4(1, 0, 1, 0),
-ivec4(1, 0, 0, 1)
+const vec4 UV_CONTROL[4] = vec4[4](
+vec4(0, 1, 0, 1),
+vec4(0, 1, 1, 0),
+vec4(1, 0, 0, 1),
+vec4(1, 0, 1, 0)
 );
-const ivec3 RELATIVE[4] = ivec3[4](
-ivec3(1, -1, 0),
-ivec3(1, 1, 0),
-ivec3(-1, 1, 0),
-ivec3(-1, -1, 0)
+const vec4 RELATIVE[4] = vec4[4](
+vec4(1, -1, 0, 1),
+vec4(1, 1, 0, 1),
+vec4(-1, -1, 0, 1),
+vec4(-1, 1, 0, 1)
 );
 
 mat4 rotate(vec4 quat, mat4 matrix);
@@ -58,12 +58,12 @@ void main() {
     m = rotateZ(instanceXYZRoll.w, m);
 
 
-    gl_Position = ProjMat * ModelViewMat * m * vec4(RELATIVE[gl_VertexID % 4], 1.0);
+    gl_Position = ProjMat * ModelViewMat * m * RELATIVE[gl_VertexID];
 
     vertexDistance = fog_distance(vec3(instanceXYZRoll.x - CamXYZ.x, instanceXYZRoll.y - CamXYZ.y, instanceXYZRoll.z - CamXYZ.z), FogShape);
-    ivec4 uvControl = UV_CONTROL[gl_VertexID % 4];
-    texCoord0 = vec2(instanceUV.x * uvControl.x + instanceUV.y * uvControl.y, instanceUV.z * uvControl.z + instanceUV.w * uvControl.w);
-    ivec2 uv2 = ivec2(instanceUV2 & 0x0F, (instanceUV2 >> 4) & 0x0F);
+    vec4 uvControl = UV_CONTROL[gl_VertexID];
+    texCoord0 = vec2(dot(instanceUV.xy, uvControl.xy), dot(instanceUV.zw, uvControl.zw));
+    ivec2 uv2 = ivec2(instanceUV2 & 0xfu, (instanceUV2 >> 4) & 0xfu);
     vertexColor = vec4(instanceColor.xyz * sizeExtraLight.y, instanceColor.w) * texelFetch(Sampler2, uv2, 0);
 }
 

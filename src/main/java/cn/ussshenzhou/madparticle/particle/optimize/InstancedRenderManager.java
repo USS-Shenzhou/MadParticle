@@ -33,9 +33,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.stream.Stream;
 
 import static cn.ussshenzhou.madparticle.MadParticle.irisOn;
@@ -68,7 +66,7 @@ public class InstancedRenderManager {
     private static int threads = ConfigHelper.getConfigRead(MadParticleConfig.class).getBufferFillerThreads();
     @SuppressWarnings("unchecked")
     private static LinkedHashSet<TextureSheetParticle>[] PARTICLES = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(32768)).limit(threads).toArray(LinkedHashSet[]::new);
-    private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads);
+    private static Executor fixedThreadPool = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
     private static final LightCache LIGHT_CACHE = new LightCache();
     private static boolean forceMaxLight = false;
     private static final int VAO, OIT_FBO, ACCUM_TEXTURE, REVEAL_TEXTURE, POST_VAO, POST_VBO;
@@ -181,9 +179,17 @@ public class InstancedRenderManager {
         }
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     public static void removeAll(Collection<Particle> particle) {
-        //Arrays.stream(PARTICLES).forEach(set -> set.removeAll(particle));
-        particle.stream().filter(p -> p instanceof TextureSheetParticle).forEach(p -> remove((TextureSheetParticle) p));
+        CompletableFuture<?>[] futures = new CompletableFuture[threads];
+        for (int i = 0; i < threads; i++) {
+            int finalI = i;
+            futures[i] = CompletableFuture.runAsync(
+                    () -> PARTICLES[finalI].removeAll(particle),
+                    fixedThreadPool
+            );
+        }
+        CompletableFuture.allOf(futures).join();
     }
 
     public static void clear() {

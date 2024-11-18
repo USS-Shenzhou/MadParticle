@@ -10,6 +10,7 @@ import com.google.common.cache.CacheBuilder;
 import net.minecraft.client.particle.Particle;
 
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.LongAdder;
@@ -24,7 +25,7 @@ public class ParallelTickManager {
     public static Cache<Particle, Object> removeCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(65536).build();
     public static Cache<Particle, Object> syncTickCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(65536).build();
     public static final Object NULL = new Object();
-    private static final LongAdder count = new LongAdder();
+    private static final LongAdder COUNTER = new LongAdder();
     private static final Consumer<Particle> VANILLA_ONLY_TICKER = particle -> {
         if (getTickType(particle) == TakeOver.TickType.ASYNC) {
             asyncTick(particle);
@@ -39,6 +40,7 @@ public class ParallelTickManager {
             syncTickCache.put(particle, NULL);
         }
     };
+    private static CompletableFuture<Void> clearJob = null;
 
     public static void setThreads(int amount) {
         removeCache = CacheBuilder.newBuilder().concurrencyLevel(amount).initialCapacity(65536).build();
@@ -47,11 +49,11 @@ public class ParallelTickManager {
     }
 
     public static int count() {
-        return (int) count.sum();
+        return (int) COUNTER.sum();
     }
 
     public static void clearCount() {
-        count.reset();
+        COUNTER.reset();
     }
 
     private static int threads() {
@@ -59,7 +61,11 @@ public class ParallelTickManager {
     }
 
     public static void tickList(Collection<Particle> particles) {
-        count.reset();
+        COUNTER.reset();
+        if (clearJob != null) {
+            clearJob.join();
+            clearJob = null;
+        }
         Consumer<Particle> ticker = ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking == TakeOver.VANILLA ? VANILLA_ONLY_TICKER : ALL_TICKER;
         if (particles instanceof MultiThreadedEqualLinkedHashSetsQueue<Particle> multiThreadedEqualLinkedHashSetsQueue) {
             multiThreadedEqualLinkedHashSetsQueue.forEach(ticker);
@@ -76,13 +82,15 @@ public class ParallelTickManager {
         var r = removeCache.asMap().keySet();
         particles.removeAll(r);
         InstancedRenderManager.removeAll(r);
-        removeCache.invalidateAll();
-        syncTickCache.invalidateAll();
+        clearJob = CompletableFuture.runAsync(() -> {
+            removeCache.invalidateAll();
+            syncTickCache.invalidateAll();
+        });
     }
 
     private static void asyncTick(Particle p) {
         p.tick();
-        count.increment();
+        COUNTER.increment();
         if (p.removed) {
             removeCache.put(p, NULL);
         }

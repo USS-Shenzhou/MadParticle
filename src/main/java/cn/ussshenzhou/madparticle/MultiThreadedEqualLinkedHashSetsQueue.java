@@ -148,11 +148,16 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
 
     @Override
     public boolean removeAll(@NotNull Collection<?> c) {
-        boolean changed = false;
-        for (var o : c) {
-            changed |= this.remove(o);
+        CompletableFuture<?>[] futures = new CompletableFuture[linkedHashSets.length];
+        for (int i = 0; i < linkedHashSets.length; i++) {
+            int finalI = i;
+            futures[i] = CompletableFuture.runAsync(
+                    () -> linkedHashSets[finalI].removeAll(c),
+                    fixedThreadPool
+            );
         }
-        return changed;
+        CompletableFuture.allOf(futures).join();
+        return true;
     }
 
     @Override

@@ -3,6 +3,7 @@ package cn.ussshenzhou.madparticle;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.errorprone.annotations.DoNotCall;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +32,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
         linkedHashSets = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(initialCapacityOfEachThread))
                 .limit(threads)
                 .toArray(LinkedHashSet[]::new);
-        fixedThreadPool = Executors.newFixedThreadPool(threads);
+        fixedThreadPool = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat("MadParticle-MultiThreadedEqualLinkedHashSetsQueue-Thread-%d").build());
     }
 
     public MultiThreadedEqualLinkedHashSetsQueue(int maxSize) {

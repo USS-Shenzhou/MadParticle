@@ -14,10 +14,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  */
 @NetPacket(modid = MadParticle.MOD_ID)
 public class IndexedCommandPacket {
-    public final double x, y, z;
+    public final float x, y, z;
     public final int index;
 
-    public IndexedCommandPacket(double x, double y, double z, int index) {
+    public IndexedCommandPacket(float x, float y, float z, int index) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -26,17 +26,17 @@ public class IndexedCommandPacket {
 
     @Decoder
     public IndexedCommandPacket(FriendlyByteBuf buf) {
-        x = buf.readDouble();
-        y = buf.readDouble();
-        z = buf.readDouble();
+        x = buf.readFloat();
+        y = buf.readFloat();
+        z = buf.readFloat();
         index = buf.readVarInt();
     }
 
     @Encoder
     public void encode(FriendlyByteBuf buf) {
-        buf.writeDouble(x);
-        buf.writeDouble(y);
-        buf.writeDouble(z);
+        buf.writeFloatLE(x);
+        buf.writeFloat(y);
+        buf.writeFloat(z);
         buf.writeVarInt(index);
     }
 

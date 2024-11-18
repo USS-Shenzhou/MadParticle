@@ -44,7 +44,7 @@ public class IndexedCommandManager {
         }
         var pos = context.getSource().getPosition();
         int finalIndex = index;
-        players.forEach(player -> NetworkHelper.sendToPlayer(player, new IndexedCommandPacket(pos.x, pos.y, pos.z, finalIndex)));
+        players.forEach(player -> NetworkHelper.sendToPlayer(player, new IndexedCommandPacket((float) pos.x, (float) pos.y, (float) pos.z, finalIndex)));
     }
 
     private static int randomIndex() {

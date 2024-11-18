@@ -11,6 +11,7 @@ import cn.ussshenzhou.t88.T88;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.event.ResizeHudEvent;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.logging.LogUtils;
@@ -66,7 +67,7 @@ public class InstancedRenderManager {
     private static int threads = ConfigHelper.getConfigRead(MadParticleConfig.class).getBufferFillerThreads();
     @SuppressWarnings("unchecked")
     private static LinkedHashSet<TextureSheetParticle>[] PARTICLES = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(32768)).limit(threads).toArray(LinkedHashSet[]::new);
-    private static Executor fixedThreadPool = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+    private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat("MadParticle-InstancedRender-Thread-%d").build());
     private static final LightCache LIGHT_CACHE = new LightCache();
     private static boolean forceMaxLight = false;
     private static final int VAO, OIT_FBO, ACCUM_TEXTURE, REVEAL_TEXTURE, POST_VAO, POST_VBO;

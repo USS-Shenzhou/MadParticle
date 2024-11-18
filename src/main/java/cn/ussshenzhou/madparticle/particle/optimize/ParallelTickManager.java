@@ -7,12 +7,12 @@ import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.minecraft.client.particle.Particle;
 
 import java.util.Collection;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
 
@@ -20,8 +20,12 @@ import java.util.function.Consumer;
  * @author USS_Shenzhou
  */
 public class ParallelTickManager {
-
-    private static ForkJoinPool forkJoinPool = new ForkJoinPool(threads());
+    private static final AtomicInteger THREAD_INDEX = new AtomicInteger();
+    private static ForkJoinPool forkJoinPool = new ForkJoinPool(threads(), pool -> {
+        ForkJoinWorkerThread thread = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+        thread.setName("MadParticle-Tick-Thread-" + THREAD_INDEX.getAndIncrement());
+        return thread;
+    }, null, false);
     public static Cache<Particle, Object> removeCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(65536).build();
     public static Cache<Particle, Object> syncTickCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(65536).build();
     public static final Object NULL = new Object();

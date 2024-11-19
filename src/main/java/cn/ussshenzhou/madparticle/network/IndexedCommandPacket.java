@@ -34,7 +34,7 @@ public class IndexedCommandPacket {
 
     @Encoder
     public void encode(FriendlyByteBuf buf) {
-        buf.writeFloatLE(x);
+        buf.writeFloat(x);
         buf.writeFloat(y);
         buf.writeFloat(z);
         buf.writeVarInt(index);

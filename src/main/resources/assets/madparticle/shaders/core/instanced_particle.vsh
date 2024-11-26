@@ -24,6 +24,7 @@ uniform vec4 CamQuat;
 out float vertexDistance;
 out vec2 texCoord0;
 out vec4 vertexColor;
+out float bloomConditionLight;
 
 const vec4 UV_CONTROL[4] = vec4[4](
 vec4(0, 1, 0, 1),
@@ -65,6 +66,7 @@ void main() {
     texCoord0 = vec2(dot(instanceUV.xy, uvControl.xy), dot(instanceUV.zw, uvControl.zw));
     ivec2 uv2 = ivec2(instanceUV2 & 0xfu, (instanceUV2 >> 4) & 0xfu);
     vertexColor = vec4(instanceColor.xyz * sizeExtraLight.y, instanceColor.w) * texelFetch(Sampler2, uv2, 0);
+    bloomConditionLight = sizeExtraLight.y;
 }
 
 mat4 rotate(vec4 quat, mat4 matrix) {

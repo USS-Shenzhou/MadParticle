@@ -17,6 +17,7 @@ import net.neoforged.fml.common.Mod;
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT, modid = MadParticle.MOD_ID)
 public class ModParticleShaders {
 
+    //instance particle shader
     public static ShaderInstance instancedParticleShader;
     public static final RenderStateShard.ShaderStateShard INSTANCED_SHADER = new RenderStateShard.ShaderStateShard(() -> instancedParticleShader);
 
@@ -38,6 +39,24 @@ public class ModParticleShaders {
         return instancedParticleShaderOitPost;
     }
 
+    //bloom shader
+    public static ShaderInstance downSamplerShader;
+
+    public static ShaderInstance getDownSamplerShader() {
+        return downSamplerShader;
+    }
+
+    public static ShaderInstance bloomCompositeShader;
+
+    public static ShaderInstance getBloomCompositeShader() {
+        return bloomCompositeShader;
+    }
+
+    public static ShaderInstance oitExtractShader;
+
+    public static ShaderInstance getOitExtractShader() {
+        return oitExtractShader;
+    }
 
     @SubscribeEvent
     public static void registerShader(RegisterShadersEvent event) {
@@ -57,6 +76,21 @@ public class ModParticleShaders {
                     new ShaderInstance(resourceManager,
                             ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit_post"), DefaultVertexFormat.POSITION_TEX),
                     shaderInstance -> instancedParticleShaderOitPost = shaderInstance
+            );
+            event.registerShader(
+                    new ShaderInstance(resourceManager,
+                            ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "down_sampler"),DefaultVertexFormat.POSITION),
+                            ShaderInstance -> downSamplerShader = ShaderInstance
+            );
+            event.registerShader(
+                    new ShaderInstance(resourceManager,
+                            ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "bloom_composite"),DefaultVertexFormat.POSITION),
+                    ShaderInstance -> bloomCompositeShader = ShaderInstance
+            );
+            event.registerShader(
+                    new ShaderInstance(resourceManager,
+                            ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "extract_oit"),DefaultVertexFormat.POSITION),
+                    ShaderInstance -> oitExtractShader = ShaderInstance
             );
         } catch (Exception e) {
             throw new RuntimeException("failed to load particle shader", e);

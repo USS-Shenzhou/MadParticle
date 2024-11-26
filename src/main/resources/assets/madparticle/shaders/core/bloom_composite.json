@@ -1,0 +1,18 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "one",
+    "dstrgb": "zero"
+  },
+  "vertex": "madparticle:blit",
+  "fragment": "madparticle:bloom_composite",
+  "attributes": [ "Position" ],
+  "samplers": [
+    { "name": "DiffuseSampler" },
+    { "name": "HighLight" }
+  ],
+  "uniforms": [
+    { "name": "BloomRadius",      "type": "float",     "count": 1,  "values": [ 1.0 ] },
+    { "name": "BloomIntensive",      "type": "float",     "count": 1,  "values": [ 1.7 ] }
+  ]
+}

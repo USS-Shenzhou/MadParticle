@@ -12,9 +12,11 @@ uniform vec4 FogColor;
 in float vertexDistance;
 in vec2 texCoord0;
 in vec4 vertexColor;
+in float bloomConditionLight;
 
 out vec4 accum;
 out float reveal;
+out vec4 bloomColor;
 
 void main() {
     vec4 color = linear_fog(texture(Sampler0, texCoord0) * vertexColor * ColorModulator, vertexDistance, FogStart, FogEnd, FogColor);
@@ -37,4 +39,9 @@ void main() {
     );
     accum = vec4(color.rgb * color.a, color.a) * weight;
     reveal = color.a;
+    if(bloomConditionLight > 1.001f) {
+        bloomColor = vec4(1.0);
+    }else{
+        bloomColor = vec4(0.0);
+    }
 }

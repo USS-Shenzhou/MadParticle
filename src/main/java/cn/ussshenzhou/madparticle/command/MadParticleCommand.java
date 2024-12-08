@@ -273,7 +273,7 @@ public class MadParticleCommand {
             try {
                 Collection<? extends ServerPlayer> entities = EntityArgument.getPlayers(ctExe, "targets");
                 for (Entity entity : entities) {
-                    CompletableFuture.runAsync(() -> sendToAssigned(commandString, ctPre.getSource().withEntity(entity).withPosition(entity.position()), playerList, dispatcher));
+                    Thread.startVirtualThread(() -> sendToAssigned(commandString, ctPre.getSource().withEntity(entity).withPosition(entity.position()), playerList, dispatcher));
                 }
             } catch (CommandSyntaxException ignored) {
             }

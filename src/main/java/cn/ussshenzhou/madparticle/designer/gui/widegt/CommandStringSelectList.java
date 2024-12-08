@@ -141,7 +141,7 @@ public class CommandStringSelectList extends TTitledSelectList<CommandStringSele
         while (iterator.hasNext()) {
             var subCommand = iterator.next();
             String sub = subCommand.getContent().parametersScrollPanel.wrap();
-            CompletableFuture.runAsync(() -> checkWrapped(subCommand, sub));
+            Thread.startVirtualThread(() -> checkWrapped(subCommand, sub));
             builder.append(sub);
             if (iterator.hasNext()) {
                 builder.append(" expireThen");

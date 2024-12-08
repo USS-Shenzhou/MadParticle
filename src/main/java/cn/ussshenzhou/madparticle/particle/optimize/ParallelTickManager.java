@@ -89,7 +89,7 @@ public class ParallelTickManager {
         clearJob = CompletableFuture.runAsync(() -> {
             removeCache.invalidateAll();
             syncTickCache.invalidateAll();
-        });
+        }, forkJoinPool);
     }
 
     private static void asyncTick(Particle p) {

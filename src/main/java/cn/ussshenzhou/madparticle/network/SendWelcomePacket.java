@@ -38,7 +38,7 @@ public class SendWelcomePacket {
     @OnlyIn(Dist.CLIENT)
     public void clientHandler(IPayloadContext context) {
         if (!ConfigHelper.getConfigRead(MadParticleConfig.class).noWelcomeScreen) {
-            CompletableFuture.runAsync(() -> {
+            Thread.startVirtualThread(() -> {
                 while (Minecraft.getInstance().screen != null) {
                     try {
                         Thread.sleep(500);

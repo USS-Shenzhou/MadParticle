@@ -81,7 +81,7 @@ public class TadaModePanel extends HelperModePanel {
 
             @SubscribeEvent
             public void onUpdateCalledTada(TWidgetContentUpdatedEvent event) {
-                CompletableFuture.runAsync(() -> {
+                Thread.startVirtualThread(() -> {
                     if (canHandleCall && event.getUpdated() != this.getEditBox() && event.getUpdated().getParentInstanceOf(TadaModePanel.class) == this.getParent()) {
                         String wholeCommand = commandStringSelectList.warp();
                         synchronized (this.getEditBox()) {

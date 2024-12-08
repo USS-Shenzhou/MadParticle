@@ -40,7 +40,7 @@ public class HelperModePanel extends TPanel {
 
         @SubscribeEvent
         public void onUpdateCalled(TWidgetContentUpdatedEvent event) {
-            CompletableFuture.runAsync(() -> {
+            Thread.startVirtualThread(() -> {
                 if (canHandleCall && event.getUpdated() != this.getEditBox() && event.getUpdated().getParentInstanceOf(HelperModePanel.class) == this.getParent()) {
                     String wholeCommand = commandStringSelectList.warp();
                     synchronized (this.getEditBox()) {

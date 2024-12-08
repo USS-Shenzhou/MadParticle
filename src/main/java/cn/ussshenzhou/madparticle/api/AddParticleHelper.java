@@ -223,7 +223,7 @@ public class AddParticleHelper {
     }
 
     private static void asyncCreateParticle(MadParticleOption option) {
-        CompletableFuture.runAsync(() -> {
+        Thread.startVirtualThread(() -> {
             var particleEngine = mc.particleEngine;
             var level = mc.level;
             var accessor = (ParticleEngineAccessor) particleEngine;
@@ -259,7 +259,7 @@ public class AddParticleHelper {
     }
 
     private static void asyncCreateParticle(MadParticleOption option, float roll) {
-        CompletableFuture.runAsync(() -> {
+        Thread.startVirtualThread(() -> {
             var particleEngine = mc.particleEngine;
             var level = mc.level;
             var accessor = (ParticleEngineAccessor) particleEngine;

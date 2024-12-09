@@ -15,7 +15,9 @@ public class InstancedRenderListener {
 
     @SubscribeEvent
     public static void onChangeDimension(LevelEvent.Unload event) {
-        InstancedRenderManager.clear();
-        IndexedCommandManager.clear();
+        if (event.getLevel().isClientSide()){
+            InstancedRenderManager.clear();
+            IndexedCommandManager.clear();
+        }
     }
 }

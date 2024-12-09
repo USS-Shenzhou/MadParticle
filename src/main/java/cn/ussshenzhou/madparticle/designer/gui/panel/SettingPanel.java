@@ -28,6 +28,7 @@ import java.util.List;
  */
 public class SettingPanel extends TOptionsPanel {
     TLabel ramUsage;
+    public static boolean debugNonIndexed = false;
 
     public SettingPanel() {
         addOptionSplitter(Component.translatable("gui.mp.de.setting.universal"));
@@ -115,19 +116,26 @@ public class SettingPanel extends TOptionsPanel {
                 integer -> i -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.lightCacheYRange = i.getSelected().getContent()),
                 entry -> entry.getContent() == getConfigRead().lightCacheYRange).getB()
                 .setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.light.ver.tooltip")));
-        ramUsage = addOption(Component.translatable("gui.mo.de.setting.light.ram"), new TLabel()).getB()
+        ramUsage = addOption(Component.translatable("gui.mp.de.setting.light.ram"), new TLabel()).getB()
                 .setHorizontalAlignment(HorizontalAlignment.LEFT);
-        addOptionCycleButtonInit(Component.translatable("gui.mo.de.setting.light.force"),
+        addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.light.force"),
                 List.of(Boolean.TRUE, Boolean.FALSE),
                 bool -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.forceMaxLight = bool),
                 entry -> entry.getContent() == getConfigRead().forceMaxLight).getB()
-                .setTooltip(Tooltip.create(Component.translatable("gui.mo.de.setting.light.force.tooltip")));
-        addOptionCycleButtonInit(Component.translatable("gui.mo.de.setting.light.update"),
+                .setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.light.force.tooltip")));
+        addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.light.update"),
                 List.of(LightCacheRefreshInterval.values()),
                 interval -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.lightCacheRefreshInterval = interval),
                 entry -> entry.getContent() == getConfigRead().lightCacheRefreshInterval
         )
-                .getB().setTooltip(Tooltip.create(Component.translatable("gui.mo.de.setting.light.update.tooltip")));
+                .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.light.update.tooltip")));
+
+        addOptionSplitter(Component.translatable("gui.mp.de.setting.debug"));
+        addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.debug.non_indexed"),
+                List.of(Boolean.TRUE, Boolean.FALSE),
+                b -> button -> debugNonIndexed = button.getSelected().getContent(),
+                entry -> entry.getContent() == debugNonIndexed);
+
     }
 
     @Override

@@ -33,7 +33,8 @@ public enum TakeOver implements ITranslatable {
             DripParticle.DripHangParticle.class,
             DripParticle.DripstoneFallAndLandParticle.class,
             DripParticle.FallAndLandParticle.class,
-            DripParticle.HoneyFallAndLandParticle.class
+            DripParticle.HoneyFallAndLandParticle.class,
+            FireworkParticles.Starter.class
     );
 
 

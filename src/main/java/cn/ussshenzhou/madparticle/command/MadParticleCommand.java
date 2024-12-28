@@ -8,6 +8,7 @@ import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
 import cn.ussshenzhou.madparticle.particle.enums.MetaKeys;
+import cn.ussshenzhou.t88.T88;
 import cn.ussshenzhou.t88.network.NetworkHelper;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -30,6 +31,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -37,6 +39,7 @@ import net.neoforged.neoforge.server.command.EnumArgument;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -263,7 +266,12 @@ public class MadParticleCommand {
         CommandContext<CommandSourceStack> ctExe = CommandHelper.getContextHasArgument(ctPre, "targets", EntitySelector.class);
         if (ctExe == null) {
             var meta = ctPre.getArgument("meta", CompoundTag.class);
-            if (meta.getBoolean(MetaKeys.INDEXED.get())) {
+            boolean canIndex = meta.getBoolean(MetaKeys.INDEXED.get());
+            var player = sourceStack.getPlayer();
+            if (player != null && !T88.TEST) {
+                canIndex &= player.server instanceof DedicatedServer;
+            }
+            if (canIndex) {
                 IndexedCommandManager.serverPreform(ctPre, playerList, commandString);
                 return;
             }

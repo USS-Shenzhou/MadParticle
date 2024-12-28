@@ -33,25 +33,24 @@ public class IndexedCommandManager {
     }
 
     public static void serverPreform(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> players, String command) {
-        int index;
-        if (INDEXED_COMMANDS.containsValue(command)) {
-            index = INDEXED_COMMANDS.inverse().get(command);
-        } else {
-            do {
-                index = randomIndex();
-            } while (INDEXED_COMMANDS.containsKey(index));
-            INDEXED_COMMANDS.put(index, command);
+        synchronized (INDEXED_COMMANDS) {
+            int index = INDEXED_COMMANDS.inverse().computeIfAbsent(command, c -> {
+                int i;
+                do {
+                    i = randomIndex();
+                } while (INDEXED_COMMANDS.containsKey(i));
+                return i;
+            });
+            var pos = context.getSource().getPosition();
+            players.forEach(player -> NetworkHelper.sendToPlayer(player, new IndexedCommandPacket((float) pos.x, (float) pos.y, (float) pos.z, index)));
         }
-        var pos = context.getSource().getPosition();
-        int finalIndex = index;
-        players.forEach(player -> NetworkHelper.sendToPlayer(player, new IndexedCommandPacket((float) pos.x, (float) pos.y, (float) pos.z, finalIndex)));
     }
 
     private static int randomIndex() {
         int index;
         if (INDEXED_COMMANDS.size() < 512) {
             index = ThreadLocalRandom.current().nextInt(16384);
-        } else if (INDEXED_COMMANDS.size() < 65536){
+        } else if (INDEXED_COMMANDS.size() < 65536) {
             index = ThreadLocalRandom.current().nextInt(2097152);
         } else {
             index = ThreadLocalRandom.current().nextInt();
@@ -69,17 +68,21 @@ public class IndexedCommandManager {
     }
 
     public static void clientHandle(ReplyIndexedCommandPacket reply) {
-        var packet = CLIENT_BUFFER.get(reply.index);
-        if (packet == null) {
-            return;
+        synchronized (INDEXED_COMMANDS) {
+            var packet = CLIENT_BUFFER.get(reply.index);
+            if (packet == null) {
+                return;
+            }
+            if (INDEXED_COMMANDS.get(reply.index) != null) {
+                preform(packet.x, packet.y, packet.z, INDEXED_COMMANDS.get(packet.index));
+                return;
+            }
+            CLIENT_BUFFER.remove(packet.index);
+            if (!INDEXED_COMMANDS.containsValue(reply.command)) {
+                INDEXED_COMMANDS.put(reply.index, reply.command);
+            }
+            preform(packet.x, packet.y, packet.z, reply.command);
         }
-        if (INDEXED_COMMANDS.get(reply.index) != null) {
-            preform(packet.x, packet.y, packet.z, INDEXED_COMMANDS.get(packet.index));
-            return;
-        }
-        CLIENT_BUFFER.remove(packet.index);
-        INDEXED_COMMANDS.put(reply.index, reply.command);
-        preform(packet.x, packet.y, packet.z, reply.command);
     }
 
     public static void preform(double x, double y, double z, String command) {
@@ -93,8 +96,10 @@ public class IndexedCommandManager {
         return INDEXED_COMMANDS.get(index);
     }
 
-    public static void clear(){
-        INDEXED_COMMANDS.clear();
+    public static void clear() {
+        synchronized (INDEXED_COMMANDS) {
+            INDEXED_COMMANDS.clear();
+        }
         CLIENT_BUFFER.clear();
     }
 }

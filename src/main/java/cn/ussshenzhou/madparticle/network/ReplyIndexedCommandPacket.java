@@ -30,7 +30,7 @@ public class ReplyIndexedCommandPacket {
 
     @Encoder
     public void encode(FriendlyByteBuf buf) {
-        buf.writeInt(index);
+        buf.writeVarInt(index);
         buf.writeUtf(command);
     }
 

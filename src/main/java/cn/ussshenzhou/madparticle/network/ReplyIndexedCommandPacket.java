@@ -24,7 +24,7 @@ public class ReplyIndexedCommandPacket {
 
     @Decoder
     public ReplyIndexedCommandPacket(FriendlyByteBuf buf) {
-        this.index = buf.readInt();
+        this.index = buf.readVarInt();
         this.command = buf.readUtf();
     }
 

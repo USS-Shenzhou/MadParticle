@@ -6,6 +6,7 @@ import cn.ussshenzhou.madparticle.network.IndexedCommandPacket;
 import cn.ussshenzhou.madparticle.network.ReplyIndexedCommandPacket;
 import cn.ussshenzhou.t88.network.NetworkHelper;
 import com.google.common.collect.BiMap;
+import com.google.common.collect.ConcurrentHashMultiset;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import com.mojang.brigadier.CommandDispatcher;
@@ -26,6 +27,7 @@ public class IndexedCommandManager {
     private static final BiMap<Integer, String> INDEXED_COMMANDS = Maps.synchronizedBiMap(HashBiMap.create());
     private static final ConcurrentHashMap<Integer, IndexedCommandPacket> CLIENT_BUFFER = new ConcurrentHashMap<>();
     private static final CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
+    private static final ConcurrentHashMultiset<Integer> ASKED_IDS = ConcurrentHashMultiset.create();
 
     static {
         //noinspection InstantiationOfUtilityClass
@@ -59,9 +61,10 @@ public class IndexedCommandManager {
     }
 
     public static void clientHandle(IndexedCommandPacket packet) {
-        if (INDEXED_COMMANDS.get(packet.index) == null) {
+        if (INDEXED_COMMANDS.get(packet.index) == null && !ASKED_IDS.contains(packet.index)) {
             NetworkHelper.sendToServer(new AskIndexedCommandPacket(packet.index));
             CLIENT_BUFFER.put(packet.index, packet);
+            ASKED_IDS.add(packet.index);
             return;
         }
         preform(packet.x, packet.y, packet.z, INDEXED_COMMANDS.get(packet.index));

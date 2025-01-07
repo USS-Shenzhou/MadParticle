@@ -2,6 +2,8 @@ package cn.ussshenzhou.madparticle.mixin;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.api.AddParticleHelper;
+import cn.ussshenzhou.madparticle.command.IndexedCommandManager;
+import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderManager;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -14,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
@@ -46,5 +49,11 @@ public abstract class LevelRendererMixin {
         } else {
             cir.setReturnValue(particlestatus == ParticleStatus.MINIMAL ? null : this.minecraft.particleEngine.createParticle(pOptions, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed));
         }
+    }
+
+    @Inject(method = "allChanged",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;graphicsChanged()V"))
+    private void madparticleReload(CallbackInfo ci) {
+        InstancedRenderManager.clear();
+        IndexedCommandManager.clear();
     }
 }

@@ -103,6 +103,7 @@ public class IndexedCommandManager {
         synchronized (INDEXED_COMMANDS) {
             INDEXED_COMMANDS.clear();
         }
+        ASKED_IDS.clear();
         CLIENT_BUFFER.clear();
     }
 }

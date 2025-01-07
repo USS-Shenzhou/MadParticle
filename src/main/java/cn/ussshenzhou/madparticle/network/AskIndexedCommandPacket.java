@@ -35,7 +35,10 @@ public class AskIndexedCommandPacket {
     @ServerHandler
     public void serverHandler(IPayloadContext context) {
         if (context.player() instanceof ServerPlayer p) {
-            NetworkHelper.sendToPlayer(p, new ReplyIndexedCommandPacket(index, IndexedCommandManager.getCommand(index)));
+            var command = IndexedCommandManager.getCommand(index);
+            if (command != null) {
+                NetworkHelper.sendToPlayer(p, new ReplyIndexedCommandPacket(index, command));
+            }
         }
     }
 }

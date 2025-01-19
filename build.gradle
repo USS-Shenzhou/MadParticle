@@ -114,6 +114,8 @@ dependencies {
     // https://mvnrepository.com/artifact/net.objecthunter/exp4j
     implementation group: 'net.objecthunter', name: 'exp4j', version: '[0.4,0.5)'
     jarJar(group: 'net.objecthunter', name: 'exp4j', version: '[0.4,0.5)')
+    implementation group: 'blank', name: 'NotEnoughBandwidth', version: '[0.2,0.3)'
+    jarJar(group: 'blank', name: 'NotEnoughBandwidth', version: '[0.2,0.3)')
 
     //implementation fg.deobf("curse.maven:shimmer-627824:4676467")
     if (System.getProperty("idea.active")) {

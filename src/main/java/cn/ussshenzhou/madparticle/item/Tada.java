@@ -4,18 +4,21 @@ import cn.ussshenzhou.madparticle.item.component.ModDataComponent;
 import cn.ussshenzhou.madparticle.item.component.TadaComponent;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author USS_Shenzhou
@@ -33,13 +36,13 @@ public class Tada extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
-        ItemStack itemstack = pPlayer.getItemInHand(pUsedHand);
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        ItemStack itemstack = player.getItemInHand(hand);
         if (itemstack.get(ModDataComponent.TADA_COMPONENT) != null) {
-            pPlayer.startUsingItem(pUsedHand);
-            return InteractionResultHolder.consume(itemstack);
+            player.startUsingItem(hand);
+            return InteractionResult.CONSUME;
         } else {
-            return InteractionResultHolder.fail(itemstack);
+            return InteractionResult.FAIL;
         }
     }
 
@@ -68,7 +71,7 @@ public class Tada extends Item {
     }
 
     private void performCommand(Level pLevel, LivingEntity pLivingEntity, String command) {
-        pLevel.getServer().getCommands().performPrefixedCommand(pLivingEntity.createCommandSourceStack().withPermission(2), command);
+        pLevel.getServer().getCommands().performPrefixedCommand(pLivingEntity.createCommandSourceStackForNameResolution((ServerLevel) pLevel).withPermission(2), command);
     }
 
     @Override
@@ -81,13 +84,14 @@ public class Tada extends Item {
         return slotChanged;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, consumer, flag);
         if (stack.getOrDefault(ModDataComponent.TADA_COMPONENT, TadaComponent.defaultValue()).pulse()) {
-            tooltipComponents.add(Component.translatable("item.madparticle.tada.mode.pulse"));
+            consumer.accept(Component.translatable("item.madparticle.tada.mode.pulse"));
         } else {
-            tooltipComponents.add(Component.translatable("item.madparticle.tada.mode.con"));
+            consumer.accept(Component.translatable("item.madparticle.tada.mode.con"));
         }
     }
 }

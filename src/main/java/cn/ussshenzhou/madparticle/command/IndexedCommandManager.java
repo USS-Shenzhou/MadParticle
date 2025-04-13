@@ -15,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.ClientCommandHandler;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,9 +90,7 @@ public class IndexedCommandManager {
     }
 
     public static void preform(double x, double y, double z, String command) {
-        var option = MadParticleCommand.assembleOption(command, Minecraft.getInstance().player.createCommandSourceStack()
-                        .withPosition(new Vec3(x, y, z)),
-                dispatcher);
+        var option = MadParticleCommand.assembleOption(command, ClientCommandHandler.getSource().withPosition(new Vec3(x, y, z)), dispatcher);
         AddParticleHelper.addParticleClientAsync2Async(option);
     }
 

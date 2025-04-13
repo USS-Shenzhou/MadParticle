@@ -7,10 +7,10 @@ import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderManager;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.server.level.ParticleStatus;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -51,7 +51,7 @@ public abstract class LevelRendererMixin {
         }
     }
 
-    @Inject(method = "allChanged",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;graphicsChanged()V"))
+    @Inject(method = "allChanged",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;clearVisibleSections()V"))
     private void madparticleReload(CallbackInfo ci) {
         InstancedRenderManager.clear();
         IndexedCommandManager.clear();

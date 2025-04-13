@@ -143,7 +143,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
 
 
     public void writeToNetwork(FriendlyByteBuf buf) {
-        if (meta.getBoolean(MetaKeys.HALF_PRECISION.get())) {
+        if (meta.getBooleanOr(MetaKeys.HALF_PRECISION.get(), false)) {
             buf.writeBoolean(true);
             write2NetworkF16(buf);
         } else {

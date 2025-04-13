@@ -65,6 +65,7 @@ public class MadParticleTadaPacket {
             for (int i = 0; i < particleOption.amount(); i++) {
                 level.addParticle(
                         particleOption,
+                        true,
                         particleOption.alwaysRender().get(),
                         posOffset.x + MathHelper.signedRandom(r) * particleOption.xDiffuse(),
                         posOffset.y + MathHelper.signedRandom(r) * particleOption.yDiffuse(),
@@ -94,7 +95,7 @@ public class MadParticleTadaPacket {
         int manualFixY = 1;
         //TODO leftHand and offHand
         //get shoulder position in world-coordinates.
-        LivingEntityRenderer<?, ?> livingEntityRenderer = (LivingEntityRenderer<?, ?>) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
+        var livingEntityRenderer = (LivingEntityRenderer<?, ?, ?>) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
         HumanoidModel<?> playerModel = ((PlayerRenderer) livingEntityRenderer).getModel();
         float playerYRot = (float) (Math.PI * player.yBodyRot / 180);
         Vec3 vec3 = new Vec3(

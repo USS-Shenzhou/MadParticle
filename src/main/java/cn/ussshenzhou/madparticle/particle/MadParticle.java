@@ -30,6 +30,7 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static cn.ussshenzhou.madparticle.particle.enums.MetaKeys.*;
@@ -161,9 +162,7 @@ public class MadParticle extends TextureSheetParticle {
     private void initMetaTags() {
         handleLifeTime();
         handleDxyz();
-        if (meta.contains(DISAPPEAR_ON_COLLISION.get())) {
-            disappearOnCollision = meta.getInt(DISAPPEAR_ON_COLLISION.get());
-        }
+        meta.getInt(DISAPPEAR_ON_COLLISION.get()).ifPresent(i -> disappearOnCollision = i);
         handleLight();
         handlePreCalculate();
         //keep it at last
@@ -171,10 +170,8 @@ public class MadParticle extends TextureSheetParticle {
     }
 
     private void handleLifeTime() {
-        float maxError = 0.1f;
-        if (meta.contains(LIFE_ERROR.get())) {
-            maxError = meta.getInt(LIFE_ERROR.get()) / 100f;
-        }
+        float maxError = meta.getIntOr(LIFE_ERROR.get(), 10);
+        maxError /= 100f;
         lifetime = (int) (lifetime * (1 + maxError * MathHelper.signedRandom(random)));
         if (lifetime <= 0) {
             lifetime = 1;
@@ -184,8 +181,8 @@ public class MadParticle extends TextureSheetParticle {
     @SuppressWarnings("SpellCheckingInspection")
     private void handleDxyz() {
         int length = Math.min(lifetime, 100);
-        if (meta.contains(DX.get())) {
-            Expression e = new ExpressionBuilder(meta.getString(DX.get()))
+        meta.getString(DX.get()).ifPresent(dx -> {
+            Expression e = new ExpressionBuilder(dx)
                     .variable("t")
                     .build();
             dxComplex = new float[length + 1];
@@ -193,9 +190,9 @@ public class MadParticle extends TextureSheetParticle {
                 e.setVariable("t", (double) i / length);
                 dxComplex[i] = (float) e.evaluate();
             }
-        }
-        if (meta.contains(DY.get())) {
-            Expression e = new ExpressionBuilder(meta.getString(DY.get()))
+        });
+        meta.getString(DY.get()).ifPresent(dy -> {
+            Expression e = new ExpressionBuilder(dy)
                     .variable("t")
                     .build();
             dyComplex = new float[length + 1];
@@ -203,9 +200,9 @@ public class MadParticle extends TextureSheetParticle {
                 e.setVariable("t", (double) i / length);
                 dyComplex[i] = (float) e.evaluate();
             }
-        }
-        if (meta.contains(DZ.get())) {
-            Expression e = new ExpressionBuilder(meta.getString(DZ.get()))
+        });
+        meta.getString(DZ.get()).ifPresent(dz -> {
+            Expression e = new ExpressionBuilder(dz)
                     .variable("t")
                     .build();
             dzComplex = new float[length + 1];
@@ -213,11 +210,11 @@ public class MadParticle extends TextureSheetParticle {
                 e.setVariable("t", (double) i / length);
                 dzComplex[i] = (float) e.evaluate();
             }
-        }
+        });
     }
 
     private void handlePreCalculate() {
-        if (!meta.getBoolean(PRE_CAL.get()) || meta.getBoolean(TENET.get())) {
+        if (!meta.getBooleanOr(PRE_CAL.get(), false) || meta.getBooleanOr(TENET.get(), false)) {
             return;
         }
         initRecordArrays();
@@ -268,7 +265,7 @@ public class MadParticle extends TextureSheetParticle {
     }
 
     private void handleTenet() {
-        if (!meta.getBoolean(TENET.get())) {
+        if (!meta.getBooleanOr(TENET.get(), false)) {
             return;
         }
         initRecordArrays();
@@ -287,17 +284,16 @@ public class MadParticle extends TextureSheetParticle {
 
     private void handleLight() {
         int length = Math.min(lifetime, 100);
-        if (!meta.contains(LIGHT.get())) {
-            return;
-        }
-        Expression e = new ExpressionBuilder(meta.getString(LIGHT.get()))
-                .variable("t")
-                .build();
-        light = new int[length + 1];
-        for (int i = 0; i <= length; i++) {
-            e.setVariable("t", (double) i / length);
-            light[i] = Mth.clamp((int) e.evaluate(), 0, 15);
-        }
+        meta.getString(LIGHT.get()).ifPresent(l -> {
+            Expression e = new ExpressionBuilder(l)
+                    .variable("t")
+                    .build();
+            light = new int[length + 1];
+            for (int i = 0; i <= length; i++) {
+                e.setVariable("t", (double) i / length);
+                light[i] = Mth.clamp((int) e.evaluate(), 0, 15);
+            }
+        });
     }
 
     @Override
@@ -346,7 +342,11 @@ public class MadParticle extends TextureSheetParticle {
         tickAlphaAndSize();
         //interact with Entity
         if (interactWithEntity) {
-            LivingEntity entity = level.getNearestEntity(LivingEntity.class, TargetingConditions.forNonCombat().range(2), null, x, y, z, this.getBoundingBox().inflate(0.4));
+            var entity = level.getEntitiesOfClass(Entity.class, AABB.INFINITE)
+                    .parallelStream()
+                    .min(Comparator.comparingDouble(e -> e.distanceToSqr(x, y, z)))
+                    .filter(e -> e.distanceToSqr(x, y, z) < 0.4 * 0.4)
+                    .orElse(null);
             if (entity != null) {
                 Vec3 v = entity.getDeltaMovement();
                 this.xd += v.x * random.nextFloat() * horizontalInteractFactor;

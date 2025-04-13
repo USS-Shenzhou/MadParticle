@@ -27,7 +27,7 @@ public enum TakeOver implements ITranslatable {
             DustParticleBase.class,
             BaseAshSmokeParticle.class,
             AshParticle.class,
-            CherryParticle.class,
+            FallingLeavesParticle.class,
             LavaParticle.class,
             BreakingItemParticle.class,
             DripParticle.DripHangParticle.class,

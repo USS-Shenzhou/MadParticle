@@ -15,7 +15,6 @@ public class ParticleRenderTypesProxy {
             case INSTANCED -> ModParticleRenderTypes.INSTANCED;
             case TERRAIN_SHEET -> ParticleRenderType.TERRAIN_SHEET;
             case PARTICLE_SHEET_OPAQUE -> ParticleRenderType.PARTICLE_SHEET_OPAQUE;
-            case PARTICLE_SHEET_LIT -> ParticleRenderType.PARTICLE_SHEET_LIT;
             case PARTICLE_SHEET_TRANSLUCENT -> ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
             /*case CUSTOM -> {
                 return ParticleRenderType.CUSTOM;

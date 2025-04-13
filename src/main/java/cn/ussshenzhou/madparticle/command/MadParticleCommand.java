@@ -35,6 +35,7 @@ import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.ClientCommandHandler;
 import net.neoforged.neoforge.server.command.EnumArgument;
 
 import javax.annotation.Nullable;
@@ -199,9 +200,7 @@ public class MadParticleCommand {
         CompoundTag metaTag = null;
         try {
             metaTag = ct.getArgument("meta", CompoundTag.class);
-            if (metaTag.getBoolean(MetaKeys.TADA.get())) {
-                sendTada = true;
-            }
+            sendTada = metaTag.getBooleanOr(MetaKeys.TADA.get(), false);
         } catch (IllegalArgumentException ignored) {
             metaTag = new CompoundTag();
         }
@@ -266,7 +265,7 @@ public class MadParticleCommand {
         CommandContext<CommandSourceStack> ctExe = CommandHelper.getContextHasArgument(ctPre, "targets", EntitySelector.class);
         if (ctExe == null) {
             var meta = ctPre.getArgument("meta", CompoundTag.class);
-            boolean canIndex = meta.getBoolean(MetaKeys.INDEXED.get());
+            boolean canIndex = meta.getBooleanOr(MetaKeys.INDEXED.get(), false);
             var player = sourceStack.getPlayer();
             if (player != null && !T88.TEST) {
                 canIndex &= player.server instanceof DedicatedServer;
@@ -292,7 +291,7 @@ public class MadParticleCommand {
         CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
         new MadParticleCommand(dispatcher);
         InheritableCommandDispatcher<CommandSourceStack> inheritableDispatcher = new InheritableCommandDispatcher<>(dispatcher.getRoot());
-        CommandSourceStack sourceStack = Minecraft.getInstance().player.createCommandSourceStack();
+        CommandSourceStack sourceStack = ClientCommandHandler.getSource();
         return inheritableDispatcher.parse(new InheritableStringReader(commandText), sourceStack);
     }
 }

@@ -17,6 +17,7 @@ import cn.ussshenzhou.t88.gui.combine.TTitledSuggestedEditBox;
 import cn.ussshenzhou.t88.gui.util.AccessorProxy;
 import cn.ussshenzhou.t88.gui.util.ArgumentSuggestionsDispatcher;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
+import net.neoforged.neoforge.client.ClientCommandHandler;
 import org.joml.Vector2i;
 import cn.ussshenzhou.t88.gui.widegt.TButton;
 import cn.ussshenzhou.t88.gui.widegt.TEditBox;
@@ -61,7 +62,6 @@ public class ParametersScrollPanel extends TScrollPanel {
             Component.translatable("gui.mp.de.helper.target"), new ArgumentSuggestionsDispatcher<>()) {
         @Override
         public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
-            RenderSystem.disableDepthTest();
             super.render(graphics, pMouseX, pMouseY, pPartialTick);
             var list = this.getComponent().getSuggestionList();
             if (list.isVisibleT()) {
@@ -458,7 +458,7 @@ public class ParametersScrollPanel extends TScrollPanel {
     protected void tryFillDefault() {
         ArgumentSuggestionsDispatcher<ParticleOptions> dispatcher = new ArgumentSuggestionsDispatcher<>();
         dispatcher.register(Commands.argument("particle", ParticleArgument.particle(Commands.createValidationContext(VanillaRegistries.createLookup()))));
-        CommandSourceStack sourceStack = Minecraft.getInstance().player.createCommandSourceStack();
+        CommandSourceStack sourceStack = ClientCommandHandler.getSource();
         String value = target.getComponent().getEditBox().getValue();
         ParseResults<CommandSourceStack> parseResults = dispatcher.parse(value, sourceStack);
         CommandContext<CommandSourceStack> ct = parseResults.getContext().build(value);

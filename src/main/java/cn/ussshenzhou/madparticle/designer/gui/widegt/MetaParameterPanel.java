@@ -112,7 +112,7 @@ public class MetaParameterPanel extends TPanel {
         }
         metaTag.tags.forEach((s, tag) -> {
             var pair = createAPair();
-            pair.setKV(s, tag.getAsString());
+            pair.setKV(s, tag.asString().orElse(""));
         });
     }
 

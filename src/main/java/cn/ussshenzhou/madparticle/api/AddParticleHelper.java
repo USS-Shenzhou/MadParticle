@@ -27,7 +27,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.common.util.LogicalSidedProvider;
 
 
 import java.util.LinkedList;
@@ -121,7 +120,7 @@ public class AddParticleHelper {
     }
 
     public static void addParticleServer(ServerLevel level, String command) {
-        MinecraftServer server = (MinecraftServer) LogicalSidedProvider.WORKQUEUE.get(LogicalSide.SERVER);
+        MinecraftServer server = level.getServer();
         var source = new CommandSourceStack(server, Vec3.atLowerCornerOf(level.getSharedSpawnPos()), Vec2.ZERO, level, 4, "Server", Component.literal("Server"), server, null);
         server.getCommands().performPrefixedCommand(source, command);
     }
@@ -199,22 +198,25 @@ public class AddParticleHelper {
                 || meta.contains(DY.get())
                 || meta.contains(DZ.get())
                 || meta.contains(LIGHT.get())
-                || meta.getBoolean(TENET.get())
-                || meta.getBoolean(PRE_CAL.get());
+                || meta.getBooleanOr(TENET.get(), false)
+                || meta.getBooleanOr(PRE_CAL.get(), false);
     }
 
     private static void syncCreateParticle(MadParticleOption option) {
-        for (int i = 0; i < option.amount(); i++) {
-            mc.level.addParticle(
-                    option,
-                    option.alwaysRender().get(),
-                    fromValueAndDiffuse(option.px(), option.xDiffuse()),
-                    fromValueAndDiffuse(option.py(), option.yDiffuse()),
-                    fromValueAndDiffuse(option.pz(), option.zDiffuse()),
-                    fromValueAndDiffuse(option.vx(), option.vxDiffuse()),
-                    fromValueAndDiffuse(option.vy(), option.vyDiffuse()),
-                    fromValueAndDiffuse(option.vz(), option.vzDiffuse())
-            );
+        if (mc.level != null) {
+            for (int i = 0; i < option.amount(); i++) {
+                mc.level.addParticle(
+                        option,
+                        option.alwaysRender().get(),
+                        true,
+                        fromValueAndDiffuse(option.px(), option.xDiffuse()),
+                        fromValueAndDiffuse(option.py(), option.yDiffuse()),
+                        fromValueAndDiffuse(option.pz(), option.zDiffuse()),
+                        fromValueAndDiffuse(option.vx(), option.vxDiffuse()),
+                        fromValueAndDiffuse(option.vy(), option.vyDiffuse()),
+                        fromValueAndDiffuse(option.vz(), option.vzDiffuse())
+                );
+            }
         }
     }
 

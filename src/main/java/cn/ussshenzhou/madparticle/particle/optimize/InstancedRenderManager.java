@@ -4,6 +4,7 @@ import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.ModParticleShaders;
+import cn.ussshenzhou.madparticle.particle.bloom.BloomManager;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.madparticle.util.LightCache;
@@ -82,7 +83,8 @@ public class InstancedRenderManager {
         resetOitTexture();
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ACCUM_TEXTURE, 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, REVEAL_TEXTURE, 0);
-        var translucentDrawBuffers = new int[]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+        BloomManager.INSTANCE.attachBloomMaskTargetToOit(GL_COLOR_ATTACHMENT2);
+        var translucentDrawBuffers = new int[]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
         glDrawBuffers(translucentDrawBuffers);
         POST_VAO = glGenVertexArrays();
         POST_VBO = glGenBuffers();
@@ -113,6 +115,10 @@ public class InstancedRenderManager {
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, Minecraft.getInstance().getMainRenderTarget().getDepthTextureId(), 0);
+
+        BloomManager.INSTANCE.resize(window.getWidth(),window.getHeight());
+        glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
+        BloomManager.INSTANCE.attachBloomMaskTargetToOit(GL_COLOR_ATTACHMENT2);
     }
 
     /**
@@ -349,7 +355,7 @@ public class InstancedRenderManager {
         MemoryUtil.memPutShort(start + 30, Float.floatToFloat16(particle.alpha));
         //size extraLight
         MemoryUtil.memPutFloat(start + 32, particle.getQuadSize(partialTicks));
-        if (irisOn && particle instanceof MadParticle madParticle) {
+        if ((irisOn || BloomManager.INSTANCE.isBloomOn()) && particle instanceof MadParticle madParticle) {
             MemoryUtil.memPutFloat(start + 36, madParticle.getBloomFactor());
         } else {
             MemoryUtil.memPutFloat(start + 36, 1.0f);
@@ -450,11 +456,11 @@ public class InstancedRenderManager {
     }
 
     private static void oitPost() {
-        if (irisOn) {
-            borrowAndBindIrisFramebuffer();
-        } else {
-            glBindFramebuffer(GL_FRAMEBUFFER, Minecraft.getInstance().getMainRenderTarget().frameBufferId);
-        }
+        //bind output target to OitOutputTarget
+        BloomManager.INSTANCE.getOitOutputTarget().bindWrite(true);
+        //color attachment 1 is MainRenderTarget's colorAttachment 1, don't clear it
+        glClearBufferfv(GL_COLOR, 0 , ACCUM_INIT);
+
         RenderSystem.setShader(ModParticleShaders::getInstancedParticleShaderOitPost);
         glEnable(GL_BLEND);
         glDepthMask(true);
@@ -474,6 +480,13 @@ public class InstancedRenderManager {
         glBindFramebuffer(GL_FRAMEBUFFER, OIT_FBO);
         glClearBufferfv(GL_COLOR, 0, ACCUM_INIT);
         glClearBufferfv(GL_COLOR, 1, REVEAL_INIT);
+
+        //process bloom
+        var vao = glGetInteger(GL_VERTEX_ARRAY_BINDING);
+        BloomManager.INSTANCE.extractOIT();
+        BloomManager.INSTANCE.doBloom();
+        glBindVertexArray(vao);
+
         glBindFramebuffer(GL_FRAMEBUFFER, Minecraft.getInstance().getMainRenderTarget().frameBufferId);
     }
 

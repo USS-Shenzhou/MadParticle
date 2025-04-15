@@ -117,14 +117,14 @@ dependencies {
 
     //implementation fg.deobf("curse.maven:shimmer-627824:4676467")
     if (System.getProperty("idea.active")) {
-        implementation("cn.ussshenzhou:t88:0.+") {
+        implementation("cn.ussshenzhou:t88:0.12.18") {
             exclude group: "curse.maven", module: "irisshaders-455508"
             exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-renderer-api-v1"
             exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-api-base"
             exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-rendering-data-attachment-v1"
             exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-block-view-api-v2"
         }
-        annotationProcessor("cn.ussshenzhou:t88:0.+") {
+        annotationProcessor("cn.ussshenzhou:t88:0.12.18") {
             exclude group: "curse.maven", module: "irisshaders-455508"
             exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-renderer-api-v1"
             exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-api-base"

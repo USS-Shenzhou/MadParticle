@@ -173,7 +173,7 @@ public class BloomManager implements AutoCloseable {
             downSamplerShader.safeGetUniform("BlurDir")
                     .set(1.0f, 0.0f);
             downSamplerShader.safeGetUniform("Radius").
-                    set((i + 1) * 7 + 1);
+                    set((i + 1) * 6 + 1);
 
             RenderSystem.setShader(ModParticleShaders::getDownSamplerShader);
             BufferUploader.drawWithShader(MESH_DATA.get());

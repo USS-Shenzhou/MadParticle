@@ -15,6 +15,17 @@ float max3(vec3 v){
     return max(max(v.x, v.y), v.z);
 }
 
+vec3 mapColor(vec3 color) {
+    float luminance = dot(color, vec3(0.2126, 0.7152, 0.0722));
+    if (luminance <= 1.5){
+        return color;
+    }
+    float logLum = log2(max(luminance, 1e-4));
+    float mappedLum = (logLum + 0.8) / (logLum + 1.0);
+    vec3 tonemapped = color * (mappedLum / luminance);
+    return tonemapped;
+}
+
 void main() {
     // fragment coordination
     ivec2 coords = ivec2(gl_FragCoord.xy);
@@ -33,5 +44,6 @@ void main() {
     // prevent floating point precision bug
     vec3 average_color = accumulation.rgb / max(accumulation.a, EPSILON);
     // blend pixels
-    fragColor = vec4(average_color, 1.0f - revealage);
+    float alpha = 1.0f - revealage;
+    fragColor = vec4(mapColor(average_color), alpha);
 }

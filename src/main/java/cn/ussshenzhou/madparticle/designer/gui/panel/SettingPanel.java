@@ -8,6 +8,8 @@ import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
 import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderManager;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.optimize.MultiThreadHelper;
+import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
 import cn.ussshenzhou.madparticle.particle.optimize.ParallelTickManager;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
@@ -45,7 +47,7 @@ public class SettingPanel extends TOptionsPanel {
                         newQueue.addAll(p);
                         particles.put(particleRenderType, newQueue);
                         if (particleRenderType == ModParticleRenderTypes.INSTANCED) {
-                            InstancedRenderManager.reload(newQueue);
+                            NeoInstancedRenderManager.forEach(m -> m.reload(newQueue));
                         }
                     });
                 }, getConfigRead().maxParticleAmountOfSingleQueue, false);
@@ -63,8 +65,7 @@ public class SettingPanel extends TOptionsPanel {
                     var c = b.getSelected().getContent();
                     int a = c instanceof String ? 1 : (Integer) c;
                     ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.setBufferFillerThreads(a));
-                    InstancedRenderManager.setThreads(a);
-                    ParallelTickManager.setThreads(a);
+                    MultiThreadHelper.update(a);
                 }, entry -> entry.getContent() instanceof String ? amount == 1 : amount == (Integer) entry.getContent()
         )
                 .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.threads.tooltip")));

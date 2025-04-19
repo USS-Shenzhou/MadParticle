@@ -4,6 +4,7 @@ import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.api.AddParticleHelper;
 import cn.ussshenzhou.madparticle.command.IndexedCommandManager;
 import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderManager;
+import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -51,9 +52,9 @@ public abstract class LevelRendererMixin {
         }
     }
 
-    @Inject(method = "allChanged",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;clearVisibleSections()V"))
+    @Inject(method = "allChanged", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;clearVisibleSections()V"))
     private void madparticleReload(CallbackInfo ci) {
-        InstancedRenderManager.clear();
+        NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::clear);
         IndexedCommandManager.clear();
     }
 }

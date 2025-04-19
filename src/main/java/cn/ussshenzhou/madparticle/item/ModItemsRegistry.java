@@ -13,7 +13,7 @@ import java.util.function.Supplier;
  * @author USS_Shenzhou
  */
 public class ModItemsRegistry {
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(BuiltInRegistries.ITEM, MadParticle.MOD_ID);
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MadParticle.MOD_ID);
 
-    public static final Supplier<Tada> TADA = ITEMS.register("tada", Tada::new);
+    public static final Supplier<Tada> TADA = ITEMS.registerItem("tada", t -> new Tada(t));
 }

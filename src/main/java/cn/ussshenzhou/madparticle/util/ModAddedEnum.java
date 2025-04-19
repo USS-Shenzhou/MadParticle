@@ -1,8 +1,6 @@
 package cn.ussshenzhou.madparticle.util;
 
 //import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
-import net.neoforged.fml.common.asm.enumextension.EnumProxy;
 
 /**
  * @author USS_Shenzhou

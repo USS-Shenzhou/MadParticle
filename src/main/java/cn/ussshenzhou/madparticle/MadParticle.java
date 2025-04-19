@@ -4,6 +4,7 @@ import cn.ussshenzhou.madparticle.command.inheritable.ModCommandArgumentRegistry
 import cn.ussshenzhou.madparticle.item.ModItemsRegistry;
 import cn.ussshenzhou.madparticle.item.component.ModDataComponent;
 import cn.ussshenzhou.madparticle.particle.ModParticleTypeRegistry;
+import cn.ussshenzhou.madparticle.particle.optimize.MultiThreadHelper;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.logging.LogUtils;
 import net.neoforged.neoforge.client.event.ClientTickEvent;

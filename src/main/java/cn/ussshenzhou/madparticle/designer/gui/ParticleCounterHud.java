@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.gui;
 
 import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderManager;
+import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
 import cn.ussshenzhou.madparticle.particle.optimize.ParallelTickManager;
 import cn.ussshenzhou.t88.gui.widegt.TLabel;
 import net.minecraft.client.Minecraft;
@@ -25,14 +26,16 @@ public class ParticleCounterHud extends TLabel {
     public void tickT() {
         super.tickT();
         var total = Minecraft.getInstance().particleEngine.countParticles();
-        int instanced = InstancedRenderManager.amount();
+        int instanced = NeoInstancedRenderManager.getAllInstances()
+                .mapToInt(NeoInstancedRenderManager::amount)
+                .sum();
         int parallel = ParallelTickManager.count();
         this.setText(Component.literal("Particle: "
                 + total
                 + "\nInstanced: "
                 + instanced
-                +"\nParalleled: "
-                +parallel
+                + "\nParalleled: "
+                + parallel
         ));
     }
 }

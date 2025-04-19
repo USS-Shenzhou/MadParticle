@@ -2,15 +2,17 @@
 
 #moj_import <fog.glsl>
 
+//-----per frame update-----
 //single float
 layout (location=0) in vec4 instanceXYZRoll;
+//-----per tick update-----
 //half float
 layout (location=1) in vec4 instanceUV;
 //half float
 layout (location=2) in vec4 instanceColor;
-//single float
+//half float
 layout (location=3) in vec2 sizeExtraLight;
-//4+4 byte
+//(4+4 bits) 1 byte + 3 byte padding
 layout (location=4) in uint instanceUV2;
 
 uniform sampler2D Sampler2;

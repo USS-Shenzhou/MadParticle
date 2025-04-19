@@ -121,5 +121,7 @@ client/
 /.cache/
 /.fleet/
 /runs/
+/run/
 
 !/libs/*
+!/.idea/icon.png

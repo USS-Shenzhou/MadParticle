@@ -115,6 +115,7 @@ dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
     // https://mvnrepository.com/artifact/net.objecthunter/exp4j
+    additionalRuntimeClasspath group: 'net.objecthunter', name: 'exp4j', version: '[0.4,0.5)'
     implementation group: 'net.objecthunter', name: 'exp4j', version: '[0.4,0.5)'
     jarJar(group: 'net.objecthunter', name: 'exp4j', version: '[0.4,0.5)')
 

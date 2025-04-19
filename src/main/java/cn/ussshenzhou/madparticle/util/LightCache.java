@@ -2,7 +2,7 @@ package cn.ussshenzhou.madparticle.util;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
-import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderManager;
+import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.TextureSheetParticle;
@@ -74,7 +74,7 @@ public class LightCache {
         outside.clear();
     }
 
-    public byte getOrCompute(int x, int y, int z, TextureSheetParticle particle, InstancedRenderManager.SimpleBlockPos simpleBlockPos) {
+    public byte getOrCompute(int x, int y, int z, TextureSheetParticle particle, NeoInstancedRenderManager.SimpleBlockPos simpleBlockPos) {
         if (isInRange(x, y, z)) {
             var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             int rx = Mth.floor(x - camera.x) + XZ_RANGE;
@@ -108,7 +108,7 @@ public class LightCache {
         return (byte) ((packetLight >>> 4 & 0xf) | (packetLight >>> 16 & 0xf0));
     }
 
-    public static int getLight(TextureSheetParticle particle, InstancedRenderManager.SimpleBlockPos simpleBlockPosSingle) {
+    public static int getLight(TextureSheetParticle particle, NeoInstancedRenderManager.SimpleBlockPos simpleBlockPosSingle) {
         var pos = MUTABLE_BLOCK_POS.get().set(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z);
         return particle.level.hasChunkAt(pos) ? LevelRenderer.getLightColor(particle.level, pos) : 0;
     }

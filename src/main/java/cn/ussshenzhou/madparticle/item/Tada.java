@@ -31,8 +31,8 @@ public class Tada extends Item {
     public static final String PULSE = "pulse";
     public static final String USED = "used";
 
-    public Tada() {
-        super(new Properties().stacksTo(1));
+    public Tada(Item.Properties properties) {
+        super(properties);
     }
 
     @Override

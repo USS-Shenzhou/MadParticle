@@ -3,7 +3,6 @@ package cn.ussshenzhou.madparticle.particle.optimize;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
-import cn.ussshenzhou.madparticle.particle.ModParticleShaders;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.madparticle.util.LightCache;
@@ -34,7 +33,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 import static cn.ussshenzhou.madparticle.MadParticle.irisOn;
@@ -43,6 +44,7 @@ import static org.lwjgl.opengl.GL33C.*;
 /**
  * @author USS_Shenzhou
  */
+@Deprecated
 public class InstancedRenderManager {
     /**
      * <pre>{@code
@@ -56,7 +58,7 @@ public class InstancedRenderManager {
      *     ubyte instanceUV2;
      * }
      * }</pre>
-     */
+     *
     public static final int ROW0_SIZE = 4 * 4, ROW1_SIZE = 2 * 4, ROW2_SIZE = 2 * 4, ROW3_SIZE = 4 * 2, ROW4_SIZE = 1;
     public static final int INSTANCE0_SIZE = ROW0_SIZE + ROW1_SIZE + ROW2_SIZE + ROW3_SIZE;
     public static final int INSTANCE1_SIZE = ROW4_SIZE;
@@ -117,7 +119,7 @@ public class InstancedRenderManager {
 
     /**
      * Manual reg.
-     */
+     *
     @SubscribeEvent
     public static void onWindowResize(ResizeHudEvent event) {
         resetOitTexture();
@@ -125,7 +127,7 @@ public class InstancedRenderManager {
 
     /**
      * Manual reg.
-     */
+     *
     @SubscribeEvent
     public static void checkForceMaxLight(ClientTickEvent.Pre event) {
         forceMaxLight = ConfigHelper.getConfigRead(MadParticleConfig.class).forceMaxLight;
@@ -523,5 +525,5 @@ public class InstancedRenderManager {
                 return this.x == pos.x && this.y == pos.y && this.z == pos.z;
             }
         }
-    }
+    }*/
 }

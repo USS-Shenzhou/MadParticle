@@ -51,6 +51,7 @@ public class InstancedArrayBuffer {
         if (address == -1) {
             throw new IllegalStateException("The buffer has not been allocated.");
         }
+        glBindBuffer(GL_ARRAY_BUFFER, id);
         nglBufferData(GL_ARRAY_BUFFER, byteSize, address, GL_STREAM_DRAW);
     }
 }

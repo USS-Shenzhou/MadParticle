@@ -60,7 +60,8 @@ public class SettingPanel extends TOptionsPanel {
                 .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.real_force.tooltip")));
         int amount = getConfigRead().getBufferFillerThreads();
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.threads"),
-                Sets.newLinkedHashSet(List.of("gui.mp.de.setting.threads.zero", 6, 4, 8, 2, 12, amount == 1 ? 6 : amount)).stream().toList(),
+                //FIXME
+                Sets.newLinkedHashSet(List.of("gui.mp.de.setting.threads.zero", 2, 4, 6, 8, 12, 16, amount == 1 ? 6 : amount)).stream().toList(),
                 i -> b -> {
                     var c = b.getSelected().getContent();
                     int a = c instanceof String ? 1 : (Integer) c;

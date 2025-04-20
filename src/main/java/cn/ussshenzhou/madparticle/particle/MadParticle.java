@@ -29,6 +29,7 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Comparator;
 import java.util.List;
@@ -147,6 +148,7 @@ public class MadParticle extends TextureSheetParticle {
         } else {
             this.roll = 0;
         }
+        this.oRoll = roll;
         this.xDeflectionInitial = xDeflection;
         this.xDeflection = xDeflection;
         this.zDeflectionInitial = zDeflection;

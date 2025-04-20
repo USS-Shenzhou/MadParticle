@@ -7,12 +7,12 @@ import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.collect.Sets;
-import com.mojang.blaze3d.buffers.BufferType;
-import com.mojang.blaze3d.opengl.GlBuffer;
 import com.mojang.blaze3d.opengl.GlRenderPass;
 import com.mojang.blaze3d.opengl.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
+import jdk.incubator.vector.FloatVector;
+import jdk.incubator.vector.VectorSpecies;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
@@ -25,23 +25,16 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.lwjgl.system.MemoryUtil;
 
+import java.lang.foreign.MemorySegment;
+import java.nio.ByteOrder;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static cn.ussshenzhou.madparticle.MadParticle.irisOn;
-import static cn.ussshenzhou.madparticle.particle.optimize.MultiThreadHelper.getFixedThreadPool;
-import static cn.ussshenzhou.madparticle.particle.optimize.MultiThreadHelper.getThreads;
-import static org.lwjgl.opengl.GL11C.GL_FLOAT;
-import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_BYTE;
-import static org.lwjgl.opengl.GL11C.glDepthMask;
-import static org.lwjgl.opengl.GL15C.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15C.GL_ELEMENT_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15C.glBindBuffer;
-import static org.lwjgl.opengl.GL20C.*;
-import static org.lwjgl.opengl.GL30C.*;
-import static org.lwjgl.opengl.GL33C.glVertexAttribDivisor;
+import static cn.ussshenzhou.madparticle.particle.optimize.MultiThreadHelper.*;
+import static org.lwjgl.opengl.GL42.*;
 
 /**
  * @author USS_Shenzhou
@@ -198,7 +191,6 @@ public class NeoInstancedRenderManager {
         var mc = Minecraft.getInstance();
         var encoder = InstancedGlCommandEncoder.getInstance();
         InstancedGlCommandEncoder.setInstanceToDraw(amount);
-        GlStateManager._glBindVertexArray(VAO);
         //noinspection DataFlowIssue
         try (var pass = encoder.createRenderPass(
                 mc.getMainRenderTarget().getColorTexture(),
@@ -206,21 +198,21 @@ public class NeoInstancedRenderManager {
                 mc.getMainRenderTarget().getDepthTexture(),
                 OptionalDouble.empty()
         )) {
-
             pass.setPipeline(ModRenderPipelines.INSTANCED_COMMON_DEPTH);
             var camera = mc.gameRenderer.getMainCamera();
             var cameraPos = camera.getPosition();
             pass.setUniform("CamXYZ", (float) cameraPos.x, (float) cameraPos.y, (float) cameraPos.z);
             var cameraRot = camera.rotation();
             pass.setUniform("CamQuat", cameraRot.x, cameraRot.y, cameraRot.z, cameraRot.w);
-            pass.bindSampler("Sampler0", mc.getMainRenderTarget().getColorTexture());
-            pass.bindSampler("Sampler2", mc.getTextureManager().getTexture(usingAtlas).getTexture());
+            pass.bindSampler("Sampler0", mc.getTextureManager().getTexture(usingAtlas).getTexture());
+            pass.bindSampler("Sampler2", mc.gameRenderer.lightTexture().getTarget());
             updateFrameVBO(amount);
             updateTickVBO(amount);
-            //pass.draw(0, 4);
+            GlStateManager._glBindVertexArray(VAO);
             encoder.trySetup((GlRenderPass) pass);
             frameVBO.bind();
             tickVBO.bind();
+            pass.draw(0, 4);
         }
         cleanUp();
     }
@@ -235,18 +227,29 @@ public class NeoInstancedRenderManager {
         frameVBO.update();
     }
 
+    private static final VectorSpecies<Float> SPECIES_4 = FloatVector.SPECIES_128;
 
     private void updateFrameVBOInternal(LinkedHashSet<TextureSheetParticle> particles, int index, long frameVBOAddress, float partialTicks) {
+        MemorySegment asSeg = MemorySegment.ofAddress(frameVBOAddress).reinterpret(FRAME_VBO_SIZE * amount());
+
+        long timeA = Util.getNanos();
         for (TextureSheetParticle particle : particles) {
-            long start = frameVBOAddress + (long) index * FRAME_VBO_SIZE;
-            //xyz roll
-            float x = (float) (particle.xo + partialTicks * (particle.x - particle.xo));
-            float y = (float) (particle.yo + partialTicks * (particle.y - particle.yo));
-            float z = (float) (particle.zo + partialTicks * (particle.z - particle.zo));
-            MemoryUtil.memPutFloat(start, x);
-            MemoryUtil.memPutFloat(start + 4, y);
-            MemoryUtil.memPutFloat(start + 8, z);
-            MemoryUtil.memPutFloat(start + 12, particle.oRoll + partialTicks * (particle.roll - particle.oRoll));
+            //long start = frameVBOAddress + (long) index * FRAME_VBO_SIZE;
+            ////xyz roll
+            //float x = (float) (particle.xo + partialTicks * (particle.x - particle.xo));
+            //float y = (float) (particle.yo + partialTicks * (particle.y - particle.yo));
+            //float z = (float) (particle.zo + partialTicks * (particle.z - particle.zo));
+            //float roll = particle.oRoll + partialTicks * (particle.roll - particle.oRoll);
+            //MemoryUtil.memPutFloat(start, x);
+            //MemoryUtil.memPutFloat(start + 4, y);
+            //MemoryUtil.memPutFloat(start + 8, z);
+            //MemoryUtil.memPutFloat(start + 12, roll);
+            var f = new float[]{(float) particle.x, (float) particle.y, (float) particle.z, particle.roll};
+            FloatVector vec = FloatVector.fromArray(SPECIES_4, f, 0);
+            var fo = new float[]{(float) particle.xo, (float) particle.yo, (float) particle.zo, particle.oRoll};
+            FloatVector old = FloatVector.fromArray(SPECIES_4, fo, 0);
+            var res = old.add(vec.sub(old).mul(partialTicks));
+            res.intoMemorySegment(asSeg, (long) index * FRAME_VBO_SIZE, ByteOrder.nativeOrder());
             index++;
         }
     }
@@ -265,9 +268,6 @@ public class NeoInstancedRenderManager {
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
         for (TextureSheetParticle particle : particles) {
             long start = tickVBOAddress + (long) index * TICK_VBO_SIZE;
-            float x = (float) (particle.xo + 0.5f * (particle.x - particle.xo));
-            float y = (float) (particle.yo + 0.5f * (particle.y - particle.yo));
-            float z = (float) (particle.zo + 0.5f * (particle.z - particle.zo));
             //uv
             var sprite = particle.sprite;
             MemoryUtil.memPutShort(start, Float.floatToFloat16(sprite.u0));
@@ -281,7 +281,7 @@ public class NeoInstancedRenderManager {
             MemoryUtil.memPutShort(start + 14, Float.floatToFloat16(particle.alpha));
             //size extraLight
             MemoryUtil.memPutShort(start + 16, Float.floatToFloat16(particle.getQuadSize(0.5f)));
-            if (irisOn && particle instanceof MadParticle madParticle) {
+            if (particle instanceof MadParticle madParticle) {
                 MemoryUtil.memPutShort(start + 18, Float.floatToFloat16(madParticle.getBloomFactor()));
             } else {
                 MemoryUtil.memPutShort(start + 18, (short) 1);
@@ -290,6 +290,9 @@ public class NeoInstancedRenderManager {
             if (forceMaxLight) {
                 MemoryUtil.memPutByte(start + 20, (byte) 0xff);
             } else {
+                float x = (float) (particle.xo + 0.5f * (particle.x - particle.xo));
+                float y = (float) (particle.yo + 0.5f * (particle.y - particle.yo));
+                float z = (float) (particle.zo + 0.5f * (particle.z - particle.zo));
                 simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
                 byte l;
                 if (particle instanceof MadParticle madParticle) {
@@ -308,7 +311,7 @@ public class NeoInstancedRenderManager {
 
     @SuppressWarnings("unchecked")
     private void executeUpdate(VboUpdater updater, InstancedArrayBuffer vbo) {
-        var partialTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
+        var partialTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
         CompletableFuture<Void>[] futures = new CompletableFuture[getThreads()];
         int index = 0;
         for (int group = 0; group < futures.length; group++) {
@@ -348,12 +351,12 @@ public class NeoInstancedRenderManager {
     }
 
     private static void cleanUp() {
-        for (int i = 0; i < 4; i++) {
-            glDisableVertexAttribArray(i);
-        }
+        GlStateManager._glBindVertexArray(0);
+        //for (int i = 0; i < 4; i++) {
+        //    glDisableVertexAttribArray(i);
+        //}
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDepthMask(true);
-        GlStateManager._glBindVertexArray(0);
     }
 
     @FunctionalInterface

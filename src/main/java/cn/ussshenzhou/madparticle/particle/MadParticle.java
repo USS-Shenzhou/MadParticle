@@ -1,12 +1,12 @@
 package cn.ussshenzhou.madparticle.particle;
 
+import cn.ussshenzhou.madparticle.api.AddParticleHelperC;
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
 import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.util.AABBHelper;
-import cn.ussshenzhou.madparticle.api.AddParticleHelper;
 import cn.ussshenzhou.madparticle.util.MathHelper;
 import cn.ussshenzhou.madparticle.util.MovementHelper;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -19,7 +19,6 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.phys.AABB;
@@ -535,7 +534,7 @@ public class MadParticle extends TextureSheetParticle {
     public void remove() {
         super.remove();
         if (this.child != null) {
-            AddParticleHelper.addParticleClientAsync2Async(child.inheritOrContinue(this), this.roll);
+            AddParticleHelperC.addParticleClientAsync2Async(child.inheritOrContinue(this), this.roll);
         }
     }
 

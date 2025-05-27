@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.network;
 
 import cn.ussshenzhou.madparticle.MadParticle;
-import cn.ussshenzhou.madparticle.api.AddParticleHelper;
+import cn.ussshenzhou.madparticle.api.AddParticleHelperC;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.t88.network.annotation.ClientHandler;
 import cn.ussshenzhou.t88.network.annotation.Decoder;
@@ -33,7 +33,7 @@ public class MadParticlePacket {
 
     @ClientHandler
     public void clientHandler(IPayloadContext context) {
-        AddParticleHelper.addParticleClientAsync2Async(particleOption);
+        AddParticleHelperC.addParticleClientAsync2Async(particleOption);
     }
 
 }

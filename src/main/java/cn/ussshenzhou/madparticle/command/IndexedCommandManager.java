@@ -1,6 +1,6 @@
 package cn.ussshenzhou.madparticle.command;
 
-import cn.ussshenzhou.madparticle.api.AddParticleHelper;
+import cn.ussshenzhou.madparticle.api.AddParticleHelperC;
 import cn.ussshenzhou.madparticle.network.AskIndexedCommandPacket;
 import cn.ussshenzhou.madparticle.network.IndexedCommandPacket;
 import cn.ussshenzhou.madparticle.network.ReplyIndexedCommandPacket;
@@ -86,7 +86,7 @@ public class IndexedCommandManager {
         var option = MadParticleCommand.assembleOption(command, Minecraft.getInstance().player.createCommandSourceStack()
                         .withPosition(new Vec3(x, y, z)),
                 dispatcher);
-        AddParticleHelper.addParticleClientAsync2Async(option);
+        AddParticleHelperC.addParticleClientAsync2Async(option);
     }
 
     public static String getCommand(int index) {

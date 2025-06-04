@@ -143,6 +143,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
         boolean changed = false;
         for (var o : c) {
             changed |= linkedHashSets[index % linkedHashSets.length].add(o);
+            index++;
         }
         return changed;
     }

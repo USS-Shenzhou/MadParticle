@@ -134,7 +134,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
                 return false;
             }
         }
-        return false;
+        return true;
     }
 
     @Override

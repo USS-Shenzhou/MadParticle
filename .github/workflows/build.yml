@@ -28,7 +28,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
       - name: Apply Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
@@ -52,7 +52,7 @@ jobs:
       - name: DSLT Tests
         run: ./gradlew dslt --stacktrace
       - name: GitHub Action Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: success()
         with:
           name: madparticle-${{ steps.modversion.outputs.VERSION }}.dev-${{ steps.short-sha.outputs.sha }}.jar

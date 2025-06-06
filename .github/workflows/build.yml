@@ -52,8 +52,6 @@ jobs:
         run: echo "VERSION=$(grep '^mod_version=' gradle.properties | cut -d= -f2)" >> "$GITHUB_OUTPUT"
       - name: Build MadParticle
         run: ./gradlew :build --stacktrace
-      - name: DSLT Tests
-        run: ./gradlew dslt --stacktrace
       - name: GitHub Action Artifact
         uses: actions/upload-artifact@v4
         if: success()

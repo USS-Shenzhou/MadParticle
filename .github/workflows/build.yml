@@ -34,16 +34,26 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: $${{ runner.os }}-gradle
+      - name: Checkout t88
+        uses: actions/checkout@v3
+        with:
+          repository: USS-Shenzhou/t88
+          path: t88
+      - name: Build t88
+        run: cd t88 && ./gradlew publishToMavenLocal --stacktrace
       - name: Get Short Identifier
         uses: benjlevesque/short-sha@v1.2
         id: short-sha
-      - name: Build
-        id: build
-        env:
-          VERSION_IDENTIFIER: SNAPSHOT+${{ steps.short-sha.outputs.sha }}
-        run: ./gradlew :build :githubActionOutput --stacktrace
+      - name: Read Mod Version
+        id: modversion
+        run: echo "VERSION=$(grep '^mod_version=' gradle.properties | cut -d= -f2)" >> "$GITHUB_OUTPUT"
+      - name: Build MadParticle
+        run: ./gradlew :build --stacktrace
+      - name: DSLT Tests
+        run: ./gradlew dslt --stacktrace
       - name: GitHub Action Artifact
         uses: actions/upload-artifact@v3
+        if: success()
         with:
-          name: ${{steps.build.outputs.artifact_name}}.dev-${{steps.short-sha.outputs.sha}}.jar
-          path: build/libs/${{steps.build.outputs.artifact_name}}.jar
+          name: madparticle-${{ steps.modversion.outputs.VERSION }}.dev-${{ steps.short-sha.outputs.sha }}.jar
+          path: build/libs/madparticle-${{ steps.modversion.outputs.VERSION }}.jar

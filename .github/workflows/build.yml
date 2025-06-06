@@ -40,7 +40,10 @@ jobs:
           repository: USS-Shenzhou/t88
           path: t88
       - name: Build t88
-        run: cd t88 && ./gradlew publishToMavenLocal --stacktrace
+        run: |
+          cd t88
+          chmod +x gradlew
+          ./gradlew publishToMavenLocal --stacktrace
       - name: Get Short Identifier
         uses: benjlevesque/short-sha@v1.2
         id: short-sha

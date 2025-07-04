@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.ClientCommandHandler;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,7 +52,7 @@ public class IndexedCommandManager {
         int index;
         if (INDEXED_COMMANDS.size() < 512) {
             index = ThreadLocalRandom.current().nextInt(16384);
-        } else if (INDEXED_COMMANDS.size() < 65536){
+        } else if (INDEXED_COMMANDS.size() < 65536) {
             index = ThreadLocalRandom.current().nextInt(2097152);
         } else {
             index = ThreadLocalRandom.current().nextInt();
@@ -83,9 +84,7 @@ public class IndexedCommandManager {
     }
 
     public static void preform(double x, double y, double z, String command) {
-        var option = MadParticleCommand.assembleOption(command, Minecraft.getInstance().player.createCommandSourceStack()
-                        .withPosition(new Vec3(x, y, z)),
-                dispatcher);
+        var option = MadParticleCommand.assembleOption(command, ClientCommandHandler.getSource().withPosition(new Vec3(x, y, z)), dispatcher);
         AddParticleHelperC.addParticleClientAsync2Async(option);
     }
 
@@ -93,7 +92,7 @@ public class IndexedCommandManager {
         return INDEXED_COMMANDS.get(index);
     }
 
-    public static void clear(){
+    public static void clear() {
         INDEXED_COMMANDS.clear();
         CLIENT_BUFFER.clear();
     }

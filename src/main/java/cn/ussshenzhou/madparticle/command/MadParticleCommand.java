@@ -268,7 +268,7 @@ public class MadParticleCommand {
             boolean canIndex = meta.getBooleanOr(MetaKeys.INDEXED.get(), false);
             var player = sourceStack.getPlayer();
             if (player != null && !T88.TEST) {
-                canIndex &= player.server instanceof DedicatedServer;
+                canIndex &= player.getServer() instanceof DedicatedServer;
             }
             if (canIndex) {
                 IndexedCommandManager.serverPreform(ctPre, playerList, commandString);

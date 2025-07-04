@@ -20,7 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.common.util.LogicalSidedProvider;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 
 import java.util.Random;
@@ -37,8 +37,12 @@ public class AddParticleHelperS {
     private static Random r = new Random();
 
     public static void addParticleServer(ServerLevel level, String command) {
-        MinecraftServer server = (MinecraftServer) LogicalSidedProvider.WORKQUEUE.get(LogicalSide.SERVER);
-        var source = new CommandSourceStack(server, Vec3.atLowerCornerOf(level.getSharedSpawnPos()), Vec2.ZERO, level, 4, "Server", Component.literal("Server"), server, null);
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        CommandSourceStack source = null;
+        if (server == null) {
+            return;
+        }
+        source = new CommandSourceStack(server, Vec3.atLowerCornerOf(level.getSharedSpawnPos()), Vec2.ZERO, level, 4, "Server", Component.literal("Server"), server, null);
         server.getCommands().performPrefixedCommand(source, command);
     }
 
@@ -115,8 +119,8 @@ public class AddParticleHelperS {
                 || meta.contains(DY.get())
                 || meta.contains(DZ.get())
                 || meta.contains(LIGHT.get())
-                || meta.getBoolean(TENET.get())
-                || meta.getBoolean(PRE_CAL.get());
+                || meta.getBooleanOr(TENET.get(), false)
+                || meta.getBooleanOr(PRE_CAL.get(), false);
     }
 
     protected static double fromValueAndDiffuse(double value, double diffuse) {

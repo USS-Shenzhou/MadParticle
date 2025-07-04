@@ -8,9 +8,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.RandomSource;
 
 /**
@@ -45,7 +47,7 @@ public class ParticlePreviewPanel extends TPanel {
         }
         renderBackground(graphics, pMouseX, pMouseY, pPartialTick);
         if (textureAtlasSprite != null) {
-            graphics.blitSprite(RenderType::guiTextured, textureAtlasSprite, x + 4, y + 4, 0, width - 8, height - 8);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, textureAtlasSprite, x + 4, y + 4, width - 8, height - 8, ARGB.colorFromFloat(1, r, g, b));
         }
         renderChildren(graphics, pMouseX, pMouseY, pPartialTick);
     }

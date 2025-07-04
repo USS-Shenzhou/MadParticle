@@ -5,10 +5,10 @@ import cn.ussshenzhou.madparticle.api.AddParticleHelperS;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.server.level.ParticleStatus;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,21 +30,21 @@ public abstract class LevelRendererMixin {
     protected abstract ParticleStatus calculateParticleLevel(boolean pDecreased);
 
     @Inject(method = "addParticleInternal(Lnet/minecraft/core/particles/ParticleOptions;ZZDDDDDD)Lnet/minecraft/client/particle/Particle;", at = @At("HEAD"), cancellable = true)
-    private void madparticleCheckParticleGenerateDistance(ParticleOptions pOptions, boolean pForce, boolean pDecreased, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed, CallbackInfoReturnable<Particle> cir) {
+    private void madparticleCheckParticleGenerateDistance(ParticleOptions options, boolean force, boolean decreased, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, CallbackInfoReturnable<Particle> cir) {
         Camera camera = this.minecraft.gameRenderer.getMainCamera();
-        ParticleStatus particlestatus = this.calculateParticleLevel(pDecreased);
-        if (pForce) {
+        ParticleStatus particlestatus = this.calculateParticleLevel(decreased);
+        if (force) {
             if (ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance) {
-                if (camera.getPosition().distanceToSqr(pX, pY, pZ) > AddParticleHelperS.getMaxParticleGenerateDistanceSqr()) {
+                if (camera.getPosition().distanceToSqr(x, y, z) > AddParticleHelperS.getMaxParticleGenerateDistanceSqr()) {
                     cir.setReturnValue(null);
                 }
             } else {
-                cir.setReturnValue(this.minecraft.particleEngine.createParticle(pOptions, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed));
+                cir.setReturnValue(this.minecraft.particleEngine.createParticle(options, x, y, z, xSpeed, ySpeed, zSpeed));
             }
-        } else if (camera.getPosition().distanceToSqr(pX, pY, pZ) > AddParticleHelperS.getNormalParticleGenerateDistanceSqr()) {
+        } else if (camera.getPosition().distanceToSqr(x, y, z) > AddParticleHelperS.getNormalParticleGenerateDistanceSqr()) {
             cir.setReturnValue(null);
         } else {
-            cir.setReturnValue(particlestatus == ParticleStatus.MINIMAL ? null : this.minecraft.particleEngine.createParticle(pOptions, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed));
+            cir.setReturnValue(particlestatus == ParticleStatus.MINIMAL ? null : this.minecraft.particleEngine.createParticle(options, x, y, z, xSpeed, ySpeed, zSpeed));
         }
     }
 }

@@ -18,16 +18,15 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class ModRenderPipelines {
     public static final VertexFormat INSTANCED_VERTEX_FORMAT = VertexFormat.builder()
-            .add("Position", VertexFormatElement.POSITION)
+            .add("MadParticle Position", VertexFormatElement.POSITION)
             .build();
 
-    public static final RenderPipeline.Snippet INSTANCED_SNIPPET = RenderPipeline.builder(RenderPipelines.MATRICES_COLOR_FOG_SNIPPET)
+    public static final RenderPipeline.Snippet INSTANCED_SNIPPET = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
             .withVertexShader(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle"))
             .withVertexFormat(INSTANCED_VERTEX_FORMAT, VertexFormat.Mode.QUADS)
             .withSampler("Sampler0")
             .withSampler("Sampler2")
-            .withUniform("CamXYZ", UniformType.VEC3)
-            .withUniform("CamQuat", UniformType.VEC4)
+            .withUniform("CameraCorrection", UniformType.UNIFORM_BUFFER)
             .withPolygonMode(PolygonMode.FILL)
             .withCull(true)
             .withColorLogic(LogicOp.NONE)

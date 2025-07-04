@@ -5,14 +5,19 @@ import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.util.LightCache;
+import cn.ussshenzhou.madparticle.util.SimpleBlockPos;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.collect.Sets;
-import com.mojang.blaze3d.opengl.GlRenderPass;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.opengl.GlBuffer;
+import com.mojang.blaze3d.opengl.GlDevice;
 import com.mojang.blaze3d.opengl.GlStateManager;
-import com.mojang.logging.LogUtils;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorSpecies;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
@@ -23,17 +28,22 @@ import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryUtil;
 
 import java.lang.foreign.MemorySegment;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static cn.ussshenzhou.madparticle.particle.optimize.MultiThreadHelper.*;
+import static org.lwjgl.opengl.ARBInstancedArrays.*;
 import static org.lwjgl.opengl.GL42.*;
 
 /**
@@ -45,7 +55,6 @@ public class NeoInstancedRenderManager {
 
     public NeoInstancedRenderManager(ResourceLocation usingAtlas) {
         this.usingAtlas = usingAtlas;
-        initRender();
     }
 //----------meta manager----------
 
@@ -166,16 +175,20 @@ public class NeoInstancedRenderManager {
     private boolean tickPassed = true;
     private static final LightCache LIGHT_CACHE = new LightCache();
     private static boolean forceMaxLight = false;
-    private final int VAO = GlStateManager._glGenVertexArrays();
-
-    private void initRender() {
-        GlStateManager._glBindVertexArray(VAO);
-        setVertexAttributeArray();
-        GlStateManager._glBindVertexArray(0);
-    }
+    private static final GpuBuffer PROXY_VAO = ModRenderPipelines.INSTANCED_COMMON_DEPTH.getVertexFormat().uploadImmediateVertexBuffer(ByteBuffer.allocateDirect(128));
+    private static final GpuBuffer EBO;
 
     static {
         NeoForge.EVENT_BUS.addListener(NeoInstancedRenderManager::checkForceMaxLight);
+        var eboBuffer = BufferUtils.createByteBuffer(6 * 4);
+        eboBuffer.putInt(0);
+        eboBuffer.putInt(1);
+        eboBuffer.putInt(2);
+        eboBuffer.putInt(2);
+        eboBuffer.putInt(1);
+        eboBuffer.putInt(3);
+        eboBuffer.flip();
+        EBO = ModRenderPipelines.INSTANCED_COMMON_DEPTH.getVertexFormat().uploadImmediateIndexBuffer(eboBuffer);
     }
 
     @SubscribeEvent
@@ -189,32 +202,58 @@ public class NeoInstancedRenderManager {
             return;
         }
         var mc = Minecraft.getInstance();
-        var encoder = InstancedGlCommandEncoder.getInstance();
-        InstancedGlCommandEncoder.setInstanceToDraw(amount);
+        var encoder = RenderSystem.getDevice().createCommandEncoder();
+        var dynamicTransformsUniform = RenderSystem.getDynamicUniforms().writeTransform(
+                RenderSystem.getModelViewMatrix(),
+                new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
+                new Vector3f(),
+                new Matrix4f(),
+                0.0F);
         //noinspection DataFlowIssue
         try (var pass = encoder.createRenderPass(
-                mc.getMainRenderTarget().getColorTexture(),
+                () -> "MadParticle render",
+                mc.getMainRenderTarget().getColorTextureView(),
                 OptionalInt.empty(),
-                mc.getMainRenderTarget().getDepthTexture(),
+                mc.getMainRenderTarget().getDepthTextureView(),
                 OptionalDouble.empty()
         )) {
             pass.setPipeline(ModRenderPipelines.INSTANCED_COMMON_DEPTH);
-            var camera = mc.gameRenderer.getMainCamera();
-            var cameraPos = camera.getPosition();
-            pass.setUniform("CamXYZ", (float) cameraPos.x, (float) cameraPos.y, (float) cameraPos.z);
-            var cameraRot = camera.rotation();
-            pass.setUniform("CamQuat", cameraRot.x, cameraRot.y, cameraRot.z, cameraRot.w);
-            pass.bindSampler("Sampler0", mc.getTextureManager().getTexture(usingAtlas).getTexture());
-            pass.bindSampler("Sampler2", mc.gameRenderer.lightTexture().getTarget());
+            setUniform(pass, mc, dynamicTransformsUniform);
+            setVAO(pass);
             updateFrameVBO(amount);
             updateTickVBO(amount);
-            GlStateManager._glBindVertexArray(VAO);
-            encoder.trySetup((GlRenderPass) pass);
             frameVBO.bind();
             tickVBO.bind();
-            pass.draw(0, 4);
+            pass.setIndexBuffer(EBO, VertexFormat.IndexType.INT);
+            pass.drawIndexed(0, 0, 6, amount);
         }
         cleanUp();
+    }
+
+    private void setVAO(RenderPass pass) {
+        pass.setVertexBuffer(0, PROXY_VAO);
+        ((GlDevice) RenderSystem.getDevice()).vertexArrayCache().bindVertexArray(ModRenderPipelines.INSTANCED_COMMON_DEPTH.getVertexFormat(), (GlBuffer) PROXY_VAO);
+        setVertexAttributeArray();
+    }
+
+    private void setUniform(RenderPass pass, Minecraft mc, GpuBufferSlice dynamicTransformsUniform) {
+        RenderSystem.bindDefaultUniforms(pass);
+        pass.setUniform("DynamicTransforms", dynamicTransformsUniform);
+        var camera = mc.gameRenderer.getMainCamera();
+        var cameraPos = camera.getPosition();
+        var cameraRot = camera.rotation();
+        ByteBuffer uniformBuffer = BufferUtils.createByteBuffer((4 + 4) * 4);
+        uniformBuffer.putFloat(cameraRot.x);
+        uniformBuffer.putFloat(cameraRot.y);
+        uniformBuffer.putFloat(cameraRot.z);
+        uniformBuffer.putFloat(cameraRot.w);
+        uniformBuffer.putFloat((float) cameraPos.x);
+        uniformBuffer.putFloat((float) cameraPos.y);
+        uniformBuffer.putFloat((float) cameraPos.z);
+        uniformBuffer.flip();
+        pass.setUniform("CameraCorrection", RenderSystem.getDevice().createBuffer(() -> "MadParticle CameraCorrection Uniform", GpuBuffer.USAGE_UNIFORM, uniformBuffer));
+        pass.bindSampler("Sampler0", mc.getTextureManager().getTexture(usingAtlas).getTextureView());
+        pass.bindSampler("Sampler2", mc.gameRenderer.lightTexture().getTextureView());
     }
 
     public void tickPassed() {
@@ -229,21 +268,20 @@ public class NeoInstancedRenderManager {
 
     private static final VectorSpecies<Float> SPECIES_4 = FloatVector.SPECIES_128;
 
+    @SuppressWarnings("preview")
     private void updateFrameVBOInternal(LinkedHashSet<TextureSheetParticle> particles, int index, long frameVBOAddress, float partialTicks) {
-        MemorySegment asSeg = MemorySegment.ofAddress(frameVBOAddress).reinterpret(FRAME_VBO_SIZE * amount());
-
-        long timeA = Util.getNanos();
+        MemorySegment asSeg = MemorySegment.ofAddress(frameVBOAddress).reinterpret((long) FRAME_VBO_SIZE * amount());
         for (TextureSheetParticle particle : particles) {
-            //long start = frameVBOAddress + (long) index * FRAME_VBO_SIZE;
-            ////xyz roll
-            //float x = (float) (particle.xo + partialTicks * (particle.x - particle.xo));
-            //float y = (float) (particle.yo + partialTicks * (particle.y - particle.yo));
-            //float z = (float) (particle.zo + partialTicks * (particle.z - particle.zo));
-            //float roll = particle.oRoll + partialTicks * (particle.roll - particle.oRoll);
-            //MemoryUtil.memPutFloat(start, x);
-            //MemoryUtil.memPutFloat(start + 4, y);
-            //MemoryUtil.memPutFloat(start + 8, z);
-            //MemoryUtil.memPutFloat(start + 12, roll);
+            /*long start = frameVBOAddress + (long) index * FRAME_VBO_SIZE;
+            //xyz roll
+            float x = (float) (particle.xo + partialTicks * (particle.x - particle.xo));
+            float y = (float) (particle.yo + partialTicks * (particle.y - particle.yo));
+            float z = (float) (particle.zo + partialTicks * (particle.z - particle.zo));
+            float roll = particle.oRoll + partialTicks * (particle.roll - particle.oRoll);
+            MemoryUtil.memPutFloat(start, x);
+            MemoryUtil.memPutFloat(start + 4, y);
+            MemoryUtil.memPutFloat(start + 8, z);
+            MemoryUtil.memPutFloat(start + 12, roll);*/
             var f = new float[]{(float) particle.x, (float) particle.y, (float) particle.z, particle.roll};
             FloatVector vec = FloatVector.fromArray(SPECIES_4, f, 0);
             var fo = new float[]{(float) particle.xo, (float) particle.yo, (float) particle.zo, particle.oRoll};
@@ -330,24 +368,24 @@ public class NeoInstancedRenderManager {
         frameVBO.bind();
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 4, GL_FLOAT, false, FRAME_VBO_SIZE, 0);
-        glVertexAttribDivisor(0, 1);
+        glVertexAttribDivisorARB(0, 1);
 
         tickVBO.bind();
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 4, GL_HALF_FLOAT, false, TICK_VBO_SIZE, 0);
-        glVertexAttribDivisor(1, 1);
+        glVertexAttribDivisorARB(1, 1);
 
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 4, GL_HALF_FLOAT, false, TICK_VBO_SIZE, 8);
-        glVertexAttribDivisor(2, 1);
+        glVertexAttribDivisorARB(2, 1);
 
         glEnableVertexAttribArray(3);
         glVertexAttribPointer(3, 2, GL_HALF_FLOAT, false, TICK_VBO_SIZE, 16);
-        glVertexAttribDivisor(3, 1);
+        glVertexAttribDivisorARB(3, 1);
 
         glEnableVertexAttribArray(4);
         glVertexAttribIPointer(4, 1, GL_UNSIGNED_BYTE, TICK_VBO_SIZE, 20);
-        glVertexAttribDivisor(4, 1);
+        glVertexAttribDivisorARB(4, 1);
     }
 
     private static void cleanUp() {
@@ -364,39 +402,4 @@ public class NeoInstancedRenderManager {
         void update(LinkedHashSet<TextureSheetParticle> particles, int startIndex, long frameVBOAddress, float partialTicks);
     }
 
-    public static class SimpleBlockPos {
-        public int x, y, z;
-
-        public SimpleBlockPos(int x, int y, int z) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
-        public void set(int x, int y, int z) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
-        public SimpleBlockPos copy() {
-            return new SimpleBlockPos(x, y, z);
-        }
-
-        @Override
-        public int hashCode() {
-            return (y + z * 31) * 37 + x;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            } else if (!(obj instanceof SimpleBlockPos pos)) {
-                return false;
-            } else {
-                return this.x == pos.x && this.y == pos.y && this.z == pos.z;
-            }
-        }
-    }
 }

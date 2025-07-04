@@ -19,6 +19,7 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.phys.AABB;
@@ -621,7 +622,9 @@ public class MadParticle extends TextureSheetParticle {
         if (light == null) {
             return levelLight;
         } else {
-            return (byte) (levelLight | ((int) MathHelper.getFromT((float) age / lifetime, light) << 4));
+            var blockLight = levelLight & 0xf;
+            var selfLight = (int) MathHelper.getFromT((float) age / lifetime, light);
+            return blockLight > selfLight ? levelLight : (byte) ((levelLight & 0xf0) | selfLight);
         }
     }
 

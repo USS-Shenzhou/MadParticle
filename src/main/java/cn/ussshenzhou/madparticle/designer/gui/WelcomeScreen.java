@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.designer.gui;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.madparticle.designer.input.DesignerKeyInput;
+import cn.ussshenzhou.madparticle.designer.input.ModKeyMappingRegistry;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.advanced.TLabelButton;
 import cn.ussshenzhou.t88.gui.screen.TScreen;
@@ -11,7 +11,6 @@ import cn.ussshenzhou.t88.gui.widegt.TButton;
 import cn.ussshenzhou.t88.gui.widegt.TLabel;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 
@@ -23,9 +22,9 @@ public class WelcomeScreen extends TScreen {
 
     private final TLabel welcome = new TLabel(Component.translatable("gui.mp.wel.title"));
     private final TLabel text1 = new TLabel(Component.translatable("gui.mp.wel.text1",
-            DesignerKeyInput.CALL_OUT_DESIGNER.getKeyModifier().getCombinedName(
-                    DesignerKeyInput.CALL_OUT_DESIGNER.getKey(),
-                    () -> DesignerKeyInput.CALL_OUT_DESIGNER.getKey().getDisplayName()).getString()
+            ModKeyMappingRegistry.CALL_OUT_DESIGNER.getKeyModifier().getCombinedName(
+                    ModKeyMappingRegistry.CALL_OUT_DESIGNER.getKey(),
+                    () -> ModKeyMappingRegistry.CALL_OUT_DESIGNER.getKey().getDisplayName()).getString()
     ));
     private final TLabel text2 = new TLabel(Component.translatable("gui.mp.wel.text2"));
     private final TLabelButton text3 = new TLabelButton(Component.translatable("gui.mp.wel.text3"),

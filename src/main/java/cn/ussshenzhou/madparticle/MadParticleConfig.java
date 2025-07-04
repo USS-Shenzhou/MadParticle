@@ -19,6 +19,7 @@ public class MadParticleConfig implements TConfig {
     public boolean optimizeCommandBlockEditScreen = true;
     @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
     public int lightCacheXZRange = 256;
+    public String comment = "Y Range MUST be even";
     @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
     public int lightCacheYRange = 128;
     public boolean forceMaxLight = false;

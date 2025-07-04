@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 /**
  * @author USS_Shenzhou
  */
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber
 public class ModCommandArgumentRegistry {
 
     private static SingletonArgumentInfo<InheritableIntegerArgument> inheritableIntegerArgumentInfo = SingletonArgumentInfo.contextFree(InheritableIntegerArgument::inheritableInteger);

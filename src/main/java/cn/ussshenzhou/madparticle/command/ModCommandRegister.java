@@ -8,7 +8,7 @@ import net.neoforged.fml.common.Mod;
 /**
  * @author USS_Shenzhou
  */
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber
 public class ModCommandRegister {
     @SubscribeEvent
     public static void regCommand(RegisterCommandsEvent event) {

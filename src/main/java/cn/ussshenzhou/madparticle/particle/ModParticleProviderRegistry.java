@@ -9,7 +9,7 @@ import net.neoforged.fml.common.Mod;
 /**
  * @author USS_Shenzhou
  */
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class ModParticleProviderRegistry {
     @SubscribeEvent
     public static void onParticleProviderRegistry(RegisterParticleProvidersEvent event) {

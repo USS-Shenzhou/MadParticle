@@ -98,6 +98,7 @@ public class AddParticleHelperC {
             mc.level.addParticle(
                     option,
                     option.alwaysRender().get(),
+                    true,
                     fromValueAndDiffuse(option.px(), option.xDiffuse()),
                     fromValueAndDiffuse(option.py(), option.yDiffuse()),
                     fromValueAndDiffuse(option.pz(), option.zDiffuse()),

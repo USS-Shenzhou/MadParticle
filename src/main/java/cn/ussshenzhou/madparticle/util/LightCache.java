@@ -2,7 +2,6 @@ package cn.ussshenzhou.madparticle.util;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
-import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.TextureSheetParticle;
@@ -28,11 +27,7 @@ public class LightCache {
     @SuppressWarnings("FieldMayBeFinal")
     private volatile byte[][][] bright = new byte[XZ_RANGE * 2][XZ_RANGE * 2][Y_RANGE * 2];
     private final ByteBuffer modifyFlag = MemoryUtil.memCalloc(XZ_RANGE * 2 * XZ_RANGE * 2 * Y_RANGE * 2 / 8);
-    /**
-     * Pos in long,packed light in int
-     */
-    @SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
-    private final ConcurrentHashMap<Long, Byte> outside = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<SimpleBlockPos, Byte> outside = new ConcurrentHashMap<>();
 
     private static final ThreadLocal<BlockPos.MutableBlockPos> MUTABLE_BLOCK_POS = ThreadLocal.withInitial(BlockPos.MutableBlockPos::new);
 
@@ -74,7 +69,7 @@ public class LightCache {
         outside.clear();
     }
 
-    public byte getOrCompute(int x, int y, int z, TextureSheetParticle particle, NeoInstancedRenderManager.SimpleBlockPos simpleBlockPos) {
+    public byte getOrCompute(int x, int y, int z, TextureSheetParticle particle, SimpleBlockPos simpleBlockPos) {
         if (isInRange(x, y, z)) {
             var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             int rx = Mth.floor(x - camera.x) + XZ_RANGE;
@@ -91,7 +86,7 @@ public class LightCache {
                 return value;
             }
         } else {
-            Long pos = asLong(x, y, z);
+            var pos = new SimpleBlockPos(x, y, z);
             var s = outside.get(pos);
             if (s == null) {
                 int packetLight = compressPackedLight(getLight(particle, simpleBlockPos));
@@ -108,7 +103,7 @@ public class LightCache {
         return (byte) ((packetLight >>> 4 & 0xf) | (packetLight >>> 16 & 0xf0));
     }
 
-    public static int getLight(TextureSheetParticle particle, NeoInstancedRenderManager.SimpleBlockPos simpleBlockPosSingle) {
+    public static int getLight(TextureSheetParticle particle, SimpleBlockPos simpleBlockPosSingle) {
         var pos = MUTABLE_BLOCK_POS.get().set(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z);
         return particle.level.hasChunkAt(pos) ? LevelRenderer.getLightColor(particle.level, pos) : 0;
     }
@@ -122,22 +117,5 @@ public class LightCache {
     private boolean isInRange(int x, int y, int z) {
         var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         return Math.abs(x - camera.x) < XZ_RANGE && Math.abs(y - camera.y) < Y_RANGE && Math.abs(z - camera.z) < XZ_RANGE;
-    }
-
-    private static final int PACKED_X_LENGTH = 1 + Mth.log2(Mth.smallestEncompassingPowerOfTwo(30000000));
-    private static final int PACKED_Z_LENGTH = PACKED_X_LENGTH;
-    public static final int PACKED_Y_LENGTH = 64 - PACKED_X_LENGTH - PACKED_Z_LENGTH;
-    private static final long PACKED_X_MASK = (1L << PACKED_X_LENGTH) - 1L;
-    private static final long PACKED_Y_MASK = (1L << PACKED_Y_LENGTH) - 1L;
-    private static final long PACKED_Z_MASK = (1L << PACKED_Z_LENGTH) - 1L;
-    private static final int Y_OFFSET = 0;
-    private static final int Z_OFFSET = PACKED_Y_LENGTH;
-    private static final int X_OFFSET = PACKED_Y_LENGTH + PACKED_Z_LENGTH;
-
-    public static long asLong(int x, int y, int z) {
-        long i = 0L;
-        i |= ((long) (x + 30000001) & PACKED_X_MASK) << X_OFFSET;
-        i |= ((long) y & PACKED_Y_MASK);
-        return i | ((long) z & PACKED_Z_MASK) << Z_OFFSET;
     }
 }

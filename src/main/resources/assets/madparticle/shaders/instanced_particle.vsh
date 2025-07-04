@@ -1,6 +1,8 @@
 #version 400
 
-#moj_import <fog.glsl>
+#moj_import <minecraft:fog.glsl>
+#moj_import <minecraft:dynamictransforms.glsl>
+#moj_import <minecraft:projection.glsl>
 
 //-----per frame update-----
 //single float
@@ -16,14 +18,14 @@ layout (location=3) in vec2 sizeExtraLight;
 layout (location=4) in uint instanceUV2;
 
 uniform sampler2D Sampler2;
-uniform mat4 ModelViewMat;
-uniform mat4 ProjMat;
-uniform int FogShape;
 
-uniform vec3 CamXYZ;
-uniform vec4 CamQuat;
+layout(std140) uniform CameraCorrection {
+    vec4 CamQuat;
+    vec3 CamXYZ;
+};
 
-out float vertexDistance;
+out float sphericalVertexDistance;
+out float cylindricalVertexDistance;
 out vec2 texCoord0;
 out vec4 vertexColor;
 
@@ -59,10 +61,11 @@ void main() {
     //matrix4fSingle.rotateZ(roll);
     m = rotateZ(instanceXYZRoll.w, m);
 
-
     gl_Position = ProjMat * ModelViewMat * m * RELATIVE[gl_VertexID];
 
-    vertexDistance = fog_distance(vec3(instanceXYZRoll.x - CamXYZ.x, instanceXYZRoll.y - CamXYZ.y, instanceXYZRoll.z - CamXYZ.z), FogShape);
+    vec3 pos = vec3(instanceXYZRoll.x - CamXYZ.x, instanceXYZRoll.y - CamXYZ.y, instanceXYZRoll.z - CamXYZ.z);
+    sphericalVertexDistance = fog_spherical_distance(pos);
+    cylindricalVertexDistance = fog_cylindrical_distance(pos);
     vec4 uvControl = UV_CONTROL[gl_VertexID];
     texCoord0 = vec2(dot(instanceUV.xy, uvControl.xy), dot(instanceUV.zw, uvControl.zw));
     ivec2 uv2 = ivec2(instanceUV2 & 0xfu, (instanceUV2 >> 4) & 0xfu);

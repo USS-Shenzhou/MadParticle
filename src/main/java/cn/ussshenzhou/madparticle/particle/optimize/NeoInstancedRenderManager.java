@@ -319,11 +319,10 @@ public class NeoInstancedRenderManager {
         for (TextureSheetParticle particle : particles) {
             long start = tickVBOAddress + (long) index * TICK_VBO_SIZE;
             //uv
-            var sprite = particle.sprite;
-            MemoryUtil.memPutShort(start, Float.floatToFloat16(sprite.u0));
-            MemoryUtil.memPutShort(start + 2, Float.floatToFloat16(sprite.u1));
-            MemoryUtil.memPutShort(start + 4, Float.floatToFloat16(sprite.v0));
-            MemoryUtil.memPutShort(start + 6, Float.floatToFloat16(sprite.v1));
+            MemoryUtil.memPutShort(start, Float.floatToFloat16(particle.getU0()));
+            MemoryUtil.memPutShort(start + 2, Float.floatToFloat16(particle.getU1()));
+            MemoryUtil.memPutShort(start + 4, Float.floatToFloat16(particle.getV0()));
+            MemoryUtil.memPutShort(start + 6, Float.floatToFloat16(particle.getV1()));
             //color
             MemoryUtil.memPutShort(start + 8, Float.floatToFloat16(particle.rCol));
             MemoryUtil.memPutShort(start + 10, Float.floatToFloat16(particle.gCol));

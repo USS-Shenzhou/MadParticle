@@ -9,11 +9,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -21,9 +19,10 @@ import java.util.stream.Stream;
  * @see com.google.common.collect.EvictingQueue
  */
 public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
+    private static final AtomicInteger index = new AtomicInteger();
     private final LinkedHashSet<E>[] linkedHashSets;
     private final int maxSize;
-    private final Executor fixedThreadPool;
+    private final ForkJoinPool threadPool;
 
     public MultiThreadedEqualLinkedHashSetsQueue(int initialCapacityOfEachThread, int maxSize) {
         this.maxSize = maxSize;
@@ -32,7 +31,11 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
         linkedHashSets = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(initialCapacityOfEachThread))
                 .limit(threads)
                 .toArray(LinkedHashSet[]::new);
-        fixedThreadPool = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat("MadParticle-MultiThreadedEqualLinkedHashSetsQueue-Thread-%d").build());
+        threadPool = new ForkJoinPool(threads, pool -> {
+            ForkJoinWorkerThread thread = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+            thread.setName("MadParticle-MultiThreadedEqualLinkedHashSetsQueue-Thread-" + index.getAndIncrement());
+            return thread;
+        }, null, false);
     }
 
     public MultiThreadedEqualLinkedHashSetsQueue(int maxSize) {
@@ -106,7 +109,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
     @Override
     public boolean add(E e) {
         if (this.size() >= maxSize) {
-            this.poll();
+            return false;
         }
         LinkedHashSet<E> target = linkedHashSets[0];
         for (var hashset : linkedHashSets) {
@@ -159,7 +162,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
             int finalI = i;
             futures[i] = CompletableFuture.runAsync(
                     () -> linkedHashSets[finalI].removeAll(c),
-                    fixedThreadPool
+                    threadPool
             );
         }
         CompletableFuture.allOf(futures).join();
@@ -229,8 +232,8 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
         for (int i = 0; i < linkedHashSets.length; i++) {
             int finalI = i;
             futures[i] = CompletableFuture.runAsync(
-                    () -> linkedHashSets[finalI].forEach(action),
-                    fixedThreadPool
+                    () -> linkedHashSets[finalI].parallelStream().forEach(action),
+                    threadPool
             );
         }
         CompletableFuture.allOf(futures).join();

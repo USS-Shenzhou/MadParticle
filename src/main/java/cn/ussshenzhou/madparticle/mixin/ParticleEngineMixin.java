@@ -2,6 +2,7 @@ package cn.ussshenzhou.madparticle.mixin;
 
 import cn.ussshenzhou.madparticle.MultiThreadedEqualLinkedHashSetsQueue;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.madparticle.mixinproxy.ParticleEngineMixinProxy;
 import cn.ussshenzhou.madparticle.particle.*;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderManager;
@@ -21,6 +22,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -71,7 +73,16 @@ public class ParticleEngineMixin {
         }
     }
 
-    @Shadow
+    /**
+     * @author USS_Shenzhou
+     * @reason MadParticle has done so many things to this method that overwriting would be better than a bunch of injects.
+     */
+    @Overwrite
+    public void tick() {
+        ParticleEngineMixinProxy.tick((ParticleEngine) (Object) this);
+    }
+
+    /*@Shadow
     @Final
     private Map<ParticleRenderType, Queue<Particle>> particles;
 
@@ -126,5 +137,5 @@ public class ParticleEngineMixin {
     @Inject(method = "tick", at = @At("RETURN"))
     private void madparticleUpdateTickVBO(CallbackInfo ci) {
         NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::tickPassed);
-    }
+    }*/
 }

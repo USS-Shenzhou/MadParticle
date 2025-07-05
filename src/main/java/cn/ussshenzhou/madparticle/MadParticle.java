@@ -5,6 +5,7 @@ import cn.ussshenzhou.madparticle.item.ModItemsRegistry;
 import cn.ussshenzhou.madparticle.item.component.ModDataComponent;
 import cn.ussshenzhou.madparticle.particle.ModParticleTypeRegistry;
 import cn.ussshenzhou.madparticle.particle.optimize.MultiThreadHelper;
+import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.logging.LogUtils;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -15,6 +16,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Method;

@@ -25,9 +25,13 @@ import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.lifecycle.ClientStoppedEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -49,7 +53,6 @@ import static org.lwjgl.opengl.GL42.*;
 /**
  * @author USS_Shenzhou
  */
-@SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
 public class NeoInstancedRenderManager {
     private final ResourceLocation usingAtlas;
 
@@ -96,8 +99,8 @@ public class NeoInstancedRenderManager {
         Arrays.stream(p).forEach(set -> set.forEach(this::add));
     }
 
-    private HashSet<TextureSheetParticle> findSmallestSet() {
-        HashSet<TextureSheetParticle> r = particles[0];
+    private LinkedHashSet<TextureSheetParticle> findSmallestSet() {
+        LinkedHashSet<TextureSheetParticle> r = particles[0];
         int minSize = r.size();
         for (int i = 1; i < getThreads(); i++) {
             if (particles[i].size() < minSize) {
@@ -114,7 +117,13 @@ public class NeoInstancedRenderManager {
 
     public void reload(Collection<Particle> particles) {
         clear();
-        particles.forEach(p -> add((TextureSheetParticle) p));
+        int i = 0;
+        for (var particle : particles) {
+            if (particle instanceof TextureSheetParticle textureSheetParticle) {
+                this.particles[i % getThreads()].add(textureSheetParticle);
+                i++;
+            }
+        }
     }
 
     public void remove(TextureSheetParticle particle) {
@@ -177,6 +186,7 @@ public class NeoInstancedRenderManager {
     private static boolean forceMaxLight = false;
     private static final GpuBuffer PROXY_VAO = ModRenderPipelines.INSTANCED_COMMON_DEPTH.getVertexFormat().uploadImmediateVertexBuffer(ByteBuffer.allocateDirect(128));
     private static final GpuBuffer EBO;
+    private static final short DEFAULT_EXTRA_LIGHT = Float.floatToFloat16(1f);
 
     static {
         NeoForge.EVENT_BUS.addListener(NeoInstancedRenderManager::checkForceMaxLight);
@@ -268,26 +278,28 @@ public class NeoInstancedRenderManager {
 
     private static final VectorSpecies<Float> SPECIES_4 = FloatVector.SPECIES_128;
 
-    @SuppressWarnings("preview")
     private void updateFrameVBOInternal(LinkedHashSet<TextureSheetParticle> particles, int index, long frameVBOAddress, float partialTicks) {
-        MemorySegment asSeg = MemorySegment.ofAddress(frameVBOAddress).reinterpret((long) FRAME_VBO_SIZE * amount());
+        //MemorySegment asSeg = MemorySegment.ofAddress(frameVBOAddress).reinterpret((long) FRAME_VBO_SIZE * amount());
         for (TextureSheetParticle particle : particles) {
-            /*long start = frameVBOAddress + (long) index * FRAME_VBO_SIZE;
-            //xyz roll
+            /*//xyz roll
             float x = (float) (particle.xo + partialTicks * (particle.x - particle.xo));
             float y = (float) (particle.yo + partialTicks * (particle.y - particle.yo));
             float z = (float) (particle.zo + partialTicks * (particle.z - particle.zo));
-            float roll = particle.oRoll + partialTicks * (particle.roll - particle.oRoll);
-            MemoryUtil.memPutFloat(start, x);
-            MemoryUtil.memPutFloat(start + 4, y);
-            MemoryUtil.memPutFloat(start + 8, z);
-            MemoryUtil.memPutFloat(start + 12, roll);*/
+            float roll = particle.oRoll + partialTicks * (particle.roll - particle.oRoll);*/
             var f = new float[]{(float) particle.x, (float) particle.y, (float) particle.z, particle.roll};
             FloatVector vec = FloatVector.fromArray(SPECIES_4, f, 0);
             var fo = new float[]{(float) particle.xo, (float) particle.yo, (float) particle.zo, particle.oRoll};
             FloatVector old = FloatVector.fromArray(SPECIES_4, fo, 0);
             var res = old.add(vec.sub(old).mul(partialTicks));
-            res.intoMemorySegment(asSeg, (long) index * FRAME_VBO_SIZE, ByteOrder.nativeOrder());
+            //JDK-8314791: Vector API MemorySegment stores are slow due to using putIntUnaligned
+            //res.intoMemorySegment(asSeg, (long) index * FRAME_VBO_SIZE, ByteOrder.nativeOrder());
+            float[] result = new float[4];
+            res.intoArray(result, 0);
+            long start = frameVBOAddress + (long) index * FRAME_VBO_SIZE;
+            MemoryUtil.memPutFloat(start, result[0]);
+            MemoryUtil.memPutFloat(start + 4, result[1]);
+            MemoryUtil.memPutFloat(start + 8, result[2]);
+            MemoryUtil.memPutFloat(start + 12, result[3]);
             index++;
         }
     }
@@ -322,7 +334,7 @@ public class NeoInstancedRenderManager {
             if (particle instanceof MadParticle madParticle) {
                 MemoryUtil.memPutShort(start + 18, Float.floatToFloat16(madParticle.getBloomFactor()));
             } else {
-                MemoryUtil.memPutShort(start + 18, (short) 1);
+                MemoryUtil.memPutShort(start + 18, DEFAULT_EXTRA_LIGHT);
             }
             //uv2
             if (forceMaxLight) {

@@ -48,7 +48,7 @@ public class SettingPanel extends TOptionsPanel {
                         newQueue.addAll(p);
                         particles.put(particleRenderType, newQueue);
                         if (particleRenderType == ModParticleRenderTypes.INSTANCED) {
-                            NeoInstancedRenderManager.forEach(m -> m.reload(newQueue));
+                            NeoInstancedRenderManager.getInstance(particleRenderType).reload(newQueue);
                         }
                     });
                 }, getConfigRead().maxParticleAmountOfSingleQueue, false);

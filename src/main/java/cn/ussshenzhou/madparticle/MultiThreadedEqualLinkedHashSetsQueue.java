@@ -140,8 +140,12 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
     @Override
     public boolean addAll(@NotNull Collection<? extends E> c) {
         int index = 0;
+        int max = maxSize - this.size();
         boolean changed = false;
         for (var o : c) {
+            if (index >= max) {
+                return changed;
+            }
             changed |= linkedHashSets[index % linkedHashSets.length].add(o);
             index++;
         }

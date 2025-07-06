@@ -146,6 +146,9 @@ public enum TakeOver implements ITranslatable {
 
     public static ParticleRenderType map(Particle particle) {
         var originalType = particle.getRenderType();
+        if (!(particle instanceof TextureSheetParticle)) {
+            return originalType;
+        }
         if (originalType == ModParticleRenderTypes.INSTANCED || originalType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
             return originalType;
         }
@@ -153,15 +156,12 @@ public enum TakeOver implements ITranslatable {
         return switch (originalType.name()) {
             case "INSTANCED" -> ModParticleRenderTypes.INSTANCED;
             case "INSTANCED_TERRAIN" -> ModParticleRenderTypes.INSTANCED_TERRAIN;
-            case "TERRAIN_SHEET" ->
-                    takeover == NONE ? ParticleRenderType.TERRAIN_SHEET : ModParticleRenderTypes.INSTANCED_TERRAIN;
-            case "PARTICLE_SHEET_OPAQUE", "PARTICLE_SHEET_TRANSLUCENT" ->
-                    switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering) {
-                        case NONE -> originalType;
-                        case ALL -> ModParticleRenderTypes.INSTANCED;
-                        case VANILLA ->
-                                RENDER_VANILLA_TRANS_OPAQUE.contains(particle.getClass()) ? ModParticleRenderTypes.INSTANCED : originalType;
-                    };
+            case "TERRAIN_SHEET" -> takeover == NONE ? ParticleRenderType.TERRAIN_SHEET : ModParticleRenderTypes.INSTANCED_TERRAIN;
+            case "PARTICLE_SHEET_OPAQUE", "PARTICLE_SHEET_TRANSLUCENT" -> switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering) {
+                case NONE -> originalType;
+                case ALL -> ModParticleRenderTypes.INSTANCED;
+                case VANILLA -> RENDER_VANILLA_TRANS_OPAQUE.contains(particle.getClass()) ? ModParticleRenderTypes.INSTANCED : originalType;
+            };
             default -> originalType;
         };
 

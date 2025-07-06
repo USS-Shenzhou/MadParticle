@@ -27,7 +27,7 @@ public class ParticleCounterHud extends TLabel {
         super.tickT();
         var total = Minecraft.getInstance().particleEngine.countParticles();
         int instanced = NeoInstancedRenderManager.getAllInstances()
-                .mapToInt(NeoInstancedRenderManager::amount)
+                .mapToInt(NeoInstancedRenderManager::getAmount)
                 .sum();
         int parallel = ParallelTickManager.count();
         this.setText(Component.literal("Particle: "

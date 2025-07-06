@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author USS_Shenzhou
@@ -73,51 +74,40 @@ public class ParallelTickManager {
     public static void tick(ParticleEngine engine) {
         checkPreviousTickDone(engine);
         tickSync();
-        NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::tickPassed);
+        removeAndAdd(engine);
         lastTickJob = CompletableFuture.runAsync(() -> {
                     syncTickCache.invalidateAll();
-                    var syncParticlesToRemove = removeCache.asMap().keySet();
-                    engine.particles.values().parallelStream().forEach(particles -> particles.removeAll(syncParticlesToRemove));
-                    NeoInstancedRenderManager.forEach(instance -> instance.removeAll(syncParticlesToRemove));
                     removeCache.invalidateAll();
                 }, MultiThreadHelper.getForkJoinPool())
                 .whenCompleteAsync((v, e) -> {
                     COUNTER.reset();
                     Consumer<Particle> ticker = ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking == TakeOver.VANILLA ? VANILLA_ONLY_TICKER : ALL_TICKER;
                     engine.particles.values().forEach(particles -> {
-                        removeCache.invalidateAll();
                         if (particles instanceof MultiThreadedEqualLinkedHashSetsQueue<Particle> multiThreadedEqualLinkedHashSetsQueue) {
                             multiThreadedEqualLinkedHashSetsQueue.forEach(ticker);
                         } else {
                             ForkJoinTask<?> pickAndTick = MultiThreadHelper.getForkJoinPool().submit(() -> particles.parallelStream().forEach(ticker));
                             pickAndTick.join();
                         }
-                        var asyncParticlesToRemove = removeCache.asMap().keySet();
-                        particles.removeAll(asyncParticlesToRemove);
-                        NeoInstancedRenderManager.forEach(instance -> instance.removeAll(asyncParticlesToRemove));
                     });
                 }, MultiThreadHelper.getForkJoinPool())
                 .whenCompleteAsync((v, e) -> {
                     if (e != null) {
                         failSafe(engine, e);
-                        return;
                     }
-                    if (!engine.particlesToAdd.isEmpty()) {
-                        Particle particle;
-                        while ((particle = engine.particlesToAdd.poll()) != null) {
-                            var added = engine.particles.computeIfAbsent(particle.getRenderType(),
-                                    renderType -> new MultiThreadedEqualLinkedHashSetsQueue<>(16384,
-                                            ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue)).add(particle);
-                            if (added && particle instanceof TextureSheetParticle p) {
-                                ParticleRenderType mappedType = TakeOver.map(p);
-                                if (mappedType == ModParticleRenderTypes.INSTANCED || mappedType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
-                                    NeoInstancedRenderManager.getInstance(mappedType).add(p);
-                                }
-                            }
-                        }
-                    }
-                    engine.particlesToAdd.clear();
                 }, MultiThreadHelper.getForkJoinPool());
+    }
+
+    private static void removeAndAdd(ParticleEngine engine) {
+        engine.particles.values().parallelStream().forEach(particles -> particles.removeAll(removeCache.asMap().keySet()));
+        NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::tickPassed);
+        engine.particlesToAdd.stream()
+                .collect(Collectors.groupingBy(TakeOver::map))
+                .forEach((renderType, particles) ->
+                        engine.particles.computeIfAbsent(renderType, t ->
+                                new MultiThreadedEqualLinkedHashSetsQueue<>(16384, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue)
+                        ).addAll(particles));
+        engine.particlesToAdd.clear();
     }
 
     private static void tickSync() {
@@ -144,7 +134,6 @@ public class ParallelTickManager {
         LogUtils.getLogger().error(e.getMessage());
         engine.particles.clear();
         engine.particlesToAdd.clear();
-        NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::clear);
         removeCache.invalidateAll();
         syncTickCache.invalidateAll();
     }

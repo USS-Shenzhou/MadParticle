@@ -13,6 +13,6 @@ public class UtilListener {
 
     @SubscribeEvent
     public static void onLeaveLevel(LevelEvent.Unload event) {
-        NeoInstancedRenderManager.getAllInstances().forEach(NeoInstancedRenderManager::clear);
+        //NeoInstancedRenderManager.getAllInstances().forEach(NeoInstancedRenderManager::clear);
     }
 }

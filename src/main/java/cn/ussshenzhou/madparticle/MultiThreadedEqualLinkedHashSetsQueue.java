@@ -46,6 +46,10 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
         return maxSize - this.size();
     }
 
+    public LinkedHashSet<E> get(int i){
+        return linkedHashSets[i];
+    }
+
     @Override
     public int size() {
         int size = 0;

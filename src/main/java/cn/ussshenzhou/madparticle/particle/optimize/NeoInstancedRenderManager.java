@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.particle.optimize;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.madparticle.MultiThreadedEqualLinkedHashSetsQueue;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
@@ -9,6 +10,7 @@ import cn.ussshenzhou.madparticle.util.SimpleBlockPos;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ConcurrentHashMultiset;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
@@ -21,6 +23,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.logging.LogUtils;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorSpecies;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
@@ -98,113 +101,10 @@ public class NeoInstancedRenderManager {
         LogUtils.getLogger().info("NeoInstancedRenderManager inited.");
     }
 
-    //----------particle----------
-    private final ArrayList<LinkedHashSet<TextureSheetParticle>> particles = Stream.generate(() -> Sets.<TextureSheetParticle>newLinkedHashSetWithExpectedSize(32768)).limit(getThreads()).collect(Collectors.toCollection(ArrayList::new));
-    private final Cache<TextureSheetParticle, Object> removeCache = CacheBuilder.newBuilder().concurrencyLevel(getThreads()).initialCapacity(65536).build();
-    private final Cache<TextureSheetParticle, Object> addCache = CacheBuilder.newBuilder().concurrencyLevel(getThreads()).initialCapacity(65536).build();
-    private static final Object NULL = new Object();
     private boolean tickPassed = true;
-
-    public void updateThreads(int threads) {
-        var allParticles = new ArrayList<TextureSheetParticle>();
-        for (Set<TextureSheetParticle> set : particles) {
-            allParticles.addAll(set);
-        }
-        particles.clear();
-        particles.addAll(Stream.generate(() -> Sets.<TextureSheetParticle>newLinkedHashSetWithExpectedSize(32768)).limit(threads).collect(Collectors.toCollection(ArrayList::new)));
-        for (int i = 0; i < allParticles.size(); i++) {
-            particles.get(i % threads).add(allParticles.get(i));
-        }
-    }
-
-    private LinkedHashSet<TextureSheetParticle> findSmallestSet() {
-        LinkedHashSet<TextureSheetParticle> r = particles.get(0);
-        int minSize = r.size();
-        for (int i = 1; i < getThreads(); i++) {
-            var newSize = particles.get(i).size();
-            if (newSize < minSize) {
-                minSize = newSize;
-            }
-        }
-        return r;
-    }
-
-    public void add(TextureSheetParticle particle) {
-        addCache.put(particle, NULL);
-    }
-
-    public void actualAdd() {
-        int index = 0;
-        for (TextureSheetParticle p : addCache.asMap().keySet()) {
-            particles.get(index % particles.size()).add(p);
-            index++;
-        }
-        addCache.invalidateAll();
-    }
-
-    public void reload(Collection<Particle> particles) {
-        clear();
-        int i = 0;
-        for (var particle : particles) {
-            if (particle instanceof TextureSheetParticle textureSheetParticle) {
-                this.particles.get(i % getThreads()).add(textureSheetParticle);
-                i++;
-            }
-        }
-    }
-
-    /*public void remove(TextureSheetParticle particle) {
-        for (int i = 0; i < getThreads(); i++) {
-            if (particles.get(i).remove(particle)) {
-                break;
-            }
-        }
-    }*/
-
-    public void removeAll(Collection<Particle> particle) {
-        particle.forEach(p -> {
-            if (p instanceof TextureSheetParticle textureSheetParticle) {
-                removeCache.put(textureSheetParticle, NULL);
-            }
-        });
-    }
-
-    public void actualRemove() {
-        CompletableFuture<?>[] futures = new CompletableFuture[getThreads()];
-        for (int i = 0; i < getThreads(); i++) {
-            int finalI = i;
-            futures[i] = CompletableFuture.runAsync(
-                    () -> {
-                        var set = particles.get(finalI);
-                        removeCache.asMap().keySet().forEach(p -> {
-                            if (p instanceof TextureSheetParticle) {
-                                set.remove(p);
-                            }
-                        });
-                    },
-                    MultiThreadHelper.getFixedThreadPool()
-            );
-        }
-        CompletableFuture.allOf(futures).join();
-        removeCache.invalidateAll();
-    }
-
-    public void clear() {
-        particles.forEach(particles -> particles.forEach(p -> removeCache.put(p, NULL)));
-    }
-
-    public int amount() {
-        int size = 0;
-        for (int i = 0; i < getThreads(); i++) {
-            size += particles.get(i).size();
-        }
-        return size;
-    }
 
     public void tickPassed() {
         tickPassed = true;
-        actualRemove();
-        actualAdd();
     }
 
     //----------render----------
@@ -234,6 +134,7 @@ public class NeoInstancedRenderManager {
     private static final GpuBuffer PROXY_VAO = ModRenderPipelines.INSTANCED_COMMON_DEPTH.getVertexFormat().uploadImmediateVertexBuffer(ByteBuffer.allocateDirect(128));
     private static final GpuBuffer EBO;
     private static final short DEFAULT_EXTRA_LIGHT = Float.floatToFloat16(1f);
+    private int amount;
 
     static {
         NeoForge.EVENT_BUS.addListener(NeoInstancedRenderManager::checkForceMaxLight);
@@ -253,8 +154,8 @@ public class NeoInstancedRenderManager {
         forceMaxLight = ConfigHelper.getConfigRead(MadParticleConfig.class).forceMaxLight;
     }
 
-    public void render() {
-        int amount = amount();
+    public void render(MultiThreadedEqualLinkedHashSetsQueue<Particle> particles) {
+        amount = particles.size();
         if (amount == 0) {
             return;
         }
@@ -277,8 +178,8 @@ public class NeoInstancedRenderManager {
             pass.setPipeline(ModRenderPipelines.INSTANCED_COMMON_DEPTH);
             setUniform(pass, mc, dynamicTransformsUniform);
             setVAO(pass);
-            updateFrameVBO(amount);
-            updateTickVBO(amount);
+            updateFrameVBO(particles, amount);
+            updateTickVBO(particles, amount);
             frameVBO.bind();
             tickVBO.bind();
             pass.setIndexBuffer(EBO, VertexFormat.IndexType.INT);
@@ -313,9 +214,9 @@ public class NeoInstancedRenderManager {
         pass.bindSampler("Sampler2", mc.gameRenderer.lightTexture().getTextureView());
     }
 
-    private void updateFrameVBO(int amount) {
+    private void updateFrameVBO(MultiThreadedEqualLinkedHashSetsQueue<Particle> particles, int amount) {
         frameVBO.alloc(FRAME_VBO_SIZE * amount);
-        executeUpdate(this::updateFrameVBOInternal, frameVBO);
+        executeUpdate(particles, this::updateFrameVBOInternal, frameVBO);
         frameVBO.update();
     }
 
@@ -347,13 +248,13 @@ public class NeoInstancedRenderManager {
         }
     }
 
-    private void updateTickVBO(int amount) {
+    private void updateTickVBO(MultiThreadedEqualLinkedHashSetsQueue<Particle> particles, int amount) {
         if (!tickPassed) {
             return;
         }
         tickPassed = false;
         tickVBO.alloc(TICK_VBO_SIZE * amount);
-        executeUpdate(this::updateTickVBOInternal, tickVBO);
+        executeUpdate(particles, this::updateTickVBOInternal, tickVBO);
         tickVBO.update();
     }
 
@@ -402,15 +303,16 @@ public class NeoInstancedRenderManager {
     }
 
     @SuppressWarnings("unchecked")
-    private void executeUpdate(VboUpdater updater, InstancedArrayBuffer vbo) {
+    private void executeUpdate(MultiThreadedEqualLinkedHashSetsQueue<Particle> particles, VboUpdater updater, InstancedArrayBuffer vbo) {
         var partialTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
         CompletableFuture<Void>[] futures = new CompletableFuture[getThreads()];
         int index = 0;
         for (int group = 0; group < futures.length; group++) {
-            var set = particles.get(group);
+            @SuppressWarnings("rawtypes")
+            LinkedHashSet set = particles.get(group);
             int i = index;
             futures[group] = CompletableFuture.runAsync(
-                    () -> updater.update(set, i, vbo.getAddress(), partialTicks),
+                    () -> updater.update((LinkedHashSet<TextureSheetParticle>) set, i, vbo.getAddress(), partialTicks),
                     getFixedThreadPool()
             );
             index += set.size();
@@ -449,6 +351,10 @@ public class NeoInstancedRenderManager {
         //}
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDepthMask(true);
+    }
+
+    public int getAmount() {
+        return amount;
     }
 
     @FunctionalInterface

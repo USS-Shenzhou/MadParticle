@@ -67,9 +67,9 @@ public class ParticleEngineMixin {
             )
     )
     private void madparticleRenderInstanced(Camera camera, float partialTick, MultiBufferSource.BufferSource bufferSource, Frustum frustum, Predicate<ParticleRenderType> renderTypePredicate, CallbackInfo ci,
-                                            @Local ParticleRenderType particlerendertype) {
+                                            @Local ParticleRenderType particlerendertype, @Local Queue<Particle> queue) {
         if (particlerendertype == ModParticleRenderTypes.INSTANCED || particlerendertype == ModParticleRenderTypes.INSTANCED_TERRAIN) {
-            NeoInstancedRenderManager.getInstance(particlerendertype).render();
+            NeoInstancedRenderManager.getInstance(particlerendertype).render((MultiThreadedEqualLinkedHashSetsQueue<Particle>) queue);
         }
     }
 

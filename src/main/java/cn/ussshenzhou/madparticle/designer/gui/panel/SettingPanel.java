@@ -47,9 +47,6 @@ public class SettingPanel extends TOptionsPanel {
                         MultiThreadedEqualLinkedHashSetsQueue<Particle> newQueue = new MultiThreadedEqualLinkedHashSetsQueue<>(newAmount);
                         newQueue.addAll(p);
                         particles.put(particleRenderType, newQueue);
-                        if (particleRenderType == ModParticleRenderTypes.INSTANCED) {
-                            NeoInstancedRenderManager.getInstance(particleRenderType).reload(newQueue);
-                        }
                     });
                 }, getConfigRead().maxParticleAmountOfSingleQueue, false);
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.real_force"),

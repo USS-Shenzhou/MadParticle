@@ -43,7 +43,6 @@ public class MultiThreadHelper {
 
     private static void notifyOthers(int threads) {
         ParallelTickManager.update(threads);
-        NeoInstancedRenderManager.forEach(instance -> instance.updateThreads(threads));
     }
 
     public static int getThreads() {

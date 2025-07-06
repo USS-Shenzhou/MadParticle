@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -31,6 +32,8 @@ public class ParallelTickManager {
     public static Cache<Particle, Object> syncTickCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(65536).build();
     public static final Object NULL = new Object();
     private static final LongAdder COUNTER = new LongAdder();
+    public static AtomicInteger addCounter = new AtomicInteger();
+    public static AtomicInteger removeCounter = new AtomicInteger();
 
     static {
         NeoInstancedRenderManager.init();
@@ -99,6 +102,8 @@ public class ParallelTickManager {
     }
 
     private static void removeAndAdd(ParticleEngine engine) {
+        addCounter.set(engine.particlesToAdd.size());
+        removeCounter.set((int) removeCache.size());
         engine.particles.values().parallelStream().forEach(particles -> particles.removeAll(removeCache.asMap().keySet()));
         engine.particlesToAdd.stream()
                 .collect(Collectors.groupingBy(TakeOver::map))

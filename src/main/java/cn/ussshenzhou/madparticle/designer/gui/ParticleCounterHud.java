@@ -1,6 +1,5 @@
 package cn.ussshenzhou.madparticle.designer.gui;
 
-import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderManager;
 import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
 import cn.ussshenzhou.madparticle.particle.optimize.ParallelTickManager;
 import cn.ussshenzhou.t88.gui.widegt.TLabel;
@@ -14,11 +13,12 @@ public class ParticleCounterHud extends TLabel {
 
     public ParticleCounterHud() {
         this.setAutoScroll(false);
+        this.setBackground(0x80000000);
     }
 
     @Override
     public void resizeAsHud(int screenWidth, int screenHeight) {
-        this.setAbsBounds(0, 0, 100, 30);
+        this.setAbsBounds(4, 4, 120, 36);
         super.resizeAsHud(screenWidth, screenHeight);
     }
 
@@ -30,12 +30,26 @@ public class ParticleCounterHud extends TLabel {
                 .mapToInt(NeoInstancedRenderManager::getAmount)
                 .sum();
         int parallel = ParallelTickManager.count();
-        this.setText(Component.literal("Particle: "
-                + total
-                + "\nInstanced: "
-                + instanced
-                + "\nParalleled: "
-                + parallel
-        ));
+        int add = ParallelTickManager.addCounter.get();
+        int remove = ParallelTickManager.removeCounter.get();
+        if ("zh_cn".equals(Minecraft.getInstance().getLanguageManager().getSelected())){
+            this.setText(Component.literal("粒子总数: "
+                    + total
+                    + "\n并行: "
+                    + parallel
+                    + "\n实例化: "
+                    + instanced
+                    + "\n+" + add + "  -" + remove
+            ));
+        } else {
+            this.setText(Component.literal("Particle: "
+                    + total
+                    + "\nParalleled: "
+                    + parallel
+                    + "\nInstanced: "
+                    + instanced
+                    + "\n+" + add + "  -" + remove
+            ));
+        }
     }
 }

@@ -100,7 +100,7 @@
 
   "gui.mp.de.setting.amount.tooltip": "指定（每种渲染类型所能容纳的）粒子数量上限.",
   "gui.mp.de.setting.real_force.tooltip": "true：总是取消在两倍于视距之外的所有粒子生成.\n§7性能影响：§b●",
-  "gui.mp.de.setting.threads.tooltip": "建议选择一个等于你的CPU核心数量的值.\n较大的值可以提高性能,但可能会影响其他程序运行.\n§7如果需要,你可以在.minecraft/config/MadParticleConfig.json中更改此值.\n§7性能影响：§c●●●●●",
+  "gui.mp.de.setting.threads.tooltip": "建议选择一个等于你的CPU核心数量的值.\n较大的值可以提高性能,但可能会影响其他程序运行.\n§6建议重新启动游戏.\n§7如果需要,你可以在.minecraft/config/MadParticleConfig.json中更改此值.\n§7性能影响：§c●●●●●",
   "gui.mp.de.setting.additional.takeover_render.tooltip": "实例化渲染大部分原版和/或其他Mod的粒子.\n§6接管其他Mod的粒子渲染可能会产生错误.\n§7性能影响：§e●●●",
   "gui.mp.de.setting.additional.takeover_tick.tooltip": "并行化计算原版和/或其他Mod的粒子.\n§6接管其他Mod的粒子计算可能会产生错误.\n§7性能影响：§e●●●",
 
@@ -111,8 +111,8 @@
   "gui.mp.de.setting.light": "  光照缓存",
   "gui.mp.de.setting.light.hor": "水平范围",
   "gui.mp.de.setting.light.ver": "垂直范围",
-  "gui.mp.de.setting.light.hor.tooltip": "设置快速缓存的X/Z轴半径.\n更大的值可以提高性能但也会消耗更多内存.\n§6需要重新启动游戏.\n§7性能影响：§a●●",
-  "gui.mp.de.setting.light.ver.tooltip": "设置快速缓存的Y轴半径.\n更大的值可以提高性能但也会消耗更多内存.\n§6需要重新启动游戏.\n§7性能影响：§a●●",
+  "gui.mp.de.setting.light.hor.tooltip": "设置光照缓存的X/Z轴半径.\n更大的值可以提高性能但也会消耗更多内存.\n§c需要重新启动游戏.\n§7性能影响：§a●●",
+  "gui.mp.de.setting.light.ver.tooltip": "设置光照缓存的Y轴半径.\n更大的值可以提高性能但也会消耗更多内存.\n§c需要重新启动游戏.\n§7性能影响：§a●●",
   "gui.mp.de.setting.light.ram": "额外内存占用",
   "gui.mp.de.setting.light.force": "强制光照为15",
   "gui.mp.de.setting.light.force.tooltip": "true：所有粒子将会以最大光照等级(15)渲染,计算速度更快.\n§7性能影响：§c●●●●●",

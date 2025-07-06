@@ -97,8 +97,7 @@ public class SettingPanel extends TOptionsPanel {
                 List.of(Boolean.FALSE, Boolean.TRUE),
                 bool -> b -> {
                     if (b.getSelected().getContent()) {
-                        //TODO T88 0.7
-                        HudManager.add(new ParticleCounterHud());
+                        HudManager.addIfSameClassNotExist(new ParticleCounterHud());
                     } else {
                         HudManager.getChildren().stream().filter(t -> t instanceof ParticleCounterHud).findFirst().ifPresent(HudManager::remove);
                     }

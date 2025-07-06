@@ -100,13 +100,13 @@ public class ParallelTickManager {
 
     private static void removeAndAdd(ParticleEngine engine) {
         engine.particles.values().parallelStream().forEach(particles -> particles.removeAll(removeCache.asMap().keySet()));
-        NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::tickPassed);
         engine.particlesToAdd.stream()
                 .collect(Collectors.groupingBy(TakeOver::map))
                 .forEach((renderType, particles) ->
                         engine.particles.computeIfAbsent(renderType, t ->
                                 new MultiThreadedEqualLinkedHashSetsQueue<>(16384, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue)
                         ).addAll(particles));
+        NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::tickPassed);
         engine.particlesToAdd.clear();
     }
 

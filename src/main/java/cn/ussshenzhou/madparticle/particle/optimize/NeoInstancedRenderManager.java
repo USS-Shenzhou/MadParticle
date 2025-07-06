@@ -101,12 +101,6 @@ public class NeoInstancedRenderManager {
         LogUtils.getLogger().info("NeoInstancedRenderManager inited.");
     }
 
-    private boolean tickPassed = true;
-
-    public void tickPassed() {
-        tickPassed = true;
-    }
-
     //----------render----------
     /**
      * <pre>{@code
@@ -135,6 +129,7 @@ public class NeoInstancedRenderManager {
     private static final GpuBuffer EBO;
     private static final short DEFAULT_EXTRA_LIGHT = Float.floatToFloat16(1f);
     private int amount;
+    private boolean tickPassed = true;
 
     static {
         NeoForge.EVENT_BUS.addListener(NeoInstancedRenderManager::checkForceMaxLight);
@@ -355,6 +350,10 @@ public class NeoInstancedRenderManager {
 
     public int getAmount() {
         return amount;
+    }
+
+    public void tickPassed() {
+        tickPassed = true;
     }
 
     @FunctionalInterface

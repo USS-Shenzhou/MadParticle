@@ -3,7 +3,6 @@ package cn.ussshenzhou.madparticle;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.errorprone.annotations.DoNotCall;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,13 +18,15 @@ import java.util.stream.Stream;
  * @see com.google.common.collect.EvictingQueue
  */
 public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
-    private static final AtomicInteger index = new AtomicInteger();
+    private static final AtomicInteger ID = new AtomicInteger();
+    private static final AtomicInteger THREAD_ID = new AtomicInteger();
     private final LinkedHashSet<E>[] linkedHashSets;
     private final int maxSize;
     private final ForkJoinPool threadPool;
 
     public MultiThreadedEqualLinkedHashSetsQueue(int initialCapacityOfEachThread, int maxSize) {
         this.maxSize = maxSize;
+        ID.getAndIncrement();
         int threads = ConfigHelper.getConfigRead(MadParticleConfig.class).getBufferFillerThreads();
         //noinspection unchecked
         linkedHashSets = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(initialCapacityOfEachThread))
@@ -33,7 +34,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
                 .toArray(LinkedHashSet[]::new);
         threadPool = new ForkJoinPool(threads, pool -> {
             ForkJoinWorkerThread thread = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-            thread.setName("MadParticle-MultiThreadedEqualLinkedHashSetsQueue-Thread-" + index.getAndIncrement());
+            thread.setName("MadParticle-MultiThreadedEqualLinkedHashSetsQueue-" + ID.get() + "-Thread-" + THREAD_ID.getAndIncrement());
             return thread;
         }, null, false);
     }
@@ -46,7 +47,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
         return maxSize - this.size();
     }
 
-    public LinkedHashSet<E> get(int i){
+    public LinkedHashSet<E> get(int i) {
         return linkedHashSets[i];
     }
 

@@ -1,14 +1,9 @@
 package cn.ussshenzhou.madparticle.mixin;
 
-import cn.ussshenzhou.madparticle.MultiThreadedEqualLinkedHashSetsQueue;
-import cn.ussshenzhou.madparticle.MadParticleConfig;
+import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.mixinproxy.ParticleEngineMixinProxy;
 import cn.ussshenzhou.madparticle.particle.*;
-import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
-import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderManager;
 import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
-import cn.ussshenzhou.madparticle.particle.optimize.ParallelTickManager;
-import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Camera;
@@ -16,25 +11,19 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureManager;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -69,7 +58,7 @@ public class ParticleEngineMixin {
     private void madparticleRenderInstanced(Camera camera, float partialTick, MultiBufferSource.BufferSource bufferSource, Frustum frustum, Predicate<ParticleRenderType> renderTypePredicate, CallbackInfo ci,
                                             @Local ParticleRenderType particlerendertype, @Local Queue<Particle> queue) {
         if (particlerendertype == ModParticleRenderTypes.INSTANCED || particlerendertype == ModParticleRenderTypes.INSTANCED_TERRAIN) {
-            NeoInstancedRenderManager.getInstance(particlerendertype).render((MultiThreadedEqualLinkedHashSetsQueue<Particle>) queue);
+            NeoInstancedRenderManager.getInstance(particlerendertype).render((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) queue);
         }
     }
 

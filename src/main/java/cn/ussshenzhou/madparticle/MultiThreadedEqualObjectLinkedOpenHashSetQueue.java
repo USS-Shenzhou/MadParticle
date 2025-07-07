@@ -4,6 +4,7 @@ import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import com.google.errorprone.annotations.DoNotCall;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
@@ -17,29 +18,29 @@ import java.util.stream.Stream;
  * @author USS_Shenzhou
  * @see com.google.common.collect.EvictingQueue
  */
-public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
+public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<E> {
     private static final AtomicInteger ID = new AtomicInteger();
     private static final AtomicInteger THREAD_ID = new AtomicInteger();
-    private final LinkedHashSet<E>[] linkedHashSets;
+    private final ObjectLinkedOpenHashSet<E>[] sets;
     private final int maxSize;
     private final ForkJoinPool threadPool;
 
-    public MultiThreadedEqualLinkedHashSetsQueue(int initialCapacityOfEachThread, int maxSize) {
+    public MultiThreadedEqualObjectLinkedOpenHashSetQueue(int initialCapacityOfEachThread, int maxSize) {
         this.maxSize = maxSize;
         ID.getAndIncrement();
         int threads = ConfigHelper.getConfigRead(MadParticleConfig.class).getBufferFillerThreads();
-        //noinspection unchecked
-        linkedHashSets = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(initialCapacityOfEachThread))
+        //noinspection unchecked,rawtypes
+        sets = Stream.generate(()->new ObjectLinkedOpenHashSet())
                 .limit(threads)
-                .toArray(LinkedHashSet[]::new);
+                .toArray(ObjectLinkedOpenHashSet[]::new);
         threadPool = new ForkJoinPool(threads, pool -> {
             ForkJoinWorkerThread thread = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-            thread.setName("MadParticle-MultiThreadedEqualLinkedHashSetsQueue-" + ID.get() + "-Thread-" + THREAD_ID.getAndIncrement());
+            thread.setName("MadParticle-MultiThreadedEqualObjectLinkedOpenHashSetQueue-" + ID.get() + "-Thread-" + THREAD_ID.getAndIncrement());
             return thread;
         }, null, false);
     }
 
-    public MultiThreadedEqualLinkedHashSetsQueue(int maxSize) {
+    public MultiThreadedEqualObjectLinkedOpenHashSetQueue(int maxSize) {
         this(128, maxSize);
     }
 
@@ -47,14 +48,14 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
         return maxSize - this.size();
     }
 
-    public LinkedHashSet<E> get(int i) {
-        return linkedHashSets[i];
+    public ObjectLinkedOpenHashSet<E> get(int i) {
+        return sets[i];
     }
 
     @Override
     public int size() {
         int size = 0;
-        for (var hashset : linkedHashSets) {
+        for (var hashset : sets) {
             size += hashset.size();
         }
         return size;
@@ -70,7 +71,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
         if (o == null) {
             return false;
         }
-        for (var hashset : linkedHashSets) {
+        for (var hashset : sets) {
             if (hashset.contains(o)) {
                 return true;
             }
@@ -81,7 +82,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
     @DoNotCall
     @Override
     public @NotNull Iterator<E> iterator() {
-        return Iterators.concat(Arrays.stream(linkedHashSets)
+        return Iterators.concat(Arrays.stream(sets)
                 .map(Set::iterator)
                 .iterator());
     }
@@ -89,7 +90,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
     @SuppressWarnings("NullableProblems")
     @Override
     public @NotNull Object[] toArray() {
-        return Arrays.stream(linkedHashSets).flatMap(Set::stream).toArray();
+        return Arrays.stream(sets).flatMap(Set::stream).toArray();
     }
 
     @SuppressWarnings("NullableProblems")
@@ -101,7 +102,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
             a = newArray;
         }
         int index = 0;
-        for (var hashset : linkedHashSets) {
+        for (var hashset : sets) {
             for (E e : hashset) {
                 //noinspection unchecked
                 a[index] = (T) e;
@@ -116,8 +117,8 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
         if (this.size() >= maxSize) {
             return false;
         }
-        LinkedHashSet<E> target = linkedHashSets[0];
-        for (var hashset : linkedHashSets) {
+        var target = sets[0];
+        for (var hashset : sets) {
             if (hashset.size() < target.size()) {
                 target = hashset;
             }
@@ -127,7 +128,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
 
     @Override
     public boolean remove(Object o) {
-        for (var hashset : linkedHashSets) {
+        for (var hashset : sets) {
             if (hashset.remove(o)) {
                 return true;
             }
@@ -154,7 +155,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
             if (index >= max) {
                 return changed;
             }
-            changed |= linkedHashSets[index % linkedHashSets.length].add(o);
+            changed |= sets[index % sets.length].add(o);
             index++;
         }
         return changed;
@@ -162,11 +163,11 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
 
     @Override
     public boolean removeAll(@NotNull Collection<?> c) {
-        CompletableFuture<?>[] futures = new CompletableFuture[linkedHashSets.length];
-        for (int i = 0; i < linkedHashSets.length; i++) {
+        CompletableFuture<?>[] futures = new CompletableFuture[sets.length];
+        for (int i = 0; i < sets.length; i++) {
             int finalI = i;
             futures[i] = CompletableFuture.runAsync(
-                    () -> linkedHashSets[finalI].removeAll(c),
+                    () -> sets[finalI].removeAll(c),
                     threadPool
             );
         }
@@ -181,7 +182,7 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
 
     @Override
     public void clear() {
-        for (var hashset : linkedHashSets) {
+        for (var hashset : sets) {
             hashset.clear();
         }
     }
@@ -202,8 +203,8 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
 
     @Override
     public E poll() {
-        LinkedHashSet<E> target = linkedHashSets[0];
-        for (var hashset : linkedHashSets) {
+        var target = sets[0];
+        for (var hashset : sets) {
             if (hashset.size() > target.size()) {
                 target = hashset;
             }
@@ -222,8 +223,8 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
 
     @Override
     public E peek() {
-        LinkedHashSet<E> target = linkedHashSets[0];
-        for (var hashset : linkedHashSets) {
+        var target = sets[0];
+        for (var hashset : sets) {
             if (hashset.size() > target.size()) {
                 target = hashset;
             }
@@ -233,11 +234,11 @@ public class MultiThreadedEqualLinkedHashSetsQueue<E> implements Queue<E> {
 
     @Override
     public void forEach(Consumer<? super E> action) {
-        CompletableFuture<?>[] futures = new CompletableFuture[linkedHashSets.length];
-        for (int i = 0; i < linkedHashSets.length; i++) {
+        CompletableFuture<?>[] futures = new CompletableFuture[sets.length];
+        for (int i = 0; i < sets.length; i++) {
             int finalI = i;
             futures[i] = CompletableFuture.runAsync(
-                    () -> linkedHashSets[finalI].parallelStream().forEach(action),
+                    () -> sets[finalI].parallelStream().forEach(action),
                     threadPool
             );
         }

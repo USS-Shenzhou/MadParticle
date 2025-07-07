@@ -1,17 +1,13 @@
 package cn.ussshenzhou.madparticle.particle.optimize;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.madparticle.MultiThreadedEqualLinkedHashSetsQueue;
+import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.madparticle.util.SimpleBlockPos;
 import cn.ussshenzhou.t88.config.ConfigHelper;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ConcurrentHashMultiset;
-import com.google.common.collect.Sets;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.opengl.GlBuffer;
@@ -21,9 +17,9 @@ import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.logging.LogUtils;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorSpecies;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
@@ -31,28 +27,19 @@ import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.lifecycle.ClientStartedEvent;
-import net.neoforged.neoforge.client.event.lifecycle.ClientStoppedEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.level.LevelEvent;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryUtil;
 
-import java.lang.foreign.MemorySegment;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static cn.ussshenzhou.madparticle.particle.optimize.MultiThreadHelper.*;
@@ -149,7 +136,7 @@ public class NeoInstancedRenderManager {
         forceMaxLight = ConfigHelper.getConfigRead(MadParticleConfig.class).forceMaxLight;
     }
 
-    public void render(MultiThreadedEqualLinkedHashSetsQueue<Particle> particles) {
+    public void render(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles) {
         amount = particles.size();
         if (amount == 0) {
             return;
@@ -209,7 +196,7 @@ public class NeoInstancedRenderManager {
         pass.bindSampler("Sampler2", mc.gameRenderer.lightTexture().getTextureView());
     }
 
-    private void updateFrameVBO(MultiThreadedEqualLinkedHashSetsQueue<Particle> particles, int amount) {
+    private void updateFrameVBO(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles, int amount) {
         frameVBO.alloc(FRAME_VBO_SIZE * amount);
         executeUpdate(particles, this::updateFrameVBOInternal, frameVBO);
         frameVBO.update();
@@ -217,7 +204,7 @@ public class NeoInstancedRenderManager {
 
     private static final VectorSpecies<Float> SPECIES_4 = FloatVector.SPECIES_128;
 
-    private void updateFrameVBOInternal(LinkedHashSet<TextureSheetParticle> particles, int index, long frameVBOAddress, float partialTicks) {
+    private void updateFrameVBOInternal(ObjectLinkedOpenHashSet<TextureSheetParticle> particles, int index, long frameVBOAddress, float partialTicks) {
         //MemorySegment asSeg = MemorySegment.ofAddress(frameVBOAddress).reinterpret((long) FRAME_VBO_SIZE * amount());
         for (TextureSheetParticle particle : particles) {
             /*//xyz roll
@@ -243,7 +230,7 @@ public class NeoInstancedRenderManager {
         }
     }
 
-    private void updateTickVBO(MultiThreadedEqualLinkedHashSetsQueue<Particle> particles, int amount) {
+    private void updateTickVBO(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles, int amount) {
         if (!tickPassed) {
             return;
         }
@@ -253,7 +240,7 @@ public class NeoInstancedRenderManager {
         tickVBO.update();
     }
 
-    private void updateTickVBOInternal(LinkedHashSet<TextureSheetParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {
+    private void updateTickVBOInternal(ObjectLinkedOpenHashSet<TextureSheetParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
         for (TextureSheetParticle particle : particles) {
             long start = tickVBOAddress + (long) index * TICK_VBO_SIZE;
@@ -298,16 +285,16 @@ public class NeoInstancedRenderManager {
     }
 
     @SuppressWarnings("unchecked")
-    private void executeUpdate(MultiThreadedEqualLinkedHashSetsQueue<Particle> particles, VboUpdater updater, InstancedArrayBuffer vbo) {
+    private void executeUpdate(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles, VboUpdater updater, InstancedArrayBuffer vbo) {
         var partialTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
         CompletableFuture<Void>[] futures = new CompletableFuture[getThreads()];
         int index = 0;
         for (int group = 0; group < futures.length; group++) {
             @SuppressWarnings("rawtypes")
-            LinkedHashSet set = particles.get(group);
+            ObjectLinkedOpenHashSet set = particles.get(group);
             int i = index;
             futures[group] = CompletableFuture.runAsync(
-                    () -> updater.update((LinkedHashSet<TextureSheetParticle>) set, i, vbo.getAddress(), partialTicks),
+                    () -> updater.update((ObjectLinkedOpenHashSet<TextureSheetParticle>) set, i, vbo.getAddress(), partialTicks),
                     getFixedThreadPool()
             );
             index += set.size();
@@ -358,7 +345,7 @@ public class NeoInstancedRenderManager {
 
     @FunctionalInterface
     public interface VboUpdater {
-        void update(LinkedHashSet<TextureSheetParticle> particles, int startIndex, long frameVBOAddress, float partialTicks);
+        void update(ObjectLinkedOpenHashSet<TextureSheetParticle> particles, int startIndex, long frameVBOAddress, float partialTicks);
     }
 
 }

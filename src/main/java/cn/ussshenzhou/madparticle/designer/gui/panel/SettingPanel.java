@@ -1,16 +1,12 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
-import cn.ussshenzhou.madparticle.MultiThreadedEqualLinkedHashSetsQueue;
+import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.designer.gui.ParticleCounterHud;
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
 import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
-import cn.ussshenzhou.madparticle.particle.optimize.InstancedRenderManager;
-import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.optimize.MultiThreadHelper;
-import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
-import cn.ussshenzhou.madparticle.particle.optimize.ParallelTickManager;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.HudManager;
@@ -44,7 +40,7 @@ public class SettingPanel extends TOptionsPanel {
                     ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.maxParticleAmountOfSingleQueue = newAmount);
                     var particles = ((ParticleEngineAccessor) (Minecraft.getInstance().particleEngine)).getParticles();
                     particles.forEach((particleRenderType, p) -> {
-                        MultiThreadedEqualLinkedHashSetsQueue<Particle> newQueue = new MultiThreadedEqualLinkedHashSetsQueue<>(newAmount);
+                        MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> newQueue = new MultiThreadedEqualObjectLinkedOpenHashSetQueue<>(newAmount);
                         newQueue.addAll(p);
                         particles.put(particleRenderType, newQueue);
                     });

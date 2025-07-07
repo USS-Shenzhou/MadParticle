@@ -1,23 +1,16 @@
 package cn.ussshenzhou.madparticle.particle.optimize;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.madparticle.MultiThreadedEqualLinkedHashSetsQueue;
+import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
-import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.EvictingQueue;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.particle.TextureSheetParticle;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
@@ -86,8 +79,8 @@ public class ParallelTickManager {
                     COUNTER.reset();
                     Consumer<Particle> ticker = ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking == TakeOver.VANILLA ? VANILLA_ONLY_TICKER : ALL_TICKER;
                     engine.particles.values().forEach(particles -> {
-                        if (particles instanceof MultiThreadedEqualLinkedHashSetsQueue<Particle> multiThreadedEqualLinkedHashSetsQueue) {
-                            multiThreadedEqualLinkedHashSetsQueue.forEach(ticker);
+                        if (particles instanceof MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> multiThreadedEqualObjectLinkedOpenHashSetQueue) {
+                            multiThreadedEqualObjectLinkedOpenHashSetQueue.forEach(ticker);
                         } else {
                             ForkJoinTask<?> pickAndTick = MultiThreadHelper.getForkJoinPool().submit(() -> particles.parallelStream().forEach(ticker));
                             pickAndTick.join();
@@ -109,7 +102,7 @@ public class ParallelTickManager {
                 .collect(Collectors.groupingBy(TakeOver::map))
                 .forEach((renderType, particles) ->
                         engine.particles.computeIfAbsent(renderType, t ->
-                                new MultiThreadedEqualLinkedHashSetsQueue<>(16384, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue)
+                                new MultiThreadedEqualObjectLinkedOpenHashSetQueue<>(16384, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue)
                         ).addAll(particles));
         NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::tickPassed);
         engine.particlesToAdd.clear();

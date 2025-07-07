@@ -206,20 +206,24 @@ public class NeoInstancedRenderManager {
 
     private void updateFrameVBOInternal(ObjectLinkedOpenHashSet<TextureSheetParticle> particles, int index, long frameVBOAddress, float partialTicks) {
         //MemorySegment asSeg = MemorySegment.ofAddress(frameVBOAddress).reinterpret((long) FRAME_VBO_SIZE * amount());
+        final var f = new float[4];
+        final var fo = new float[4];
+        float[] result = new float[4];
         for (TextureSheetParticle particle : particles) {
-            /*//xyz roll
-            float x = (float) (particle.xo + partialTicks * (particle.x - particle.xo));
-            float y = (float) (particle.yo + partialTicks * (particle.y - particle.yo));
-            float z = (float) (particle.zo + partialTicks * (particle.z - particle.zo));
-            float roll = particle.oRoll + partialTicks * (particle.roll - particle.oRoll);*/
-            var f = new float[]{(float) particle.x, (float) particle.y, (float) particle.z, particle.roll};
+            //xyz roll
+            f[0] = (float) particle.x;
+            f[1] = (float) particle.y;
+            f[2] = (float) particle.z;
+            f[3] = particle.roll;
+            fo[0] = (float) particle.xo;
+            fo[1] = (float) particle.yo;
+            fo[2] = (float) particle.zo;
+            fo[3] = particle.oRoll;
             FloatVector vec = FloatVector.fromArray(SPECIES_4, f, 0);
-            var fo = new float[]{(float) particle.xo, (float) particle.yo, (float) particle.zo, particle.oRoll};
             FloatVector old = FloatVector.fromArray(SPECIES_4, fo, 0);
             var res = old.add(vec.sub(old).mul(partialTicks));
             //JDK-8314791: Vector API MemorySegment stores are slow due to using putIntUnaligned
             //res.intoMemorySegment(asSeg, (long) index * FRAME_VBO_SIZE, ByteOrder.nativeOrder());
-            float[] result = new float[4];
             res.intoArray(result, 0);
             long start = frameVBOAddress + (long) index * FRAME_VBO_SIZE;
             MemoryUtil.memPutFloat(start, result[0]);

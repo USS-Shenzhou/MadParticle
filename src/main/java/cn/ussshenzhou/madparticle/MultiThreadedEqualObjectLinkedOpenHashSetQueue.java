@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 /**
  * @author USS_Shenzhou
  * @see com.google.common.collect.EvictingQueue
+ * @see it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
  */
 public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<E> {
     private static final AtomicInteger ID = new AtomicInteger();

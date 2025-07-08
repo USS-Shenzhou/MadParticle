@@ -3,6 +3,7 @@ package cn.ussshenzhou.madparticle.particle.optimize;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
+import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.cache.Cache;
@@ -21,8 +22,8 @@ import java.util.stream.Collectors;
  * @author USS_Shenzhou
  */
 public class ParallelTickManager {
-    public static Cache<Particle, Object> removeCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(65536).build();
-    public static Cache<Particle, Object> syncTickCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(65536).build();
+    public static Cache<Particle, Object> removeCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(16384).build();
+    public static Cache<Particle, Object> syncTickCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(16384).build();
     public static final Object NULL = new Object();
     private static final LongAdder COUNTER = new LongAdder();
     public static AtomicInteger addCounter = new AtomicInteger();
@@ -41,6 +42,13 @@ public class ParallelTickManager {
     };
     private static final Consumer<Particle> ALL_TICKER = particle -> {
         if (getTickType(particle) != TakeOver.TickType.SYNC) {
+            asyncTick(particle);
+        } else {
+            syncTickCache.put(particle, NULL);
+        }
+    };
+    private static final Consumer<Particle> MP_ONLY_TICKER = particle -> {
+        if (particle instanceof MadParticle && getTickType(particle) == TakeOver.TickType.ASYNC) {
             asyncTick(particle);
         } else {
             syncTickCache.put(particle, NULL);
@@ -77,7 +85,11 @@ public class ParallelTickManager {
                 }, MultiThreadHelper.getForkJoinPool())
                 .whenCompleteAsync((v, e) -> {
                     COUNTER.reset();
-                    Consumer<Particle> ticker = ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking == TakeOver.VANILLA ? VANILLA_ONLY_TICKER : ALL_TICKER;
+                    var ticker = switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking){
+                        case ALL -> ALL_TICKER;
+                        case VANILLA -> VANILLA_ONLY_TICKER;
+                        case NONE -> MP_ONLY_TICKER;
+                    };
                     engine.particles.values().forEach(particles -> {
                         if (particles instanceof MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> multiThreadedEqualObjectLinkedOpenHashSetQueue) {
                             multiThreadedEqualObjectLinkedOpenHashSetQueue.forEach(ticker);

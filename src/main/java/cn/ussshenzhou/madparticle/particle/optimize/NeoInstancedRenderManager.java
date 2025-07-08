@@ -6,6 +6,7 @@ import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.util.LightCache;
+import cn.ussshenzhou.madparticle.util.MathHelper;
 import cn.ussshenzhou.madparticle.util.SimpleBlockPos;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.buffers.GpuBuffer;
@@ -35,7 +36,9 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryUtil;
+import sun.misc.Unsafe;
 
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -244,10 +247,40 @@ public class NeoInstancedRenderManager {
         tickVBO.update();
     }
 
+    static final Field f;
+    static final Unsafe unsafe;
+    static long baseOffset;
+
+    static {
+        try {
+            f = Unsafe.class.getDeclaredField("theUnsafe");
+            f.setAccessible(true);
+            unsafe = (Unsafe) f.get(null);
+            baseOffset = unsafe.arrayBaseOffset(short[].class);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void updateTickVBOInternal(ObjectLinkedOpenHashSet<TextureSheetParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
+        final var f = new float[8];
+        final var s = new short[8];
         for (TextureSheetParticle particle : particles) {
             long start = tickVBOAddress + (long) index * TICK_VBO_SIZE;
+            f[0] = particle.getU0();
+            f[1] = particle.getU1();
+            f[2] = particle.getV0();
+            f[3] = particle.getV1();
+            f[4] = particle.rCol;
+            f[5] = particle.gCol;
+            f[6] = particle.bCol;
+            f[7] = particle.alpha;
+            MathHelper.toHalfFloat8(FloatVector.fromArray(FloatVector.SPECIES_256, f, 0)).intoArray(s, 0);
+            unsafe.copyMemory(s, baseOffset, null, start, 16);
+
+
+            /*
             //uv
             MemoryUtil.memPutShort(start, Float.floatToFloat16(particle.getU0()));
             MemoryUtil.memPutShort(start + 2, Float.floatToFloat16(particle.getU1()));
@@ -258,6 +291,7 @@ public class NeoInstancedRenderManager {
             MemoryUtil.memPutShort(start + 10, Float.floatToFloat16(particle.gCol));
             MemoryUtil.memPutShort(start + 12, Float.floatToFloat16(particle.bCol));
             MemoryUtil.memPutShort(start + 14, Float.floatToFloat16(particle.alpha));
+            */
             //size extraLight
             MemoryUtil.memPutShort(start + 16, Float.floatToFloat16(particle.getQuadSize(0.5f)));
             if (particle instanceof MadParticle madParticle) {

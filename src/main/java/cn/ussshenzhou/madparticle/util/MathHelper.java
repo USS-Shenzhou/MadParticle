@@ -1,9 +1,16 @@
 package cn.ussshenzhou.madparticle.util;
 
+import jdk.incubator.vector.FloatVector;
+import jdk.incubator.vector.IntVector;
+import jdk.incubator.vector.ShortVector;
+import jdk.incubator.vector.VectorMask;
 import net.minecraft.util.RandomSource;
 import org.joml.Vector2i;
 
 import java.util.Random;
+
+import static jdk.incubator.vector.IntVector.*;
+import static jdk.incubator.vector.VectorOperators.*;
 
 /**
  * @author USS_Shenzhou
@@ -38,5 +45,73 @@ public class MathHelper {
 
     public static Vector2i copy(Vector2i old) {
         return new Vector2i(old.x, old.y);
+    }
+
+    private static final IntVector SIGN_MASK_128 = IntVector.broadcast(SPECIES_128, 0x80000000);
+    private static final IntVector NOT_SIGN_MASK_128 = IntVector.broadcast(SPECIES_128, 0x7fffffff);
+    private static final IntVector ROUND_BIAS_128 = IntVector.broadcast(SPECIES_128, 0x00001000);
+    private static final IntVector BIAS_DIFF_128 = IntVector.broadcast(SPECIES_128, 0x0001c000);
+    private static final IntVector F16_MAX_BITS_128 = IntVector.broadcast(SPECIES_128, 0x47c00000);
+    private static final IntVector SMALL_BITS_128 = IntVector.broadcast(SPECIES_128, Float.floatToRawIntBits(1.0e-4f));
+    private static final IntVector EXP_MASK_128 = IntVector.broadcast(SPECIES_128, 0x7f800000);
+    private static final IntVector INF16_128 = IntVector.broadcast(SPECIES_128, 0x00007c00);
+    private static final IntVector QNAN16_128 = IntVector.broadcast(SPECIES_128, 0x00007e00);
+    private static final IntVector ZERO_128 = IntVector.zero(SPECIES_128);
+
+    /**
+     * There are about 0.22% chance that the results' error comparing to standard {@link Float#floatToFloat16(float)} are bigger than 0.0001, but always smaller than 0.5 within ±1600.
+     */
+    public static ShortVector toHalfFloat4(FloatVector floatVector) {
+        IntVector bits = floatVector.reinterpretAsInts();
+        IntVector sign16 = bits.and(SIGN_MASK_128).lanewise(LSHR, 16);
+        IntVector absBits = bits.and(NOT_SIGN_MASK_128);
+
+        VectorMask<Integer> smallMask = absBits.compare(LT, SMALL_BITS_128);
+        VectorMask<Integer> specialMask = absBits.compare(GE, EXP_MASK_128);
+
+        IntVector base = bits.add(ROUND_BIAS_128).lanewise(LSHR, 13).sub(BIAS_DIFF_128);
+
+        VectorMask<Integer> overflowMask = absBits.compare(GT, F16_MAX_BITS_128);
+        IntVector merged = base.blend(ZERO_128, smallMask).blend(INF16_128, overflowMask);
+        VectorMask<Integer> nanMask = specialMask.and(absBits.compare(NE, EXP_MASK_128));
+        merged = merged.blend(QNAN16_128, nanMask);
+
+        IntVector halfBits = merged.or(sign16);
+
+        return (ShortVector) halfBits.convertShape(I2S, ShortVector.SPECIES_64, 0);
+    }
+
+    private static final IntVector SIGN_MASK_256 = IntVector.broadcast(SPECIES_256, 0x80000000);
+    private static final IntVector NOT_SIGN_MASK_256 = IntVector.broadcast(SPECIES_256, 0x7fffffff);
+    private static final IntVector ROUND_BIAS_256 = IntVector.broadcast(SPECIES_256, 0x00001000);
+    private static final IntVector BIAS_DIFF_256 = IntVector.broadcast(SPECIES_256, 0x0001c000);
+    private static final IntVector F16_MAX_BITS_256 = IntVector.broadcast(SPECIES_256, 0x47c00000);
+    private static final IntVector SMALL_BITS_256 = IntVector.broadcast(SPECIES_256, Float.floatToRawIntBits(1.0e-4f));
+    private static final IntVector EXP_MASK_256 = IntVector.broadcast(SPECIES_256, 0x7f800000);
+    private static final IntVector INF16_256 = IntVector.broadcast(SPECIES_256, 0x00007c00);
+    private static final IntVector QNAN16_256 = IntVector.broadcast(SPECIES_256, 0x00007e00);
+    private static final IntVector ZERO_256 = IntVector.zero(SPECIES_256);
+
+    /**
+     * There are about 0.22% chance that the results' error comparing to standard {@link Float#floatToFloat16(float)} are bigger than 0.0001, but always smaller than 0.5 within ±1600.
+     */
+    public static ShortVector toHalfFloat8(FloatVector floatVector) {
+        IntVector bits = floatVector.viewAsIntegralLanes();
+        IntVector sign16 = bits.and(SIGN_MASK_256).lanewise(LSHR, 16);
+        IntVector absBits = bits.and(NOT_SIGN_MASK_256);
+
+        VectorMask<Integer> smallMask = absBits.compare(LT, SMALL_BITS_256);
+        VectorMask<Integer> specialMask = absBits.compare(GE, EXP_MASK_256);
+
+        IntVector base = bits.add(ROUND_BIAS_256).lanewise(LSHR, 13).sub(BIAS_DIFF_256);
+
+        VectorMask<Integer> overflowMask = absBits.compare(GT, F16_MAX_BITS_256);
+        IntVector merged = base.blend(ZERO_256, smallMask).blend(INF16_256, overflowMask);
+        VectorMask<Integer> nanMask = specialMask.and(absBits.compare(NE, EXP_MASK_256));
+        merged = merged.blend(QNAN16_256, nanMask);
+
+        IntVector halfBits = merged.or(sign16);
+
+        return (ShortVector) halfBits.convertShape(I2S, ShortVector.SPECIES_128, 0);
     }
 }

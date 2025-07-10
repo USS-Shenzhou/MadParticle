@@ -13,6 +13,7 @@ import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.opengl.GlBuffer;
 import com.mojang.blaze3d.opengl.GlDevice;
 import com.mojang.blaze3d.opengl.GlStateManager;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -157,7 +158,7 @@ public class NeoInstancedRenderManager {
                 mc.getMainRenderTarget().getDepthTextureView(),
                 OptionalDouble.empty()
         )) {
-            pass.setPipeline(ModRenderPipelines.INSTANCED_COMMON_DEPTH);
+            pass.setPipeline(getRenderPipeline());
             setUniform(pass, mc, dynamicTransformsUniform);
             setVAO(pass);
             updateFrameVBO(particles, amount);
@@ -170,9 +171,17 @@ public class NeoInstancedRenderManager {
         cleanUp();
     }
 
+    private RenderPipeline getRenderPipeline() {
+        return switch (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod) {
+            case DEPTH_TRUE -> ModRenderPipelines.INSTANCED_COMMON_DEPTH;
+            case DEPTH_FALSE -> ModRenderPipelines.INSTANCED_COMMON_BLEND;
+            default -> ModRenderPipelines.INSTANCED_COMMON_DEPTH;
+        };
+    }
+
     private void setVAO(RenderPass pass) {
         pass.setVertexBuffer(0, PROXY_VAO);
-        ((GlDevice) RenderSystem.getDevice()).vertexArrayCache().bindVertexArray(ModRenderPipelines.INSTANCED_COMMON_DEPTH.getVertexFormat(), (GlBuffer) PROXY_VAO);
+        ((GlDevice) RenderSystem.getDevice()).vertexArrayCache().bindVertexArray(getRenderPipeline().getVertexFormat(), (GlBuffer) PROXY_VAO);
         setVertexAttributeArray();
     }
 

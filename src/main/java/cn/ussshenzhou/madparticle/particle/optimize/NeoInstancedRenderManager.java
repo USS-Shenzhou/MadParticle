@@ -167,8 +167,6 @@ public class NeoInstancedRenderManager {
             tickVBO.bind();
             pass.setIndexBuffer(EBO, VertexFormat.IndexType.INT);
             pass.drawIndexed(0, 0, 6, amount);
-            frameVBO.using();
-            tickVBO.using();
         }
         cleanUp();
     }

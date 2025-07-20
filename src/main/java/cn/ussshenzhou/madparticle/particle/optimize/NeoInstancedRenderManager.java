@@ -160,13 +160,15 @@ public class NeoInstancedRenderManager {
         )) {
             pass.setPipeline(getRenderPipeline());
             setUniform(pass, mc, dynamicTransformsUniform);
-            setVAO(pass);
             updateFrameVBO(particles, amount);
             updateTickVBO(particles, amount);
+            setVAO(pass);
             frameVBO.bind();
             tickVBO.bind();
             pass.setIndexBuffer(EBO, VertexFormat.IndexType.INT);
             pass.drawIndexed(0, 0, 6, amount);
+            frameVBO.using();
+            tickVBO.using();
         }
         cleanUp();
     }
@@ -206,9 +208,8 @@ public class NeoInstancedRenderManager {
     }
 
     private void updateFrameVBO(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles, int amount) {
-        frameVBO.alloc(FRAME_VBO_SIZE * amount);
+        frameVBO.ensureCapacity(FRAME_VBO_SIZE * amount);
         executeUpdate(particles, this::updateFrameVBOInternal, frameVBO);
-        frameVBO.update();
     }
 
     private static final VectorSpecies<Float> SPECIES_4 = FloatVector.SPECIES_128;
@@ -248,9 +249,8 @@ public class NeoInstancedRenderManager {
             return;
         }
         tickPassed = false;
-        tickVBO.alloc(TICK_VBO_SIZE * amount);
+        tickVBO.ensureCapacity(TICK_VBO_SIZE * amount);
         executeUpdate(particles, this::updateTickVBOInternal, tickVBO);
-        tickVBO.update();
     }
 
     private void updateTickVBOInternal(ObjectLinkedOpenHashSet<TextureSheetParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {

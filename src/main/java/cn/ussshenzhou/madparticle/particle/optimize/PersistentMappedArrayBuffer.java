@@ -14,11 +14,11 @@ import static org.lwjgl.opengl.ARBBufferStorage.*;
 /**
  * @author USS_Shenzhou
  */
-public class InstancedArrayBuffer {
+public class PersistentMappedArrayBuffer {
     private final ArrayList<PersistentMappedBuffer> buffers = new ArrayList<>();
     private int byteSize, usingIndex = -1;
 
-    public InstancedArrayBuffer() {
+    public PersistentMappedArrayBuffer() {
     }
 
     public long getAddress() {
@@ -34,7 +34,7 @@ public class InstancedArrayBuffer {
         } else {
             buffers.forEach(PersistentMappedBuffer::free);
             buffers.clear();
-            buffers.addAll(IntStream.range(0, 6).mapToObj(i -> new PersistentMappedBuffer(byteSize)).toList());
+            buffers.addAll(IntStream.range(0, 3).mapToObj(i -> new PersistentMappedBuffer(byteSize)).toList());
             usingIndex = 0;
             this.byteSize = byteSize;
         }

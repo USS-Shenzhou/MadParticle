@@ -4,24 +4,26 @@
 #moj_import <minecraft:dynamictransforms.glsl>
 #moj_import <minecraft:projection.glsl>
 
-//-----per frame update-----
+//-----per tick update-----
 //single float
 layout (location=0) in vec4 instanceXYZRoll;
-//-----per tick update-----
+//single float
+layout (location=1) in vec4 prevInstanceXYZRoll;
 //half float
-layout (location=1) in vec4 instanceUV;
+layout (location=2) in vec4 instanceUV;
 //half float
-layout (location=2) in vec4 instanceColor;
+layout (location=3) in vec4 instanceColor;
 //half float
-layout (location=3) in vec2 sizeExtraLight;
+layout (location=4) in vec2 sizeExtraLight;
 //(4+4 bits) 1 byte + 3 byte padding
-layout (location=4) in uint instanceUV2;
+layout (location=5) in uint instanceUV2;
 
 uniform sampler2D Sampler2;
 
 layout(std140) uniform CameraCorrection {
     vec4 CamQuat;
     vec3 CamXYZ;
+    float partialTick;
 };
 
 out float sphericalVertexDistance;
@@ -46,12 +48,15 @@ mat4 rotate(vec4 quat, mat4 matrix);
 mat4 rotateZ(float roll, mat4 matrix);
 
 void main() {
+    vec4 xyzRoll = mix(prevInstanceXYZRoll, instanceXYZRoll, partialTick);
+    vec3 pos = xyzRoll.xyz - CamXYZ;
+
     //matrix4fSingle.identity()
     mat4 m = mat4(1.0);
     //.translation(x + camPosCompensate.x, y + camPosCompensate.y, z + camPosCompensate.z)
-    m[3][0] = instanceXYZRoll.x - CamXYZ.x;
-    m[3][1] = instanceXYZRoll.y - CamXYZ.y;
-    m[3][2] = instanceXYZRoll.z - CamXYZ.z;
+    m[3][0] = pos.x;
+    m[3][1] = pos.y;
+    m[3][2] = pos.z;
     //.rotate(camera.rotation())
     m = rotate(CamQuat, m);
     //.scale(particle.getQuadSize(partialTicks));
@@ -59,11 +64,9 @@ void main() {
     m[1] *= sizeExtraLight.x;
     m[2] *= sizeExtraLight.x;
     //matrix4fSingle.rotateZ(roll);
-    m = rotateZ(instanceXYZRoll.w, m);
+    m = rotateZ(xyzRoll.w, m);
 
     gl_Position = ProjMat * ModelViewMat * m * RELATIVE[gl_VertexID];
-
-    vec3 pos = vec3(instanceXYZRoll.x - CamXYZ.x, instanceXYZRoll.y - CamXYZ.y, instanceXYZRoll.z - CamXYZ.z);
     sphericalVertexDistance = fog_spherical_distance(pos);
     cylindricalVertexDistance = fog_cylindrical_distance(pos);
     vec4 uvControl = UV_CONTROL[gl_VertexID];

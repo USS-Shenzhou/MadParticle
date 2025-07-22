@@ -16,32 +16,47 @@ import static org.lwjgl.opengl.ARBBufferStorage.*;
  */
 public class PersistentMappedArrayBuffer {
     private final ArrayList<PersistentMappedBuffer> buffers = new ArrayList<>();
-    private int byteSize, usingIndex = -1;
+    protected int byteSize, usingIndex = -1;
+    private static final int N = 4;
+    private boolean trapping = false;
 
     public PersistentMappedArrayBuffer() {
     }
 
-    public long getAddress() {
-        if (usingIndex == -1) {
-            throw new IllegalStateException("The buffer has not been allocated.");
-        }
-        return buffers.get(usingIndex).getAddress();
-    }
-
     public void ensureCapacity(int byteSize) {
-        if (byteSize <= this.byteSize) {
-            usingIndex = (usingIndex + 1) % buffers.size();
-        } else {
-            buffers.forEach(PersistentMappedBuffer::free);
+        PersistentMappedBuffer using = usingIndex == -1 ? null : buffers.get(usingIndex);
+        if (byteSize > this.byteSize) {
+            buffers.forEach(persistentMappedBuffer -> {
+                if (persistentMappedBuffer != using) {
+                    persistentMappedBuffer.free();
+                }
+            });
             buffers.clear();
-            buffers.addAll(IntStream.range(0, 3).mapToObj(i -> new PersistentMappedBuffer(byteSize)).toList());
-            usingIndex = 0;
-            this.byteSize = byteSize;
+            this.byteSize = (int) (byteSize * 1.25);
+            buffers.addAll(IntStream.range(0, N).mapToObj(i -> new PersistentMappedBuffer(this.byteSize)).toList());
+            if (using != null) {
+                buffers.add(using);
+                trapping = true;
+            }
         }
     }
 
-    public void bind() {
-        buffers.get(usingIndex).bind();
+    @SuppressWarnings("SequencedCollectionMethodCanBeUsed")
+    public PersistentMappedBuffer getNext() {
+        return trapping ? buffers.get(0) : buffers.get((usingIndex + 1) % N);
+    }
+
+    public PersistentMappedBuffer getCurrent() {
+        return trapping ? buffers.get(N) : buffers.get(usingIndex);
+    }
+
+    public void next() {
+        if (trapping) {
+            trapping = false;
+            usingIndex = 0;
+            return;
+        }
+        usingIndex = (usingIndex + 1) % N;
     }
 
     public static class PersistentMappedBuffer {

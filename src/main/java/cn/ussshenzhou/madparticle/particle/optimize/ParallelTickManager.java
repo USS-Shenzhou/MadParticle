@@ -4,6 +4,7 @@ import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
+import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.cache.Cache;
@@ -85,7 +86,7 @@ public class ParallelTickManager {
                 }, MultiThreadHelper.getForkJoinPool())
                 .whenCompleteAsync((v, e) -> {
                     COUNTER.reset();
-                    var ticker = switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking){
+                    var ticker = switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking) {
                         case ALL -> ALL_TICKER;
                         case VANILLA -> VANILLA_ONLY_TICKER;
                         case NONE -> MP_ONLY_TICKER;
@@ -107,6 +108,7 @@ public class ParallelTickManager {
     }
 
     private static void removeAndAdd(ParticleEngine engine) {
+        NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::updateParticlesPre);
         addCounter.set(engine.particlesToAdd.size());
         removeCounter.set((int) removeCache.size());
         engine.particles.values().parallelStream().forEach(particles -> particles.removeAll(removeCache.asMap().keySet()));
@@ -116,7 +118,11 @@ public class ParallelTickManager {
                         engine.particles.computeIfAbsent(renderType, t ->
                                 new MultiThreadedEqualObjectLinkedOpenHashSetQueue<>(16384, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue)
                         ).addAll(particles));
-        NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::tickPassed);
+        engine.particles.forEach((renderType, particles) -> {
+            if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
+                NeoInstancedRenderManager.getInstance(renderType).updateParticlesPost((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particles);
+            }
+        });
         engine.particlesToAdd.clear();
     }
 

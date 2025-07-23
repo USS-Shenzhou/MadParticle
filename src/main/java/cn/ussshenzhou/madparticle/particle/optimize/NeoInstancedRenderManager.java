@@ -157,9 +157,6 @@ public class NeoInstancedRenderManager {
             pass.setPipeline(getRenderPipeline());
             setUniform(pass, mc, dynamicTransformsUniform);
             setVAO(pass);
-
-            LogUtils.getLogger().warn("{} {}",tickVBO.usingIndex,Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false));
-
             tickVBO.getCurrent().bind();
             pass.setIndexBuffer(EBO, VertexFormat.IndexType.INT);
             pass.drawIndexed(0, 0, 6, amount);

@@ -3,9 +3,7 @@ package cn.ussshenzhou.madparticle.particle.optimize;
 import cn.ussshenzhou.madparticle.MadParticle;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.platform.DepthTestFunction;
-import com.mojang.blaze3d.platform.LogicOp;
-import com.mojang.blaze3d.platform.PolygonMode;
+import com.mojang.blaze3d.platform.*;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -43,14 +41,16 @@ public class ModRenderPipelines {
                     .build()
     );
 
+    public static final BlendFunction JUST_BLEND = new BlendFunction(SourceFactor.ONE_MINUS_SRC_ALPHA, DestFactor.ONE, SourceFactor.ONE, DestFactor.ONE);
+
     public static final RenderPipeline INSTANCED_COMMON_BLEND = RenderPipelines.register(
             RenderPipeline.builder(INSTANCED_SNIPPET)
                     .withLocation(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
                     .withFragmentShader(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_common"))
-                    .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+                    .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
                     .withBlend(BlendFunction.TRANSLUCENT)
                     .withColorWrite(true, true)
-                    .withDepthWrite(true)
+                    .withDepthWrite(false)
                     .build()
     );
 

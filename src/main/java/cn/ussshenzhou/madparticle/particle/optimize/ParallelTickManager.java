@@ -78,13 +78,19 @@ public class ParallelTickManager {
     //TODO divide sync caches by renderType.
     public static void tick(ParticleEngine engine) {
         checkPreviousTickDone(engine);
+        NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::preUpdate);
         tickSync();
         removeAndAdd(engine);
+        engine.particles.forEach((renderType, particles) -> {
+            if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
+                NeoInstancedRenderManager.getInstance(renderType).update((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particles);
+            }
+        });
         lastTickJob = CompletableFuture.runAsync(() -> {
                     syncTickCache.invalidateAll();
                     removeCache.invalidateAll();
                 }, MultiThreadHelper.getForkJoinPool())
-                .whenCompleteAsync((v, e) -> {
+                .whenCompleteAsync((_, _) -> {
                     COUNTER.reset();
                     var ticker = switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking) {
                         case ALL -> ALL_TICKER;
@@ -100,29 +106,28 @@ public class ParallelTickManager {
                         }
                     });
                 }, MultiThreadHelper.getForkJoinPool())
-                .whenCompleteAsync((v, e) -> {
+                .whenCompleteAsync((_, e) -> {
                     if (e != null) {
                         failSafe(engine, e);
                     }
+                    engine.particles.forEach((renderType, particles) -> {
+                        if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
+                            NeoInstancedRenderManager.getInstance(renderType).postUpdate((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particles);
+                        }
+                    });
                 }, MultiThreadHelper.getForkJoinPool());
     }
 
     private static void removeAndAdd(ParticleEngine engine) {
-        NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::updateParticlesPre);
         addCounter.set(engine.particlesToAdd.size());
         removeCounter.set((int) removeCache.size());
         engine.particles.values().parallelStream().forEach(particles -> particles.removeAll(removeCache.asMap().keySet()));
         engine.particlesToAdd.stream()
                 .collect(Collectors.groupingBy(TakeOver::map))
                 .forEach((renderType, particles) ->
-                        engine.particles.computeIfAbsent(renderType, t ->
+                        engine.particles.computeIfAbsent(renderType, _ ->
                                 new MultiThreadedEqualObjectLinkedOpenHashSetQueue<>(16384, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue)
                         ).addAll(particles));
-        engine.particles.forEach((renderType, particles) -> {
-            if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
-                NeoInstancedRenderManager.getInstance(renderType).updateParticlesPost((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particles);
-            }
-        });
         engine.particlesToAdd.clear();
     }
 

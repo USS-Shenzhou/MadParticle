@@ -105,14 +105,16 @@ public class NeoInstancedRenderManager {
      * layout (location=5) in uint instanceUV2;
      * }</pre>
      */
-    private final PersistentMappedArrayBuffer tickVBO = new PersistentMappedArrayBuffer();
     private static final int TICK_VBO_SIZE = 8 * 4 + 4 * 2 + 4 * 2 + 2 * 2 + 4;
     private static final LightCache LIGHT_CACHE = new LightCache();
     private static boolean forceMaxLight = false;
     private static final GpuBuffer PROXY_VAO = ModRenderPipelines.INSTANCED_COMMON_DEPTH.getVertexFormat().uploadImmediateVertexBuffer(ByteBuffer.allocateDirect(128));
     private static final GpuBuffer EBO;
     private static final short DEFAULT_EXTRA_LIGHT = Float.floatToFloat16(1f);
+
+    private final PersistentMappedArrayBuffer tickVBO = new PersistentMappedArrayBuffer();
     private int amount, nextAmount;
+    private volatile CompletableFuture<Void> updateTickVBOTask = null;
 
     static {
         NeoForge.EVENT_BUS.addListener(NeoInstancedRenderManager::checkForceMaxLight);
@@ -155,6 +157,9 @@ public class NeoInstancedRenderManager {
             pass.setPipeline(getRenderPipeline());
             setUniform(pass, mc, dynamicTransformsUniform);
             setVAO(pass);
+
+            LogUtils.getLogger().warn("{} {}",tickVBO.usingIndex,Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false));
+
             tickVBO.getCurrent().bind();
             pass.setIndexBuffer(EBO, VertexFormat.IndexType.INT);
             pass.drawIndexed(0, 0, 6, amount);
@@ -162,23 +167,21 @@ public class NeoInstancedRenderManager {
         cleanUp();
     }
 
-    public void updateParticlesPost(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles) {
-        amount = nextAmount;
-        nextAmount = particles.size();
-        prepareNextTickVBO(particles);
-    }
-
-    private CompletableFuture<Void> updateTickVBOTask = null;
-
-    public void updateParticlesPre() {
+    public void preUpdate() {
         if (updateTickVBOTask != null) {
             updateTickVBOTask.join();
             tickVBO.next();
         }
     }
 
-    private void prepareNextTickVBO(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles) {
-        updateTickVBOTask = updateTickVBO(particles);
+    public void update(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles) {
+        amount = nextAmount;
+        nextAmount = particles.size();
+        tickVBO.ensureCapacity(TICK_VBO_SIZE * particles.size());
+    }
+
+    public void postUpdate(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles) {
+        updateTickVBOTask = executeUpdate(particles, this::updateTickVBOInternal, tickVBO);
     }
 
     private RenderPipeline getRenderPipeline() {
@@ -214,11 +217,6 @@ public class NeoInstancedRenderManager {
         pass.setUniform("CameraCorrection", RenderSystem.getDevice().createBuffer(() -> "MadParticle CameraCorrection Uniform", GpuBuffer.USAGE_UNIFORM, uniformBuffer));
         pass.bindSampler("Sampler0", mc.getTextureManager().getTexture(usingAtlas).getTextureView());
         pass.bindSampler("Sampler2", mc.gameRenderer.lightTexture().getTextureView());
-    }
-
-    private CompletableFuture<Void> updateTickVBO(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles) {
-        tickVBO.ensureCapacity(TICK_VBO_SIZE * particles.size());
-        return executeUpdate(particles, this::updateTickVBOInternal, tickVBO);
     }
 
     private void updateTickVBOInternal(ObjectLinkedOpenHashSet<TextureSheetParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {

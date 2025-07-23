@@ -1,7 +1,8 @@
 package cn.ussshenzhou.madparticle.util;
 
-import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
-
+/**
+ * @author USS_Shenzhou
+ */
 public class SimpleBlockPos {
     public int x, y, z;
 

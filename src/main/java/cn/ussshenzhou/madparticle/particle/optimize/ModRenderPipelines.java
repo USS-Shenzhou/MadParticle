@@ -41,8 +41,6 @@ public class ModRenderPipelines {
                     .build()
     );
 
-    public static final BlendFunction JUST_BLEND = new BlendFunction(SourceFactor.ONE_MINUS_SRC_ALPHA, DestFactor.ONE, SourceFactor.ONE, DestFactor.ONE);
-
     public static final RenderPipeline INSTANCED_COMMON_BLEND = RenderPipelines.register(
             RenderPipeline.builder(INSTANCED_SNIPPET)
                     .withLocation(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))

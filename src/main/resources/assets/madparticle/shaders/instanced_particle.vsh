@@ -22,8 +22,7 @@ uniform sampler2D Sampler2;
 
 layout(std140) uniform CameraCorrection {
     vec4 CamQuat;
-    vec3 CamXYZ;
-    float partialTick;
+    vec4 CamXYZPartialTick;
 };
 
 out float sphericalVertexDistance;
@@ -48,8 +47,8 @@ mat4 rotate(vec4 quat, mat4 matrix);
 mat4 rotateZ(float roll, mat4 matrix);
 
 void main() {
-    vec4 xyzRoll = mix(prevInstanceXYZRoll, instanceXYZRoll, partialTick);
-    vec3 pos = xyzRoll.xyz - CamXYZ;
+    vec4 xyzRoll = mix(prevInstanceXYZRoll, instanceXYZRoll, CamXYZPartialTick.w);
+    vec3 pos = xyzRoll.xyz - CamXYZPartialTick.xyz;
 
     //matrix4fSingle.identity()
     mat4 m = mat4(1.0);

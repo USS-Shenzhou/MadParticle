@@ -10,6 +10,7 @@ import cn.ussshenzhou.madparticle.util.SimpleBlockPos;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.opengl.GlBuffer;
 import com.mojang.blaze3d.opengl.GlDevice;
 import com.mojang.blaze3d.opengl.GlStateManager;
@@ -23,8 +24,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.renderer.MappableRingBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -115,6 +118,9 @@ public class NeoInstancedRenderManager {
     private final PersistentMappedArrayBuffer tickVBO = new PersistentMappedArrayBuffer();
     private int amount, nextAmount;
     private volatile CompletableFuture<Void> updateTickVBOTask = null;
+    private final MappableRingBuffer cameraCorrectionUbo = new MappableRingBuffer(() -> "MadParticle CameraCorrection Uniform",
+            GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_MAP_WRITE,
+            (4 + 4) * 4);
 
     static {
         NeoForge.EVENT_BUS.addListener(NeoInstancedRenderManager::checkForceMaxLight);
@@ -140,22 +146,18 @@ public class NeoInstancedRenderManager {
         }
         var mc = Minecraft.getInstance();
         var encoder = RenderSystem.getDevice().createCommandEncoder();
-        var dynamicTransformsUniform = RenderSystem.getDynamicUniforms().writeTransform(
-                RenderSystem.getModelViewMatrix(),
-                new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
-                new Vector3f(),
-                new Matrix4f(),
-                0.0F);
+        var cameraUbo = encoder.mapBuffer(cameraCorrectionUbo.currentBuffer(), false, true);
+        var dynamicUbo = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrix(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F), new Vector3f(), new Matrix4f(), 0.0F);
         //noinspection DataFlowIssue
-        try (var pass = encoder.createRenderPass(
+        var pass = encoder.createRenderPass(
                 () -> "MadParticle render",
                 mc.getMainRenderTarget().getColorTextureView(),
                 OptionalInt.empty(),
                 mc.getMainRenderTarget().getDepthTextureView(),
-                OptionalDouble.empty()
-        )) {
+                OptionalDouble.empty());
+        try (pass; cameraUbo) {
             pass.setPipeline(getRenderPipeline());
-            setUniform(pass, mc, dynamicTransformsUniform);
+            setUniform(pass, mc, cameraUbo, dynamicUbo);
             setVAO(pass);
             tickVBO.getCurrent().bind();
             pass.setIndexBuffer(EBO, VertexFormat.IndexType.INT);
@@ -195,23 +197,16 @@ public class NeoInstancedRenderManager {
         setVertexAttributeArray();
     }
 
-    private void setUniform(RenderPass pass, Minecraft mc, GpuBufferSlice dynamicTransformsUniform) {
+    private void setUniform(RenderPass pass, Minecraft mc, GpuBuffer.MappedView ubo, GpuBufferSlice dynamicUbo) {
         RenderSystem.bindDefaultUniforms(pass);
-        pass.setUniform("DynamicTransforms", dynamicTransformsUniform);
+        pass.setUniform("DynamicTransforms", dynamicUbo);
         var camera = mc.gameRenderer.getMainCamera();
         var cameraPos = camera.getPosition();
         var cameraRot = camera.rotation();
-        ByteBuffer uniformBuffer = BufferUtils.createByteBuffer((4 + 4) * 4);
-        uniformBuffer.putFloat(cameraRot.x);
-        uniformBuffer.putFloat(cameraRot.y);
-        uniformBuffer.putFloat(cameraRot.z);
-        uniformBuffer.putFloat(cameraRot.w);
-        uniformBuffer.putFloat((float) cameraPos.x);
-        uniformBuffer.putFloat((float) cameraPos.y);
-        uniformBuffer.putFloat((float) cameraPos.z);
-        uniformBuffer.putFloat(mc.getDeltaTracker().getGameTimeDeltaPartialTick(false));
-        uniformBuffer.flip();
-        pass.setUniform("CameraCorrection", RenderSystem.getDevice().createBuffer(() -> "MadParticle CameraCorrection Uniform", GpuBuffer.USAGE_UNIFORM, uniformBuffer));
+        Std140Builder.intoBuffer(ubo.data())
+                .putVec4(cameraRot.x, cameraRot.y, cameraRot.z, cameraRot.w)
+                .putVec4((float) cameraPos.x, (float) cameraPos.y, (float) cameraPos.z, mc.getDeltaTracker().getGameTimeDeltaPartialTick(false));
+        pass.setUniform("CameraCorrection", cameraCorrectionUbo.currentBuffer());
         pass.bindSampler("Sampler0", mc.getTextureManager().getTexture(usingAtlas).getTextureView());
         pass.bindSampler("Sampler2", mc.gameRenderer.lightTexture().getTextureView());
     }
@@ -315,7 +310,8 @@ public class NeoInstancedRenderManager {
         glVertexAttribDivisorARB(5, 1);
     }
 
-    private static void cleanUp() {
+    private void cleanUp() {
+        cameraCorrectionUbo.rotate();
         GlStateManager._glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDepthMask(true);

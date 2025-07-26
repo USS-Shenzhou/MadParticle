@@ -5,8 +5,10 @@ import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
+import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.madparticle.util.SimpleBlockPos;
+import cn.ussshenzhou.t88.T88;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
@@ -25,6 +27,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.MappableRingBuffer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
@@ -38,6 +41,8 @@ import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryUtil;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -161,6 +166,7 @@ public class NeoInstancedRenderManager {
             setVAO(pass);
             tickVBO.getCurrent().bind();
             pass.setIndexBuffer(EBO, VertexFormat.IndexType.INT);
+            bindIrisFBO();
             pass.drawIndexed(0, 0, 6, amount);
         }
         cleanUp();
@@ -315,6 +321,7 @@ public class NeoInstancedRenderManager {
         GlStateManager._glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDepthMask(true);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     public int getAmount() {
@@ -326,4 +333,26 @@ public class NeoInstancedRenderManager {
         void update(ObjectLinkedOpenHashSet<TextureSheetParticle> particles, int startIndex, long frameVBOAddress, float partialTicks);
     }
 
+    //----------iris----------
+    private void bindIrisFBO() {
+        if (!cn.ussshenzhou.madparticle.MadParticle.irisOn) {
+            return;
+        }
+        var program = ((GlDevice) RenderSystem.getDevice()).getOrCompilePipeline(getRenderType().renderPipeline).program();
+        try {
+            var writingToBeforeTranslucentField = program.getClass().getDeclaredField("writingToAfterTranslucent");
+            writingToBeforeTranslucentField.setAccessible(true);
+            var writingToBeforeTranslucent = writingToBeforeTranslucentField.get(program);
+            var bindMethod = writingToBeforeTranslucent.getClass().getDeclaredMethod("bind");
+            bindMethod.setAccessible(true);
+            bindMethod.invoke(writingToBeforeTranslucent);
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            LogUtils.getLogger().error(e.toString());
+        }
+    }
+
+    private RenderType.CompositeRenderType getRenderType() {
+        return (RenderType.CompositeRenderType) (usingAtlas == TextureAtlas.LOCATION_BLOCKS ? ParticleRenderType.TERRAIN_SHEET.renderType() : ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.renderType());
+    }
 }

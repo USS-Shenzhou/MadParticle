@@ -88,7 +88,7 @@ neoForge {
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             logLevel = org.slf4j.event.Level.DEBUG
 
-            jvmArguments.addAll '--enable-preview', '--add-modules', 'jdk.incubator.vector'
+            jvmArguments.addAll '--enable-preview', '--add-modules', 'jdk.incubator.vector', '-Dmixin.debug.export=true'
         }
     }
 
@@ -169,7 +169,8 @@ dependencies {
     // compileOnly "mezz.jei:jei-${mc_version}-forge-api:${jei_version}"
     // runtimeOnly "mezz.jei:jei-${mc_version}-forge:${jei_version}"
 
-    //implementation "curse.maven:irisshaders-455508:5765375"
+    implementation "curse.maven:irisshaders-455508:6717629"
+    implementation "curse.maven:sodium-394468:6661632"
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar

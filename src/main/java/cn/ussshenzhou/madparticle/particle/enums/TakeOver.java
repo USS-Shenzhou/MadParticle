@@ -156,7 +156,7 @@ public enum TakeOver implements ITranslatable {
         return switch (originalType.name()) {
             case "INSTANCED" -> ModParticleRenderTypes.INSTANCED;
             case "INSTANCED_TERRAIN" -> ModParticleRenderTypes.INSTANCED_TERRAIN;
-            case "TERRAIN_SHEET" -> takeover == NONE ? ParticleRenderType.TERRAIN_SHEET : ModParticleRenderTypes.INSTANCED_TERRAIN;
+            case "TERRAIN_OPAQUE", "TERRAIN_SHEET" -> takeover == NONE ? originalType : ModParticleRenderTypes.INSTANCED_TERRAIN;
             case "PARTICLE_SHEET_OPAQUE", "PARTICLE_SHEET_TRANSLUCENT" -> switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering) {
                 case NONE -> originalType;
                 case ALL -> ModParticleRenderTypes.INSTANCED;

@@ -1,43 +1,11 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
-import cn.ussshenzhou.madparticle.command.CommandHelper;
-import cn.ussshenzhou.madparticle.command.MadParticleCommand;
-import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
-import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
-import cn.ussshenzhou.madparticle.designer.gui.widegt.CommandStringSelectList;
-import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
-import cn.ussshenzhou.madparticle.network.MakeTadaPacket;
-import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
-import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
-import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
-import cn.ussshenzhou.t88.gui.advanced.TSuggestedEditBox;
-import cn.ussshenzhou.t88.gui.event.TWidgetContentUpdatedEvent;
-import cn.ussshenzhou.t88.gui.util.AccessorProxy;
-import cn.ussshenzhou.t88.gui.util.LayoutHelper;
-import cn.ussshenzhou.t88.gui.widegt.TButton;
-import cn.ussshenzhou.t88.gui.widegt.TComponent;
-import cn.ussshenzhou.t88.gui.widegt.TSelectList;
-import cn.ussshenzhou.t88.gui.widegt.TWidget;
-import cn.ussshenzhou.t88.network.NetworkHelper;
-import com.mojang.brigadier.ParseResults;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.context.CommandContextBuilder;
-import com.mojang.brigadier.context.ParsedArgument;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.NeoForge;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
 /**
  * @author USS_Shenzhou
  */
-public class TadaModePanel extends HelperModePanel {
-    private final TButton make = new TButton(Component.translatable("gui.mp.de.mode.tada.make"));
+@Deprecated
+public class TadaModePanel /*extends HelperModePanel*/ {
+    /*private final TButton make = new TButton(Component.translatable("gui.mp.de.mode.tada.make"));
 
     public TadaModePanel() {
         super();
@@ -244,5 +212,5 @@ public class TadaModePanel extends HelperModePanel {
         }
         commandStringSelectList.checkChild();
         this.layout();
-    }
+    }*/
 }

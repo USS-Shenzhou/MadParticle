@@ -2,9 +2,10 @@ package cn.ussshenzhou.madparticle.mixin;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
-import cn.ussshenzhou.madparticle.designer.gui.widegt.DesignerModeSelectList;
+import cn.ussshenzhou.madparticle.util.CameraHelper;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.widegt.TButton;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -44,12 +45,13 @@ public class AbstractCommandBlockEditScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("TAIL"))
     private void madparticleToDesignerButton(CallbackInfo ci) {
-        if (madparticleIsOptimizeEnabled()){
+        if (madparticleIsOptimizeEnabled()) {
             var button = new TButton(Component.translatable("gui.mp.optimize_command_block.to_designer"), b -> {
-                var s = DesignerScreen.newInstance();
+                var s = DesignerScreen.newInstance(Minecraft.getInstance().options.getCameraType());
+                CameraHelper.setCameraType(CameraType.THIRD_PERSON_BACK);
                 Minecraft.getInstance().setScreen(s);
                 s.initFromCommand(this.commandEdit.getValue());
-                s.setVisibleMode(DesignerModeSelectList.DesignerMode.HELPER);
+                s.getTabPageContainer().selectTab(0);
             });
             button.setAbsBounds((int) (this.width - this.width * 0.05 - 150), 50 + 20 + 4, 150, 20);
             this.addRenderableWidget(button);
@@ -58,7 +60,7 @@ public class AbstractCommandBlockEditScreenMixin extends Screen {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void madparticleToDesignerButtonTick(CallbackInfo ci) {
-        if (madparticleIsOptimizeEnabled()){
+        if (madparticleIsOptimizeEnabled()) {
             this.children().stream()
                     .filter(g -> g instanceof TButton)
                     .findFirst()

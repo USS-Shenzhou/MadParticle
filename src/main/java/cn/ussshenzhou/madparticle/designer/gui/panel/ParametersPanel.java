@@ -9,21 +9,18 @@ import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
-import cn.ussshenzhou.madparticle.util.MathHelper;
 import cn.ussshenzhou.t88.gui.combine.TTitledComponent;
 import cn.ussshenzhou.t88.gui.combine.TTitledCycleButton;
 import cn.ussshenzhou.t88.gui.combine.TTitledSimpleConstrainedEditBox;
 import cn.ussshenzhou.t88.gui.combine.TTitledSuggestedEditBox;
+import cn.ussshenzhou.t88.gui.container.TVerticalScrollContainer;
 import cn.ussshenzhou.t88.gui.util.AccessorProxy;
 import cn.ussshenzhou.t88.gui.util.ArgumentSuggestionsDispatcher;
-import cn.ussshenzhou.t88.gui.util.LayoutHelper;
 import net.neoforged.neoforge.client.ClientCommandHandler;
 import org.joml.Vector2i;
 import cn.ussshenzhou.t88.gui.widegt.TButton;
 import cn.ussshenzhou.t88.gui.widegt.TEditBox;
-import cn.ussshenzhou.t88.gui.widegt.TScrollPanel;
 import cn.ussshenzhou.t88.gui.widegt.TSlider;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
@@ -43,18 +40,18 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
-import net.neoforged.fml.ModList;
 
 import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static cn.ussshenzhou.t88.gui.util.LayoutHelper.*;
+
 /**
  * @author USS_Shenzhou
  */
 @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
-public class ParametersScrollPanel extends TScrollPanel {
-    public static final Vector2i BUTTON_SIZE = TButton.RECOMMEND_SIZE;
+public class ParametersPanel extends TVerticalScrollContainer {
     protected boolean isChild = false;
 
     //lane 1
@@ -88,7 +85,6 @@ public class ParametersScrollPanel extends TScrollPanel {
             xD = new SingleVec3EditBox(Component.translatable("gui.mp.de.helper.x_diffuse")),
             yD = new SingleVec3EditBox(Component.translatable("gui.mp.de.helper.y_diffuse")),
             zD = new SingleVec3EditBox(Component.translatable("gui.mp.de.helper.z_diffuse"));
-    public final ParticlePreviewPanel particlePreview = new ParticlePreviewPanel();
     //lane 4
     public final SingleVec3EditBox
             vx = new SingleVec3EditBox(Component.literal("Vx")),
@@ -103,9 +99,9 @@ public class ParametersScrollPanel extends TScrollPanel {
             g = new TTitledSimpleConstrainedEditBox(Component.literal("G"), FloatArgumentType.floatArg()),
             b = new TTitledSimpleConstrainedEditBox(Component.literal("B"), FloatArgumentType.floatArg());
     public final TSlider
-            rSlider = new TSlider(0, 1, 0.01f, Component.translatable("gui.mp.de.helper.r")),
-            gSlider = new TSlider(0, 1, 0.01f, Component.translatable("gui.mp.de.helper.g")),
-            bSlider = new TSlider(0, 1, 0.01f, Component.translatable("gui.mp.de.helper.b"));
+            rSlider = new TSlider(Component.translatable("gui.mp.de.helper.r").getString(), 0, 1, false, null, true),
+            gSlider = new TSlider(Component.translatable("gui.mp.de.helper.g").getString(), 0, 1, false, null, true),
+            bSlider = new TSlider(Component.translatable("gui.mp.de.helper.b").getString(), 0, 1, false, null, true);
     //lane 6
     public final TTitledCycleButton<InheritableBoolean> collision = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.collision"));
     public final TTitledSimpleConstrainedEditBox
@@ -154,7 +150,7 @@ public class ParametersScrollPanel extends TScrollPanel {
     //meta
     public final MetaParameterPanel metaPanel = new MetaParameterPanel();
 
-    public ParametersScrollPanel() {
+    public ParametersPanel() {
         super();
         init1();
         init2();
@@ -206,8 +202,7 @@ public class ParametersScrollPanel extends TScrollPanel {
         ((ArgumentSuggestionsDispatcher<ParticleOptions>) target.getComponent().getEditBox().getDispatcher())
                 .register(Commands.argument("p", ParticleArgument.particle(Commands.createValidationContext(VanillaRegistries.createLookup()))));
         target.getComponent().getEditBox().setMaxLength(255);
-        target.getComponent().getEditBox().addResponder(particlePreview::updateParticle);
-        tryDefault.setOnPress(pButton -> tryFillDefault());
+        tryDefault.setOnPress(_ -> tryFillDefault());
         this.addAll(target, tryDefault);
     }
 
@@ -221,7 +216,7 @@ public class ParametersScrollPanel extends TScrollPanel {
     }
 
     public void init3() {
-        this.addAll(xPos, yPos, zPos, xD, yD, zD, particlePreview);
+        this.addAll(xPos, yPos, zPos, xD, yD, zD);
         //xControlX2(xPos, xD);
         //xControlX2(yPos, yD);
         //xControlX2(zPos, zD);
@@ -244,18 +239,15 @@ public class ParametersScrollPanel extends TScrollPanel {
         this.addAll(r, g, b, rSlider, gSlider, bSlider);
         r.getComponent().addPassedResponder(s -> {
             float f = Float.parseFloat(s);
-            particlePreview.setR(f);
-            rSlider.setValueWithoutRespond(f);
+            rSlider.setAbsValueWithoutRespond(f);
         });
         g.getComponent().addPassedResponder(s -> {
             float f = Float.parseFloat(s);
-            particlePreview.setG(f);
-            gSlider.setValueWithoutRespond(f);
+            gSlider.setAbsValueWithoutRespond(f);
         });
         b.getComponent().addPassedResponder(s -> {
             float f = Float.parseFloat(s);
-            particlePreview.setB(Float.parseFloat(s));
-            bSlider.setValueWithoutRespond(f);
+            bSlider.setAbsValueWithoutRespond(f);
         });
         rSlider.addResponder(d -> {
             r.getComponent().setValue(String.format("%.3f", d));
@@ -269,27 +261,27 @@ public class ParametersScrollPanel extends TScrollPanel {
             b.getComponent().setValue(String.format("%.3f", d));
             AccessorProxy.EditBoxProxy.setDisplayPos(b.getComponent(), 0);
         });
-        rSlider.setValue(1);
-        gSlider.setValue(1);
-        bSlider.setValue(1);
+        rSlider.setAbsValue(1);
+        gSlider.setAbsValue(1);
+        bSlider.setAbsValue(1);
     }
 
     public void init6() {
         this.addAll(collision, horizontalCollision, verticalCollision, collisionTime, xDeflection, xDeflection2, zDeflection, zDeflection2);
-        collision.addElement(InheritableBoolean.TRUE, button -> {
+        collision.addElement(InheritableBoolean.TRUE, _ -> {
             Stream.of(horizontalCollision, verticalCollision, collisionTime).forEach(e -> e.getComponent().setEditable(true));
         });
-        collision.addElement(InheritableBoolean.FALSE, button -> {
+        collision.addElement(InheritableBoolean.FALSE, _ -> {
             Stream.of(horizontalCollision, verticalCollision, collisionTime).forEach(e -> e.getComponent().setEditable(false));
         });
     }
 
     public void init7() {
         this.addAll(roll, interact, horizontalInteract, verticalInteract, friction, friction2, gravity, gravity2);
-        interact.addElement(InheritableBoolean.TRUE, button -> {
+        interact.addElement(InheritableBoolean.TRUE, _ -> {
             Stream.of(horizontalInteract, verticalInteract).forEach(e -> e.getComponent().setEditable(true));
         });
-        interact.addElement(InheritableBoolean.FALSE, button -> {
+        interact.addElement(InheritableBoolean.FALSE, _ -> {
             Stream.of(horizontalInteract, verticalInteract).forEach(e -> e.getComponent().setEditable(false));
         });
     }
@@ -302,109 +294,90 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     @Override
     public void layout() {
-        int xGap = 5;
-        Vector2i buttonSize = MathHelper.copy(BUTTON_SIZE);
-        Vector2i stdTitledEditBox = calculateStdTitledEditBox(buttonSize, xGap);
-        while (stdTitledEditBox.x < 35) {
-            if (xGap > 2) {
-                xGap--;
-            } else if (buttonSize.x > 35) {
-                buttonSize.add(-1, 0);
-            } else {
-                break;
-            }
-            stdTitledEditBox = calculateStdTitledEditBox(buttonSize, xGap);
-        }
-        Vector2i stdTitledButton = MathHelper.copy(buttonSize);
-        stdTitledButton.add(0, 12);
-        int yGap = xGap - 1;
+        int xGap = 4;
+        Vector2i size3 = new Vector2i((getUsableWidth() - 4 * xGap) / 3, 20 + 12);
+        Vector2i size2 = new Vector2i((getUsableWidth() - 3 * xGap) / 2, 20 + 12);
+        Vector2i size1 = new Vector2i(getUsableWidth() - 2 * xGap, 20 + 12);
+        int yGap = xGap;
         //lane 1
-        target.setBounds(xGap, yGap, getUsableWidth() - xGap * 3 - buttonSize.x * 2, stdTitledEditBox.y);
-        LayoutHelper.BRightOfA(tryDefault, xGap, target, buttonSize.x * 2, buttonSize.y);
-        LayoutHelper.BBottomOfA(tryDefault, -8, tryDefault);
+        target.setBounds(xGap, yGap, getUsableWidth() - xGap * 3 - size3.x, size3.y);
+        BRightOfA(tryDefault, xGap, target, size3.x, 20);
+        BBottomOfA(tryDefault, -8, tryDefault);
         //lane 2
-        LayoutHelper.BBottomOfA(spriteFrom, yGap, target, stdTitledButton);
-        LayoutHelper.BRightOfA(lifeTime, xGap, spriteFrom, stdTitledEditBox);
-        LayoutHelper.BRightOfA(alwaysRender, xGap, lifeTime, stdTitledButton);
-        LayoutHelper.BRightOfA(amount, xGap, alwaysRender, stdTitledEditBox);
-        LayoutHelper.BRightOfA(renderType, xGap, amount, stdTitledButton);
-        int w = Minecraft.getInstance().getWindow().getGuiScaledWidth();
-        LayoutHelper.BRightOfA(whoCanSee, xGap, renderType,
-                w - renderType.getXT() - renderType.getWidth() - 2 * xGap - (w - getXT() - getUsableWidth()), stdTitledEditBox.y);
-        //lane3
-        LayoutHelper.BBottomOfA(xPos, yGap, spriteFrom, stdTitledEditBox);
-        LayoutHelper.BRightOfA(yPos, xGap, xPos);
-        LayoutHelper.BRightOfA(zPos, xGap, yPos);
-        LayoutHelper.BRightOfA(xD, xGap, zPos);
-        LayoutHelper.BRightOfA(yD, xGap, xD);
-        LayoutHelper.BRightOfA(zD, xGap, yD);
-        int previewW = getXT() + getUsableWidth() - zD.getXT() - zD.getWidth() - 2 * xGap;
-        int previewH = stdTitledEditBox.y * 2 + yGap;
-        int previewL = Math.min(previewH, previewW);
-        LayoutHelper.BRightOfA(particlePreview, 0, zD, previewL, previewL);
-        LayoutHelper.BRightOfA(particlePreview, (previewW - previewL) / 2 - previewL, particlePreview);
-        LayoutHelper.BBottomOfA(particlePreview, 6 - previewL, particlePreview);
+        BBottomOfA(lifeTime, yGap, target, size2);
+        BRightOfA(amount, xGap, lifeTime);
+        //lane 3
+        BBottomOfA(whoCanSee, yGap, lifeTime, size1);
         //lane 4
-        LayoutHelper.BBottomOfA(vx, yGap, xPos);
-        LayoutHelper.BRightOfA(vy, xGap, vx);
-        LayoutHelper.BRightOfA(vz, xGap, vy);
-        LayoutHelper.BRightOfA(vxD, xGap, vz);
-        LayoutHelper.BRightOfA(vyD, xGap, vxD);
-        LayoutHelper.BRightOfA(vzD, xGap, vyD);
+        BBottomOfA(spriteFrom, yGap, whoCanSee, size3);
+        BRightOfA(alwaysRender, xGap, spriteFrom);
+        BRightOfA(renderType, xGap, alwaysRender);
         //lane 5
-        int l = (getUsableWidth() - 7 * xGap - 3 * stdTitledEditBox.x) / 3;
-        LayoutHelper.BBottomOfA(r, yGap, vx, stdTitledEditBox);
-        LayoutHelper.BRightOfA(g, xGap, r, l, stdTitledEditBox.y);
-        LayoutHelper.BRightOfA(g, xGap, g, stdTitledEditBox);
-        LayoutHelper.BRightOfA(b, xGap, g, l, stdTitledEditBox.y);
-        LayoutHelper.BRightOfA(b, xGap, b, stdTitledEditBox);
-
-        LayoutHelper.BRightOfA(rSlider, xGap, r, l, rSlider.getPreferredSize().y);
-        LayoutHelper.BBottomOfA(rSlider, 12 - rSlider.getPreferredSize().y, rSlider);
-        LayoutHelper.BRightOfA(gSlider, xGap, g, l, gSlider.getPreferredSize().y);
-        LayoutHelper.BBottomOfA(gSlider, 12 - gSlider.getPreferredSize().y, gSlider);
-        LayoutHelper.BRightOfA(bSlider, xGap, b, l, bSlider.getPreferredSize().y);
-        LayoutHelper.BBottomOfA(bSlider, 12 - bSlider.getPreferredSize().y, bSlider);
+        BBottomOfA(xPos, yGap, spriteFrom, size3);
+        BRightOfA(yPos, xGap, xPos);
+        BRightOfA(zPos, xGap, yPos);
         //lane 6
-        LayoutHelper.BBottomOfA(collision, yGap, r, stdTitledButton);
-        LayoutHelper.BRightOfA(horizontalCollision, xGap, collision, stdTitledEditBox);
-        LayoutHelper.BRightOfA(verticalCollision, xGap, horizontalCollision);
-        LayoutHelper.BRightOfA(collisionTime, xGap, verticalCollision);
-        LayoutHelper.BRightOfA(friction, xGap, collisionTime);
-        LayoutHelper.BRightOfA(friction2, xGap, friction);
-        LayoutHelper.BRightOfA(gravity, xGap, friction2);
-        LayoutHelper.BRightOfA(gravity2, xGap, gravity);
+        BBottomOfA(xD, yGap, xPos);
+        BRightOfA(yD, xGap, xD);
+        BRightOfA(zD, xGap, yD);
         //lane 7
-        LayoutHelper.BBottomOfA(roll, yGap, collision, stdTitledEditBox);
-        LayoutHelper.BRightOfA(interact, xGap, roll, stdTitledButton);
-        LayoutHelper.BRightOfA(horizontalInteract, xGap, interact, stdTitledEditBox);
-        LayoutHelper.BRightOfA(verticalInteract, xGap, horizontalInteract);
-        LayoutHelper.BRightOfA(xDeflection, xGap, verticalInteract);
-        LayoutHelper.BRightOfA(xDeflection2, xGap, xDeflection);
-        LayoutHelper.BRightOfA(zDeflection, xGap, xDeflection2);
-        LayoutHelper.BRightOfA(zDeflection2, xGap, zDeflection);
+        BBottomOfA(vx, yGap, xD);
+        BRightOfA(vy, xGap, vx);
+        BRightOfA(vz, xGap, vy);
         //lane 8
-        LayoutHelper.BBottomOfA(bloomStrength, yGap, roll, stdTitledEditBox);
-        LayoutHelper.BBottomOfA(scaleEnd, yGap, zDeflection2, stdTitledEditBox);
-        LayoutHelper.BLeftOfA(scaleBegin, xGap, scaleEnd);
-        LayoutHelper.BLeftOfA(scale, xGap, scaleBegin, stdTitledButton);
-        LayoutHelper.BLeftOfA(alphaEnd, xGap, scale, stdTitledEditBox);
-        LayoutHelper.BLeftOfA(alphaBegin, xGap, alphaEnd);
-        LayoutHelper.BLeftOfA(alpha, xGap, alphaBegin, stdTitledButton);
+        BBottomOfA(vxD, xGap, vx);
+        BRightOfA(vyD, xGap, vxD);
+        BRightOfA(vzD, xGap, vyD);
+        //lane 9
+        BBottomOfA(r, yGap, vxD, size3);
+        BRightOfA(rSlider, xGap, r, getUsableWidth() - size3.x - 3 * xGap, rSlider.getPreferredSize().y);
+        BBottomOfA(rSlider, -8, rSlider);
+        //lane 10
+        BBottomOfA(g, yGap, r);
+        BBottomOfA(gSlider, yGap + 12, rSlider);
+        //lane 11
+        BBottomOfA(b, yGap, g);
+        BBottomOfA(bSlider, yGap + 12, gSlider);
+        //lane 12
+        BBottomOfA(collision, yGap, b, size2);
+        BRightOfA(collisionTime, xGap, collision);
+        //lane 13
+        BBottomOfA(horizontalCollision, yGap, collision);
+        BRightOfA(verticalCollision, xGap, horizontalCollision);
+        //lane 14
+        BBottomOfA(friction, yGap, horizontalCollision);
+        BRightOfA(friction2, xGap, friction);
+        //lane 15
+        BBottomOfA(gravity, yGap, friction);
+        BRightOfA(gravity2, xGap, gravity);
+        //lane 16
+        BBottomOfA(xDeflection, yGap, gravity);
+        BRightOfA(xDeflection2, xGap, xDeflection);
+        //lane 17
+        BBottomOfA(zDeflection, yGap, xDeflection);
+        BRightOfA(zDeflection2, xGap, zDeflection);
+        //lane 18
+        BBottomOfA(interact, yGap, zDeflection, size3);
+        BRightOfA(horizontalInteract, xGap, interact);
+        BRightOfA(verticalInteract, xGap, horizontalInteract);
+        //lane 19
+        BBottomOfA(roll, yGap, interact, size2);
+        BRightOfA(bloomStrength, xGap, roll);
+        //lane 20
+        BBottomOfA(scale, yGap, roll, size3);
+        BRightOfA(scaleBegin, xGap, scale);
+        BRightOfA(scaleEnd, xGap, scaleBegin);
+        //lane 21
+        BBottomOfA(alpha, yGap, scale);
+        BRightOfA(alphaBegin, xGap, alpha);
+        BRightOfA(alphaEnd, xGap, alphaBegin);
         //meta
         metaPanel.passGap(xGap, yGap);
-        LayoutHelper.BBottomOfA(metaPanel, 2 * yGap, bloomStrength, getUsableWidth() - xGap, metaPanel.getPreferredSize().y);
+        BBottomOfA(metaPanel, 2 * yGap, alpha, getUsableWidth() - xGap, metaPanel.getPreferredSize().y);
         super.layout();
     }
 
     //TODO set bloomStrength
-
-    protected Vector2i calculateStdTitledEditBox(Vector2i size, int gap) {
-        return new Vector2i(
-                (getUsableWidth() - size.x - 8 * gap) / 7,
-                20 + 12
-        );
-    }
 
     public boolean isChild() {
         return isChild;
@@ -419,13 +392,13 @@ public class ParametersScrollPanel extends TScrollPanel {
             amount.getComponent().setArgument(InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE));
             Stream.of(xPos, yPos, zPos, vx, vy, vz).forEach(editBox -> editBox.getComponent().setArgument(InheritableVec3Argument.inheritableVec3()));
             Stream.of(xD, yD, zD, vxD, vyD, vzD).forEach(editBox -> editBox.getComponent().setArgument(Vec3Argument.vec3(false)));
-            collision.addElement(InheritableBoolean.INHERIT, button -> {
+            collision.addElement(InheritableBoolean.INHERIT, _ -> {
                 Stream.of(horizontalCollision, verticalCollision, collisionTime).forEach(editBox -> {
                     editBox.getComponent().setEditable(true);
                     ifClearThenSet(editBox, "=");
                 });
             });
-            interact.addElement(InheritableBoolean.INHERIT, button -> {
+            interact.addElement(InheritableBoolean.INHERIT, _ -> {
                 Stream.of(horizontalInteract, verticalInteract).forEach(editBox -> {
                     editBox.getComponent().setEditable(true);
                     ifClearThenSet(editBox, "=");
@@ -513,7 +486,7 @@ public class ParametersScrollPanel extends TScrollPanel {
 
     private <V> void ifClearThenSet(TEditBox editBox, V value) {
         if (
-                (editBox.getValue().isEmpty() || ((EditBoxAccessor) editBox).getTextColor() == 0x37e2ff)
+                (editBox.getValue().isEmpty() || ((EditBoxAccessor) editBox).getTextColor() == 0xff37e2ff)
                         && ((EditBoxAccessor) editBox).isIsEditable()
         ) {
             if (value instanceof Double || value instanceof Float) {
@@ -522,7 +495,7 @@ public class ParametersScrollPanel extends TScrollPanel {
             } else {
                 editBox.setValue(value.toString());
             }
-            editBox.setTextColor(0x37e2ff);
+            editBox.setTextColor(0xff37e2ff);
         }
     }
 

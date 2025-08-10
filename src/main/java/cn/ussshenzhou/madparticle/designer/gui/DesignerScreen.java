@@ -2,52 +2,55 @@ package cn.ussshenzhou.madparticle.designer.gui;
 
 import cn.ussshenzhou.madparticle.designer.gui.panel.HelperModePanel;
 import cn.ussshenzhou.madparticle.designer.gui.panel.SettingPanel;
-import cn.ussshenzhou.madparticle.designer.gui.panel.TadaModePanel;
-import cn.ussshenzhou.madparticle.designer.gui.widegt.DesignerModeSelectList;
+import cn.ussshenzhou.madparticle.util.CameraHelper;
+import cn.ussshenzhou.t88.gui.container.TTabPageContainer;
 import cn.ussshenzhou.t88.gui.screen.TScreen;
-import cn.ussshenzhou.t88.gui.util.LayoutHelper;
-import cn.ussshenzhou.t88.gui.widegt.TButton;
-import cn.ussshenzhou.t88.gui.widegt.TPanel;
-import cn.ussshenzhou.t88.gui.widegt.TSelectList;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 
 /**
  * @author USS_Shenzhou
  */
 public class DesignerScreen extends TScreen {
-    public static final int GAP = 5;
+    public static final int GAP = 4;
     private static DesignerScreen designerScreen = null;
 
-    private final DesignerModeSelectList designerModeSelectList = new DesignerModeSelectList();
+    private final TTabPageContainer tabPageContainer = new TTabPageContainer();
 
     private final HelperModePanel helperModePanel = new HelperModePanel();
     private final SettingPanel settingPanel = new SettingPanel();
-    private final TadaModePanel tadaModePanel = new TadaModePanel();
+    //FIXME TADA private final TadaModePanel tadaModePanel = new TadaModePanel();
+    private CameraType prevCameraType;
 
-    private DesignerScreen() {
+    private DesignerScreen(CameraType prevCameraType) {
         super(Component.translatable("gui.mp.designer.title"));
-        this.add(designerModeSelectList);
-        this.add(helperModePanel);
-        this.add(settingPanel);
+        tabPageContainer.newTab(Component.translatable("gui.mp.de.mode.helper"), helperModePanel).setCloseable(false);
+        //FIXME TADA tabPageContainer.newTab(Component.translatable("gui.mp.de.mode.tada"), tadaModePanel).setCloseable(false);
+        tabPageContainer.newTab(Component.translatable("gui.mp.de.mode.setting"), settingPanel).setCloseable(false);
+        this.add(tabPageContainer);
+
         if (designerScreen == null) {
             designerScreen = this;
         }
-        this.add(tadaModePanel);
+        this.prevCameraType = prevCameraType;
     }
 
-    public static @Nullable DesignerScreen getInstance() {
+    public static @Nullable DesignerScreen getInstance(CameraType prevCameraType) {
+        if (designerScreen != null) {
+            designerScreen.prevCameraType = prevCameraType;
+        }
         return designerScreen;
     }
 
-    public static DesignerScreen newInstance() {
+    public static DesignerScreen newInstance(CameraType prevCameraType) {
         if (designerScreen != null) {
             designerScreen.onClose(true);
         }
-        designerScreen = new DesignerScreen();
+        designerScreen = new DesignerScreen(prevCameraType);
         return designerScreen;
     }
 
@@ -58,41 +61,16 @@ public class DesignerScreen extends TScreen {
 
     @Override
     public void layout() {
-        designerModeSelectList.setBounds(GAP, GAP,
-                TButton.RECOMMEND_SIZE.x + designerModeSelectList.getComponent().getScrollbarGap() + TSelectList.SCROLLBAR_WIDTH,
-                height - GAP * 4 - 1 - 20);
-        LayoutHelper.BRightOfA(helperModePanel, GAP + 1, designerModeSelectList,
-                width - designerModeSelectList.getWidth() - 3 * GAP - 1,
-                height - 2 * GAP);
-        LayoutHelper.BSameAsA(settingPanel, helperModePanel);
-        LayoutHelper.BSameAsA(tadaModePanel, helperModePanel);
+        tabPageContainer.setBounds(0, 0, width, height);
         super.layout();
-        designerModeSelectList.getComponent().setSelected(designerModeSelectList.getComponent().getSelected());
     }
 
-    public void setVisibleMode(DesignerModeSelectList.DesignerMode mode) {
-        TPanel[] panels = {helperModePanel, settingPanel, tadaModePanel};
-        Arrays.stream(panels).forEach(p -> p.setVisibleT(false));
-        switch (mode) {
-            case HELPER -> helperModePanel.setVisibleT(true);
-            case SETTING -> settingPanel.setVisibleT(true);
-            case TADA -> tadaModePanel.setVisibleT(true);
-            default -> {
-            }
-        }
+    public TTabPageContainer getTabPageContainer() {
+        return tabPageContainer;
     }
 
     @Override
-    public void tick() {
-        super.tick();
-        /*designerModeSelectList.tickT();
-        helperModePanel.tickT();
-        lineModePanel.tickT();
-        settingPanel.tickT();*/
-    }
-
-    public DesignerModeSelectList getDesignerModeSelectList() {
-        return designerModeSelectList;
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
     }
 
     @Override
@@ -103,5 +81,76 @@ public class DesignerScreen extends TScreen {
         } else {
             return this.getFocused() != null && this.getFocused().keyPressed(pKeyCode, pScanCode, pModifiers);
         }
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return tabPageContainer.getSelectedTab() == tabPageContainer.getTabs().getLast();
+    }
+
+    @Override
+    public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+        var mc = Minecraft.getInstance();
+        if (mc.mouseHandler.mouseGrabbed) {
+            var x = mc.getWindow().getScreenWidth() / 2;
+            var y = mc.getWindow().getScreenHeight() / 2;
+            super.render(graphics, x, y, pPartialTick);
+        } else {
+            super.render(graphics, pMouseX, pMouseY, pPartialTick);
+        }
+    }
+
+    @Override
+    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+        var mc = Minecraft.getInstance();
+        if (mc.mouseHandler.mouseGrabbed) {
+            var x = mc.getWindow().getScreenWidth() / 2;
+            var y = mc.getWindow().getScreenHeight() / 2;
+            return super.mouseClicked(x, y, pButton);
+        } else {
+            return super.mouseClicked(pMouseX, pMouseY, pButton);
+        }
+    }
+
+    @Override
+    public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
+        var mc = Minecraft.getInstance();
+        if (mc.mouseHandler.mouseGrabbed) {
+            var x = mc.getWindow().getScreenWidth() / 2;
+            var y = mc.getWindow().getScreenHeight() / 2;
+            return super.mouseReleased(x, y, pButton);
+        } else {
+            return super.mouseReleased(pMouseX, pMouseY, pButton);
+        }
+    }
+
+    @Override
+    public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
+        var mc = Minecraft.getInstance();
+        if (mc.mouseHandler.mouseGrabbed) {
+            var x = mc.getWindow().getScreenWidth() / 2;
+            var y = mc.getWindow().getScreenHeight() / 2;
+            return super.mouseDragged(x, y, pButton, pDragX, pDragY);
+        } else {
+            return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+        }
+    }
+
+    @Override
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double deltaX, double deltaY) {
+        var mc = Minecraft.getInstance();
+        if (mc.mouseHandler.mouseGrabbed) {
+            var x = mc.getWindow().getScreenWidth() / 2;
+            var y = mc.getWindow().getScreenHeight() / 2;
+            return super.mouseScrolled(x, y, deltaX, deltaY);
+        } else {
+            return super.mouseScrolled(pMouseX, pMouseY, deltaX, deltaY);
+        }
+    }
+
+    @Override
+    public void onClose(boolean isFinal) {
+        super.onClose(isFinal);
+        CameraHelper.setCameraType(prevCameraType);
     }
 }

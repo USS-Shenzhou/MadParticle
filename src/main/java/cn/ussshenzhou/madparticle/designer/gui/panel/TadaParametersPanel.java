@@ -9,10 +9,11 @@ import java.util.List;
 /**
  * @author USS_Shenzhou
  */
-public class TadaParametersScrollPanel extends ParametersScrollPanel {
+@Deprecated
+public class TadaParametersPanel extends ParametersPanel {
     public final SingleVec3EditBox speed = new SingleVec3EditBox(Component.literal("V"));
 
-    public TadaParametersScrollPanel() {
+    public TadaParametersPanel() {
         super();
         //I do not know why, just dont delete scaleBegin.
         this.addAll(speed, scaleBegin);

@@ -1,7 +1,9 @@
 package cn.ussshenzhou.madparticle.designer.input;
 
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
+import cn.ussshenzhou.madparticle.util.CameraHelper;
 import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -36,18 +38,22 @@ public class ModKeyMappingRegistry {
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
         Minecraft minecraft = Minecraft.getInstance();
+        var cameraType = minecraft.options.getCameraType();
         if (CALL_OUT_DESIGNER.consumeClick()) {
-            if (DesignerScreen.getInstance() == null) {
-                minecraft.setScreen(DesignerScreen.newInstance());
+            var screen = DesignerScreen.getInstance(cameraType);
+            if (screen == null) {
+                minecraft.setScreen(DesignerScreen.newInstance(cameraType));
             } else {
-                minecraft.setScreen(DesignerScreen.getInstance());
+                minecraft.setScreen(DesignerScreen.getInstance(cameraType));
             }
+            CameraHelper.setCameraType(CameraType.THIRD_PERSON_BACK);
         } else if (CLEAR_DESIGNER.consumeClick()) {
             if (minecraft.screen instanceof DesignerScreen) {
                 minecraft.setScreen(null);
-                minecraft.setScreen(DesignerScreen.newInstance());
+                minecraft.setScreen(DesignerScreen.newInstance(cameraType));
+                CameraHelper.setCameraType(CameraType.THIRD_PERSON_BACK);
             } else {
-                DesignerScreen.newInstance();
+                DesignerScreen.newInstance(cameraType);
             }
         }
     }

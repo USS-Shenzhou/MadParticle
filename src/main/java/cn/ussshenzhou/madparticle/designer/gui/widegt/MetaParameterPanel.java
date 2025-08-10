@@ -1,6 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.gui.widegt;
 
-import cn.ussshenzhou.madparticle.designer.gui.panel.ParametersScrollPanel;
+import cn.ussshenzhou.madparticle.designer.gui.panel.ParametersPanel;
 import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
 import cn.ussshenzhou.madparticle.particle.enums.MetaKeys;
 import cn.ussshenzhou.t88.gui.advanced.TSimpleConstrainedEditBox;
@@ -120,7 +120,7 @@ public class MetaParameterPanel extends TPanel {
         MetaPairPanel pair = new MetaPairPanel();
         pairs.add(pair);
         out().add(pair);
-        TComponent p = getParentInstanceOf(ParametersScrollPanel.class);
+        TComponent p = getParentInstanceOf(ParametersPanel.class);
         p.layout();
         return pair;
     }
@@ -133,7 +133,7 @@ public class MetaParameterPanel extends TPanel {
         public final TButton remove = new TButton(Component.literal("-"), button -> {
             pairs.remove(this);
             out().remove(this);
-            out().getParentInstanceOf(ParametersScrollPanel.class).layout();
+            out().getParentInstanceOf(ParametersPanel.class).layout();
             NeoForge.EVENT_BUS.post(new TWidgetContentUpdatedEvent(out()));
         });
 

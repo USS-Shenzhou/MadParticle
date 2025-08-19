@@ -33,6 +33,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuDevice;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.joml.Matrix4f;
@@ -199,7 +200,7 @@ public class NeoInstancedRenderManager {
 
     private void setVAO(RenderPass pass) {
         pass.setVertexBuffer(0, PROXY_VAO);
-        ((GlDevice) RenderSystem.getDevice()).vertexArrayCache().bindVertexArray(getRenderPipeline().getVertexFormat(), (GlBuffer) PROXY_VAO);
+        getDevice().vertexArrayCache().bindVertexArray(getRenderPipeline().getVertexFormat(), (GlBuffer) PROXY_VAO);
         setVertexAttributeArray();
     }
 
@@ -333,12 +334,22 @@ public class NeoInstancedRenderManager {
         void update(ObjectLinkedOpenHashSet<TextureSheetParticle> particles, int startIndex, long frameVBOAddress, float partialTicks);
     }
 
+    private static GlDevice getDevice(){
+        var device = RenderSystem.getDevice();
+        if (device instanceof ValidationGpuDevice validationGpuDevice) {
+            return (GlDevice) validationGpuDevice.getRealDevice();
+        } else if (device instanceof GlDevice glDevice) {
+            return glDevice;
+        }
+        throw new IllegalStateException("Unsupported device type: " + device.getClass().getSimpleName());
+    }
+
     //----------iris----------
     private void bindIrisFBO() {
         if (!cn.ussshenzhou.madparticle.MadParticle.irisOn) {
             return;
         }
-        var program = ((GlDevice) RenderSystem.getDevice()).getOrCompilePipeline(getRenderType().renderPipeline).program();
+        var program = getDevice().getOrCompilePipeline(getRenderType().renderPipeline).program();
         try {
             var writingToBeforeTranslucentField = program.getClass().getDeclaredField("writingToAfterTranslucent");
             writingToBeforeTranslucentField.setAccessible(true);

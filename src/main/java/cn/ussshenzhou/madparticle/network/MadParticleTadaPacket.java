@@ -1,6 +1,7 @@
 package cn.ussshenzhou.madparticle.network;
 
 import cn.ussshenzhou.madparticle.MadParticle;
+import cn.ussshenzhou.madparticle.network.generated.MadParticleTadaPacket$Generated;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.ModParticleTypeRegistry;
 import cn.ussshenzhou.madparticle.util.MathHelper;
@@ -51,7 +52,6 @@ public class MadParticleTadaPacket {
     }
 
     @ClientHandler
-    @OnlyIn(Dist.CLIENT)
     public void clientHandler(IPayloadContext context) {
         Level level = Minecraft.getInstance().level;
         if (level != null) {
@@ -78,7 +78,6 @@ public class MadParticleTadaPacket {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     Vec3 getSpeedVec(LivingEntity player) {
         Vec3 speedVec = player.getLookAngle();
         double speed;
@@ -90,7 +89,6 @@ public class MadParticleTadaPacket {
         return speedVec.multiply(speed, speed, speed);
     }
 
-    @OnlyIn(Dist.CLIENT)
     Vec3 getNozzlePosInWorld(LivingEntity player, float tubeLengthIn16, float leftOrRightOffsetIn16) {
         int manualFixY = 1;
         //TODO leftHand and offHand

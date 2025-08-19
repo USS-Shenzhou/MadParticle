@@ -10,12 +10,10 @@ import cn.ussshenzhou.t88.network.annotation.Encoder;
 import cn.ussshenzhou.t88.network.annotation.NetPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * @author USS_Shenzhou
@@ -35,17 +33,15 @@ public class SendWelcomePacket {
     }
 
     @ClientHandler
-    @OnlyIn(Dist.CLIENT)
     public void clientHandler(IPayloadContext context) {
         if (!ConfigHelper.getConfigRead(MadParticleConfig.class).noWelcomeScreen) {
             Thread.startVirtualThread(() -> {
                 while (Minecraft.getInstance().screen != null) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException ignored) {
-                    }
+                    LockSupport.parkNanos(500_000_000);
                 }
-                Minecraft.getInstance().execute(() -> ClientHooks.pushGuiLayer(Minecraft.getInstance(), new WelcomeScreen()));
+                Minecraft.getInstance().execute(() -> {
+                    ClientHooks.pushGuiLayer(Minecraft.getInstance(), new WelcomeScreen());
+                });
             });
         }
     }

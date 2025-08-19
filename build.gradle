@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'idea'
-    id 'net.neoforged.moddev' version '2.0.80'
+    id 'net.neoforged.moddev' version '2.0.107'
 }
 
 version = mod_version
@@ -169,8 +169,8 @@ dependencies {
     // compileOnly "mezz.jei:jei-${mc_version}-forge-api:${jei_version}"
     // runtimeOnly "mezz.jei:jei-${mc_version}-forge:${jei_version}"
 
-    implementation "curse.maven:irisshaders-455508:6717629"
-    implementation "curse.maven:sodium-394468:6661632"
+    //implementation "curse.maven:irisshaders-455508:6717629"
+    //implementation "curse.maven:sodium-394468:6661632"
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
@@ -258,5 +258,16 @@ tasks.register("runWithRenderDoc", Exec) {
             "org.gradle.wrapper.GradleWrapperMain",
             "runClient"
     ]
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.fork = true
+    options.forkOptions.jvmArgs += [
+            '--add-exports', 'jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
+            '--add-exports', 'jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
+            '--add-exports', 'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+            '--add-exports', 'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
+    ]
+    options.compilerArgs += ['-Xplugin:T88ClientHandlerWrapper']
 }
 

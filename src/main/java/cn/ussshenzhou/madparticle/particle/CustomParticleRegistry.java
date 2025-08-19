@@ -11,13 +11,10 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 import javax.annotation.Nullable;
@@ -34,7 +31,7 @@ import java.util.*;
  * <p>
  * Particle texture name in json: modid:leaves modid:leaves__1
  */
-@EventBusSubscriber
+@EventBusSubscriber(value = Dist.CLIENT)
 public class CustomParticleRegistry {
     public static final LinkedHashMap<ResourceLocation, List<ResourceLocation>> CUSTOM_PARTICLES_TYPE_NAMES_AND_TEXTURES = new LinkedHashMap<>();
     public static final LinkedHashSet<ParticleType<SimpleParticleType>> CUSTOM_PARTICLE_TYPES = new LinkedHashSet<>();
@@ -149,13 +146,11 @@ public class CustomParticleRegistry {
         return file;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void onParticleProviderRegistry(RegisterParticleProvidersEvent event) {
         CUSTOM_PARTICLE_TYPES.forEach(particleType -> event.registerSpriteSet(particleType, pSprites -> new GeneralNullProvider()));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static class GeneralNullProvider implements ParticleProvider<SimpleParticleType> {
 
         public GeneralNullProvider() {

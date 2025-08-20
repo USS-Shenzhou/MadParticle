@@ -16,7 +16,7 @@
   "gui.mp.de.helper.tip.right": " Enter particle command parameters on the right.",
   "gui.mp.de.helper.period": "Emission Period",
   "gui.mp.de.helper.abs": "Absolute Position",
-  "gui.mp.de.helper.preview_fail_fps": "Preview pauses if FPS drops below 20.",
+  "gui.mp.de.helper.preview_fail_fps": "Preview pauses if FPS drops below 30.",
   "gui.mp.de.helper.new": "New",
   "gui.mp.de.helper.delete": "Delete",
   "gui.mp.de.helper.target": "Target Particle",

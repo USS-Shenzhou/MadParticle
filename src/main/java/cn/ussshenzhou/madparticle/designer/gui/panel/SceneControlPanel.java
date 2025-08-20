@@ -63,10 +63,13 @@ public class SceneControlPanel extends TVerticalScrollContainer {
     }
 
     private void sendParticle() {
+        if (this.getTopParentScreen() instanceof DesignerScreen designerScreen && designerScreen.isPauseScreen()) {
+            return;
+        }
         try {
             var p = Integer.parseInt(period.getComponent().getValue());
             if (p > 0 && age % p == 0) {
-                if (Minecraft.getInstance().getFps() <= 20) {
+                if (Minecraft.getInstance().getFps() <= 30) {
                     TSimpleNotification.fire(Component.translatable("gui.mp.de.helper.preview_fail_fps"), 6, TSimpleNotification.Severity.WARN);
                     return;
                 }

@@ -16,7 +16,7 @@
   "gui.mp.de.helper.tip.right": " 在右侧填写粒子指令参数。",
   "gui.mp.de.helper.period": "发射周期",
   "gui.mp.de.helper.abs": "绝对坐标",
-  "gui.mp.de.helper.preview_fail_fps": "客户端帧率低于20时，粒子预览功能自动暂停。",
+  "gui.mp.de.helper.preview_fail_fps": "客户端帧率低于30时，粒子预览功能自动暂停。",
   "gui.mp.de.helper.new": "新建",
   "gui.mp.de.helper.delete": "删除",
   "gui.mp.de.helper.target": "目标粒子",

@@ -30,7 +30,7 @@ public class CommandChainSelectList extends TTitledSelectList<CommandChainSelect
         this.add(newCommand);
         this.add(delete);
         initButton();
-        delete.setOnPress(_ -> {
+        delete.setOnPress(t -> {
             getComponent().removeElement(getComponent().getSelected());
             delete.getParentInstanceOf(HelperModePanel.class).setParametersScrollPanel(null);
             this.checkChild();
@@ -38,7 +38,7 @@ public class CommandChainSelectList extends TTitledSelectList<CommandChainSelect
     }
 
     protected void initButton() {
-        newCommand.setOnPress(_ -> {
+        newCommand.setOnPress(t -> {
             var list = getComponent();
             var sub = new CommandChainSelectList.SubCommand();
             addElement(sub, list1 -> {
@@ -49,7 +49,7 @@ public class CommandChainSelectList extends TTitledSelectList<CommandChainSelect
             }
             this.checkChild();
         });
-        delete.setOnPress(_ -> {
+        delete.setOnPress(t -> {
             getComponent().removeElement(getComponent().getSelected());
             delete.getParentInstanceOf(HelperModePanel.class).setParametersScrollPanel(null);
             this.checkChild();

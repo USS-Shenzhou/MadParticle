@@ -88,7 +88,7 @@ neoForge {
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             logLevel = org.slf4j.event.Level.DEBUG
 
-            jvmArguments.addAll '--enable-preview', '--add-modules', 'jdk.incubator.vector', '-Dmixin.debug.export=true'
+            //jvmArguments.addAll '--enable-preview', '--add-modules', 'jdk.incubator.vector', '-Dmixin.debug.export=true'
         }
     }
 

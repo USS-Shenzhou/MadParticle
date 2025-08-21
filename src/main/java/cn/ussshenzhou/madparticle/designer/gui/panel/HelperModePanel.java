@@ -38,6 +38,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.lwjgl.glfw.GLFW;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +110,7 @@ public class HelperModePanel extends TPanel {
         }
     };
     protected final CommandChainSelectList commandsChain = new CommandChainSelectList();
+    @Nullable
     protected ParametersPanel parametersPanel = null;
     protected final SceneControlPanel sceneControlPanel = new SceneControlPanel();
     protected final ParticleBrowsePanel particleBrowsePanel = new ParticleBrowsePanel();
@@ -121,12 +123,12 @@ public class HelperModePanel extends TPanel {
         NeoForge.EVENT_BUS.register(command);
         this.add(command);
 
-        copy.setOnPress(_ -> {
+        copy.setOnPress(t -> {
             Minecraft.getInstance().keyboardHandler.setClipboard(command.getEditBox().getValue());
             TSimpleNotification.fire(Component.translatable("gui.mp.de.helper.copied"), 4, TSimpleNotification.Severity.INFO);
         });
         this.add(copy);
-        unwrap.setOnPress(_ -> unwrap());
+        unwrap.setOnPress(t -> unwrap());
         unwrap.setVisibleT(false);
         this.add(unwrap);
 

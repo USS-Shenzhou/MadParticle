@@ -76,9 +76,9 @@ public class SceneControlPanel extends TVerticalScrollContainer {
                 var xs = x.getComponent().getValue();
                 var ys = y.getComponent().getValue();
                 var zs = z.getComponent().getValue();
-                var source = ClientCommandHandler.getSource();
+                CommandSourceStack source = ClientCommandHandler.getSource();
                 if (!xs.isEmpty() && !ys.isEmpty() && !zs.isEmpty()) {
-                    source.withPosition(new Vec3(Double.parseDouble(xs), Double.parseDouble(ys), Double.parseDouble(zs)));
+                    source = source.withPosition(new Vec3(Double.parseDouble(xs), Double.parseDouble(ys), Double.parseDouble(zs)));
                 }
                 var particle = MadParticleCommand.assembleOption(this.getParentInstanceOf(HelperModePanel.class).command.getEditBox().getValue(), source, DISPATCHER);
                 if (particle != null) {

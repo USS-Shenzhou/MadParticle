@@ -202,7 +202,7 @@ public class ParametersPanel extends TVerticalScrollContainer {
         ((ArgumentSuggestionsDispatcher<ParticleOptions>) target.getComponent().getEditBox().getDispatcher())
                 .register(Commands.argument("p", ParticleArgument.particle(Commands.createValidationContext(VanillaRegistries.createLookup()))));
         target.getComponent().getEditBox().setMaxLength(255);
-        tryDefault.setOnPress(_ -> tryFillDefault());
+        tryDefault.setOnPress(b -> tryFillDefault());
         this.addAll(target, tryDefault);
     }
 
@@ -268,20 +268,20 @@ public class ParametersPanel extends TVerticalScrollContainer {
 
     public void init6() {
         this.addAll(collision, horizontalCollision, verticalCollision, collisionTime, xDeflection, xDeflection2, zDeflection, zDeflection2);
-        collision.addElement(InheritableBoolean.TRUE, _ -> {
+        collision.addElement(InheritableBoolean.TRUE, t -> {
             Stream.of(horizontalCollision, verticalCollision, collisionTime).forEach(e -> e.getComponent().setEditable(true));
         });
-        collision.addElement(InheritableBoolean.FALSE, _ -> {
+        collision.addElement(InheritableBoolean.FALSE, t -> {
             Stream.of(horizontalCollision, verticalCollision, collisionTime).forEach(e -> e.getComponent().setEditable(false));
         });
     }
 
     public void init7() {
         this.addAll(roll, interact, horizontalInteract, verticalInteract, friction, friction2, gravity, gravity2);
-        interact.addElement(InheritableBoolean.TRUE, _ -> {
+        interact.addElement(InheritableBoolean.TRUE, t -> {
             Stream.of(horizontalInteract, verticalInteract).forEach(e -> e.getComponent().setEditable(true));
         });
-        interact.addElement(InheritableBoolean.FALSE, _ -> {
+        interact.addElement(InheritableBoolean.FALSE, t -> {
             Stream.of(horizontalInteract, verticalInteract).forEach(e -> e.getComponent().setEditable(false));
         });
     }
@@ -392,13 +392,13 @@ public class ParametersPanel extends TVerticalScrollContainer {
             amount.getComponent().setArgument(InheritableIntegerArgument.inheritableInteger(0, Integer.MAX_VALUE));
             Stream.of(xPos, yPos, zPos, vx, vy, vz).forEach(editBox -> editBox.getComponent().setArgument(InheritableVec3Argument.inheritableVec3()));
             Stream.of(xD, yD, zD, vxD, vyD, vzD).forEach(editBox -> editBox.getComponent().setArgument(Vec3Argument.vec3(false)));
-            collision.addElement(InheritableBoolean.INHERIT, _ -> {
+            collision.addElement(InheritableBoolean.INHERIT, t -> {
                 Stream.of(horizontalCollision, verticalCollision, collisionTime).forEach(editBox -> {
                     editBox.getComponent().setEditable(true);
                     ifClearThenSet(editBox, "=");
                 });
             });
-            interact.addElement(InheritableBoolean.INHERIT, _ -> {
+            interact.addElement(InheritableBoolean.INHERIT, t -> {
                 Stream.of(horizontalInteract, verticalInteract).forEach(editBox -> {
                     editBox.getComponent().setEditable(true);
                     ifClearThenSet(editBox, "=");

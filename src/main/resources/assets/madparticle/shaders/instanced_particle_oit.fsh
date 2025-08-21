@@ -14,7 +14,7 @@ out vec4 accum;
 out float reveal;
 
 void main() {
-    vec4 color = apply_fog(color, sphericalVertexDistance, cylindricalVertexDistance, FogEnvironmentalStart, FogEnvironmentalEnd, FogRenderDistanceStart, FogRenderDistanceEnd, FogColor);
+    vec4 color = apply_fog(texture(Sampler0, texCoord0) * vertexColor * ColorModulator, sphericalVertexDistance, cylindricalVertexDistance, FogEnvironmentalStart, FogEnvironmentalEnd, FogRenderDistanceStart, FogRenderDistanceEnd, FogColor);
     if (color.a < 0.001) {
         discard;
     }

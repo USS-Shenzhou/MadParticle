@@ -82,7 +82,11 @@ public class ParticleBrowsePanel extends TVerticalScrollContainer {
             if (this.spriteSet == null) {
                 this.setText(Component.literal("?"));
             }
-            this.setOnPress(_ -> this.getParentInstanceOfOptional(HelperModePanel.class).ifPresent(modePanel -> modePanel.parametersPanel.target.getComponent().getEditBox().setValue(particleLocation.toString())));
+            this.setOnPress(t -> this.getParentInstanceOfOptional(HelperModePanel.class).ifPresent(modePanel -> {
+                if (modePanel.parametersPanel != null) {
+                    modePanel.parametersPanel.target.getComponent().getEditBox().setValue(particleLocation.toString());
+                }
+            }));
             this.setNormalBackGround(HelperModePanel.BACKGROUND);
         }
 

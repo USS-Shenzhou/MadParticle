@@ -13,7 +13,8 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
@@ -90,7 +91,7 @@ public class ParallelTickManager {
                     syncTickCache.invalidateAll();
                     removeCache.invalidateAll();
                 }, MultiThreadHelper.getForkJoinPool())
-                .whenCompleteAsync((_, _) -> {
+                .whenCompleteAsync((v, e) -> {
                     COUNTER.reset();
                     var ticker = switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking) {
                         case ALL -> ALL_TICKER;
@@ -106,7 +107,7 @@ public class ParallelTickManager {
                         }
                     });
                 }, MultiThreadHelper.getForkJoinPool())
-                .whenCompleteAsync((_, e) -> {
+                .whenCompleteAsync((v, e) -> {
                     if (e != null) {
                         failSafe(engine, e);
                     }
@@ -125,7 +126,7 @@ public class ParallelTickManager {
         engine.particlesToAdd.stream()
                 .collect(Collectors.groupingBy(TakeOver::map))
                 .forEach((renderType, particles) ->
-                        engine.particles.computeIfAbsent(renderType, _ ->
+                        engine.particles.computeIfAbsent(renderType, t ->
                                 new MultiThreadedEqualObjectLinkedOpenHashSetQueue<>(16384, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue)
                         ).addAll(particles));
         engine.particlesToAdd.clear();

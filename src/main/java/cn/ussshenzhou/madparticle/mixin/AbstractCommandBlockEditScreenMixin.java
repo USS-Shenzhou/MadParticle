@@ -33,7 +33,7 @@ public class AbstractCommandBlockEditScreenMixin extends Screen {
         super(pTitle);
     }
 
-    @ModifyConstant(method = "init", constant = @Constant(intValue = 150, ordinal = 4))
+    @ModifyConstant(method = "init", constant = @Constant(intValue = 150, ordinal = 0))
     private int madparticleLongerCommandEdit1(int constant) {
         return madparticleIsOptimizeEnabled() ? (int) (this.width * 0.9f / 2) : 150;
     }

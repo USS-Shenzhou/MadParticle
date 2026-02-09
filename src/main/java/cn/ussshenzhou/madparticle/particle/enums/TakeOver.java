@@ -85,7 +85,7 @@ public enum TakeOver implements ITranslatable {
             GlowParticle.class
     );
     @SuppressWarnings("unchecked")
-    private static final HashSet<Class<? extends TextureSheetParticle>> RENDER_VANILLA_TRANS_OPAQUE = Sets.newHashSet(
+    private static final HashSet<Class<? extends SingleQuadParticle>> RENDER_VANILLA_TRANS_OPAQUE = Sets.newHashSet(
             SnowflakeParticle.class,
             SpitParticle.class,
             SpellParticle.class,
@@ -124,7 +124,7 @@ public enum TakeOver implements ITranslatable {
             GlowParticle.class
     );
     @SuppressWarnings("unchecked")
-    public static final HashSet<Class<? extends TextureSheetParticle>> RENDER_CUSTOM_LIGHT = Sets.newHashSet(
+    public static final HashSet<Class<? extends SingleQuadParticle>> RENDER_CUSTOM_LIGHT = Sets.newHashSet(
             FlameParticle.class,
             SoulParticle.class,
             SculkChargeParticle.class,
@@ -145,19 +145,17 @@ public enum TakeOver implements ITranslatable {
     }
 
     public static ParticleRenderType map(Particle particle) {
-        var originalType = particle.getRenderType();
-        if (!(particle instanceof TextureSheetParticle)) {
+        var originalType = particle.getGroup();
+        if (!(particle instanceof SingleQuadParticle)) {
             return originalType;
         }
         if (originalType == ModParticleRenderTypes.INSTANCED || originalType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
             return originalType;
         }
-        var takeover = ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering;
         return switch (originalType.name()) {
             case "INSTANCED" -> ModParticleRenderTypes.INSTANCED;
             case "INSTANCED_TERRAIN" -> ModParticleRenderTypes.INSTANCED_TERRAIN;
-            case "TERRAIN_OPAQUE", "TERRAIN_SHEET" -> takeover == NONE ? originalType : ModParticleRenderTypes.INSTANCED_TERRAIN;
-            case "PARTICLE_SHEET_OPAQUE", "PARTICLE_SHEET_TRANSLUCENT" -> switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering) {
+            case "SINGLE_QUADS" -> switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering) {
                 case NONE -> originalType;
                 case ALL -> ModParticleRenderTypes.INSTANCED;
                 case VANILLA -> RENDER_VANILLA_TRANS_OPAQUE.contains(particle.getClass()) ? ModParticleRenderTypes.INSTANCED : originalType;

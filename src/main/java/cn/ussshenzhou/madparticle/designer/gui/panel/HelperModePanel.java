@@ -6,13 +6,12 @@ import cn.ussshenzhou.madparticle.command.MadParticleCommand;
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.CommandChainSelectList;
 import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
-import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOverType;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
 import cn.ussshenzhou.t88.gui.advanced.TSuggestedEditBox;
 import cn.ussshenzhou.t88.gui.combine.TTitledComponent;
 import cn.ussshenzhou.t88.gui.event.TWidgetContentUpdatedEvent;
 import cn.ussshenzhou.t88.gui.notification.TSimpleNotification;
-import cn.ussshenzhou.t88.gui.util.AccessorProxy;
 import cn.ussshenzhou.t88.gui.util.Border;
 import cn.ussshenzhou.t88.gui.util.LayoutHelper;
 import cn.ussshenzhou.t88.gui.util.MouseHelper;
@@ -23,13 +22,13 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.context.ParsedArgument;
-import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -40,7 +39,6 @@ import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import static cn.ussshenzhou.madparticle.designer.gui.DesignerScreen.GAP;
@@ -75,13 +73,13 @@ public class HelperModePanel extends TPanel {
         }
 
         @Override
-        public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
-            if (Screen.isPaste(pKeyCode)) {
+        public boolean keyPressed(KeyEvent event) {
+            if (event.isPaste()) {
                 switchCount = 0;
                 callPauseCount = 0;
                 switchCopyAndUnwrap();
             }
-            return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+            return super.keyPressed(event);
         }
 
         int callPauseCount = 0;
@@ -165,7 +163,7 @@ public class HelperModePanel extends TPanel {
         LayoutHelper.BRightOfA(copy, GAP, command, TButton.RECOMMEND_SIZE);
         LayoutHelper.BSameAsA(unwrap, copy);
         LayoutHelper.BBottomOfA(commandsChain, GAP, command,
-                TButton.RECOMMEND_SIZE.x + commandsChain.getComponent().getScrollbarGap() + TSelectList.SCROLLBAR_WIDTH,
+                TButton.RECOMMEND_SIZE.x + TSelectList.SCROLLBAR_WIDTH,
                 sceneViewHeight - GAP - TButton.RECOMMEND_SIZE.y - GAP - (GAP + TButton.RECOMMEND_SIZE.y) * 2 - GAP
         );
         super.layout();
@@ -259,7 +257,7 @@ public class HelperModePanel extends TPanel {
             CommandContext<CommandSourceStack> ct = parseResults.getContext().build(s);
             getArgAndSelect(panel.spriteFrom, "spriteFrom", SpriteFrom.class, ct);
             getArgAndSelect(panel.alwaysRender, "alwaysRender", InheritableBoolean.class, ct);
-            getArgAndSelect(panel.renderType, "renderType", ParticleRenderTypes.class, ct);
+            getArgAndSelect(panel.renderType, "takeOverType", TakeOverType.class, ct);
             getArgAndSelect(panel.interact, "interactWithEntity", InheritableBoolean.class, ct);
             getArgAndSelect(panel.collision, "collision", InheritableBoolean.class, ct);
             getArgAndSelect(panel.alpha, "alphaMode", ChangeMode.class, ct);
@@ -294,7 +292,7 @@ public class HelperModePanel extends TPanel {
         ParsedArgument<?, ?> parsedArgument = map.get(name);
         if (parsedArgument != null) {
             editBox.setValue(parsedArgument.getRange().get(command));
-            AccessorProxy.EditBoxProxy.setDisplayPos(editBox, 0);
+            //AccessorProxy.EditBoxProxy.setDisplayPos(editBox, 0);
         }
     }
 
@@ -309,11 +307,11 @@ public class HelperModePanel extends TPanel {
             String[] s3 = s.split(" ");
             try {
                 x.setValue(s3[0]);
-                AccessorProxy.EditBoxProxy.setDisplayPos(x, 0);
+                //AccessorProxy.EditBoxProxy.setDisplayPos(x, 0);
                 y.setValue(s3[1]);
-                AccessorProxy.EditBoxProxy.setDisplayPos(y, 0);
+                //AccessorProxy.EditBoxProxy.setDisplayPos(y, 0);
                 z.setValue(s3[2]);
-                AccessorProxy.EditBoxProxy.setDisplayPos(z, 0);
+                //AccessorProxy.EditBoxProxy.setDisplayPos(z, 0);
             } catch (IndexOutOfBoundsException ignored) {
             }
         }
@@ -328,23 +326,22 @@ public class HelperModePanel extends TPanel {
     }
 
     @Override
-    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         var mc = Minecraft.getInstance();
-        if (!super.mouseClicked(pMouseX, pMouseY, pButton) && isInWild(pMouseX, pMouseY)) {
-            if (pButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                InputConstants.grabOrReleaseMouse(mc.getWindow().getWindow(), 212995, pMouseX, pMouseY);
+        if (!super.mouseClicked(event, doubleClick) && isInWild(event.x(), event.y())) {
+            if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+                InputConstants.grabOrReleaseMouse(mc.getWindow(), 212995, event.x(), event.y());
                 mc.mouseHandler.setIgnoreFirstMove();
                 mc.mouseHandler.mouseGrabbed = true;
                 return true;
             }
         }
-        if (pButton == GLFW.GLFW_MOUSE_BUTTON_RIGHT && mc.mouseHandler.isMouseGrabbed()) {
+        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && mc.mouseHandler.isMouseGrabbed()) {
             mc.mouseHandler.releaseMouse();
             return true;
         }
         return false;
     }
-
     private boolean isInWild(double mouseX, double mouseY) {
         return isInRange(mouseX, mouseY) &&
                 children.stream().mapToInt(w -> w.isInRange(mouseX, mouseY) ? 1 : 0).sum() == 0 &&
@@ -358,7 +355,7 @@ public class HelperModePanel extends TPanel {
         if (mc.mouseHandler.isMouseGrabbed() || (!super.mouseScrolled(pMouseX, pMouseY, deltaX, deltaY) && isInWild(pMouseX, pMouseY))) {
             if (Minecraft.getInstance().getCameraEntity() instanceof LivingEntity livingEntity) {
                 var attr = livingEntity.getAttribute(Attributes.CAMERA_DISTANCE);
-                var loc = ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "particle_preview");
+                var loc = Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "particle_preview");
                 if (attr != null) {
                     var modifier = attr.getModifier(loc);
                     double base = 0;

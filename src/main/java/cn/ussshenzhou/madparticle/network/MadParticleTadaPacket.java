@@ -13,18 +13,15 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.Random;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 /**
  * @author USS_Shenzhou
@@ -94,7 +91,7 @@ public class MadParticleTadaPacket {
         //TODO leftHand and offHand
         //get shoulder position in world-coordinates.
         var livingEntityRenderer = (LivingEntityRenderer<?, ?, ?>) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
-        HumanoidModel<?> playerModel = ((PlayerRenderer) livingEntityRenderer).getModel();
+        HumanoidModel<?> playerModel = ((AvatarRenderer<?>) livingEntityRenderer).getModel();
         float playerYRot = (float) (Math.PI * player.yBodyRot / 180);
         Vec3 vec3 = new Vec3(
                 Math.cos(playerYRot) * (playerModel.rightArm.x - 1 + leftOrRightOffsetIn16),

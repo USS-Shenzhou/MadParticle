@@ -1,20 +1,21 @@
 package cn.ussshenzhou.madparticle.mixin;
 
-import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.madparticle.api.AddParticleHelperS;
-import cn.ussshenzhou.t88.config.ConfigHelper;
+import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.resource.GraphicsResourceAllocator;
+import com.mojang.blaze3d.resource.ResourceHandle;
 import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.Particle;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.server.level.ParticleStatus;
-import org.spongepowered.asm.mixin.Final;
+import net.minecraft.client.renderer.state.LevelRenderState;
+import net.minecraft.util.profiling.ProfilerFiller;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * @author USS_Shenzhou
@@ -22,29 +23,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(LevelRenderer.class)
 public abstract class LevelRendererMixin {
 
-    @Shadow
-    @Final
-    private Minecraft minecraft;
-
-    @Shadow
-    protected abstract ParticleStatus calculateParticleLevel(boolean pDecreased);
-
-    @Inject(method = "addParticleInternal(Lnet/minecraft/core/particles/ParticleOptions;ZZDDDDDD)Lnet/minecraft/client/particle/Particle;", at = @At("HEAD"), cancellable = true)
-    private void madparticleCheckParticleGenerateDistance(ParticleOptions options, boolean force, boolean decreased, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, CallbackInfoReturnable<Particle> cir) {
-        Camera camera = this.minecraft.gameRenderer.getMainCamera();
-        ParticleStatus particlestatus = this.calculateParticleLevel(decreased);
-        if (force) {
-            if (ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance) {
-                if (camera.getPosition().distanceToSqr(x, y, z) > AddParticleHelperS.getMaxParticleGenerateDistanceSqr()) {
-                    cir.setReturnValue(null);
-                }
-            } else {
-                cir.setReturnValue(this.minecraft.particleEngine.createParticle(options, x, y, z, xSpeed, ySpeed, zSpeed));
-            }
-        } else if (camera.getPosition().distanceToSqr(x, y, z) > AddParticleHelperS.getNormalParticleGenerateDistanceSqr()) {
-            cir.setReturnValue(null);
-        } else {
-            cir.setReturnValue(particlestatus == ParticleStatus.MINIMAL ? null : this.minecraft.particleEngine.createParticle(options, x, y, z, xSpeed, ySpeed, zSpeed));
-        }
+    @Inject(method = "lambda$addMainPass$0",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/state/ParticlesRenderState;submit(Lnet/minecraft/client/renderer/SubmitNodeStorage;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void madparticleRenderInstanced(GpuBufferSlice terrainFog, LevelRenderState levelRenderState, ProfilerFiller profiler, Matrix4f modelViewMatrix, ResourceHandle entityOutlineTarget, ResourceHandle translucentTarget, ResourceHandle mainTarget, ResourceHandle itemEntityTarget, ResourceHandle particleTarget, boolean renderOutline, CallbackInfo ci) {
+        NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED).render();
+        NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED_TERRAIN).render();
     }
 }

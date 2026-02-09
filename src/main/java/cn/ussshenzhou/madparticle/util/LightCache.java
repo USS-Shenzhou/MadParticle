@@ -4,7 +4,7 @@ import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -69,9 +69,9 @@ public class LightCache {
         outside.clear();
     }
 
-    public byte getOrCompute(int x, int y, int z, TextureSheetParticle particle, SimpleBlockPos simpleBlockPos) {
+    public byte getOrCompute(int x, int y, int z, SingleQuadParticle particle, SimpleBlockPos simpleBlockPos) {
         if (isInRange(x, y, z)) {
-            var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+            var camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
             int rx = Mth.floor(x - camera.x) + XZ_RANGE;
             int ry = Mth.floor(y - camera.y) + Y_RANGE;
             int rz = Mth.floor(z - camera.z) + XZ_RANGE;
@@ -103,9 +103,9 @@ public class LightCache {
         return (byte) ((packetLight >>> 4 & 0xf) | (packetLight >>> 16 & 0xf0));
     }
 
-    public static int getLight(TextureSheetParticle particle, SimpleBlockPos simpleBlockPosSingle) {
+    public static int getLight(SingleQuadParticle particle, SimpleBlockPos simpleBlockPosSingle) {
         var pos = MUTABLE_BLOCK_POS.get().set(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z);
-        return particle.level.hasChunkAt(pos) ? LevelRenderer.getLightColor(particle.level, pos) : 0;
+        return particle.level.hasChunkAt(pos) ? LevelRenderer.getLightCoords(particle.level, pos) : 0;
     }
 
     private byte getMax(int packedLight) {
@@ -115,7 +115,7 @@ public class LightCache {
     }
 
     private boolean isInRange(int x, int y, int z) {
-        var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        var camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
         return Math.abs(x - camera.x) < XZ_RANGE && Math.abs(y - camera.y) < Y_RANGE && Math.abs(z - camera.z) < XZ_RANGE;
     }
 }

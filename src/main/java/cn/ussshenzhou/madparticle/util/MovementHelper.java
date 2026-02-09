@@ -82,7 +82,7 @@ public class MovementHelper {
                 BlockGetter blockgetter;
                 int x = SectionPos.blockToSectionCoord(i);
                 int z = SectionPos.blockToSectionCoord(k);
-                long c = ChunkPos.asLong(i, j);
+                long c = ChunkPos.pack(i, j);
                 if (cachedBlockGetter != null && cachedBlockGetterPos == z) {
                     blockgetter = cachedBlockGetter;
                 } else {

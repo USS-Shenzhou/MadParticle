@@ -4,18 +4,17 @@ import cn.ussshenzhou.madparticle.command.inheritable.*;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.MetaParameterPanel;
 import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
 import cn.ussshenzhou.madparticle.mixin.EditBoxAccessor;
-import cn.ussshenzhou.madparticle.mixin.ParticleAccessor;
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
-import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOverType;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
 import cn.ussshenzhou.t88.gui.combine.TTitledComponent;
 import cn.ussshenzhou.t88.gui.combine.TTitledCycleButton;
 import cn.ussshenzhou.t88.gui.combine.TTitledSimpleConstrainedEditBox;
 import cn.ussshenzhou.t88.gui.combine.TTitledSuggestedEditBox;
 import cn.ussshenzhou.t88.gui.container.TVerticalScrollContainer;
-import cn.ussshenzhou.t88.gui.util.AccessorProxy;
 import cn.ussshenzhou.t88.gui.util.ArgumentSuggestionsDispatcher;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.neoforged.neoforge.client.ClientCommandHandler;
 import org.joml.Vector2i;
 import cn.ussshenzhou.t88.gui.widegt.TButton;
@@ -74,7 +73,7 @@ public class ParametersPanel extends TVerticalScrollContainer {
     public final TTitledCycleButton<InheritableBoolean> alwaysRender = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.always"));
     public final TTitledSimpleConstrainedEditBox amount = new TTitledSimpleConstrainedEditBox(
             Component.translatable("gui.mp.de.helper.amount"), IntegerArgumentType.integer(0));
-    public final TTitledCycleButton<ParticleRenderTypes> renderType = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.render_type"));
+    public final TTitledCycleButton<TakeOverType> renderType = new TTitledCycleButton<>(Component.translatable("gui.mp.de.helper.render_type"));
     public final TTitledSuggestedEditBox whoCanSee = new TTitledSuggestedEditBox(
             Component.translatable("gui.mp.de.helper.who_see"), new ArgumentSuggestionsDispatcher<>());
     //lane 3
@@ -209,7 +208,7 @@ public class ParametersPanel extends TVerticalScrollContainer {
     public void init2() {
         Stream.of(SpriteFrom.values()).forEach(spriteFrom::addElement);
         Stream.of(InheritableBoolean.values()).forEach(alwaysRender::addElement);
-        Stream.of(ParticleRenderTypes.values()).forEach(renderType::addElement);
+        Stream.of(TakeOverType.values()).forEach(renderType::addElement);
         ((ArgumentSuggestionsDispatcher<EntitySelector>) whoCanSee.getComponent().getEditBox().getDispatcher())
                 .register(Commands.argument("p", EntityArgument.players()));
         this.addAll(spriteFrom, lifeTime, alwaysRender, amount, renderType, whoCanSee);
@@ -251,15 +250,15 @@ public class ParametersPanel extends TVerticalScrollContainer {
         });
         rSlider.addResponder(d -> {
             r.getComponent().setValue(String.format("%.3f", d));
-            AccessorProxy.EditBoxProxy.setDisplayPos(r.getComponent(), 0);
+            //AccessorProxy.EditBoxProxy.setDisplayPos(r.getComponent(), 0);
         });
         gSlider.addResponder(d -> {
             g.getComponent().setValue(String.format("%.3f", d));
-            AccessorProxy.EditBoxProxy.setDisplayPos(g.getComponent(), 0);
+            //AccessorProxy.EditBoxProxy.setDisplayPos(g.getComponent(), 0);
         });
         bSlider.addResponder(d -> {
             b.getComponent().setValue(String.format("%.3f", d));
-            AccessorProxy.EditBoxProxy.setDisplayPos(b.getComponent(), 0);
+            //AccessorProxy.EditBoxProxy.setDisplayPos(b.getComponent(), 0);
         });
         rSlider.setAbsValue(1);
         gSlider.setAbsValue(1);
@@ -438,10 +437,9 @@ public class ParametersPanel extends TVerticalScrollContainer {
         try {
             ParticleOptions particleOptions = ct.getArgument("particle", ParticleOptions.class);
             Particle particle = ((ParticleEngineAccessor) Minecraft.getInstance().particleEngine).callMakeParticle(particleOptions, 0, 0, 0, 0, 0, 0);
-            if (particle != null) {
-                ParticleAccessor accessor = (ParticleAccessor) particle;
-                ifClearThenSet(lifeTime, particle.getLifetime());
-                ifClearThenSet(amount, 5);
+            if (particle instanceof SingleQuadParticle singleQuadParticle) {
+                ifClearThenSet(lifeTime, singleQuadParticle.getLifetime());
+                ifClearThenSet(amount, 1);
                 alwaysRender.getComponent().select(InheritableBoolean.FALSE);
                 ifClearThenSet(whoCanSee.getComponent().getEditBox(), "@a");
                 Stream.of(xPos, yPos, zPos).forEach(
@@ -453,19 +451,19 @@ public class ParametersPanel extends TVerticalScrollContainer {
                 Stream.of(xD, yD, zD, vxD, vyD, vzD).forEach(
                         titled -> ifClearThenSet(titled, "0.0")
                 );
-                ifClearThenSet(r, accessor.getRCol());
-                ifClearThenSet(g, accessor.getGCol());
-                ifClearThenSet(b, accessor.getBCol());
-                ifClearThenSet(accessor.getFriction(), friction, friction2);
-                ifClearThenSet(accessor.getGravity(), gravity, gravity2);
-                ifClearThenSet(gravity2, accessor.getGravity());
+                ifClearThenSet(r, singleQuadParticle.rCol);
+                ifClearThenSet(g, singleQuadParticle.gCol);
+                ifClearThenSet(b, singleQuadParticle.bCol);
+                ifClearThenSet(singleQuadParticle.friction, friction, friction2);
+                ifClearThenSet(singleQuadParticle.gravity, gravity, gravity2);
+                ifClearThenSet(gravity2, singleQuadParticle.gravity);
                 collision.getComponent().select(InheritableBoolean.FALSE);
                 interact.getComponent().select(InheritableBoolean.FALSE);
                 Stream.of(horizontalInteract, verticalInteract, xDeflection, xDeflection2, zDeflection, zDeflection2).forEach(editBox ->
                         ifClearThenSet(editBox, 0));
-                ifClearThenSet(roll, accessor.getRoll());
-                ifClearThenSet(accessor.getAlpha(), alphaBegin, alphaEnd);
-                ifClearThenSet(String.format("%.2f", (accessor.getBbHeight() + accessor.getBbWidth()) / 2 / 0.2), scaleBegin, scaleEnd);
+                ifClearThenSet(roll, singleQuadParticle.roll);
+                ifClearThenSet(singleQuadParticle.alpha, alphaBegin, alphaEnd);
+                ifClearThenSet(String.format("%.2f", (singleQuadParticle.bbHeight + singleQuadParticle.bbWidth) / 2 / 0.2), scaleBegin, scaleEnd);
                 ifClearThenSet(bloomStrength, isChild ? "=" : "1");
             }
         } catch (Exception ignored) {

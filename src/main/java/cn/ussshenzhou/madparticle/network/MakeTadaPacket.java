@@ -12,6 +12,7 @@ import cn.ussshenzhou.t88.network.annotation.ServerHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -45,7 +46,7 @@ public class MakeTadaPacket {
             command = command.replaceFirst("/", "");
         }
         if (command.startsWith("mp ") || command.startsWith("madparticle")) {
-            if (sender.hasPermissions(2)) {
+            if (sender.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
                 makeTada((ServerPlayer) sender);
             } else {
                 LogUtils.getLogger().warn("Player {} wants to make a madparticle:tada, but hasn't enough permission level.", sender.getName());

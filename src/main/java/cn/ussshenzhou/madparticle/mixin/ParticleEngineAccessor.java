@@ -2,7 +2,7 @@ package cn.ussshenzhou.madparticle.mixin;
 
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
@@ -17,17 +17,8 @@ import java.util.Queue;
 @Mixin(ParticleEngine.class)
 public interface ParticleEngineAccessor {
 
-    @Accessor("spriteSets")
-    Map<ResourceLocation, SpriteSet> getSpriteSets();
-
     @Invoker
     <T extends ParticleOptions> Particle callMakeParticle(T pParticleData, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed);
-
-    @Accessor
-    Map<ParticleRenderType, Queue<Particle>> getParticles();
-
-    @Accessor
-    Map<ResourceLocation, ParticleProvider<?>> getProviders();
 
     @Accessor
     Queue<Particle> getParticlesToAdd();

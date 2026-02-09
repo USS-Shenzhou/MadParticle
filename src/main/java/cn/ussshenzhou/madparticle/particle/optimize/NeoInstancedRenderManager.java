@@ -5,10 +5,8 @@ import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
-import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.madparticle.util.SimpleBlockPos;
-import cn.ussshenzhou.t88.T88;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
@@ -19,18 +17,18 @@ import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.MappableRingBuffer;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ARGB;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuDevice;
@@ -42,7 +40,6 @@ import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryUtil;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -58,9 +55,9 @@ import static org.lwjgl.opengl.GL42.*;
  * @author USS_Shenzhou
  */
 public class NeoInstancedRenderManager {
-    private final ResourceLocation usingAtlas;
+    private final Identifier usingAtlas;
 
-    public NeoInstancedRenderManager(ResourceLocation usingAtlas) {
+    public NeoInstancedRenderManager(Identifier usingAtlas) {
         this.usingAtlas = usingAtlas;
     }
     //----------meta manager----------
@@ -77,10 +74,10 @@ public class NeoInstancedRenderManager {
     };
 
     public static NeoInstancedRenderManager getInstance(ParticleRenderType renderType) {
-        if (renderType == ParticleRenderType.TERRAIN_SHEET || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
-            return MANAGER_BY_RENDER_TYPE[1];
+        if (renderType == ModParticleRenderTypes.INSTANCED) {
+            return MANAGER_BY_RENDER_TYPE[0];
         }
-        return MANAGER_BY_RENDER_TYPE[0];
+        return MANAGER_BY_RENDER_TYPE[1];
     }
 
     public static Stream<NeoInstancedRenderManager> getAllInstances() {
@@ -93,7 +90,7 @@ public class NeoInstancedRenderManager {
     }
 
     public static void init() {
-        LogUtils.getLogger().info("NeoInstancedRenderManager inited.");
+        LogUtils.getLogger().info("NeoInstancedRenderManager init");
     }
 
     //----------render----------
@@ -153,10 +150,11 @@ public class NeoInstancedRenderManager {
         var mc = Minecraft.getInstance();
         var encoder = RenderSystem.getDevice().createCommandEncoder();
         var cameraUbo = encoder.mapBuffer(cameraCorrectionUbo.currentBuffer(), false, true);
-        var dynamicUbo = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrix(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F), new Vector3f(), new Matrix4f(), 0.0F);
+        var dynamicUbo = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrix(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F), new Vector3f(), new Matrix4f());
         //noinspection DataFlowIssue
         var pass = encoder.createRenderPass(
                 () -> "MadParticle render",
+                //TODO support OIT/renderPass twice
                 mc.getMainRenderTarget().getColorTextureView(),
                 OptionalInt.empty(),
                 mc.getMainRenderTarget().getDepthTextureView(),
@@ -208,19 +206,20 @@ public class NeoInstancedRenderManager {
         RenderSystem.bindDefaultUniforms(pass);
         pass.setUniform("DynamicTransforms", dynamicUbo);
         var camera = mc.gameRenderer.getMainCamera();
-        var cameraPos = camera.getPosition();
+        var cameraPos = camera.position();
         var cameraRot = camera.rotation();
         Std140Builder.intoBuffer(ubo.data())
                 .putVec4(cameraRot.x, cameraRot.y, cameraRot.z, cameraRot.w)
                 .putVec4((float) cameraPos.x, (float) cameraPos.y, (float) cameraPos.z, mc.getDeltaTracker().getGameTimeDeltaPartialTick(false));
         pass.setUniform("CameraCorrection", cameraCorrectionUbo.currentBuffer());
-        pass.bindSampler("Sampler0", mc.getTextureManager().getTexture(usingAtlas).getTextureView());
-        pass.bindSampler("Sampler2", mc.gameRenderer.lightTexture().getTextureView());
+        var texture = mc.getTextureManager().getTexture(usingAtlas);
+        pass.bindTexture("Sampler0", texture.getTextureView(), texture.getSampler());
+        pass.bindTexture("Sampler2", mc.gameRenderer.lightmap(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
     }
 
-    private void updateTickVBOInternal(ObjectLinkedOpenHashSet<TextureSheetParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {
+    private void updateTickVBOInternal(ObjectLinkedOpenHashSet<SingleQuadParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
-        for (TextureSheetParticle particle : particles) {
+        for (SingleQuadParticle particle : particles) {
             long start = tickVBOAddress + (long) index * TICK_VBO_SIZE;
             //xyz roll
             MemoryUtil.memPutFloat(start, (float) particle.x);
@@ -262,7 +261,7 @@ public class NeoInstancedRenderManager {
                     l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, particle, simpleBlockPosSingle);
                     l = madParticle.checkEmit(l);
                 } else if (TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
-                    l = LightCache.compressPackedLight(particle.getLightColor(partialTicks));
+                    l = LightCache.compressPackedLight(particle.getLightCoords(partialTicks));
                 } else {
                     l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, particle, simpleBlockPosSingle);
                 }
@@ -282,7 +281,7 @@ public class NeoInstancedRenderManager {
             ObjectLinkedOpenHashSet set = particles.get(group);
             int i = index;
             futures[group] = CompletableFuture.runAsync(
-                    () -> updater.update((ObjectLinkedOpenHashSet<TextureSheetParticle>) set, i, vbo.getNext().getAddress(), partialTicks),
+                    () -> updater.update((ObjectLinkedOpenHashSet<SingleQuadParticle>) set, i, vbo.getNext().getAddress(), partialTicks),
                     getFixedThreadPool()
             );
             index += set.size();
@@ -331,10 +330,10 @@ public class NeoInstancedRenderManager {
 
     @FunctionalInterface
     public interface VboUpdater {
-        void update(ObjectLinkedOpenHashSet<TextureSheetParticle> particles, int startIndex, long frameVBOAddress, float partialTicks);
+        void update(ObjectLinkedOpenHashSet<SingleQuadParticle> particles, int startIndex, long frameVBOAddress, float partialTicks);
     }
 
-    private static GlDevice getDevice(){
+    private static GlDevice getDevice() {
         var device = RenderSystem.getDevice();
         if (device instanceof ValidationGpuDevice validationGpuDevice) {
             return (GlDevice) validationGpuDevice.getRealDevice();
@@ -345,25 +344,26 @@ public class NeoInstancedRenderManager {
     }
 
     //----------iris----------
+    //FIXME
     private void bindIrisFBO() {
-        if (!cn.ussshenzhou.madparticle.MadParticle.irisOn) {
-            return;
-        }
-        var program = getDevice().getOrCompilePipeline(getRenderType().renderPipeline).program();
-        try {
-            var writingToBeforeTranslucentField = program.getClass().getDeclaredField("writingToAfterTranslucent");
-            writingToBeforeTranslucentField.setAccessible(true);
-            var writingToBeforeTranslucent = writingToBeforeTranslucentField.get(program);
-            var bindMethod = writingToBeforeTranslucent.getClass().getDeclaredMethod("bind");
-            bindMethod.setAccessible(true);
-            bindMethod.invoke(writingToBeforeTranslucent);
-            glDrawBuffer(GL_COLOR_ATTACHMENT0);
-        } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            LogUtils.getLogger().error(e.toString());
-        }
+    //    if (!cn.ussshenzhou.madparticle.MadParticle.irisOn) {
+    //        return;
+    //    }
+    //    var program = getDevice().getOrCompilePipeline(getRenderType().renderPipeline).program();
+    //    try {
+    //        var writingToBeforeTranslucentField = program.getClass().getDeclaredField("writingToAfterTranslucent");
+    //        writingToBeforeTranslucentField.setAccessible(true);
+    //        var writingToBeforeTranslucent = writingToBeforeTranslucentField.get(program);
+    //        var bindMethod = writingToBeforeTranslucent.getClass().getDeclaredMethod("bind");
+    //        bindMethod.setAccessible(true);
+    //        bindMethod.invoke(writingToBeforeTranslucent);
+    //        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    //    } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+    //        LogUtils.getLogger().error(e.toString());
+    //    }
     }
 
-    private RenderType.CompositeRenderType getRenderType() {
-        return (RenderType.CompositeRenderType) (usingAtlas == TextureAtlas.LOCATION_BLOCKS ? ParticleRenderType.TERRAIN_SHEET.renderType() : ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.renderType());
-    }
+    //private RenderType.CompositeRenderType getRenderType() {
+    //    return (RenderType.CompositeRenderType) (usingAtlas == TextureAtlas.LOCATION_BLOCKS ? ParticleRenderType.TERRAIN_SHEET.renderType() : ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.renderType());
+    //}
 }

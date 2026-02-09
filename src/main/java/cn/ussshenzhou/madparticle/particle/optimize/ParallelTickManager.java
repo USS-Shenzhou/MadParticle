@@ -13,6 +13,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -76,7 +77,8 @@ public class ParallelTickManager {
 
     private static CompletableFuture<Void> lastTickJob;
 
-    //TODO divide sync caches by renderType.
+    //TODO divide sync caches by takeOverType.
+    @SuppressWarnings("unchecked")
     public static void tick(ParticleEngine engine) {
         checkPreviousTickDone(engine);
         NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::preUpdate);
@@ -84,7 +86,7 @@ public class ParallelTickManager {
         removeAndAdd(engine);
         engine.particles.forEach((renderType, particles) -> {
             if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
-                NeoInstancedRenderManager.getInstance(renderType).update((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particles);
+                NeoInstancedRenderManager.getInstance(renderType).update((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particles.particles);
             }
         });
         lastTickJob = CompletableFuture.runAsync(() -> {
@@ -98,11 +100,11 @@ public class ParallelTickManager {
                         case VANILLA -> VANILLA_ONLY_TICKER;
                         case NONE -> MP_ONLY_TICKER;
                     };
-                    engine.particles.values().forEach(particles -> {
-                        if (particles instanceof MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> multiThreadedEqualObjectLinkedOpenHashSetQueue) {
+                    engine.particles.values().forEach(particleGroup -> {
+                        if (particleGroup.particles instanceof MultiThreadedEqualObjectLinkedOpenHashSetQueue multiThreadedEqualObjectLinkedOpenHashSetQueue) {
                             multiThreadedEqualObjectLinkedOpenHashSetQueue.forEach(ticker);
                         } else {
-                            ForkJoinTask<?> pickAndTick = MultiThreadHelper.getForkJoinPool().submit(() -> particles.parallelStream().forEach(ticker));
+                            ForkJoinTask<?> pickAndTick = MultiThreadHelper.getForkJoinPool().submit(() -> particleGroup.particles.parallelStream().forEach(ticker));
                             pickAndTick.join();
                         }
                     });
@@ -111,24 +113,23 @@ public class ParallelTickManager {
                     if (e != null) {
                         failSafe(engine, e);
                     }
-                    engine.particles.forEach((renderType, particles) -> {
+                    engine.particles.forEach((renderType, particleGroup) -> {
                         if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
-                            NeoInstancedRenderManager.getInstance(renderType).postUpdate((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particles);
+                            NeoInstancedRenderManager.getInstance(renderType).postUpdate((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particleGroup.particles);
                         }
                     });
                 }, MultiThreadHelper.getForkJoinPool());
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked", "SuspiciousMethodCalls"})
     private static void removeAndAdd(ParticleEngine engine) {
         addCounter.set(engine.particlesToAdd.size());
         removeCounter.set((int) removeCache.size());
-        engine.particles.values().parallelStream().forEach(particles -> particles.removeAll(removeCache.asMap().keySet()));
+        engine.particles.values().parallelStream().forEach(particleGroup -> particleGroup.particles.removeAll(removeCache.asMap().keySet()));
         engine.particlesToAdd.stream()
                 .collect(Collectors.groupingBy(TakeOver::map))
                 .forEach((renderType, particles) ->
-                        engine.particles.computeIfAbsent(renderType, t ->
-                                new MultiThreadedEqualObjectLinkedOpenHashSetQueue<>(16384, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue)
-                        ).addAll(particles));
+                        engine.particles.computeIfAbsent(renderType, engine::createParticleGroup).particles.addAll((List) particles));
         engine.particlesToAdd.clear();
     }
 

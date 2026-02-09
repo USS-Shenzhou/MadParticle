@@ -23,7 +23,7 @@ public class TadaCopyCommandListener {
     public static void onTooltipEvent(ItemTooltipEvent event) {
         var itemstack = event.getItemStack();
         if (itemstack.getItem() instanceof Tada) {
-            if (Screen.hasShiftDown()) {
+            if (event.getFlags().hasShiftDown()) {
                 var command = itemstack.getOrDefault(ModDataComponent.TADA_COMPONENT, TadaComponent.defaultValue()).command();
                 if (!command.equals(clipboardBuffer)) {
                     Minecraft.getInstance().keyboardHandler.setClipboard(command);

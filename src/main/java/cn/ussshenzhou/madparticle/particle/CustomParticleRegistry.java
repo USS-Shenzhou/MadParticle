@@ -2,14 +2,15 @@ package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.MadParticle;
 import com.mojang.logging.LogUtils;
-import net.minecraft.ResourceLocationException;
+import net.minecraft.IdentifierException;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.RandomSource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -33,9 +34,9 @@ import java.util.*;
  */
 @EventBusSubscriber(value = Dist.CLIENT)
 public class CustomParticleRegistry {
-    public static final LinkedHashMap<ResourceLocation, List<ResourceLocation>> CUSTOM_PARTICLES_TYPE_NAMES_AND_TEXTURES = new LinkedHashMap<>();
+    public static final LinkedHashMap<Identifier, List<Identifier>> CUSTOM_PARTICLES_TYPE_NAMES_AND_TEXTURES = new LinkedHashMap<>();
     public static final LinkedHashSet<ParticleType<SimpleParticleType>> CUSTOM_PARTICLE_TYPES = new LinkedHashSet<>();
-    public static final LinkedHashSet<ResourceLocation> ALL_TEXTURES = new LinkedHashSet<>();
+    public static final LinkedHashSet<Identifier> ALL_TEXTURES = new LinkedHashSet<>();
     public static File gameDir = FMLPaths.GAMEDIR.get().toFile();
 
     @SubscribeEvent
@@ -53,14 +54,14 @@ public class CustomParticleRegistry {
             return;
         }
         Arrays.stream(files).filter(file -> !file.isDirectory()).forEach(file -> {
-            ResourceLocation particleTypeName = fileToParticleTypeNameResLoc(file);
+            Identifier particleTypeName = fileToParticleTypeNameResLoc(file);
             if (particleTypeName == null) {
                 return;
             }
             if (CUSTOM_PARTICLES_TYPE_NAMES_AND_TEXTURES.containsKey(particleTypeName)) {
                 return;
             }
-            List<ResourceLocation> textureNames = fileToTextureName(files, file);
+            List<Identifier> textureNames = fileToTextureName(files, file);
             CUSTOM_PARTICLES_TYPE_NAMES_AND_TEXTURES.put(particleTypeName, textureNames);
             ALL_TEXTURES.addAll(textureNames);
             ParticleType<SimpleParticleType> particleType = new SimpleParticleType(false);
@@ -72,23 +73,23 @@ public class CustomParticleRegistry {
     public static final String MOD_ID_SPLIT = "~";
     public static final String AGE_SPLIT = "#";
 
-    public static @Nullable ResourceLocation fileToParticleTypeNameResLoc(File file) {
+    public static @Nullable Identifier fileToParticleTypeNameResLoc(File file) {
         String name = file.getName().toLowerCase().replace(".png", "").split(AGE_SPLIT)[0];
         if (!name.contains(MOD_ID_SPLIT)) {
             name = MadParticle.MOD_ID + "~" + name;
         }
         name = name.replace(MOD_ID_SPLIT, ":");
         try {
-            return ResourceLocation.parse(name);
-        } catch (ResourceLocationException ignored) {
+            return Identifier.parse(name);
+        } catch (IdentifierException ignored) {
             LogUtils.getLogger().error("Failed to register particle {}. This is not a valid resource location.", file.getName());
             return null;
         }
     }
 
-    public static List<ResourceLocation> fileToTextureName(File[] allFile, File file) {
+    public static List<Identifier> fileToTextureName(File[] allFile, File file) {
         String key = file.getName().replace(".png", "").split(AGE_SPLIT)[0];
-        List<ResourceLocation> locations = new ArrayList<>();
+        List<Identifier> locations = new ArrayList<>();
         //This will cause an n*n in the worst situation. But it's in the loading stage. Just wait.
         List<File> textures = Arrays.stream(allFile).filter(f -> f.getName().contains(key)).toList();
         if (textures.size() > 1) {
@@ -99,13 +100,13 @@ public class CustomParticleRegistry {
                     LogUtils.getLogger().error("Failed to find texture {}. Check if it is a valid name.", supposedName);
                     continue;
                 }
-                ResourceLocation location = fileToTextureResLoc(optional.get());
+                Identifier location = fileToTextureResLoc(optional.get());
                 if (location != null) {
                     locations.add(location);
                 }
             }
         } else {
-            ResourceLocation location = fileToTextureResLoc(textures.get(0));
+            Identifier location = fileToTextureResLoc(textures.get(0));
             if (location != null) {
                 locations.add(location);
             }
@@ -113,20 +114,20 @@ public class CustomParticleRegistry {
         return locations;
     }
 
-    private static @Nullable ResourceLocation fileToTextureResLoc(File file) {
+    private static @Nullable Identifier fileToTextureResLoc(File file) {
         String s = file.getName().replace(".png", "").replace(MOD_ID_SPLIT, ":").replace(AGE_SPLIT, "__");
         if (!s.contains(":")) {
             s = MadParticle.MOD_ID + ":" + s;
         }
         try {
-            return ResourceLocation.parse(s);
-        } catch (ResourceLocationException ignored) {
+            return Identifier.parse(s);
+        } catch (IdentifierException ignored) {
             LogUtils.getLogger().error("Failed to register texture {}. This is not a valid resource location.", file.getName());
             return null;
         }
     }
 
-    public static String listToJsonString(List<ResourceLocation> locations) {
+    public static String listToJsonString(List<Identifier> locations) {
         StringBuilder builder = new StringBuilder();
         locations.forEach(location -> builder
                 .append("\"")
@@ -137,7 +138,7 @@ public class CustomParticleRegistry {
         return builder.toString();
     }
 
-    public static File textureResLocToFile(ResourceLocation location) throws FileNotFoundException {
+    public static File textureResLocToFile(Identifier location) throws FileNotFoundException {
         String name = location.toString().replace(MadParticle.MOD_ID + ":", "").replace(":", MOD_ID_SPLIT).replace("__", "#") + ".png";
         File file = new File(gameDir, "customparticles/" + name);
         if (!file.exists()) {
@@ -156,9 +157,8 @@ public class CustomParticleRegistry {
         public GeneralNullProvider() {
         }
 
-        @Nullable
         @Override
-        public Particle createParticle(SimpleParticleType pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
+        public @org.jspecify.annotations.Nullable Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel clientLevel, double x, double y, double z, double vx, double vy, double vz, RandomSource randomSource) {
             return null;
         }
     }

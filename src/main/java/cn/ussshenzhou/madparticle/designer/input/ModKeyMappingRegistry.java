@@ -1,11 +1,13 @@
 package cn.ussshenzhou.madparticle.designer.input;
 
+import cn.ussshenzhou.madparticle.MadParticle;
 import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
 import cn.ussshenzhou.madparticle.util.CameraHelper;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
@@ -20,13 +22,16 @@ import org.lwjgl.glfw.GLFW;
  */
 @EventBusSubscriber(value = Dist.CLIENT)
 public class ModKeyMappingRegistry {
+    public static final KeyMapping.Category CATEGORY = new KeyMapping.Category(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, MadParticle.MOD_ID));
+
+
     public static final KeyMapping CALL_OUT_DESIGNER = new KeyMapping(
             "key.mp.call_de", KeyConflictContext.UNIVERSAL, KeyModifier.ALT,
-            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, "key.categories.madparticle"
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, CATEGORY
     );
     public static final KeyMapping CLEAR_DESIGNER = new KeyMapping(
             "key.mp.clear_de", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL,
-            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, "key.categories.madparticle"
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, CATEGORY
     );
 
     @SubscribeEvent

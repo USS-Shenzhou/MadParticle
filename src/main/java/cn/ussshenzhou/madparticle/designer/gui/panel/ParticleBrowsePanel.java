@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 
@@ -28,7 +28,7 @@ public class ParticleBrowsePanel extends TVerticalScrollContainer {
     public ParticleBrowsePanel() {
         VanillaRegistries.createLookup().lookup(BuiltInRegistries.PARTICLE_TYPE.key()).ifPresent(particleTypeRegistryLookup -> {
             particleTypeRegistryLookup.listElements().forEach(particleTypeRef -> {
-                var preview = new ParticlePreview(particleTypeRef.key().location());
+                var preview = new ParticlePreview(particleTypeRef.key().identifier());
                 if (preview.spriteSet != null) {
                     previews.add(preview);
                 }
@@ -75,10 +75,10 @@ public class ParticleBrowsePanel extends TVerticalScrollContainer {
         private int age = 0;
         private static final int LIFE = 20 * 5;
 
-        public ParticlePreview(ResourceLocation particleLocation) {
+        public ParticlePreview(Identifier particleLocation) {
             super(Component.empty());
             this.setTooltip(Tooltip.create(Component.literal(particleLocation.toString())));
-            this.spriteSet = ((ParticleEngineAccessor) Minecraft.getInstance().particleEngine).getSpriteSets().get(particleLocation);
+            this.spriteSet = Minecraft.getInstance().particleEngine.resourceManager.spriteSets.get(particleLocation);
             if (this.spriteSet == null) {
                 this.setText(Component.literal("?"));
             }

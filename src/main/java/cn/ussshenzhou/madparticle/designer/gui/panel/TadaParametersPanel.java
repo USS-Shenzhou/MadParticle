@@ -1,7 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
 import cn.ussshenzhou.madparticle.designer.gui.widegt.SingleVec3EditBox;
-import cn.ussshenzhou.t88.gui.util.AccessorProxy;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
@@ -50,7 +49,7 @@ public class TadaParametersPanel extends ParametersPanel {
         super.setChild(child);
         List.of(xPos, yPos, zPos, vx, vy, vz).forEach(singleVec3EditBox -> {
             singleVec3EditBox.getComponent().setValue(isChild ? "=" : "~");
-            AccessorProxy.EditBoxProxy.setDisplayPos(singleVec3EditBox.getComponent(), 0);
+            //AccessorProxy.EditBoxProxy.setDisplayPos(singleVec3EditBox.getComponent(), 0);
             singleVec3EditBox.getComponent().setEditable(false);
         });
         if (isChild) {

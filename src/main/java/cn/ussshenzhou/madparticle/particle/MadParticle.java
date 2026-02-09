@@ -6,11 +6,11 @@ import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
 import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOverType;
 import cn.ussshenzhou.madparticle.util.AABBHelper;
 import cn.ussshenzhou.madparticle.util.MathHelper;
 import cn.ussshenzhou.madparticle.util.MovementHelper;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.Camera;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
@@ -19,17 +19,14 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Comparator;
 import java.util.List;
@@ -40,7 +37,8 @@ import static cn.ussshenzhou.madparticle.particle.enums.MetaKeys.*;
  * @author USS_Shenzhou
  */
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
-public class MadParticle extends TextureSheetParticle {
+@MethodsReturnNonnullByDefault
+public class MadParticle extends SingleQuadParticle {
     protected final SpriteSet sprites;
     protected final SpriteFrom spriteFrom;
     protected final float beginGravity;
@@ -51,7 +49,7 @@ public class MadParticle extends TextureSheetParticle {
     protected final float afterCollisionGravity;
     protected final boolean interactWithEntity;
     protected final float horizontalInteractFactor, verticalInteractFactor;
-    protected final ParticleRenderType particleRenderType;
+    protected final TakeOverType takeOverType;
     protected final float beginAlpha, endAlpha;
     protected final ChangeMode alphaMode;
     protected final float beginScale, endScale;
@@ -91,7 +89,7 @@ public class MadParticle extends TextureSheetParticle {
                        float friction, float gravity, boolean collision, int bounceTime,
                        float horizontalRelativeCollisionDiffuse, float verticalRelativeCollisionBounce, float afterCollisionFriction, float afterCollisionGravity,
                        boolean interactWithEntity, float horizontalInteractFactor, float verticalInteractFactor,
-                       int lifeTime, ParticleRenderType renderType,
+                       int lifeTime, TakeOverType takeOverType,
                        float r, float g, float b,
                        float beginAlpha, float endAlpha, ChangeMode alphaMode,
                        float beginScale, float endScale, ChangeMode scaleMode,
@@ -101,12 +99,13 @@ public class MadParticle extends TextureSheetParticle {
                        float bloomFactor,
                        CompoundTag meta
     ) {
-        super(pLevel, pX, pY, pZ);
+        super(pLevel, pX, pY, pZ, spriteSet.first());
         this.sprites = spriteSet;
         this.spriteFrom = spriteFrom;
-        switch (spriteFrom) {
-            case AGE -> this.setSpriteFromAge(spriteSet);
-            default -> this.pickSprite(spriteSet);
+        if (spriteFrom == SpriteFrom.AGE) {
+            this.setSpriteFromAge(spriteSet);
+        } else {
+            this.setSprite(spriteSet.get(random));
         }
         this.xd = vx;
         this.yd = vy;
@@ -126,7 +125,7 @@ public class MadParticle extends TextureSheetParticle {
         this.horizontalInteractFactor = horizontalInteractFactor;
         this.verticalInteractFactor = verticalInteractFactor;
         this.lifetime = lifeTime;
-        this.particleRenderType = renderType;
+        this.takeOverType = takeOverType;
         this.rCol = r;
         this.gCol = g;
         this.bCol = b;
@@ -541,11 +540,6 @@ public class MadParticle extends TextureSheetParticle {
         }
     }
 
-    @Override
-    public ParticleRenderType getRenderType() {
-        return particleRenderType;
-    }
-
     public Vec3 getPos() {
         return new Vec3(x, y, z);
     }
@@ -598,23 +592,11 @@ public class MadParticle extends TextureSheetParticle {
         return bloomFactor;
     }
 
-    @Override
-    public void render(VertexConsumer pBuffer, Camera pRenderInfo, float pPartialTicks) {
-        if (particleRenderType == ModParticleRenderTypes.INSTANCED) {
-            throw new UnsupportedOperationException();
-        } else {
-            super.render(pBuffer, pRenderInfo, pPartialTicks);
-        }
-
-    }
-
-    @Override
-    public int getLightColor(float pPartialTick) {
-        int l = super.getLightColor(pPartialTick);
+    public int getLightColorOverride(int packedLight) {
         if (light == null) {
-            return l;
+            return packedLight;
         } else {
-            return l & 0b1111_0000_00000000_0000_0000 | ((int) MathHelper.getFromT((float) age / lifetime, light) << 4);
+            return packedLight & 0b1111_0000_00000000_1111_0000 | ((int) MathHelper.getFromT((float) age / lifetime, light) << 4);
         }
     }
 
@@ -644,6 +626,29 @@ public class MadParticle extends TextureSheetParticle {
         return timeMode == TimeMode.NORMAL;
     }
 
+    /**
+     * For vanilla batched rendering
+     */
+    @Override
+    protected Layer getLayer() {
+        return takeOverType.getLayer();
+    }
+
+    /**
+     * For madparticle
+     */
+    public TakeOverType getTakeOverType() {
+        return takeOverType;
+    }
+
+    /**
+     * For particle engine
+     */
+    @Override
+    public ParticleRenderType getGroup() {
+        return takeOverType.getParticleRenderType();
+    }
+
     public enum TimeMode {
         NORMAL,
         PRE_CAL,
@@ -659,22 +664,21 @@ public class MadParticle extends TextureSheetParticle {
         public Provider() {
         }
 
-        @Nullable
         @Override
-        public Particle createParticle(MadParticleOption op, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
+        public @org.jspecify.annotations.Nullable Particle createParticle(MadParticleOption op, ClientLevel clientLevel, double x, double y, double z, double vx, double vy, double vz, RandomSource randomSource) {
             int target = op.targetParticle();
             //see ClientboundLevelParticlesPacket
             ParticleType<?> particleType = BuiltInRegistries.PARTICLE_TYPE.byId(target);
             if (particleType != null) {
-                ParticleEngineAccessor particleEngineAccessor = (ParticleEngineAccessor) Minecraft.getInstance().particleEngine;
-                SpriteSet spriteSet = particleEngineAccessor.getSpriteSets().get(BuiltInRegistries.PARTICLE_TYPE.getKey(particleType));
+                var engine = Minecraft.getInstance().particleEngine;
+                SpriteSet spriteSet = engine.resourceManager.spriteSets.get(BuiltInRegistries.PARTICLE_TYPE.getKey(particleType));
                 if (spriteSet != null) {
-                    return new MadParticle(pLevel, spriteSet, op.spriteFrom(),
-                            pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed,
+                    return new MadParticle(clientLevel, spriteSet, op.spriteFrom(),
+                            x, y, z, vx, vy, vz,
                             op.friction(), op.gravity(), op.collision().get(), op.bounceTime(),
                             op.horizontalRelativeCollisionDiffuse(), op.verticalRelativeCollisionBounce(), op.afterCollisionFriction(), op.afterCollisionGravity(),
                             op.interactWithEntity().get(), op.horizontalInteractFactor(), op.verticalInteractFactor(),
-                            op.lifeTime(), ParticleRenderTypesProxy.getType(op.renderType()),
+                            op.lifeTime(), op.takeOverType(),
                             op.r(), op.g(), op.b(),
                             op.beginAlpha(), op.endAlpha(), op.alphaMode(),
                             op.beginScale(), op.endScale(), op.scaleMode(),

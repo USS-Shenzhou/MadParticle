@@ -5,11 +5,10 @@ import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.*;
 import com.mojang.blaze3d.shaders.UniformType;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * @author USS_Shenzhou
@@ -20,7 +19,7 @@ public class ModRenderPipelines {
             .build();
 
     public static final RenderPipeline.Snippet INSTANCED_SNIPPET = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
-            .withVertexShader(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle"))
+            .withVertexShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle"))
             .withVertexFormat(INSTANCED_VERTEX_FORMAT, VertexFormat.Mode.QUADS)
             .withSampler("Sampler0")
             .withSampler("Sampler2")
@@ -32,8 +31,8 @@ public class ModRenderPipelines {
 
     public static final RenderPipeline INSTANCED_COMMON_DEPTH = RenderPipelines.register(
             RenderPipeline.builder(INSTANCED_SNIPPET)
-                    .withLocation(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
-                    .withFragmentShader(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_common"))
+                    .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
+                    .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_common"))
                     .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
                     .withBlend(BlendFunction.TRANSLUCENT)
                     .withColorWrite(true, true)
@@ -43,8 +42,8 @@ public class ModRenderPipelines {
 
     public static final RenderPipeline INSTANCED_COMMON_BLEND = RenderPipelines.register(
             RenderPipeline.builder(INSTANCED_SNIPPET)
-                    .withLocation(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
-                    .withFragmentShader(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_common"))
+                    .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
+                    .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_common"))
                     .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
                     .withBlend(BlendFunction.TRANSLUCENT)
                     .withColorWrite(true, true)
@@ -54,8 +53,8 @@ public class ModRenderPipelines {
 
     public static final RenderPipeline INSTANCED_OIT = RenderPipelines.register(
             RenderPipeline.builder(INSTANCED_SNIPPET)
-                    .withLocation(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
-                    .withFragmentShader(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"))
+                    .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
+                    .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"))
                     .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
                     .withBlend(BlendFunction.ADDITIVE)
                     .withColorWrite(true, true)
@@ -66,8 +65,8 @@ public class ModRenderPipelines {
     //TODO
     /*public static final RenderPipeline INSTANCED_OIT_POST = RenderPipelines.register(
             RenderPipeline.builder(RenderPipelines.MATRICES_COLOR_FOG_SNIPPET)
-                    .withLocation(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
-                    .withFragmentShader(ResourceLocation.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"))
+                    .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
+                    .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"))
                     .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
                     .withBlend(BlendFunction.ADDITIVE)
                     .withColorWrite(true, true)

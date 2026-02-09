@@ -5,7 +5,7 @@ import cn.ussshenzhou.madparticle.network.MadParticlePacket;
 import cn.ussshenzhou.madparticle.network.MadParticleTadaPacket;
 import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
-import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOverType;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
 import cn.ussshenzhou.madparticle.particle.enums.MetaKeys;
 import cn.ussshenzhou.t88.T88;
@@ -17,7 +17,6 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.CompoundTagArgument;
@@ -33,15 +32,16 @@ import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.ClientCommandHandler;
 import net.neoforged.neoforge.server.command.EnumArgument;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author USS_Shenzhou
@@ -52,9 +52,9 @@ public class MadParticleCommand {
     public MadParticleCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("madparticle")
-                        .requires(commandSourceStack -> commandSourceStack.hasPermission(2))
+                        .requires(commandSourceStack -> commandSourceStack.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                         .redirect(dispatcher.register(Commands.literal("mp")
-                                        .requires(commandSourceStack -> commandSourceStack.hasPermission(2))
+                                        .requires(commandSourceStack -> commandSourceStack.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                                         .then(Commands.argument("targetParticle", ParticleArgument.particle(Commands.createValidationContext(VanillaRegistries.createLookup())))
                                                 .then(Commands.argument("spriteFrom", EnumArgument.enumArgument(SpriteFrom.class))
                                                         .then(Commands.argument("lifeTime", new InheritableIntegerArgument(0, Integer.MAX_VALUE, COMMAND_LENGTH))
@@ -80,7 +80,7 @@ public class MadParticleCommand {
                                                                                                                                                                                                                         .then(Commands.argument("interactWithEntity", EnumArgument.enumArgument(InheritableBoolean.class))
                                                                                                                                                                                                                                 .then(Commands.argument("horizontalInteractFactor", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
                                                                                                                                                                                                                                         .then(Commands.argument("verticalInteractFactor", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
-                                                                                                                                                                                                                                                .then(Commands.argument("renderType", EnumArgument.enumArgument(ParticleRenderTypes.class))
+                                                                                                                                                                                                                                                .then(Commands.argument("takeOverType", EnumArgument.enumArgument(TakeOverType.class))
                                                                                                                                                                                                                                                         .then(Commands.argument("r", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
                                                                                                                                                                                                                                                                 .then(Commands.argument("g", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
                                                                                                                                                                                                                                                                         .then(Commands.argument("b", InheritableFloatArgument.inheritableFloat(COMMAND_LENGTH))
@@ -231,7 +231,7 @@ public class MadParticleCommand {
                 ct.getArgument("interactWithEntity", InheritableBoolean.class),
                 ct.getArgument("horizontalInteractFactor", Float.class),
                 ct.getArgument("verticalInteractFactor", Float.class),
-                ct.getArgument("renderType", ParticleRenderTypes.class),
+                ct.getArgument("takeOverType", TakeOverType.class),
                 ct.getArgument("r", Float.class), ct.getArgument("g", Float.class), ct.getArgument("b", Float.class),
                 ct.getArgument("beginAlpha", Float.class),
                 ct.getArgument("endAlpha", Float.class),
@@ -268,7 +268,7 @@ public class MadParticleCommand {
             boolean canIndex = meta.getBooleanOr(MetaKeys.INDEXED.get(), false);
             var player = sourceStack.getPlayer();
             if (player != null && !T88.TEST) {
-                canIndex &= player.getServer() instanceof DedicatedServer;
+                canIndex &= FMLEnvironment.getDist() == Dist.DEDICATED_SERVER;
             }
             if (canIndex) {
                 IndexedCommandManager.serverPreform(ctPre, playerList, commandString);

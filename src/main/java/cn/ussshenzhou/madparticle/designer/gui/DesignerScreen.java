@@ -5,9 +5,12 @@ import cn.ussshenzhou.madparticle.designer.gui.panel.SettingPanel;
 import cn.ussshenzhou.madparticle.util.CameraHelper;
 import cn.ussshenzhou.t88.gui.container.TTabPageContainer;
 import cn.ussshenzhou.t88.gui.screen.TScreen;
+import cn.ussshenzhou.t88.gui.util.RecordHelper;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
@@ -74,12 +77,12 @@ public class DesignerScreen extends TScreen {
     }
 
     @Override
-    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
-        if (pKeyCode == 256 && this.shouldCloseOnEsc()) {
+    public boolean keyPressed(KeyEvent event) {
+        if (event.key() == 256 && this.shouldCloseOnEsc()) {
             this.onClose(false);
             return true;
         } else {
-            return this.getFocused() != null && this.getFocused().keyPressed(pKeyCode, pScanCode, pModifiers);
+            return this.getFocused() != null && this.getFocused().keyPressed(event);
         }
     }
 
@@ -101,38 +104,38 @@ public class DesignerScreen extends TScreen {
     }
 
     @Override
-    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         var mc = Minecraft.getInstance();
         if (mc.mouseHandler.mouseGrabbed) {
             var x = mc.getWindow().getScreenWidth() / 2;
             var y = mc.getWindow().getScreenHeight() / 2;
-            return super.mouseClicked(x, y, pButton);
+            return super.mouseClicked(RecordHelper.reset(event, x, y), doubleClick);
         } else {
-            return super.mouseClicked(pMouseX, pMouseY, pButton);
+            return super.mouseClicked(event, doubleClick);
         }
     }
 
     @Override
-    public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         var mc = Minecraft.getInstance();
         if (mc.mouseHandler.mouseGrabbed) {
             var x = mc.getWindow().getScreenWidth() / 2;
             var y = mc.getWindow().getScreenHeight() / 2;
-            return super.mouseReleased(x, y, pButton);
+            return super.mouseReleased(RecordHelper.reset(event, x, y));
         } else {
-            return super.mouseReleased(pMouseX, pMouseY, pButton);
+            return super.mouseReleased(event);
         }
     }
 
     @Override
-    public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         var mc = Minecraft.getInstance();
         if (mc.mouseHandler.mouseGrabbed) {
             var x = mc.getWindow().getScreenWidth() / 2;
             var y = mc.getWindow().getScreenHeight() / 2;
-            return super.mouseDragged(x, y, pButton, pDragX, pDragY);
+            return super.mouseDragged(RecordHelper.reset(event, x, y), dx, dy);
         } else {
-            return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+            return super.mouseDragged(event, dx, dy);
         }
     }
 

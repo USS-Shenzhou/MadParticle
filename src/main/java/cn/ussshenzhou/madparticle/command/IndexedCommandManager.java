@@ -34,18 +34,16 @@ public class IndexedCommandManager {
     }
 
     public static void serverPreform(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> players, String command) {
-        int index;
-        if (INDEXED_COMMANDS.containsValue(command)) {
-            index = INDEXED_COMMANDS.inverse().get(command);
-        } else {
+        int index = INDEXED_COMMANDS.inverse().computeIfAbsent(command, _ -> {
+            int candidate;
             do {
-                index = randomIndex();
-            } while (INDEXED_COMMANDS.containsKey(index));
-            INDEXED_COMMANDS.put(index, command);
-        }
+                candidate = randomIndex();
+                // Relies on synchronized lock reentrancy.
+            } while (INDEXED_COMMANDS.containsKey(candidate));
+            return candidate;
+        });
         var pos = context.getSource().getPosition();
-        int finalIndex = index;
-        players.forEach(player -> NetworkHelper.sendToPlayer(player, new IndexedCommandPacket((float) pos.x, (float) pos.y, (float) pos.z, finalIndex)));
+        players.forEach(player -> NetworkHelper.sendToPlayer(player, new IndexedCommandPacket((float) pos.x, (float) pos.y, (float) pos.z, index)));
     }
 
     private static int randomIndex() {

@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'idea'
-    id 'net.neoforged.moddev' version '2.0.107'
+    id 'net.neoforged.moddev' version '2.0.137'
 }
 
 version = mod_version
@@ -26,7 +26,7 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 neoForge {
     // Specify the version of NeoForge to use.
@@ -121,30 +121,15 @@ dependencies {
     // You can however also use the vanilla plugin (net.neoforged.gradle.vanilla) to use a version of Minecraft without the neoforge loader.
     // And its provides the option to then use net.minecraft as the group, and one of; client, server or joined as the module name, plus the game version as version.
     // For all intends and purposes: You can treat this dependency as if it is a normal library you would use.
-    implementation "net.neoforged:neoforge:${neo_version}"
 
     // https://mvnrepository.com/artifact/net.objecthunter/exp4j
-    additionalRuntimeClasspath group: 'net.objecthunter', name: 'exp4j', version: '[0.4,0.5)'
     implementation group: 'net.objecthunter', name: 'exp4j', version: '[0.4,0.5)'
     jarJar(group: 'net.objecthunter', name: 'exp4j', version: '[0.4,0.5)')
 
 
     //implementation fg.deobf("curse.maven:shimmer-627824:4676467")
     //if (System.getProperty("idea.active")) {
-    implementation("cn.ussshenzhou:t88:0.+") {
-        exclude group: "curse.maven", module: "irisshaders-455508"
-        exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-renderer-api-v1"
-        exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-api-base"
-        exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-rendering-data-attachment-v1"
-        exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-block-view-api-v2"
-    }
-    annotationProcessor("cn.ussshenzhou:t88:0.+") {
-        exclude group: "curse.maven", module: "irisshaders-455508"
-        exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-renderer-api-v1"
-        exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-api-base"
-        exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-rendering-data-attachment-v1"
-        exclude group: "org.sinytra.forgified-fabric-api", module: "fabric-block-view-api-v2"
-    }
+    implementation(annotationProcessor("cn.ussshenzhou:t88:26.+"))
     //} else {
     //    def t88FileId = '5745052'
     //    implementation('curse.maven:t88-663112:' + t88FileId) {

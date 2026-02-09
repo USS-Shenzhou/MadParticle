@@ -2,9 +2,10 @@ package cn.ussshenzhou.madparticle.item;
 
 import cn.ussshenzhou.madparticle.item.component.ModDataComponent;
 import cn.ussshenzhou.madparticle.item.component.TadaComponent;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -48,7 +49,7 @@ public class Tada extends Item {
 
     @Override
     public void onUseTick(Level pLevel, LivingEntity pLivingEntity, ItemStack stack, int pRemainingUseDuration) {
-        if (!pLevel.isClientSide) {
+        if (!pLevel.isClientSide()) {
             var data = stack.getOrDefault(ModDataComponent.TADA_COMPONENT, TadaComponent.defaultValue());
             var command = data.command();
             if (data.pulse()) {
@@ -65,13 +66,13 @@ public class Tada extends Item {
 
     @Override
     public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
-        if (!entity.level().isClientSide) {
+        if (!entity.level().isClientSide()) {
             stack.getOrDefault(ModDataComponent.TADA_COMPONENT, TadaComponent.defaultValue()).setByName(stack, USED, false);
         }
     }
 
     private void performCommand(Level pLevel, LivingEntity pLivingEntity, String command) {
-        pLevel.getServer().getCommands().performPrefixedCommand(pLivingEntity.createCommandSourceStackForNameResolution((ServerLevel) pLevel).withPermission(2), command);
+        pLevel.getServer().getCommands().performPrefixedCommand(pLivingEntity.createCommandSourceStackForNameResolution((ServerLevel) pLevel).withPermission(LevelBasedPermissionSet.GAMEMASTER), command);
     }
 
     @Override

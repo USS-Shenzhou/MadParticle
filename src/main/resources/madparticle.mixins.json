@@ -13,16 +13,17 @@
   ],
   "client": [
     "AbstractCommandBlockEditScreenMixin",
+    "ClientLevelMixin",
     "EditBoxAccessor",
     "LevelRendererMixin",
-    "ParticleAccessor",
     "ParticleEngineAccessor",
     "ParticleEngineMixin",
     "ParticleMixin",
     "SuspendedParticleMixin",
-    "TextureManagerAccessor"
+    "TextureManagerAccessor",
+    "ParticleGroupMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-	}
+  }
 }

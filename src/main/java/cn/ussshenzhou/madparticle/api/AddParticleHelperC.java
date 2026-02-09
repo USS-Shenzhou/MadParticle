@@ -5,18 +5,18 @@ import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.particle.MadParticleOption;
 import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
-import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOverType;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.LinkedList;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 import static cn.ussshenzhou.madparticle.api.AddParticleHelperS.*;
@@ -65,7 +65,7 @@ public class AddParticleHelperC {
                                          float afterCollisionFriction, float afterCollisionGravity,
                                          InheritableBoolean interactWithEntity,
                                          float horizontalInteractFactor, float verticalInteractFactor,
-                                         ParticleRenderTypes renderType, float r, float g, float b,
+                                         TakeOverType renderType, float r, float g, float b,
                                          float beginAlpha, float endAlpha, ChangeMode alphaMode,
                                          float beginScale, float endScale, ChangeMode scaleMode,
                                          boolean haveChild, MadParticleOption child,
@@ -114,7 +114,7 @@ public class AddParticleHelperC {
             var particleEngine = mc.particleEngine;
             var level = mc.level;
             var accessor = (ParticleEngineAccessor) particleEngine;
-            var providers = accessor.getProviders();
+            var providers = particleEngine.resourceManager.getProviders();
             int particlesCanAdd = ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue - accessor.getParticlesToAdd().size();
             //noinspection unchecked
             var provider = ((ParticleProvider<MadParticleOption>) providers.get(BuiltInRegistries.PARTICLE_TYPE.getKey(option.getType())));
@@ -125,11 +125,11 @@ public class AddParticleHelperC {
                 double z = fromValueAndDiffuse(option.pz(), option.zDiffuse());
                 if (option.alwaysRender().get()) {
                     if (ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance) {
-                        if (mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z) > getMaxParticleGenerateDistanceSqr()) {
+                        if (mc.gameRenderer.getMainCamera().position().distanceToSqr(x, y, z) > getMaxParticleGenerateDistanceSqr()) {
                             continue;
                         }
                     }
-                } else if (mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z) > getNormalParticleGenerateDistanceSqr()) {
+                } else if (mc.gameRenderer.getMainCamera().position().distanceToSqr(x, y, z) > getNormalParticleGenerateDistanceSqr()) {
                     continue;
                 }
                 //noinspection DataFlowIssue
@@ -137,7 +137,8 @@ public class AddParticleHelperC {
                         provider.createParticle(option, level, x, y, z,
                                 fromValueAndDiffuse(option.vx(), option.vxDiffuse()),
                                 fromValueAndDiffuse(option.vy(), option.vyDiffuse()),
-                                fromValueAndDiffuse(option.vz(), option.vzDiffuse())
+                                fromValueAndDiffuse(option.vz(), option.vzDiffuse()),
+                                particleEngine.random
                         )
                 );
             }
@@ -150,7 +151,7 @@ public class AddParticleHelperC {
             var particleEngine = mc.particleEngine;
             var level = mc.level;
             var accessor = (ParticleEngineAccessor) particleEngine;
-            var providers = accessor.getProviders();
+            var providers = particleEngine.resourceManager.getProviders();
             int particlesCanAdd = ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue - accessor.getParticlesToAdd().size();
             //noinspection unchecked
             var provider = ((ParticleProvider<MadParticleOption>) providers.get(BuiltInRegistries.PARTICLE_TYPE.getKey(option.getType())));
@@ -161,25 +162,36 @@ public class AddParticleHelperC {
                 double z = fromValueAndDiffuse(option.pz(), option.zDiffuse());
                 if (option.alwaysRender().get()) {
                     if (ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance) {
-                        if (mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z) > getMaxParticleGenerateDistanceSqr()) {
+                        if (mc.gameRenderer.getMainCamera().position().distanceToSqr(x, y, z) > getMaxParticleGenerateDistanceSqr()) {
                             continue;
                         }
                     }
-                } else if (mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(x, y, z) > getNormalParticleGenerateDistanceSqr()) {
+                } else if (mc.gameRenderer.getMainCamera().position().distanceToSqr(x, y, z) > getNormalParticleGenerateDistanceSqr()) {
                     continue;
                 }
                 var p = provider.createParticle(option, level, x, y, z,
                         fromValueAndDiffuse(option.vx(), option.vxDiffuse()),
                         fromValueAndDiffuse(option.vy(), option.vyDiffuse()),
-                        fromValueAndDiffuse(option.vz(), option.vzDiffuse())
+                        fromValueAndDiffuse(option.vz(), option.vzDiffuse()),
+                        particleEngine.random
                 );
                 if (p == null) {
                     continue;
                 }
-                p.roll = p.oRoll = roll;
+                if (p instanceof SingleQuadParticle singleQuadParticle){
+                    singleQuadParticle.roll = singleQuadParticle.oRoll = roll;
+                }
                 particles.add(p);
             }
             particleEngine.particlesToAdd.addAll(particles);
         });
+    }
+
+    public static int getMaxParticleGenerateDistanceSqr() {
+        return 16 * 2 * Minecraft.getInstance().options.renderDistance.get() * 16 * 2 * Minecraft.getInstance().options.renderDistance.get();
+    }
+
+    public static int getNormalParticleGenerateDistanceSqr() {
+        return 16 / 2 * Minecraft.getInstance().options.renderDistance.get() * 16 / 2 * Minecraft.getInstance().options.renderDistance.get();
     }
 }

@@ -5,6 +5,8 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.server.permissions.Permissions;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,7 +32,7 @@ public class CommandsMixin {
         if (pCommand.startsWith("mp ")
                 //execute ... mp ...
                 || pCommand.contains(" mp ")) {
-            if (pSource.hasPermission(2)){
+            if (pSource.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)){
                 Thread.startVirtualThread(() -> MadParticleCommand.fastSend(pCommand, pSource, dispatcher));
             }
             ci.cancel();

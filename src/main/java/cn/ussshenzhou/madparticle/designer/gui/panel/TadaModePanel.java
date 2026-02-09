@@ -200,7 +200,7 @@ public class TadaModePanel /*extends HelperModePanel*/ {
             CommandContext<CommandSourceStack> ct = parseResults.getContext().build(s);
             getArgAndSelect(panel.spriteFrom, "spriteFrom", SpriteFrom.class, ct);
             getArgAndSelect(panel.alwaysRender, "alwaysRender", InheritableBoolean.class, ct);
-            getArgAndSelect(panel.renderType, "renderType", ParticleRenderTypes.class, ct);
+            getArgAndSelect(panel.takeOverType, "takeOverType", ParticleRenderTypes.class, ct);
             getArgAndSelect(panel.interact, "interactWithEntity", InheritableBoolean.class, ct);
             getArgAndSelect(panel.collision, "collision", InheritableBoolean.class, ct);
             getArgAndSelect(panel.alpha, "alphaMode", ChangeMode.class, ct);

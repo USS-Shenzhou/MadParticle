@@ -2,7 +2,7 @@ package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
 import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
-import cn.ussshenzhou.madparticle.particle.enums.ParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOverType;
 import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
 import cn.ussshenzhou.madparticle.particle.enums.MetaKeys;
 import com.mojang.serialization.MapCodec;
@@ -27,7 +27,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                                 float afterCollisionFriction, float afterCollisionGravity,
                                 InheritableBoolean interactWithEntity,
                                 float horizontalInteractFactor, float verticalInteractFactor,
-                                ParticleRenderTypes renderType, float r, float g, float b,
+                                TakeOverType takeOverType, float r, float g, float b,
                                 float beginAlpha, float endAlpha, ChangeMode alphaMode,
                                 float beginScale, float endScale, ChangeMode scaleMode,
                                 boolean haveChild, MadParticleOption child,
@@ -68,7 +68,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
         float afterCollisionGravity = Float.float16ToFloat(buf.readShort());
         InheritableBoolean interactWithEntity = buf.readEnum(InheritableBoolean.class);
         float horizontalInteractFactor = Float.float16ToFloat(buf.readShort()), verticalInteractFactor = Float.float16ToFloat(buf.readShort());
-        ParticleRenderTypes renderType = buf.readEnum(ParticleRenderTypes.class);
+        TakeOverType renderType = buf.readEnum(TakeOverType.class);
         float r = Float.float16ToFloat(buf.readShort()), g = Float.float16ToFloat(buf.readShort()), b = Float.float16ToFloat(buf.readShort());
         float beginAlpha = Float.float16ToFloat(buf.readShort()), endAlpha = Float.float16ToFloat(buf.readShort());
         ChangeMode alphaMode = buf.readEnum(ChangeMode.class);
@@ -114,7 +114,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
         float afterCollisionGravity = buf.readFloat();
         InheritableBoolean interactWithEntity = buf.readEnum(InheritableBoolean.class);
         float horizontalInteractFactor = buf.readFloat(), verticalInteractFactor = buf.readFloat();
-        ParticleRenderTypes renderType = buf.readEnum(ParticleRenderTypes.class);
+        TakeOverType renderType = buf.readEnum(TakeOverType.class);
         float r = buf.readFloat(), g = buf.readFloat(), b = buf.readFloat();
         float beginAlpha = buf.readFloat(), endAlpha = buf.readFloat();
         ChangeMode alphaMode = buf.readEnum(ChangeMode.class);
@@ -181,7 +181,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
         buf.writeEnum(interactWithEntity);
         buf.writeShort(Float.floatToFloat16(horizontalInteractFactor));
         buf.writeShort(Float.floatToFloat16(verticalInteractFactor));
-        buf.writeEnum(renderType);
+        buf.writeEnum(takeOverType);
         buf.writeShort(Float.floatToFloat16(r));
         buf.writeShort(Float.floatToFloat16(g));
         buf.writeShort(Float.floatToFloat16(b));
@@ -233,7 +233,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
         buf.writeEnum(interactWithEntity);
         buf.writeFloat(horizontalInteractFactor);
         buf.writeFloat(verticalInteractFactor);
-        buf.writeEnum(renderType);
+        buf.writeEnum(takeOverType);
         buf.writeFloat(r);
         buf.writeFloat(g);
         buf.writeFloat(b);
@@ -266,7 +266,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                 px, py, pz, xDiffuse, yDiffuse, zDiffuse, vx, vy, vz, vxDiffuse, vyDiffuse, vzDiffuse,
                 friction, gravity, collision, bounceTime, horizontalRelativeCollisionDiffuse, verticalRelativeCollisionBounce, afterCollisionFriction, afterCollisionGravity,
                 interactWithEntity, horizontalInteractFactor, verticalInteractFactor,
-                renderType, r, g, b, beginAlpha, endAlpha, alphaMode, beginScale, endScale, scaleMode,
+                takeOverType, r, g, b, beginAlpha, endAlpha, alphaMode, beginScale, endScale, scaleMode,
                 haveChild, child);
     }*/
 
@@ -298,7 +298,7 @@ public record MadParticleOption(int targetParticle, SpriteFrom spriteFrom, int l
                 interactWithEntity == InheritableBoolean.INHERIT ? InheritableBoolean.wrap(fatherParticle.interactWithEntity) : interactWithEntity,
                 isInherited(horizontalInteractFactor) ? fatherParticle.horizontalInteractFactor : horizontalInteractFactor,
                 isInherited(verticalInteractFactor) ? fatherParticle.verticalInteractFactor : verticalInteractFactor,
-                renderType,
+                takeOverType,
                 isInherited(r) ? fatherParticle.getColor().x() : r,
                 isInherited(g) ? fatherParticle.getColor().y() : g,
                 isInherited(b) ? fatherParticle.getColor().z() : b,

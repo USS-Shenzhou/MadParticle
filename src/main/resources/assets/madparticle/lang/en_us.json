@@ -35,6 +35,7 @@
   "gui.mp.de.helper.render_type.opaque": "Opaque",
   "gui.mp.de.helper.render_type.lit": "§eLit",
   "gui.mp.de.helper.render_type.translucent": "Translucent",
+  "gui.mp.de.helper.render_type.default": "Default",
 
   "gui.mp.de.helper.render_type.instanced": "§aInstanced",
   "gui.mp.de.helper.render_type.vanilla_terrain": "§eVanilla Terrain",

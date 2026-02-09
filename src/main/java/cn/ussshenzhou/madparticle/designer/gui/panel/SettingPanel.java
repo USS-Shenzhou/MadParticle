@@ -20,6 +20,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
+import java.util.Queue;
 
 /**
  * @author USS_Shenzhou
@@ -28,6 +29,7 @@ public class SettingPanel extends TOptionsPanel {
     TLabel ramUsage;
     public static boolean debugNonIndexed = false;
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public SettingPanel() {
         addOptionSplitter(Component.translatable("gui.mp.de.setting.universal"));
         addOptionSliderDoubleInit(Component.translatable("gui.mp.de.setting.amount"),
@@ -38,11 +40,11 @@ public class SettingPanel extends TOptionsPanel {
                 (s, d) -> {
                     int newAmount = (int) s.relToAbsValueLinear(d);
                     ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.maxParticleAmountOfSingleQueue = newAmount);
-                    var particles = ((ParticleEngineAccessor) (Minecraft.getInstance().particleEngine)).getParticles();
-                    particles.forEach((particleRenderType, p) -> {
+                    var particleGroups = Minecraft.getInstance().particleEngine.particles;
+                    particleGroups.forEach((_, particleGroup) -> {
                         MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> newQueue = new MultiThreadedEqualObjectLinkedOpenHashSetQueue<>(newAmount);
-                        newQueue.addAll(p);
-                        particles.put(particleRenderType, newQueue);
+                        newQueue.addAll(particleGroup.particles);
+                        particleGroup.particles = (Queue) newQueue;
                     });
                 }, getConfigRead().maxParticleAmountOfSingleQueue, false);
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.real_force"),

@@ -1,46 +1,5 @@
 package cn.ussshenzhou.madparticle.particle.optimize;
 
-import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.madparticle.particle.MadParticle;
-import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
-import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
-import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
-import cn.ussshenzhou.madparticle.util.LightCache;
-import cn.ussshenzhou.t88.T88;
-import cn.ussshenzhou.t88.config.ConfigHelper;
-import cn.ussshenzhou.t88.gui.event.ResizeHudEvent;
-import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.logging.LogUtils;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.TextureSheetParticle;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.Mth;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import org.lwjgl.system.MemoryUtil;
-
-import java.lang.reflect.Field;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
-
-import static cn.ussshenzhou.madparticle.MadParticle.irisOn;
-import static org.lwjgl.opengl.GL33C.*;
-
 /**
  * @author USS_Shenzhou
  */
@@ -68,7 +27,7 @@ public class InstancedRenderManager {
 
     private static int threads = ConfigHelper.getConfigRead(MadParticleConfig.class).getBufferFillerThreads();
     @SuppressWarnings("unchecked")
-    private static LinkedHashSet<TextureSheetParticle>[] PARTICLES = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(32768)).limit(threads).toArray(LinkedHashSet[]::new);
+    private static LinkedHashSet<SingleQuadParticle>[] PARTICLES = Stream.generate(() -> Sets.newLinkedHashSetWithExpectedSize(32768)).limit(threads).toArray(LinkedHashSet[]::new);
     private static Executor fixedThreadPool = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat("MadParticle-InstancedRender-Thread-%d").build());
     private static final LightCache LIGHT_CACHE = new LightCache();
     private static boolean forceMaxLight = false;
@@ -153,8 +112,8 @@ public class InstancedRenderManager {
         return threads;
     }
 
-    private static HashSet<TextureSheetParticle> findSmallestSet() {
-        HashSet<TextureSheetParticle> r = PARTICLES[0];
+    private static HashSet<SingleQuadParticle> findSmallestSet() {
+        HashSet<SingleQuadParticle> r = PARTICLES[0];
         int minSize = r.size();
         for (int i = 1; i < threads; i++) {
             if (PARTICLES[i].size() < minSize) {
@@ -165,16 +124,16 @@ public class InstancedRenderManager {
         return r;
     }
 
-    public static void add(TextureSheetParticle particle) {
+    public static void add(SingleQuadParticle particle) {
         findSmallestSet().add(particle);
     }
 
     public static void reload(Collection<Particle> particles) {
         clear();
-        particles.forEach(p -> add((TextureSheetParticle) p));
+        particles.forEach(p -> add((SingleQuadParticle) p));
     }
 
-    public static void remove(TextureSheetParticle particle) {
+    public static void remove(SingleQuadParticle particle) {
         for (int i = 0; i < threads; i++) {
             if (PARTICLES[i].remove(particle)) {
                 break;
@@ -276,10 +235,10 @@ public class InstancedRenderManager {
         CompletableFuture.allOf(futures).join();
     }
 
-    private static void renderGroup(LinkedHashSet<TextureSheetParticle> set, int index,
+    private static void renderGroup(LinkedHashSet<SingleQuadParticle> set, int index,
                                     long buffer0, long buffer1, float partialTicks, Frustum clippingHelper) {
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
-        for (TextureSheetParticle particle : set) {
+        for (SingleQuadParticle particle : set) {
             fillBuffer(buffer0, buffer1, particle, index, partialTicks, simpleBlockPosSingle);
             index++;
         }
@@ -288,7 +247,7 @@ public class InstancedRenderManager {
     public static int renderSync(long buffer0, long buffer1, Camera camera, float partialTicks, Frustum clippingHelper) {
         var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
         int index = 0;
-        for (TextureSheetParticle particle : PARTICLES[0]) {
+        for (SingleQuadParticle particle : PARTICLES[0]) {
             if (clippingHelper != null && !clippingHelper.isVisible(particle.getRenderBoundingBox(partialTicks)) && !clippingHelper.isVisible(particle.getBoundingBox())) {
                 continue;
             }
@@ -327,7 +286,7 @@ public class InstancedRenderManager {
 
     @SuppressWarnings("PointlessArithmeticExpression")
     public static void fillBuffer(long buffer0, long buffer1,
-                                  TextureSheetParticle particle, int index, float partialTicks,
+                                  SingleQuadParticle particle, int index, float partialTicks,
                                   SimpleBlockPos simpleBlockPosSingle) {
         long start = buffer0 + (long) index * INSTANCE0_SIZE;
         //xyz roll

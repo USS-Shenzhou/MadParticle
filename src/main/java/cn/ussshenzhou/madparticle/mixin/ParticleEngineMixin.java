@@ -1,6 +1,5 @@
 package cn.ussshenzhou.madparticle.mixin;
 
-import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.mixinproxy.ParticleEngineMixinProxy;
 import cn.ussshenzhou.madparticle.particle.*;
 import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
@@ -11,6 +10,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.ParticleResources;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -36,31 +36,18 @@ public class ParticleEngineMixin {
     public Queue<Particle> particlesToAdd;
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
-    private void madparticleMakeBufferAsync(ClientLevel pLevel, TextureManager pTextureManager, CallbackInfo ci) {
+    private void madparticleMakeBufferAsync(ClientLevel level, ParticleResources resourceManager, CallbackInfo ci) {
         particlesToAdd = new ConcurrentLinkedDeque<>();
     }
 
-    @WrapWithCondition(
-            method = "render(Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/culling/Frustum;Ljava/util/function/Predicate;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/particle/ParticleEngine;renderParticleType(Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/particle/ParticleRenderType;Ljava/util/Queue;Lnet/minecraft/client/renderer/culling/Frustum;)V")
-    )
-    private boolean madparticleSkipInstancedRender(Camera camera, float partialTick, MultiBufferSource.BufferSource bufferSource, ParticleRenderType particleType, Queue<Particle> particles, @Nullable Frustum frustum) {
-        return particleType != ModParticleRenderTypes.INSTANCED && particleType != ModParticleRenderTypes.INSTANCED_TERRAIN;
-    }
-
-    @Inject(method = "render(Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/culling/Frustum;Ljava/util/function/Predicate;)V",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/particle/ParticleEngine;renderParticleType(Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/particle/ParticleRenderType;Ljava/util/Queue;Lnet/minecraft/client/renderer/culling/Frustum;)V",
-                    //needcheck
-                    shift = At.Shift.AFTER
-            )
-    )
-    private void madparticleRenderInstanced(Camera camera, float partialTick, MultiBufferSource.BufferSource bufferSource, Frustum frustum, Predicate<ParticleRenderType> renderTypePredicate, CallbackInfo ci,
-                                            @Local ParticleRenderType particlerendertype, @Local Queue<Particle> queue) {
-        if (particlerendertype == ModParticleRenderTypes.INSTANCED || particlerendertype == ModParticleRenderTypes.INSTANCED_TERRAIN) {
-            NeoInstancedRenderManager.getInstance(particlerendertype).render();
-        }
-    }
+    //Do not need to manually skip any more since ParticleEngine.RENDER_ORDER
+    //@WrapWithCondition(
+    //        method = "render(Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/culling/Frustum;Ljava/util/function/Predicate;)V",
+    //        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/particle/ParticleEngine;renderParticleType(Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/particle/ParticleRenderType;Ljava/util/Queue;Lnet/minecraft/client/renderer/culling/Frustum;)V")
+    //)
+    //private boolean madparticleSkipInstancedRender(Camera camera, float partialTick, MultiBufferSource.BufferSource bufferSource, ParticleRenderType particleType, Queue<Particle> particles, @Nullable Frustum frustum) {
+    //    return particleType != ModParticleRenderTypes.INSTANCED && particleType != ModParticleRenderTypes.INSTANCED_TERRAIN;
+    //}
 
     /**
      * @author USS_Shenzhou

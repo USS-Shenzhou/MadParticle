@@ -1,4 +1,4 @@
-package cn.ussshenzhou.madparticle.particle.optimize;
+package cn.ussshenzhou.madparticle.particle.render;
 
 import org.lwjgl.system.MemoryUtil;
 

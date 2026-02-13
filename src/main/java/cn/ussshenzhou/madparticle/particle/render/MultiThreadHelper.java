@@ -1,4 +1,4 @@
-package cn.ussshenzhou.madparticle.particle.optimize;
+package cn.ussshenzhou.madparticle.particle.render;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.t88.config.ConfigHelper;

@@ -1,6 +1,5 @@
-package cn.ussshenzhou.madparticle.particle;
+package cn.ussshenzhou.madparticle.particle.render;
 
-import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.particle.ParticleRenderType;
 
 import javax.annotation.ParametersAreNonnullByDefault;

@@ -1,6 +1,6 @@
 package cn.ussshenzhou.madparticle.mixinproxy;
 
-import cn.ussshenzhou.madparticle.particle.optimize.ParallelTickManager;
+import cn.ussshenzhou.madparticle.particle.render.ParallelTickManager;
 import com.google.common.collect.Lists;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.TrackingEmitter;

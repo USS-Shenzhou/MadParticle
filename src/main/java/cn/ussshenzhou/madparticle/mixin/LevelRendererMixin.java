@@ -1,17 +1,13 @@
 package cn.ussshenzhou.madparticle.mixin;
 
-import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
-import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
+import cn.ussshenzhou.madparticle.particle.render.ModParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.render.NeoInstancedRenderManager;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.resource.GraphicsResourceAllocator;
 import com.mojang.blaze3d.resource.ResourceHandle;
-import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.state.LevelRenderState;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.joml.Matrix4f;
-import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

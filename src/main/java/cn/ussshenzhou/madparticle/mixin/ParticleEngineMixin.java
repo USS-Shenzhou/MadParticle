@@ -1,19 +1,10 @@
 package cn.ussshenzhou.madparticle.mixin;
 
 import cn.ussshenzhou.madparticle.mixinproxy.ParticleEngineMixinProxy;
-import cn.ussshenzhou.madparticle.particle.*;
-import cn.ussshenzhou.madparticle.particle.optimize.NeoInstancedRenderManager;
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.ParticleResources;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.texture.TextureManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,10 +12,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.function.Predicate;
 
 /**
  * @author USS_Shenzhou

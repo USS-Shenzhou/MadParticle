@@ -102,9 +102,9 @@
   "gui.mp.de.setting.universal.translucent.true": "深度测试：启用",
   "gui.mp.de.setting.universal.translucent.true.tooltip": "§6每种选项都有其各自的缺点.§r\n原版方法.\n适用于不透明粒子占多数的场景.\n§7性能影响：§b●",
   "gui.mp.de.setting.universal.translucent.false": "深度测试：禁用",
-  "gui.mp.de.setting.universal.translucent.false.tooltip": "§6每种选项都有其各自的缺点.§r\n简单混合，但能糊弄过去.\n适用于同种半透明粒子占多数的场景.\n§7性能影响：§b●",
+  "gui.mp.de.setting.universal.translucent.false.tooltip": "§6每种选项都有其各自的缺点.§r\n简单混合，但能糊弄过去.\n适用于相同半透明粒子占多数的场景.\n§7性能影响：§b●",
   "gui.mp.de.setting.universal.translucent.oit": "加权混合OIT",
-  "gui.mp.de.setting.universal.translucent.oit.tooltip": "§6每种选项都有其各自的缺点.§r\n不完全精确，但普遍适用.\n§6可能对显卡压力较大.§r\n§7性能影响：§a●●",
+  "gui.mp.de.setting.universal.translucent.oit.tooltip": "§6每种选项都有其各自的缺点.§r\n不完全精确，但普遍适用.\n§6显卡压力略大.§r\n§7性能影响：§a●●",
 
   "gui.mp.de.setting.amount.tooltip": "指定（每种渲染类型所能容纳的）粒子数量上限.",
   "gui.mp.de.setting.real_force.tooltip": "true：总是取消在两倍于视距之外的所有粒子生成.\n§7性能影响：§b●",

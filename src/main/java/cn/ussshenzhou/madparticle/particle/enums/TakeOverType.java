@@ -1,11 +1,9 @@
 package cn.ussshenzhou.madparticle.particle.enums;
 
-import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
+import cn.ussshenzhou.madparticle.particle.render.ModParticleRenderTypes;
 import cn.ussshenzhou.t88.gui.util.ITranslatable;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SingleQuadParticle;
-
-import javax.annotation.Nullable;
 
 /**
  * @author USS_Shenzhou

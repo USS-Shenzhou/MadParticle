@@ -1,4 +1,4 @@
-package cn.ussshenzhou.madparticle.particle.optimize;
+package cn.ussshenzhou.madparticle.particle.render;
 
 import cn.ussshenzhou.madparticle.MadParticle;
 import com.mojang.blaze3d.pipeline.BlendFunction;
@@ -19,58 +19,55 @@ public class ModRenderPipelines {
             .build();
 
     public static final RenderPipeline.Snippet INSTANCED_SNIPPET = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
-            .withVertexShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle"))
             .withVertexFormat(INSTANCED_VERTEX_FORMAT, VertexFormat.Mode.QUADS)
+            .withVertexShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle"))
             .withSampler("Sampler0")
             .withSampler("Sampler2")
             .withUniform("CameraCorrection", UniformType.UNIFORM_BUFFER)
             .withPolygonMode(PolygonMode.FILL)
             .withCull(true)
-            .withColorLogic(LogicOp.NONE)
+            .withColorWrite(true, true)
+            .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
             .buildSnippet();
 
     public static final RenderPipeline INSTANCED_COMMON_DEPTH = RenderPipelines.register(
             RenderPipeline.builder(INSTANCED_SNIPPET)
                     .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
                     .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_common"))
-                    .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
                     .withBlend(BlendFunction.TRANSLUCENT)
-                    .withColorWrite(true, true)
                     .withDepthWrite(true)
                     .build()
     );
 
     public static final RenderPipeline INSTANCED_COMMON_BLEND = RenderPipelines.register(
             RenderPipeline.builder(INSTANCED_SNIPPET)
-                    .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
+                    .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common_blend"))
                     .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_common"))
-                    .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
                     .withBlend(BlendFunction.TRANSLUCENT)
-                    .withColorWrite(true, true)
                     .withDepthWrite(false)
                     .build()
     );
 
     public static final RenderPipeline INSTANCED_OIT = RenderPipelines.register(
             RenderPipeline.builder(INSTANCED_SNIPPET)
-                    .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
+                    .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_oit"))
+                    .withVertexShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"))
                     .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"))
-                    .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
                     .withBlend(BlendFunction.ADDITIVE)
-                    .withColorWrite(true, true)
                     .withDepthWrite(false)
                     .build()
     );
 
-    //TODO
-    /*public static final RenderPipeline INSTANCED_OIT_POST = RenderPipelines.register(
-            RenderPipeline.builder(RenderPipelines.MATRICES_COLOR_FOG_SNIPPET)
-                    .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
-                    .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"))
-                    .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-                    .withBlend(BlendFunction.ADDITIVE)
-                    .withColorWrite(true, true)
-                    .withDepthWrite(false)
-                    .build()
-    );*/
+    //public static final RenderPipeline INSTANCED_OIT_POST = RenderPipelines.register(
+    //        RenderPipeline.builder()
+    //                .withVertexFormat(, VertexFormat.Mode.QUADS)
+    //                .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_oit_post"))
+    //                .withVertexShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit_post"))
+    //                .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit_post"))
+    //                .withColorWrite(true, true)
+    //                .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
+    //                .withBlend(BlendFunction.TRANSLUCENT)
+    //                .withDepthWrite(true)
+    //                .build()
+    //);
 }

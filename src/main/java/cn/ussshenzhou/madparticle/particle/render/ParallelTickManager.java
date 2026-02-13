@@ -1,10 +1,9 @@
-package cn.ussshenzhou.madparticle.particle.optimize;
+package cn.ussshenzhou.madparticle.particle.render;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
-import cn.ussshenzhou.madparticle.particle.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.cache.Cache;

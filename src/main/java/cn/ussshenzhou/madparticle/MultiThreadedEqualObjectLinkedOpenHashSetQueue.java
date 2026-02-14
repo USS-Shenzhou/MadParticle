@@ -2,8 +2,9 @@ package cn.ussshenzhou.madparticle;
 
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.errorprone.annotations.DoNotCall;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,28 +22,31 @@ import java.util.stream.Stream;
  */
 public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<E> {
     private static final AtomicInteger ID = new AtomicInteger();
-    private static final AtomicInteger THREAD_ID = new AtomicInteger();
     private final ObjectLinkedOpenHashSet<E>[] sets;
     private final int maxSize;
-    private final ForkJoinPool threadPool;
+    private final DefaultEventExecutorGroup threadPool;
 
     public MultiThreadedEqualObjectLinkedOpenHashSetQueue(int initialCapacityOfEachThread, int maxSize) {
         this.maxSize = maxSize;
         ID.getAndIncrement();
         int threads = ConfigHelper.getConfigRead(MadParticleConfig.class).getBufferFillerThreads();
         //noinspection unchecked,rawtypes
-        sets = Stream.generate(()->new ObjectLinkedOpenHashSet())
+        sets = Stream.generate(() -> new ObjectLinkedOpenHashSet())
                 .limit(threads)
                 .toArray(ObjectLinkedOpenHashSet[]::new);
-        threadPool = new ForkJoinPool(threads, pool -> {
-            ForkJoinWorkerThread thread = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-            thread.setName("MadParticle-MultiThreadedEqualObjectLinkedOpenHashSetQueue-" + ID.get() + "-Thread-" + THREAD_ID.getAndIncrement());
-            return thread;
-        }, null, false);
+        threadPool = new DefaultEventExecutorGroup(threads, new ThreadFactoryBuilder()
+                .setDaemon(true)
+                .setNameFormat("MadParticle-MultiThreadedEqualObjectLinkedOpenHashSetQueue-" + ID.get() + "-Thread-%d")
+                .build()
+        );
     }
 
     public MultiThreadedEqualObjectLinkedOpenHashSetQueue(int maxSize) {
         this(128, maxSize);
+    }
+
+    public int threads() {
+        return sets.length;
     }
 
     public int remainingCapacity() {
@@ -51,6 +55,10 @@ public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<
 
     public ObjectLinkedOpenHashSet<E> get(int i) {
         return sets[i];
+    }
+
+    public DefaultEventExecutorGroup getThreadPool() {
+        return threadPool;
     }
 
     @Override
@@ -168,7 +176,12 @@ public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<
         for (int i = 0; i < sets.length; i++) {
             int finalI = i;
             futures[i] = CompletableFuture.runAsync(
-                    () -> sets[finalI].removeAll(c),
+                    () -> {
+                        var set = sets[finalI];
+                        for (var key : c) {
+                            set.remove(key);
+                        }
+                    },
                     threadPool
             );
         }
@@ -239,7 +252,7 @@ public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<
         for (int i = 0; i < sets.length; i++) {
             int finalI = i;
             futures[i] = CompletableFuture.runAsync(
-                    () -> sets[finalI].parallelStream().forEach(action),
+                    () -> sets[finalI].forEach(action),
                     threadPool
             );
         }

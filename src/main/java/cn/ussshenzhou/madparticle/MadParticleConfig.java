@@ -6,6 +6,9 @@ import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.t88.config.TConfig;
 import net.minecraft.util.Mth;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author USS_Shenzhou
  */
@@ -25,6 +28,8 @@ public class MadParticleConfig implements TConfig {
     public boolean forceMaxLight = false;
     public TranslucentMethod translucentMethod = TranslucentMethod.OIT;
     public LightCacheRefreshInterval lightCacheRefreshInterval = LightCacheRefreshInterval.FRAME;
+    public List<String> takeOverRenderBlackList = new ArrayList<>();
+    public List<String> takeOverTickBlackList = new ArrayList<>();
 
     public MadParticleConfig() {
     }

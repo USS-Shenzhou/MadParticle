@@ -29,11 +29,12 @@ public class MultiThreadHelper {
             throw new IllegalArgumentException("The amount of auxiliary threads should between 1 and 256. Correct the config file manually.");
         }
         MultiThreadHelper.threads = threads;
-        fixedThreadPool = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat("MadParticle-FixedThread-%d").build());
+        fixedThreadPool = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setDaemon(true).setNameFormat("MadParticle-FixedThread-%d").build());
         AtomicInteger index = new AtomicInteger();
         forkJoinPool = new ForkJoinPool(threads, pool -> {
             ForkJoinWorkerThread thread = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
             thread.setName("MadParticle-JoinPoolThread-" + index.getAndIncrement());
+            thread.setDaemon(true);
             return thread;
         }, null, false);
         if (!initializing) {

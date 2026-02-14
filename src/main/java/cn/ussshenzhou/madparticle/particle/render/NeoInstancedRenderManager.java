@@ -179,9 +179,8 @@ public class NeoInstancedRenderManager {
     }
 
     void updateTickVBOInternal(ObjectLinkedOpenHashSet<SingleQuadParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {
-        var simpleBlockPosSingle = new SimpleBlockPos(0, 0, 0);
+        long start = tickVBOAddress + (long) index * TICK_VBO_SIZE;
         for (SingleQuadParticle particle : particles) {
-            long start = tickVBOAddress + (long) index * TICK_VBO_SIZE;
             //xyz roll
             MemoryUtil.memPutFloat(start, (float) particle.x);
             MemoryUtil.memPutFloat(start + 4, (float) particle.y);
@@ -202,40 +201,43 @@ public class NeoInstancedRenderManager {
             MemoryUtil.memPutShort(start + 42, Float.floatToFloat16(particle.gCol));
             MemoryUtil.memPutShort(start + 44, Float.floatToFloat16(particle.bCol));
             MemoryUtil.memPutShort(start + 46, Float.floatToFloat16(particle.alpha));
-            //size extraLight
+            //size extraLight, uv2
             MemoryUtil.memPutShort(start + 48, Float.floatToFloat16(particle.getQuadSize(0.5f)));
+            float x = (float) ((particle.x + particle.xo) * 0.5f);
+            float y = (float) ((particle.y + particle.yo) * 0.5f);
+            float z = (float) ((particle.z + particle.zo) * 0.5f);
+            int xi = Mth.floor(x);
+            int yi = Mth.floor(y);
+            int zi = Mth.floor(z);
+            byte l = (byte) 0xff;
             if (particle instanceof MadParticle madParticle) {
                 MemoryUtil.memPutShort(start + 50, Float.floatToFloat16(madParticle.getBloomFactor()));
+                if (!forceMaxLight) {
+                    l = LIGHT_CACHE.getOrCompute(xi, yi, zi, particle);
+                    l = madParticle.checkEmit(l);
+                }
+            } else if (TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
+                MemoryUtil.memPutShort(start + 50, DEFAULT_EXTRA_LIGHT);
+                if (!forceMaxLight) {
+                    l = LightCache.compressPackedLight(particle.getLightCoords(partialTicks));
+                }
             } else {
                 MemoryUtil.memPutShort(start + 50, DEFAULT_EXTRA_LIGHT);
-            }
-            //uv2
-            if (forceMaxLight) {
-                MemoryUtil.memPutByte(start + 52, (byte) 0xff);
-            } else {
-                float x = (float) (particle.xo + 0.5f * (particle.x - particle.xo));
-                float y = (float) (particle.yo + 0.5f * (particle.y - particle.yo));
-                float z = (float) (particle.zo + 0.5f * (particle.z - particle.zo));
-                simpleBlockPosSingle.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
-                byte l;
-                if (particle instanceof MadParticle madParticle) {
-                    l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, particle, simpleBlockPosSingle);
-                    l = madParticle.checkEmit(l);
-                } else if (TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
-                    l = LightCache.compressPackedLight(particle.getLightCoords(partialTicks));
-                } else {
-                    l = LIGHT_CACHE.getOrCompute(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z, particle, simpleBlockPosSingle);
+                if (!forceMaxLight) {
+                    l = LIGHT_CACHE.getOrCompute(xi, yi, zi, particle);
                 }
-                MemoryUtil.memPutByte(start + 52, l);
             }
+            MemoryUtil.memPutByte(start + 52, l);
+
             index++;
+            start += TICK_VBO_SIZE;
         }
     }
 
     @SuppressWarnings("unchecked")
     CompletableFuture<Void> executeUpdate(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles, VboUpdater updater, PersistentMappedArrayBuffer vbo) {
         var partialTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
-        CompletableFuture<Void>[] futures = new CompletableFuture[getThreads()];
+        CompletableFuture<Void>[] futures = new CompletableFuture[particles.threads()];
         int index = 0;
         for (int group = 0; group < futures.length; group++) {
             @SuppressWarnings("rawtypes")

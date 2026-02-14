@@ -69,7 +69,7 @@ public class LightCache {
         outside.clear();
     }
 
-    public byte getOrCompute(int x, int y, int z, SingleQuadParticle particle, SimpleBlockPos simpleBlockPos) {
+    public byte getOrCompute(int x, int y, int z, SingleQuadParticle particle) {
         if (isInRange(x, y, z)) {
             var camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
             int rx = Mth.floor(x - camera.x) + XZ_RANGE;
@@ -79,7 +79,7 @@ public class LightCache {
             int i = rx * XZ_RANGE * 2 * Y_RANGE * 2 / 8 + rz * Y_RANGE * 2 / 8 + ry / 8;
             byte mod = modifyFlag.get(i);
             if ((mod >>> ry % 8 & 1) == 0) {
-                bright[rx][rz][ry] = compressPackedLight(getLight(particle, simpleBlockPos));
+                bright[rx][rz][ry] = compressPackedLight(getLight(particle, x, y, z));
                 modifyFlag.put(i, (byte) (mod | 1 << ry % 8));
                 return bright[rx][rz][ry];
             } else {
@@ -89,7 +89,7 @@ public class LightCache {
             var pos = new SimpleBlockPos(x, y, z);
             var s = outside.get(pos);
             if (s == null) {
-                int packetLight = compressPackedLight(getLight(particle, simpleBlockPos));
+                int packetLight = compressPackedLight(getLight(particle, x, y, z));
                 byte r = (byte) ((packetLight >>> 4 & 0xf) | (packetLight >>> 16 & 0xf0));
                 outside.put(pos, r);
                 return r;
@@ -103,8 +103,8 @@ public class LightCache {
         return (byte) ((packetLight >>> 4 & 0xf) | (packetLight >>> 16 & 0xf0));
     }
 
-    public static int getLight(SingleQuadParticle particle, SimpleBlockPos simpleBlockPosSingle) {
-        var pos = MUTABLE_BLOCK_POS.get().set(simpleBlockPosSingle.x, simpleBlockPosSingle.y, simpleBlockPosSingle.z);
+    public static int getLight(SingleQuadParticle particle, int x, int y, int z) {
+        var pos = MUTABLE_BLOCK_POS.get().set(x, y, z);
         return particle.level.hasChunkAt(pos) ? LevelRenderer.getLightCoords(particle.level, pos) : 0;
     }
 

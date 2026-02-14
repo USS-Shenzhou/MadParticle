@@ -5,9 +5,12 @@ import cn.ussshenzhou.madparticle.particle.render.ModParticleRenderTypes;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.util.ITranslatable;
 import com.google.common.collect.Sets;
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.particle.*;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * @author USS_Shenzhou
@@ -19,7 +22,7 @@ public enum TakeOver implements ITranslatable {
     ALL("gui.mp.de.setting.additional.takeover.all");
 
     @SuppressWarnings("unchecked")
-    public static final HashSet<Class<? extends Particle>> SYNC_TICK_VANILLA_AND_MADPARTICLE = Sets.newHashSet(
+    public static final HashSet<Class<? extends Particle>> SYNC_TICK = Sets.newHashSet(
             SimpleAnimatedParticle.class,
             RisingParticle.class,
             DustParticleBase.class,
@@ -38,7 +41,7 @@ public enum TakeOver implements ITranslatable {
 
 
     @SuppressWarnings("unchecked")
-    public static final HashSet<Class<? extends Particle>> ASYNC_TICK_VANILLA_AND_MADPARTICLE = Sets.newHashSet(
+    public static final HashSet<Class<? extends Particle>> ASYNC_TICK = Sets.newHashSet(
             BlockMarker.class,
             TerrainParticle.class,
             DustColorTransitionParticle.class,
@@ -84,8 +87,9 @@ public enum TakeOver implements ITranslatable {
             WhiteAshParticle.class,
             GlowParticle.class
     );
+    private static final HashSet<Class<? extends Particle>> RENDER_BLACKLIST = new HashSet<>();
     @SuppressWarnings("unchecked")
-    private static final HashSet<Class<? extends SingleQuadParticle>> RENDER_VANILLA_TRANS_OPAQUE = Sets.newHashSet(
+    private static final HashSet<Class<? extends SingleQuadParticle>> RENDER_VANILLA = Sets.newHashSet(
             SnowflakeParticle.class,
             SpitParticle.class,
             SpellParticle.class,
@@ -157,13 +161,40 @@ public enum TakeOver implements ITranslatable {
             case "INSTANCED_TERRAIN" -> ModParticleRenderTypes.INSTANCED_TERRAIN;
             case "SINGLE_QUADS" -> switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering) {
                 case NONE -> originalType;
-                case ALL -> ModParticleRenderTypes.INSTANCED;
-                case VANILLA -> RENDER_VANILLA_TRANS_OPAQUE.contains(particle.getClass()) ? ModParticleRenderTypes.INSTANCED : originalType;
+                case ALL -> RENDER_BLACKLIST.contains(particle.getClass()) ? ParticleRenderType.SINGLE_QUADS : ModParticleRenderTypes.INSTANCED;
+                case VANILLA -> RENDER_VANILLA.contains(particle.getClass()) ? ModParticleRenderTypes.INSTANCED : originalType;
             };
             default -> originalType;
         };
+    }
 
+    @SuppressWarnings("unchecked")
+    public static void addFromConfig() {
+        var cfg = ConfigHelper.getConfigRead(MadParticleConfig.class);
+        cfg.takeOverTickBlackList.stream().map(TakeOver::loadClassFromName)
+                .filter(Objects::nonNull)
+                .forEach(clazz -> SYNC_TICK.add((Class<? extends Particle>) clazz));
+        cfg.takeOverRenderBlackList.stream().map(TakeOver::loadClassFromName)
+                .filter(Objects::nonNull)
+                .forEach(clazz -> RENDER_BLACKLIST.add((Class<? extends Particle>) clazz));
+    }
 
+    private static @Nullable Class<?> loadClassFromName(String s) {
+        try {
+            var clazz = Class.forName(s);
+            if (Particle.class.isAssignableFrom(clazz)) {
+                return clazz;
+            } else {
+                throw new IllegalArgumentException(s + " is not a subclass of Particle.");
+            }
+        } catch (ClassNotFoundException e) {
+            LogUtils.getLogger().error(s + "does not exist. An invalid name or mod not installed?");
+            return null;
+        } catch (Exception e) {
+            LogUtils.getLogger().error("Something went wrong trying to add " + s + " to tick blacklist.");
+            LogUtils.getLogger().error(e.getMessage());
+            return null;
+        }
     }
 
     public enum TickType {

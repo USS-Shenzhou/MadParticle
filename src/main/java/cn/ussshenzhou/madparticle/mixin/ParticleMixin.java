@@ -39,9 +39,9 @@ public class ParticleMixin implements ITickType {
 
     @Inject(method = "<init>(Lnet/minecraft/client/multiplayer/ClientLevel;DDD)V", at = @At("TAIL"))
     private void madparticleSetMadparticleTickType(ClientLevel pLevel, double pX, double pY, double pZ, CallbackInfo ci) {
-        if (TakeOver.ASYNC_TICK_VANILLA_AND_MADPARTICLE.contains(this.getClass())) {
+        if (TakeOver.ASYNC_TICK.contains(this.getClass())) {
             madparticleTickType = TakeOver.TickType.ASYNC;
-        } else if (TakeOver.SYNC_TICK_VANILLA_AND_MADPARTICLE.contains(this.getClass())) {
+        } else if (TakeOver.SYNC_TICK.contains(this.getClass())) {
             madparticleTickType = TakeOver.TickType.SYNC;
         } else {
             madparticleTickType = TakeOver.TickType.UNKNOWN;

@@ -6,19 +6,11 @@ import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.madparticle.util.LightCache;
-import cn.ussshenzhou.madparticle.util.SimpleBlockPos;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.opengl.GlDevice;
 import com.mojang.blaze3d.opengl.GlStateManager;
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.GpuTexture;
-import com.mojang.blaze3d.textures.TextureFormat;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.client.Minecraft;
@@ -45,7 +37,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static cn.ussshenzhou.madparticle.particle.render.MultiThreadHelper.*;
-import static org.lwjgl.opengl.ARBInstancedArrays.*;
 import static org.lwjgl.opengl.GL42.*;
 
 /**

@@ -8,7 +8,6 @@ import java.util.List;
 /**
  * @author USS_Shenzhou
  */
-@Deprecated
 public class TadaParametersPanel extends ParametersPanel {
     public final SingleVec3EditBox speed = new SingleVec3EditBox(Component.literal("V"));
 
@@ -35,7 +34,7 @@ public class TadaParametersPanel extends ParametersPanel {
         super.layout();
         //int xGap = vy.getXT() - vx.getXT() - vx.getWidth();
         //LayoutHelper.BLeftOfA(speed, xGap, vxD, vx.getWidth() * 3 + 2 * xGap, vx.getHeight());
-        speed.setAbsBounds(vx.getXT(), vx.getYT(), vx.getWidth() * 3, vx.getHeight());
+        speed.setAbsBounds(vx.getXT(), vx.getYT(), vx.getWidth() * 3 + 2 * 4, vx.getHeight());
     }
 
     @Override

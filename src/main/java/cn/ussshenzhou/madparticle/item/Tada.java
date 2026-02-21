@@ -55,8 +55,7 @@ public class Tada extends Item {
             if (data.pulse()) {
                 if (!data.used()) {
                     performCommand(pLevel, pLivingEntity, command);
-                    data.setByName(stack, USED, true);
-                    stack.set(ModDataComponent.TADA_COMPONENT, data);
+                    stack.set(ModDataComponent.TADA_COMPONENT, (TadaComponent) data.setByName(stack, USED, true));
                 }
             } else {
                 performCommand(pLevel, pLivingEntity, command);
@@ -67,7 +66,7 @@ public class Tada extends Item {
     @Override
     public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
         if (!entity.level().isClientSide()) {
-            stack.getOrDefault(ModDataComponent.TADA_COMPONENT, TadaComponent.defaultValue()).setByName(stack, USED, false);
+            stack.set(ModDataComponent.TADA_COMPONENT, (TadaComponent) stack.getOrDefault(ModDataComponent.TADA_COMPONENT, TadaComponent.defaultValue()).setByName(stack, USED, false));
         }
     }
 

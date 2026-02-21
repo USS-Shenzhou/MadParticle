@@ -1,11 +1,43 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
+import cn.ussshenzhou.madparticle.command.CommandHelper;
+import cn.ussshenzhou.madparticle.command.MadParticleCommand;
+import cn.ussshenzhou.madparticle.command.inheritable.InheritableBoolean;
+import cn.ussshenzhou.madparticle.designer.gui.DesignerScreen;
+import cn.ussshenzhou.madparticle.designer.gui.widegt.CommandChainSelectList;
+import cn.ussshenzhou.madparticle.network.MakeTadaPacket;
+import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
+import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOverType;
+import cn.ussshenzhou.t88.gui.advanced.TSuggestedEditBox;
+import cn.ussshenzhou.t88.gui.event.TWidgetContentUpdatedEvent;
+import cn.ussshenzhou.t88.gui.util.LayoutHelper;
+import cn.ussshenzhou.t88.gui.widegt.TButton;
+import cn.ussshenzhou.t88.gui.widegt.TComponent;
+import cn.ussshenzhou.t88.gui.widegt.TSelectList;
+import cn.ussshenzhou.t88.gui.widegt.TWidget;
+import cn.ussshenzhou.t88.network.NetworkHelper;
+import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.context.CommandContextBuilder;
+import com.mojang.brigadier.context.ParsedArgument;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+
+import java.util.List;
+import java.util.Map;
+
+import static cn.ussshenzhou.madparticle.designer.gui.DesignerScreen.GAP;
+
 /**
  * @author USS_Shenzhou
  */
-@Deprecated
-public class TadaModePanel /*extends HelperModePanel*/ {
-    /*private final TButton make = new TButton(Component.translatable("gui.mp.de.mode.tada.make"));
+public class TadaModePanel extends HelperModePanel {
+    private final TButton make = new TButton(Component.translatable("gui.mp.de.mode.tada.make"));
 
     public TadaModePanel() {
         super();
@@ -16,16 +48,16 @@ public class TadaModePanel /*extends HelperModePanel*/ {
     }
 
     private void initList() {
-        remove(commandStringSelectList);
-        commandStringSelectList = new CommandStringSelectList() {
+        remove(commandsChain);
+        commandsChain = new CommandChainSelectList() {
             @Override
             protected void initButton() {
                 newCommand.setOnPress(pButton -> {
                     var list = getComponent();
-                    var sub = new CommandStringSelectList.SubCommand(new TadaParametersScrollPanel());
-                    add(sub.parametersScrollPanel);
+                    var sub = new CommandChainSelectList.SubCommand(new TadaParametersPanel());
+                    add(sub.parametersPanel);
                     addElement(sub, list1 -> {
-                        list1.getParentInstanceOf(TadaModePanel.class).setParametersScrollPanel(list1.getSelected().getContent().parametersScrollPanel);
+                        list1.getParentInstanceOf(TadaModePanel.class).setParametersScrollPanel(list1.getSelected().getContent().parametersPanel);
                     });
                     if (list.getSelected() == null) {
                         list.setSelected(list.children().get(list.children().size() - 1));
@@ -39,7 +71,7 @@ public class TadaModePanel /*extends HelperModePanel*/ {
                 });
             }
         };
-        add(commandStringSelectList);
+        add(commandsChain);
     }
 
     private void initCommand() {
@@ -51,10 +83,12 @@ public class TadaModePanel /*extends HelperModePanel*/ {
             public void onUpdateCalledTada(TWidgetContentUpdatedEvent event) {
                 Thread.startVirtualThread(() -> {
                     if (canHandleCall && event.getUpdated() != this.getEditBox() && event.getUpdated().getParentInstanceOf(TadaModePanel.class) == this.getParent()) {
-                        String wholeCommand = commandStringSelectList.warp();
-                        synchronized (this.getEditBox()) {
-                            this.getEditBox().setValue(wholeCommand);
-                        }
+                        String wholeCommand = commandsChain.warp();
+                        Minecraft.getInstance().execute(() -> {
+                            synchronized (this.getEditBox()) {
+                                this.getEditBox().setValue(wholeCommand);
+                            }
+                        });
                     }
                 });
             }
@@ -65,13 +99,13 @@ public class TadaModePanel /*extends HelperModePanel*/ {
             }
 
             @Override
-            public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
-                if (Screen.isPaste(pKeyCode)) {
+            public boolean keyPressed(KeyEvent event) {
+                if (event.isPaste()) {
                     switchCount = 0;
                     callPauseCount = 0;
                     switchCopyAndUnwrap();
                 }
-                return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+                return super.keyPressed(event);
             }
 
             int callPauseCount = 0;
@@ -107,21 +141,25 @@ public class TadaModePanel /*extends HelperModePanel*/ {
 
     @Override
     public void layout() {
-        copy.setBounds(width - TButton.RECOMMEND_SIZE.x, (40 - TButton.RECOMMEND_SIZE.y) / 2);
-        LayoutHelper.BLeftOfA(copy, DesignerScreen.GAP + 20, copy);
-        LayoutHelper.BRightOfA(make, DesignerScreen.GAP, copy, copy.getWidth() + 20, copy.getHeight());
-        LayoutHelper.BLeftOfA(command, DesignerScreen.GAP, copy, width - copy.getWidth() - make.getWidth() - 2 * DesignerScreen.GAP, TButton.RECOMMEND_SIZE.y);
-        LayoutHelper.BBottomOfA(commandStringSelectList, DesignerScreen.GAP, command,
-                TButton.RECOMMEND_SIZE.x + commandStringSelectList.getComponent().getScrollbarGap() + TSelectList.SCROLLBAR_WIDTH,
-                height - command.getYT() - command.getHeight() - DesignerScreen.GAP * 2 - TButton.RECOMMEND_SIZE.y - 1
-        );
-        if (parametersScrollPanel != null) {
-            LayoutHelper.BRightOfA(parametersScrollPanel,
-                    DesignerScreen.GAP + 2, commandStringSelectList,
-                    width - commandStringSelectList.getWidth() - DesignerScreen.GAP - 2,
-                    commandStringSelectList.getHeight() + DesignerScreen.GAP * 2 + 1 + TButton.RECOMMEND_SIZE.y);
+        int particleBrowsePanelHeight = (int) (height * 0.25);
+        int parametersPanelWidth = (int) (width * 0.25);
+        int sceneControlPanelWidth = 60;
+        int sceneViewWidth = width - sceneControlPanelWidth - parametersPanelWidth;
+        int sceneViewHeight = height - particleBrowsePanelHeight;
+        sceneControlPanel.setBounds(0, 0, sceneControlPanelWidth, height - particleBrowsePanelHeight);
+        tip.setBounds(0, height - particleBrowsePanelHeight, width - parametersPanelWidth, 12);
+        LayoutHelper.BBottomOfA(particleBrowsePanel, 0, tip, width - parametersPanelWidth, particleBrowsePanelHeight - 12);
+        if (parametersPanel != null) {
+            parametersPanel.setAbsBounds(this.x + width - parametersPanelWidth, this.y, parametersPanelWidth, height);
         }
+        command.setBounds(sceneControlPanelWidth + GAP, GAP, sceneViewWidth - 4 - TButton.RECOMMEND_SIZE.x - 4 - GAP - 80 - GAP, TButton.RECOMMEND_SIZE.y);
+        LayoutHelper.BRightOfA(copy, GAP, command, TButton.RECOMMEND_SIZE);
         LayoutHelper.BSameAsA(unwrap, copy);
+        LayoutHelper.BRightOfA(make, GAP, copy, 80, 20);
+        LayoutHelper.BBottomOfA(commandsChain, GAP, command,
+                TButton.RECOMMEND_SIZE.x + TSelectList.SCROLLBAR_WIDTH,
+                sceneViewHeight - GAP - TButton.RECOMMEND_SIZE.y - GAP - (GAP + TButton.RECOMMEND_SIZE.y) * 2 - GAP
+        );
         for (TWidget tWidget : children) {
             if (tWidget instanceof TComponent tComponent) {
                 tComponent.layout();
@@ -135,7 +173,7 @@ public class TadaModePanel /*extends HelperModePanel*/ {
     public void unwrap() {
         this.setParametersScrollPanel(null);
         canHandleCall = false;
-        commandStringSelectList.getComponent().clearElement();
+        commandsChain.getComponent().clearElement();
         String commandString = command.getEditBox().getValue();
         String[] commandStrings = commandString.split(" expireThen ");
         i = 0;
@@ -153,7 +191,7 @@ public class TadaModePanel /*extends HelperModePanel*/ {
                 return;
             }
             Map<String, ParsedArgument<CommandSourceStack, ?>> map = ctb.getArguments();
-            TadaParametersScrollPanel panel = new TadaParametersScrollPanel();
+            TadaParametersPanel panel = new TadaParametersPanel();
             getArgAndFill(panel.target.getComponent().getEditBox(), "targetParticle", s, map);
             getArgAndFill(panel.lifeTime, "lifeTime", s, map);
             getArgAndFill(panel.amount, "amount", s, map);
@@ -163,7 +201,7 @@ public class TadaModePanel /*extends HelperModePanel*/ {
 
             List.of(panel.xPos, panel.yPos, panel.zPos).forEach(singleVec3EditBox -> {
                 singleVec3EditBox.getComponent().setValue(i == 0 ? "~" : "=");
-                ((EditBoxAccessor) singleVec3EditBox.getComponent()).setDisplayPos(0);
+                //((EditBoxAccessor) singleVec3EditBox.getComponent()).setDisplayPos(0);
             });
             var a = map.get("spawnSpeed").getRange().get(s).split(" ");
             if (i == 0) {
@@ -173,7 +211,7 @@ public class TadaModePanel /*extends HelperModePanel*/ {
                 var speed = (vx + vy + vz) / 3;
                 panel.speed.getComponent().setValue(String.format("%.3f", speed));
             }
-            AccessorProxy.EditBoxProxy.setDisplayPos(panel.speed.getComponent(), 0);
+            //AccessorProxy.EditBoxProxy.setDisplayPos(panel.speed.getComponent(), 0);
             getVec3ArgAndFill(panel.vxD, panel.vyD, panel.vzD, "speedDiffuse", s, map);
             getArgAndFill(panel.r, "r", s, map);
             getArgAndFill(panel.g, "g", s, map);
@@ -200,17 +238,17 @@ public class TadaModePanel /*extends HelperModePanel*/ {
             CommandContext<CommandSourceStack> ct = parseResults.getContext().build(s);
             getArgAndSelect(panel.spriteFrom, "spriteFrom", SpriteFrom.class, ct);
             getArgAndSelect(panel.alwaysRender, "alwaysRender", InheritableBoolean.class, ct);
-            getArgAndSelect(panel.takeOverType, "takeOverType", ParticleRenderTypes.class, ct);
+            getArgAndSelect(panel.renderType, "takeOverType", TakeOverType.class, ct);
             getArgAndSelect(panel.interact, "interactWithEntity", InheritableBoolean.class, ct);
             getArgAndSelect(panel.collision, "collision", InheritableBoolean.class, ct);
             getArgAndSelect(panel.alpha, "alphaMode", ChangeMode.class, ct);
             getArgAndSelect(panel.scale, "scaleMode", ChangeMode.class, ct);
-            commandStringSelectList.addElement(commandStringSelectList.addSubCommand(panel), list1 -> {
+            commandsChain.addElement(commandsChain.addSubCommand(panel), list1 -> {
                 list1.getParentInstanceOf(HelperModePanel.class).setParametersScrollPanel(list1.getSelected().getContent().getParametersScrollPanel());
             });
             i++;
         }
-        commandStringSelectList.checkChild();
+        commandsChain.checkChild();
         this.layout();
-    }*/
+    }
 }

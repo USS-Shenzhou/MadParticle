@@ -2,8 +2,10 @@ package cn.ussshenzhou.madparticle.designer.gui;
 
 import cn.ussshenzhou.madparticle.designer.gui.panel.HelperModePanel;
 import cn.ussshenzhou.madparticle.designer.gui.panel.SettingPanel;
+import cn.ussshenzhou.madparticle.designer.gui.panel.TadaModePanel;
 import cn.ussshenzhou.madparticle.util.CameraHelper;
 import cn.ussshenzhou.t88.gui.container.TTabPageContainer;
+import cn.ussshenzhou.t88.gui.event.ResizeHudEvent;
 import cn.ussshenzhou.t88.gui.screen.TScreen;
 import cn.ussshenzhou.t88.gui.util.RecordHelper;
 import net.minecraft.client.CameraType;
@@ -12,6 +14,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 import javax.annotation.Nullable;
 
@@ -26,13 +30,13 @@ public class DesignerScreen extends TScreen {
 
     private final HelperModePanel helperModePanel = new HelperModePanel();
     private final SettingPanel settingPanel = new SettingPanel();
-    //FIXME TADA private final TadaModePanel tadaModePanel = new TadaModePanel();
+    private final TadaModePanel tadaModePanel = new TadaModePanel();
     private CameraType prevCameraType;
 
     private DesignerScreen(CameraType prevCameraType) {
         super(Component.translatable("gui.mp.designer.title"));
         tabPageContainer.newTab(Component.translatable("gui.mp.de.mode.helper"), helperModePanel).setCloseable(false);
-        //FIXME TADA tabPageContainer.newTab(Component.translatable("gui.mp.de.mode.tada"), tadaModePanel).setCloseable(false);
+        tabPageContainer.newTab(Component.translatable("gui.mp.de.mode.tada"), tadaModePanel).setCloseable(false);
         tabPageContainer.newTab(Component.translatable("gui.mp.de.mode.setting"), settingPanel).setCloseable(false);
         this.add(tabPageContainer);
 
@@ -40,6 +44,13 @@ public class DesignerScreen extends TScreen {
             designerScreen = this;
         }
         this.prevCameraType = prevCameraType;
+        NeoForge.EVENT_BUS.register(this);
+    }
+
+    @SubscribeEvent
+    public void inworldResize(ResizeHudEvent resizeHudEvent) {
+        var window = Minecraft.getInstance().getWindow();
+        this.resize(window.getGuiScaledWidth(), window.getGuiScaledHeight());
     }
 
     public static @Nullable DesignerScreen getInstance(CameraType prevCameraType) {
@@ -155,5 +166,8 @@ public class DesignerScreen extends TScreen {
     public void onClose(boolean isFinal) {
         super.onClose(isFinal);
         CameraHelper.setCameraType(prevCameraType);
+        if (isFinal) {
+            NeoForge.EVENT_BUS.unregister(this);
+        }
     }
 }

@@ -53,7 +53,7 @@ public class HelperModePanel extends TPanel {
     protected final TButton copy = new TButton(Component.translatable("gui.mp.de.helper.copy"));
     protected final TButton unwrap = new TButton(Component.translatable("gui.mp.de.helper.unwrap"));
     protected volatile boolean canHandleCall = true;
-    protected final TSuggestedEditBox command = new TSuggestedEditBox(MadParticleCommand::new) {
+    protected TSuggestedEditBox command = new TSuggestedEditBox(MadParticleCommand::new) {
 
         @SubscribeEvent
         public void onUpdateCalled(TWidgetContentUpdatedEvent event) {
@@ -107,7 +107,7 @@ public class HelperModePanel extends TPanel {
             super.tickT();
         }
     };
-    protected final CommandChainSelectList commandsChain = new CommandChainSelectList();
+    protected CommandChainSelectList commandsChain = new CommandChainSelectList();
     @Nullable
     protected ParametersPanel parametersPanel = null;
     protected final SceneControlPanel sceneControlPanel = new SceneControlPanel();
@@ -330,7 +330,8 @@ public class HelperModePanel extends TPanel {
         var mc = Minecraft.getInstance();
         if (!super.mouseClicked(event, doubleClick) && isInWild(event.x(), event.y())) {
             if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                InputConstants.grabOrReleaseMouse(mc.getWindow(), 212995, event.x(), event.y());
+                var scale = mc.getWindow().getGuiScale();
+                InputConstants.grabOrReleaseMouse(mc.getWindow(), 212995, event.x() * scale, event.y() * scale);
                 mc.mouseHandler.setIgnoreFirstMove();
                 mc.mouseHandler.mouseGrabbed = true;
                 return true;
@@ -342,6 +343,7 @@ public class HelperModePanel extends TPanel {
         }
         return false;
     }
+
     private boolean isInWild(double mouseX, double mouseY) {
         return isInRange(mouseX, mouseY) &&
                 children.stream().mapToInt(w -> w.isInRange(mouseX, mouseY) ? 1 : 0).sum() == 0 &&

@@ -26,7 +26,7 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.commands.CommandSourceStack;
@@ -57,11 +57,11 @@ public class ParametersPanel extends TVerticalScrollContainer {
     public final TTitledSuggestedEditBox target = new TTitledSuggestedEditBox(
             Component.translatable("gui.mp.de.helper.target"), new ArgumentSuggestionsDispatcher<>()) {
         @Override
-        public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
-            super.render(graphics, pMouseX, pMouseY, pPartialTick);
+        public void extractRenderState(GuiGraphicsExtractor graphics, int pMouseX, int pMouseY, float pPartialTick) {
+            super.extractRenderState(graphics, pMouseX, pMouseY, pPartialTick);
             var list = this.getComponent().getSuggestionList();
             if (list.isVisibleT()) {
-                list.render(graphics, pMouseX, pMouseY, pPartialTick);
+                list.extractRenderState(graphics, pMouseX, pMouseY, pPartialTick);
             }
         }
     };
@@ -474,6 +474,7 @@ public class ParametersPanel extends TVerticalScrollContainer {
         ifClearThenSet(tTitled.getComponent(), value);
     }
 
+    @SafeVarargs
     private <V> void ifClearThenSet(V value, TTitledComponent<? extends TEditBox>... tTitled) {
         Stream.of(tTitled).forEach(t -> ifClearThenSet(t.getComponent(), value));
     }

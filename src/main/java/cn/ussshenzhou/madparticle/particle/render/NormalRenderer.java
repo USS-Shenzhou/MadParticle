@@ -6,6 +6,7 @@ import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.opengl.GlBuffer;
+import com.mojang.blaze3d.opengl.GlDevice;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.RenderPass;
@@ -57,9 +58,11 @@ public class NormalRenderer {
         }
     }
 
+    @SuppressWarnings({"removal", "UnstableApiUsage"})
     void setVAO(RenderPass pass) {
         pass.setVertexBuffer(0, PROXY_VAO);
-        getDevice().vertexArrayCache().bindVertexArray(getRenderPipeline().getVertexFormat(), (GlBuffer) PROXY_VAO);
+        ((GlDevice) RenderSystem.getDevice().getBackend()).vertexArrayCache().bindVertexArray(getRenderPipeline().getVertexFormat(), (GlBuffer) PROXY_VAO);
+
         setVertexAttributeArray();
     }
 

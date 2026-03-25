@@ -23,7 +23,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.context.ParsedArgument;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.commands.CommandSourceStack;
@@ -190,8 +190,8 @@ public class HelperModePanel extends TPanel {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(graphics, pMouseX, pMouseY, pPartialTick);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int pMouseX, int pMouseY, float pPartialTick) {
+        super.extractRenderState(graphics, pMouseX, pMouseY, pPartialTick);
         if (parametersPanel == null) {
             int parametersPanelWidth = (int) (width * 0.25);
             graphics.fill(this.x + width - parametersPanelWidth, this.y, this.x + width, this.y + height, BACKGROUND);

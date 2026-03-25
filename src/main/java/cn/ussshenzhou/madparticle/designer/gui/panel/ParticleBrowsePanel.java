@@ -4,7 +4,7 @@ import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.t88.gui.advanced.TLabelButton;
 import cn.ussshenzhou.t88.gui.container.TVerticalScrollContainer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -100,8 +100,8 @@ public class ParticleBrowsePanel extends TVerticalScrollContainer {
         }
 
         @Override
-        public void render(GuiGraphics guigraphics, int pMouseX, int pMouseY, float pPartialTick) {
-            super.render(guigraphics, pMouseX, pMouseY, pPartialTick);
+        public void extractRenderState(GuiGraphicsExtractor guigraphics, int pMouseX, int pMouseY, float pPartialTick) {
+            super.extractRenderState(guigraphics, pMouseX, pMouseY, pPartialTick);
             if (sprite != null) {
                 guigraphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x + 4, y + 4, width - 8, height - 8, ARGB.colorFromFloat(1, r, g, b));
             }

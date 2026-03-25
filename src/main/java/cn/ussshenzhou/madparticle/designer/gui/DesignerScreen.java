@@ -10,7 +10,7 @@ import cn.ussshenzhou.t88.gui.screen.TScreen;
 import cn.ussshenzhou.t88.gui.util.RecordHelper;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -84,7 +84,7 @@ public class DesignerScreen extends TScreen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
     }
 
     @Override
@@ -103,14 +103,14 @@ public class DesignerScreen extends TScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, int pMouseX, int pMouseY, float pPartialTick) {
         var mc = Minecraft.getInstance();
         if (mc.mouseHandler.mouseGrabbed) {
             var x = mc.getWindow().getScreenWidth() / 2;
             var y = mc.getWindow().getScreenHeight() / 2;
-            super.render(graphics, x, y, pPartialTick);
+            super.extractRenderState(graphics, x, y, pPartialTick);
         } else {
-            super.render(graphics, pMouseX, pMouseY, pPartialTick);
+            super.extractRenderState(graphics, pMouseX, pMouseY, pPartialTick);
         }
     }
 

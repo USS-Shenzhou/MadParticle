@@ -85,7 +85,8 @@ public enum TakeOver implements ITranslatable {
             SuspendedParticle.class,
             ReversePortalParticle.class,
             WhiteAshParticle.class,
-            GlowParticle.class
+            GlowParticle.class,
+            FireworkParticles.SparkParticle.class
     );
     private static final HashSet<Class<? extends Particle>> RENDER_BLACKLIST = new HashSet<>();
     @SuppressWarnings("unchecked")

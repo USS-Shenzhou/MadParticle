@@ -20,7 +20,7 @@ public class ParticleMixin implements ITickType {
 
     @Redirect(method = "<init>(Lnet/minecraft/client/multiplayer/ClientLevel;DDD)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/RandomSource;create()Lnet/minecraft/util/RandomSource;"))
     private RandomSource madparticleWhyMustBeSync() {
-        return RandomSource.createNewThreadLocalInstance();
+        return RandomSource.createThreadLocalInstance();
     }
 
 

@@ -12,7 +12,7 @@ import net.minecraft.client.particle.SingleQuadParticle;
 
 public enum TakeOverType implements ITranslatable {
     INSTANCED("gui.mp.de.helper.render_type.instanced", SingleQuadParticle.Layer.TRANSLUCENT, ModParticleRenderTypes.INSTANCED),
-    INSTANCED_TERRAIN("gui.mp.de.helper.render_type.terrain", SingleQuadParticle.Layer.TERRAIN, ModParticleRenderTypes.INSTANCED_TERRAIN),
+    INSTANCED_TERRAIN("gui.mp.de.helper.render_type.terrain", SingleQuadParticle.Layer.TRANSLUCENT_TERRAIN, ModParticleRenderTypes.INSTANCED_TERRAIN),
     DEFAULT("gui.mp.de.helper.render_type.default", SingleQuadParticle.Layer.TRANSLUCENT, ParticleRenderType.SINGLE_QUADS);
 
     private final String translateKey;

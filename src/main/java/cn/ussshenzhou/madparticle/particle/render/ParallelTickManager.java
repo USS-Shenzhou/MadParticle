@@ -9,8 +9,10 @@ import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.mojang.logging.LogUtils;
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.particle.ParticleGroup;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -29,7 +31,6 @@ public class ParallelTickManager {
     public static Cache<Particle, Object> syncTickCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(16384).build();
     public static final Object NULL = new Object();
     private static final LongAdder COUNTER = new LongAdder();
-    private static final ThreadLocal<int[]> LOCAL_COUNTER = ThreadLocal.withInitial(() -> new int[1]);
     public static AtomicInteger addCounter = new AtomicInteger();
     public static AtomicInteger removeCounter = new AtomicInteger();
 
@@ -65,7 +66,7 @@ public class ParallelTickManager {
 
     private static void asyncTick(Particle p) {
         p.tick();
-        LOCAL_COUNTER.get()[0]++;
+        COUNTER.increment();
         if (p.removed) {
             removeCache.add(p);
         }
@@ -84,6 +85,10 @@ public class ParallelTickManager {
         NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::preUpdate);
         tickSync();
         removeAndAdd(engine);
+        if (engine.particles.values().stream().mapToInt(ParticleGroup::size).sum() == 0) {
+            NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED).clear();
+            NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED_TERRAIN).clear();
+        }
         engine.particles.forEach((renderType, particles) -> {
             if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
                 NeoInstancedRenderManager.getInstance(renderType).update((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particles.particles);
@@ -92,15 +97,14 @@ public class ParallelTickManager {
         lastTickJob = CompletableFuture.runAsync(() -> {
                     syncTickCache.invalidateAll();
                     removeCache.clear();
-                    COUNTER.reset();
                 }, MultiThreadHelper.getForkJoinPool())
                 .whenCompleteAsync((v, e) -> {
+                    COUNTER.reset();
                     var ticker = switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking) {
                         case ALL -> ALL_TICKER;
                         case VANILLA -> VANILLA_ONLY_TICKER;
                         case NONE -> MP_ONLY_TICKER;
                     };
-                    LOCAL_COUNTER.get()[0] = 0;
                     engine.particles.values().forEach(particleGroup -> {
                         if (particleGroup.particles instanceof MultiThreadedEqualObjectLinkedOpenHashSetQueue<? extends Particle> multiThreadedEqualObjectLinkedOpenHashSetQueue) {
                             multiThreadedEqualObjectLinkedOpenHashSetQueue.forEach(ticker);
@@ -109,7 +113,6 @@ public class ParallelTickManager {
                             pickAndTick.join();
                         }
                     });
-                    COUNTER.add(LOCAL_COUNTER.get()[0]);
                 }, MultiThreadHelper.getForkJoinPool())
                 .whenCompleteAsync((v, e) -> {
                     if (e != null) {

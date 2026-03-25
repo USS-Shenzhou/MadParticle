@@ -8,7 +8,6 @@ import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.opengl.GlDevice;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
@@ -22,7 +21,6 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuDevice;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.joml.Matrix4f;
@@ -165,6 +163,10 @@ public class NeoInstancedRenderManager {
         tickVBO.ensureCapacity(TICK_VBO_SIZE * particles.size());
     }
 
+    public void clear() {
+        amount = 0;
+    }
+
     public void postUpdate(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles) {
         updateTickVBOTask = executeUpdate(particles, this::updateTickVBOInternal, tickVBO);
     }
@@ -258,16 +260,6 @@ public class NeoInstancedRenderManager {
     @FunctionalInterface
     public interface VboUpdater {
         void update(ObjectLinkedOpenHashSet<SingleQuadParticle> particles, int startIndex, long frameVBOAddress, float partialTicks);
-    }
-
-    static GlDevice getDevice() {
-        var device = RenderSystem.getDevice();
-        if (device instanceof ValidationGpuDevice validationGpuDevice) {
-            return (GlDevice) validationGpuDevice.getRealDevice();
-        } else if (device instanceof GlDevice glDevice) {
-            return glDevice;
-        }
-        throw new IllegalStateException("Unsupported device type: " + device.getClass().getSimpleName());
     }
 
     static boolean oitOn() {

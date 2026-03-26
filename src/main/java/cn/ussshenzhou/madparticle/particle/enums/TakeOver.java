@@ -162,8 +162,18 @@ public enum TakeOver implements ITranslatable {
             case "INSTANCED_TERRAIN" -> ModParticleRenderTypes.INSTANCED_TERRAIN;
             case "SINGLE_QUADS" -> switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering) {
                 case NONE -> originalType;
-                case ALL -> RENDER_BLACKLIST.contains(particle.getClass()) ? ParticleRenderType.SINGLE_QUADS : ModParticleRenderTypes.INSTANCED;
-                case VANILLA -> RENDER_VANILLA.contains(particle.getClass()) ? ModParticleRenderTypes.INSTANCED : originalType;
+                case ALL -> {
+                    if (particle instanceof TerrainParticle) {
+                        yield ModParticleRenderTypes.INSTANCED_TERRAIN;
+                    }
+                    yield RENDER_BLACKLIST.contains(particle.getClass()) ? ParticleRenderType.SINGLE_QUADS : ModParticleRenderTypes.INSTANCED;
+                }
+                case VANILLA -> {
+                    if (particle instanceof TerrainParticle) {
+                        yield ModParticleRenderTypes.INSTANCED_TERRAIN;
+                    }
+                    yield RENDER_VANILLA.contains(particle.getClass()) ? ModParticleRenderTypes.INSTANCED : originalType;
+                }
             };
             default -> originalType;
         };

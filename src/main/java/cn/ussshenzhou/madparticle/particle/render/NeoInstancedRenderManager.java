@@ -6,6 +6,7 @@ import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.madparticle.util.LightCache;
+import cn.ussshenzhou.madparticle.util.MemoryUtil;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.opengl.GlStateManager;
@@ -27,7 +28,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;

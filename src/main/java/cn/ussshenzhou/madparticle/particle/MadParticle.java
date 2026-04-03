@@ -3,10 +3,7 @@ package cn.ussshenzhou.madparticle.particle;
 import cn.ussshenzhou.madparticle.api.AddParticleHelperC;
 import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
-import cn.ussshenzhou.madparticle.particle.enums.ChangeMode;
-import cn.ussshenzhou.madparticle.particle.enums.SpriteFrom;
-import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
-import cn.ussshenzhou.madparticle.particle.enums.TakeOverType;
+import cn.ussshenzhou.madparticle.particle.enums.*;
 import cn.ussshenzhou.madparticle.util.AABBHelper;
 import cn.ussshenzhou.madparticle.util.MathHelper;
 import cn.ussshenzhou.madparticle.util.MovementHelper;
@@ -631,7 +628,7 @@ public class MadParticle extends SingleQuadParticle {
      */
     @Override
     protected Layer getLayer() {
-        return takeOverType.getLayer();
+        return TakeOverTypeUtilC.getLayer(this.takeOverType);
     }
 
     /**
@@ -646,7 +643,7 @@ public class MadParticle extends SingleQuadParticle {
      */
     @Override
     public ParticleRenderType getGroup() {
-        return takeOverType.getParticleRenderType();
+        return TakeOverTypeUtilC.getParticleRenderType(this.takeOverType);
     }
 
     public enum TimeMode {

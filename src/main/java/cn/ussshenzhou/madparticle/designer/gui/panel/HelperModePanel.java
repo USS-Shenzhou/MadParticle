@@ -60,9 +60,7 @@ public class HelperModePanel extends TPanel {
             Thread.startVirtualThread(() -> {
                 if (canHandleCall && event.getUpdated() != this.getEditBox() && event.getUpdated().getParentInstanceOf(HelperModePanel.class) == this.getParent()) {
                     String wholeCommand = commandsChain.warp();
-                    synchronized (this.getEditBox()) {
-                        this.getEditBox().setValue(wholeCommand);
-                    }
+                    Minecraft.getInstance().execute(() -> this.getEditBox().setValue(wholeCommand));
                 }
             });
         }
@@ -328,7 +326,11 @@ public class HelperModePanel extends TPanel {
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         var mc = Minecraft.getInstance();
-        if (!super.mouseClicked(event, doubleClick) && isInWild(event.x(), event.y())) {
+        var clickChildren = super.mouseClicked(event, doubleClick);
+        if (clickChildren) {
+            return true;
+        }
+        if (isInWild(event.x(), event.y())) {
             if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                 var scale = mc.getWindow().getGuiScale();
                 InputConstants.grabOrReleaseMouse(mc.getWindow(), 212995, event.x() * scale, event.y() * scale);

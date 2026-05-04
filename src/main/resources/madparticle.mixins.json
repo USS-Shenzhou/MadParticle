@@ -9,7 +9,8 @@
     "CommandsMixin",
     "LocalCoordinatesAccessor",
     "MultiPackResourceManagerMixin",
-    "WorldCoordinatesAccessor"
+    "WorldCoordinatesAccessor",
+    "compat.IrisFinalPassRendererMixin"
   ],
   "client": [
     "AbstractCommandBlockEditScreenMixin",
@@ -18,10 +19,10 @@
     "LevelRendererMixin",
     "ParticleEngineAccessor",
     "ParticleEngineMixin",
+    "ParticleGroupMixin",
     "ParticleMixin",
     "SuspendedParticleMixin",
-    "TextureManagerAccessor",
-    "ParticleGroupMixin"
+    "TextureManagerAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,11 +1,15 @@
 package cn.ussshenzhou.madparticle.mixin;
 
+import cn.ussshenzhou.madparticle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.render.ModParticleRenderTypes;
 import cn.ussshenzhou.madparticle.particle.render.NeoInstancedRenderManager;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.resource.ResourceHandle;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.chunk.ChunkSectionsToRender;
+import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.joml.Matrix4f;
@@ -29,6 +33,9 @@ public abstract class LevelRendererMixin {
             )
     )
     private void madparticleRenderInstanced(GpuBufferSlice terrainFog, LevelRenderState levelRenderState, ProfilerFiller profiler, ChunkSectionsToRender chunkSectionsToRender, Matrix4fc modelViewMatrix, ResourceHandle entityOutlineTarget, ResourceHandle translucentTarget, ResourceHandle mainTarget, ResourceHandle itemEntityTarget, ResourceHandle particleTarget, boolean renderOutline, CallbackInfo ci) {
+        if (MadParticle.irisOn) {
+            return;
+        }
         NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED).render();
         NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED_TERRAIN).render();
     }

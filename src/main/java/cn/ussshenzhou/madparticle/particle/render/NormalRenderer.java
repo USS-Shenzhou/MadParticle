@@ -58,10 +58,9 @@ public class NormalRenderer {
         }
     }
 
-    @SuppressWarnings({"removal", "UnstableApiUsage"})
     void setVAO(RenderPass pass) {
         pass.setVertexBuffer(0, PROXY_VAO);
-        ((GlDevice) RenderSystem.getDevice().getBackend()).vertexArrayCache().bindVertexArray(getRenderPipeline().getVertexFormat(), (GlBuffer) PROXY_VAO);
+        ((GlDevice) RenderSystem.getDevice().backend).vertexArrayCache().bindVertexArray(getRenderPipeline().getVertexFormat(), (GlBuffer) PROXY_VAO);
 
         setVertexAttributeArray();
     }

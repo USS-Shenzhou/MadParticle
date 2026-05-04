@@ -9,6 +9,7 @@ import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.madparticle.util.MemoryUtil;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.opengl.GlDevice;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
@@ -18,6 +19,8 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.MappableRingBuffer;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -29,6 +32,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -146,6 +150,7 @@ public class NeoInstancedRenderManager {
         var encoder = RenderSystem.getDevice().createCommandEncoder();
         var cameraUbo = encoder.mapBuffer(cameraCorrectionUbo.currentBuffer(), false, true);
         var dynamicUbo = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrix(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F), new Vector3f(), new Matrix4f());
+
         normalRenderer.doRender(encoder, cameraUbo, dynamicUbo);
         cleanUp();
     }
@@ -265,28 +270,4 @@ public class NeoInstancedRenderManager {
     static boolean oitOn() {
         return ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod == TranslucentMethod.OIT;
     }
-
-    //----------iris----------
-    //FIXME
-    void bindIrisFBO() {
-        //    if (!cn.ussshenzhou.madparticle.MadParticle.irisOn) {
-        //        return;
-        //    }
-        //    var program = getDevice().getOrCompilePipeline(getRenderType().renderPipeline).program();
-        //    try {
-        //        var writingToBeforeTranslucentField = program.getClass().getDeclaredField("writingToAfterTranslucent");
-        //        writingToBeforeTranslucentField.setAccessible(true);
-        //        var writingToBeforeTranslucent = writingToBeforeTranslucentField.get(program);
-        //        var bindMethod = writingToBeforeTranslucent.getClass().getDeclaredMethod("bind");
-        //        bindMethod.setAccessible(true);
-        //        bindMethod.invoke(writingToBeforeTranslucent);
-        //        glDrawBuffer(GL_COLOR_ATTACHMENT0);
-        //    } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-        //        LogUtils.getLogger().error(e.toString());
-        //    }
-    }
-
-    // RenderType.CompositeRenderType getRenderType() {
-    //    return (RenderType.CompositeRenderType) (usingAtlas == TextureAtlas.LOCATION_BLOCKS ? ParticleRenderType.TERRAIN_SHEET.renderType() : ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.renderType());
-    //}
 }

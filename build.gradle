@@ -20,6 +20,17 @@ repositories {
     flatDir {
         dir 'libs'
     }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 base {
@@ -148,14 +159,8 @@ dependencies {
     //    }
     //}
 
-    // Example mod dependency with JEI
-    // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    // compileOnly "mezz.jei:jei-${mc_version}-forge-api:${jei_version}"
-    // runtimeOnly "mezz.jei:jei-${mc_version}-forge:${jei_version}"
-
-    //implementation "curse.maven:irisshaders-455508:6717629"
-    //implementation "curse.maven:sodium-394468:6661632"
+    compileOnly(runtimeOnly "maven.modrinth:sodium:mc26.1.2-0.8.10-neoforge")
+    compileOnly(runtimeOnly "maven.modrinth:iris:1.10.9+26.1-neoforge")
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar

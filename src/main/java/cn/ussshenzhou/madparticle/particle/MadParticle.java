@@ -182,30 +182,36 @@ public class MadParticle extends SingleQuadParticle {
         meta.getString(DX.get()).ifPresent(dx -> {
             Expression e = new ExpressionBuilder(dx)
                     .variable("t")
+                    .variables("T")
                     .build();
             dxComplex = new float[length + 1];
             for (int i = 0; i <= length; i++) {
                 e.setVariable("t", (double) i / length);
+                e.setVariable("T", i);
                 dxComplex[i] = (float) e.evaluate();
             }
         });
         meta.getString(DY.get()).ifPresent(dy -> {
             Expression e = new ExpressionBuilder(dy)
                     .variable("t")
+                    .variables("T")
                     .build();
             dyComplex = new float[length + 1];
             for (int i = 0; i <= length; i++) {
                 e.setVariable("t", (double) i / length);
+                e.setVariable("T", i);
                 dyComplex[i] = (float) e.evaluate();
             }
         });
         meta.getString(DZ.get()).ifPresent(dz -> {
             Expression e = new ExpressionBuilder(dz)
                     .variable("t")
+                    .variables("T")
                     .build();
             dzComplex = new float[length + 1];
             for (int i = 0; i <= length; i++) {
                 e.setVariable("t", (double) i / length);
+                e.setVariable("T", i);
                 dzComplex[i] = (float) e.evaluate();
             }
         });

@@ -125,3 +125,4 @@ client/
 
 !/libs/*
 !/.idea/icon.png
+/CLAUDE.md

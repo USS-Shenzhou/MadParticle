@@ -11,7 +11,6 @@ import java.util.function.Function;
  * @author USS_Shenzhou
  */
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
-
 public enum TakeOverType implements ITranslatable {
     INSTANCED("gui.mp.de.helper.render_type.instanced"),
     INSTANCED_TERRAIN("gui.mp.de.helper.render_type.terrain"),

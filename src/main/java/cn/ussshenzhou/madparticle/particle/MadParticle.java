@@ -1,7 +1,6 @@
 package cn.ussshenzhou.madparticle.particle;
 
 import cn.ussshenzhou.madparticle.api.AddParticleHelperC;
-import cn.ussshenzhou.madparticle.mixin.ParticleEngineAccessor;
 import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
 import cn.ussshenzhou.madparticle.particle.enums.*;
 import cn.ussshenzhou.madparticle.util.AABBHelper;
@@ -187,7 +186,7 @@ public class MadParticle extends SingleQuadParticle {
             dxComplex = new float[length + 1];
             for (int i = 0; i <= length; i++) {
                 e.setVariable("t", (double) i / length);
-                e.setVariable("T", i);
+                e.setVariable("T", (double) i / length * lifetime);
                 dxComplex[i] = (float) e.evaluate();
             }
         });
@@ -199,7 +198,7 @@ public class MadParticle extends SingleQuadParticle {
             dyComplex = new float[length + 1];
             for (int i = 0; i <= length; i++) {
                 e.setVariable("t", (double) i / length);
-                e.setVariable("T", i);
+                e.setVariable("T", (double) i / length * lifetime);
                 dyComplex[i] = (float) e.evaluate();
             }
         });
@@ -211,7 +210,7 @@ public class MadParticle extends SingleQuadParticle {
             dzComplex = new float[length + 1];
             for (int i = 0; i <= length; i++) {
                 e.setVariable("t", (double) i / length);
-                e.setVariable("T", i);
+                e.setVariable("T", (double) i / length * lifetime);
                 dzComplex[i] = (float) e.evaluate();
             }
         });

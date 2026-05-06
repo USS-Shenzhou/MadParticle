@@ -53,7 +53,6 @@ public class NormalRenderer {
             setVAO(pass);
             manager.tickVBO.getCurrent().bind();
             pass.setIndexBuffer(EBO, VertexFormat.IndexType.INT);
-            //manager.bindIrisFBO();
             pass.drawIndexed(0, 0, 6, manager.amount);
         }
     }

@@ -7,11 +7,13 @@ import com.google.errorprone.annotations.DoNotCall;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -249,10 +251,22 @@ public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<
     @Override
     public void forEach(Consumer<? super E> action) {
         CompletableFuture<?>[] futures = new CompletableFuture[sets.length];
-        for (int i = 0; i < sets.length; i++) {
+        for (int i = 0; i < threads(); i++) {
             int finalI = i;
             futures[i] = CompletableFuture.runAsync(
                     () -> sets[finalI].forEach(action),
+                    threadPool
+            );
+        }
+        CompletableFuture.allOf(futures).join();
+    }
+
+    public void forEach(BiConsumer<? super E, Integer> action) {
+        CompletableFuture<?>[] futures = new CompletableFuture[sets.length];
+        for (int i = 0; i < threads(); i++) {
+            int finalI = i;
+            futures[i] = CompletableFuture.runAsync(
+                    () -> sets[finalI].forEach(e -> action.accept(e, finalI)),
                     threadPool
             );
         }

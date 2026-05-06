@@ -14,12 +14,14 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleGroup;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -30,7 +32,8 @@ public class ParallelTickManager {
     public static ConcurrentHashMap.KeySetView<Object, Boolean> removeCache = ConcurrentHashMap.newKeySet();
     public static Cache<Particle, Object> syncTickCache = CacheBuilder.newBuilder().concurrencyLevel(threads()).initialCapacity(16384).build();
     public static final Object NULL = new Object();
-    private static final LongAdder COUNTER = new LongAdder();
+    private static volatile long[] COUNTER = new long[16 * threads()];
+    private static volatile int sum = 0;
     public static AtomicInteger addCounter = new AtomicInteger();
     public static AtomicInteger removeCounter = new AtomicInteger();
 
@@ -38,23 +41,23 @@ public class ParallelTickManager {
         NeoInstancedRenderManager.init();
     }
 
-    private static final Consumer<Particle> VANILLA_ONLY_TICKER = particle -> {
+    private static final BiConsumer<Particle, Integer> VANILLA_ONLY_TICKER = (particle, threadId) -> {
         if (getTickType(particle) == TakeOver.TickType.ASYNC) {
-            asyncTick(particle);
+            asyncTick(particle, threadId);
         } else {
             syncTickCache.put(particle, NULL);
         }
     };
-    private static final Consumer<Particle> ALL_TICKER = particle -> {
+    private static final BiConsumer<Particle, Integer> ALL_TICKER = (particle, threadId) -> {
         if (((ITickType) particle).getTickType() != TakeOver.TickType.SYNC) {
-            asyncTick(particle);
+            asyncTick(particle, threadId);
         } else {
             syncTickCache.put(particle, NULL);
         }
     };
-    private static final Consumer<Particle> MP_ONLY_TICKER = particle -> {
+    private static final BiConsumer<Particle, Integer> MP_ONLY_TICKER = (particle, threadId) -> {
         if (particle instanceof MadParticle && getTickType(particle) == TakeOver.TickType.ASYNC) {
-            asyncTick(particle);
+            asyncTick(particle, threadId);
         } else {
             syncTickCache.put(particle, NULL);
         }
@@ -64,16 +67,17 @@ public class ParallelTickManager {
         return ((ITickType) particle).getTickType();
     }
 
-    private static void asyncTick(Particle p) {
+    private static void asyncTick(Particle p, int threadId) {
         p.tick();
-        COUNTER.increment();
+        COUNTER[16 * threadId]++;
         if (p.removed) {
             removeCache.add(p);
         }
     }
 
-    public static void update(int amount) {
-        syncTickCache = CacheBuilder.newBuilder().concurrencyLevel(amount).initialCapacity(65536).build();
+    public static void update(int threads) {
+        syncTickCache = CacheBuilder.newBuilder().concurrencyLevel(threads).initialCapacity(65536).build();
+        COUNTER = new long[16 * threads()];
     }
 
     private static CompletableFuture<Void> lastTickJob;
@@ -84,6 +88,11 @@ public class ParallelTickManager {
         checkPreviousTickDone(engine);
         NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::preUpdate);
         tickSync();
+        sum = 0;
+        for (int i = 0; i < COUNTER.length / 16; i++) {
+            //noinspection NonAtomicOperationOnVolatileField,lossy-conversions
+            sum += COUNTER[i * 16];
+        }
         removeAndAdd(engine);
         if (engine.particles.values().stream().mapToInt(ParticleGroup::size).sum() == 0) {
             NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED).clear();
@@ -99,7 +108,7 @@ public class ParallelTickManager {
                     removeCache.clear();
                 }, MultiThreadHelper.getForkJoinPool())
                 .whenCompleteAsync((v, e) -> {
-                    COUNTER.reset();
+                    Arrays.fill(COUNTER, 0);
                     var ticker = switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking) {
                         case ALL -> ALL_TICKER;
                         case VANILLA -> VANILLA_ONLY_TICKER;
@@ -109,7 +118,7 @@ public class ParallelTickManager {
                         if (particleGroup.particles instanceof MultiThreadedEqualObjectLinkedOpenHashSetQueue<? extends Particle> multiThreadedEqualObjectLinkedOpenHashSetQueue) {
                             multiThreadedEqualObjectLinkedOpenHashSetQueue.forEach(ticker);
                         } else {
-                            ForkJoinTask<?> pickAndTick = MultiThreadHelper.getForkJoinPool().submit(() -> particleGroup.particles.parallelStream().forEach(ticker));
+                            ForkJoinTask<?> pickAndTick = MultiThreadHelper.getForkJoinPool().submit(() -> particleGroup.particles.parallelStream().forEach(p -> ticker.accept(p, 0)));
                             pickAndTick.join();
                         }
                     });
@@ -166,8 +175,9 @@ public class ParallelTickManager {
         syncTickCache.invalidateAll();
     }
 
+    @SuppressWarnings("lossy-conversions")
     public static int count() {
-        return (int) COUNTER.sum();
+        return sum;
     }
 
     private static int threads() {

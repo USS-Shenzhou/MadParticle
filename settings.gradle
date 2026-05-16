@@ -8,7 +8,73 @@ pluginManagement {
 }
 
 plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.9.0'
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+def requestedTasks = gradle.startParameter.taskNames
+def needsT88Bootstrap = requestedTasks.any { name ->
+    name == "jarFromScratch" || name.endsWith(":jarFromScratch")
+}
+
+if (needsT88Bootstrap) {
+    new T88Bootstrap(settings.rootDir, providers).run()
+}
+
+class T88Bootstrap {
+    private static final String REPO_URL = "https://github.com/USS-Shenzhou/t88.git"
+
+    private final File rootDir
+    private final ProviderFactory providers
+
+    T88Bootstrap(File rootDir, ProviderFactory providers) {
+        this.rootDir = rootDir
+        this.providers = providers
+    }
+
+    void run() {
+        def workDir = new File(rootDir, "build/t88-source")
+        def gitDir = new File(workDir, ".git")
+        if (gitDir.isDirectory()) {
+            runCommand(workDir, "git", "pull", "--ff-only")
+        } else {
+            if (workDir.exists()) {
+                workDir.deleteDir()
+            }
+            workDir.parentFile.mkdirs()
+            runCommand(workDir.parentFile,
+                    "git", "clone", "--depth=1", REPO_URL, workDir.name)
+        }
+        def isWindows = System.getProperty("os.name").toLowerCase().contains("win")
+        def wrapperName = isWindows ? "gradlew.bat" : "gradlew"
+        def wrapper = new File(workDir, wrapperName)
+        if (!wrapper.exists()) {
+            throw new GradleException("t88 working tree is missing ${wrapperName} at ${wrapper}")
+        }
+        if (!isWindows) {
+            wrapper.setExecutable(true)
+        }
+        runCommand(workDir, wrapper.absolutePath, "publishToMavenLocal")
+    }
+
+    private void runCommand(File workingDir, String... command) {
+        def execOutput = providers.exec { spec ->
+            spec.commandLine = command.toList()
+            spec.workingDir = workingDir
+            spec.ignoreExitValue = true
+        }
+        def result = execOutput.result.get()
+        def stdoutText = execOutput.standardOutput.asText.get()
+        def stderrText = execOutput.standardError.asText.get()
+        if (stdoutText) {
+            println stdoutText
+        }
+        if (result.exitValue != 0) {
+            throw new GradleException(
+                    "Command failed (exit ${result.exitValue}): ${command.join(' ')}\n" +
+                            "stderr:\n${stderrText}"
+            )
+        }
+    }
 }
 
 rootProject.name = 'MadParticle'

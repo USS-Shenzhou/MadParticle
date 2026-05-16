@@ -15,6 +15,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.ObjIntConsumer;
 import java.util.stream.Stream;
 
 /**
@@ -261,7 +262,7 @@ public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<
         CompletableFuture.allOf(futures).join();
     }
 
-    public void forEach(BiConsumer<? super E, Integer> action) {
+    public void forEach(ObjIntConsumer<? super E> action) {
         CompletableFuture<?>[] futures = new CompletableFuture[sets.length];
         for (int i = 0; i < threads(); i++) {
             int finalI = i;

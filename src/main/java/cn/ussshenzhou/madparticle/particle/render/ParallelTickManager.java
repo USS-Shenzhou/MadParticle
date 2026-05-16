@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.ObjIntConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -41,21 +42,21 @@ public class ParallelTickManager {
         NeoInstancedRenderManager.init();
     }
 
-    private static final BiConsumer<Particle, Integer> VANILLA_ONLY_TICKER = (particle, threadId) -> {
+    private static final ObjIntConsumer<Particle> VANILLA_ONLY_TICKER = (particle, threadId) -> {
         if (getTickType(particle) == TakeOver.TickType.ASYNC) {
             asyncTick(particle, threadId);
         } else {
             syncTickCache.put(particle, NULL);
         }
     };
-    private static final BiConsumer<Particle, Integer> ALL_TICKER = (particle, threadId) -> {
+    private static final ObjIntConsumer<Particle> ALL_TICKER = (particle, threadId) -> {
         if (((ITickType) particle).getTickType() != TakeOver.TickType.SYNC) {
             asyncTick(particle, threadId);
         } else {
             syncTickCache.put(particle, NULL);
         }
     };
-    private static final BiConsumer<Particle, Integer> MP_ONLY_TICKER = (particle, threadId) -> {
+    private static final ObjIntConsumer<Particle> MP_ONLY_TICKER = (particle, threadId) -> {
         if (particle instanceof MadParticle && getTickType(particle) == TakeOver.TickType.ASYNC) {
             asyncTick(particle, threadId);
         } else {

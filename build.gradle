@@ -261,3 +261,21 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ['-Xplugin:T88ClientHandlerWrapper']
 }
 
+abstract class JarFromScratchAlias extends DefaultTask {
+    @Internal
+    abstract RegularFileProperty getArchiveFile()
+    @Internal
+    abstract Property<String> getArchiveFileName()
+
+    @TaskAction
+    void report() {
+        logger.lifecycle("jarFromScratch -> {}", archiveFile.get().asFile)
+    }
+}
+
+tasks.register("jarFromScratch", JarFromScratchAlias) {
+    dependsOn "jar"
+    archiveFile.set(tasks.named("jar").flatMap { it.archiveFile })
+    archiveFileName.set(tasks.named("jar").flatMap { it.archiveFileName })
+}
+

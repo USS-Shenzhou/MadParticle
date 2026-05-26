@@ -51,7 +51,6 @@ public class ModRenderPipelines {
     public static final RenderPipeline INSTANCED_OIT = RenderPipelines.register(
             RenderPipeline.builder(INSTANCED_SNIPPET)
                     .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_oit"))
-                    .withVertexShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"))
                     .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"))
                     .withColorTargetState(new ColorTargetState(BlendFunction.ADDITIVE))
                     .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))

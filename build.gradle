@@ -278,17 +278,3 @@ tasks.register("jarFromScratch", JarFromScratchAlias) {
     archiveFile.set(tasks.named("jar").flatMap { it.archiveFile })
     archiveFileName.set(tasks.named("jar").flatMap { it.archiveFileName })
 }
-
-tasks.register('printDependencies') {
-    def depStrings = configurations.getByName('compileClasspath')
-            .incoming.resolutionResult.allComponents
-            .findAll { it.id instanceof ModuleComponentIdentifier }
-            .collect { "  ${it.moduleVersion}" }
-    doLast {
-        depStrings.each { logger.lifecycle(it) }
-    }
-}
-
-tasks.named('compileJava') {
-    dependsOn 'printDependencies'
-}

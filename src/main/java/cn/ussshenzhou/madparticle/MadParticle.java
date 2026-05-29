@@ -17,6 +17,10 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 
 /**
@@ -29,6 +33,24 @@ public class MadParticle {
     public static final boolean IS_OPTIFINE_INSTALLED = isClassFound("net.optifine.reflect.ReflectorClass");
     public static final boolean IS_IRIS_INSTALLED = ModList.get().isLoaded("iris");
     public static boolean irisOn;
+    @Nullable
+    private static final Class<?> irisApi;
+    private static MethodHandle getInstance;
+    private static MethodHandle isShaderPackInUse;
+
+    static {
+        Class<?> irisApi0;
+        try {
+            irisApi0 = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
+            MethodHandles.Lookup lookup = MethodHandles.lookup();
+            getInstance = lookup.findStatic(irisApi0, "getInstance", MethodType.methodType(irisApi0));
+            isShaderPackInUse = lookup.findVirtual(irisApi0, "isShaderPackInUse", MethodType.methodType(boolean.class));
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
+            irisApi0 = null;
+            irisOn = false;
+        }
+        irisApi = irisApi0;
+    }
 
     public MadParticle(IEventBus modEventBus) {
         modEventBus.addListener(this::setup);
@@ -60,14 +82,13 @@ public class MadParticle {
 
     @SubscribeEvent
     public void onClientTick(ClientTickEvent.Pre event) {
+        if (irisApi == null) {
+            return;
+        }
         try {
-            Class<?> irisApi = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
-            Method getInstance = irisApi.getMethod("getInstance");
-            getInstance.setAccessible(true);
-            Method isShaderPackInUse = irisApi.getMethod("isShaderPackInUse");
-            isShaderPackInUse.setAccessible(true);
-            irisOn = (boolean) isShaderPackInUse.invoke(getInstance.invoke(null));
-        } catch (Exception ignored) {
+            irisOn = (boolean) isShaderPackInUse.invoke(getInstance.invoke());
+        } catch (Throwable e) {
+            LogUtils.getLogger().error("Something went wrong: {}", e.getMessage());
             irisOn = false;
         }
     }

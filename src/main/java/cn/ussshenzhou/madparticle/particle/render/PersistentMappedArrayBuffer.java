@@ -1,5 +1,8 @@
 package cn.ussshenzhou.madparticle.particle.render;
 
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.opengl.GlBuffer;
+import com.mojang.blaze3d.systems.RenderSystem;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -60,30 +63,25 @@ public class PersistentMappedArrayBuffer {
     }
 
     public static class PersistentMappedBuffer {
-        private ByteBuffer mappedBuffer;
-        private final int id;
+        private final GpuBuffer gpuBuffer;
+        private final GpuBuffer.MappedView mappedBuffer;
 
         public PersistentMappedBuffer(int byteSize) {
-            this.id = glGenBuffers();
-            glBindBuffer(GL_ARRAY_BUFFER, id);
-            int flag = GL_MAP_WRITE_BIT | GL_MAP_COHERENT_BIT | GL_MAP_PERSISTENT_BIT;
-            glBufferStorage(GL_ARRAY_BUFFER, byteSize, flag);
-            mappedBuffer = glMapBufferRange(GL_ARRAY_BUFFER, 0, byteSize, flag);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            gpuBuffer = RenderSystem.getDevice().createBuffer(() -> "MadParticle VBO", GpuBuffer.USAGE_MAP_WRITE, byteSize);
+            mappedBuffer = RenderSystem.getDevice().createCommandEncoder().mapBuffer(gpuBuffer, false, true);
         }
 
         public long getAddress() {
-            return MemoryUtil.memAddress(mappedBuffer);
+            return MemoryUtil.memAddress(mappedBuffer.data());
         }
 
         public void free() {
-            glUnmapNamedBuffer(id);
-            glDeleteBuffers(id);
-            mappedBuffer = null;
+            mappedBuffer.close();
+            gpuBuffer.close();
         }
 
         public void bind() {
-            glBindBuffer(GL_ARRAY_BUFFER, id);
+            glBindBuffer(GL_ARRAY_BUFFER, ((GlBuffer) (gpuBuffer)).handle);
         }
 
     }

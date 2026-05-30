@@ -5,14 +5,11 @@ import com.mojang.blaze3d.opengl.GlBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.lwjgl.system.MemoryUtil;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.stream.IntStream;
 
-import static org.lwjgl.opengl.ARBDirectStateAccess.glUnmapNamedBuffer;
 import static org.lwjgl.opengl.GL15C.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL33.*;
-import static org.lwjgl.opengl.ARBBufferStorage.*;
 
 /**
  * @author USS_Shenzhou
@@ -64,19 +61,30 @@ public class PersistentMappedArrayBuffer {
 
     public static class PersistentMappedBuffer {
         private final GpuBuffer gpuBuffer;
-        private final GpuBuffer.MappedView mappedBuffer;
+        private GpuBuffer.MappedView mappedBuffer = null;
 
         public PersistentMappedBuffer(int byteSize) {
             gpuBuffer = RenderSystem.getDevice().createBuffer(() -> "MadParticle VBO", GpuBuffer.USAGE_MAP_WRITE, byteSize);
-            mappedBuffer = RenderSystem.getDevice().createCommandEncoder().mapBuffer(gpuBuffer, false, true);
         }
 
-        public long getAddress() {
+        public long getMappedAddress() {
+            if (mappedBuffer == null) {
+                mappedBuffer = RenderSystem.getDevice().createCommandEncoder().mapBuffer(gpuBuffer, false, true);
+            }
             return MemoryUtil.memAddress(mappedBuffer.data());
         }
 
+        public void done() {
+            if (mappedBuffer != null) {
+                mappedBuffer.close();
+            }
+            mappedBuffer = null;
+        }
+
         public void free() {
-            mappedBuffer.close();
+            if (mappedBuffer != null) {
+                mappedBuffer.close();
+            }
             gpuBuffer.close();
         }
 

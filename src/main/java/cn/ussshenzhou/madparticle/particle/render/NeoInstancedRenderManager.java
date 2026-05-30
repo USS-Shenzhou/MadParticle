@@ -9,7 +9,6 @@ import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.madparticle.util.MemoryUtil;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.opengl.GlDevice;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
@@ -19,8 +18,6 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.MappableRingBuffer;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -32,7 +29,6 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -158,6 +154,7 @@ public class NeoInstancedRenderManager {
     public void preUpdate() {
         if (updateTickVBOTask != null) {
             updateTickVBOTask.join();
+            tickVBO.getNext().done();
             tickVBO.next();
         }
     }
@@ -237,12 +234,13 @@ public class NeoInstancedRenderManager {
         var partialTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
         CompletableFuture<Void>[] futures = new CompletableFuture[particles.threads()];
         int index = 0;
+        long vboAddress = vbo.getNext().getMappedAddress();
         for (int group = 0; group < futures.length; group++) {
             @SuppressWarnings("rawtypes")
             ObjectLinkedOpenHashSet set = particles.get(group);
             int i = index;
             futures[group] = CompletableFuture.runAsync(
-                    () -> updater.update((ObjectLinkedOpenHashSet<SingleQuadParticle>) set, i, vbo.getNext().getAddress(), partialTicks),
+                    () -> updater.update((ObjectLinkedOpenHashSet<SingleQuadParticle>) set, i, vboAddress, partialTicks),
                     getFixedThreadPool()
             );
             index += set.size();

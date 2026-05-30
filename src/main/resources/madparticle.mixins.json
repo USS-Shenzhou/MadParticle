@@ -16,7 +16,6 @@
     "AbstractCommandBlockEditScreenMixin",
     "ClientLevelMixin",
     "EditBoxAccessor",
-    "LevelRendererMixin",
     "ParticleEngineAccessor",
     "ParticleEngineMixin",
     "ParticleGroupMixin",

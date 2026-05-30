@@ -23,6 +23,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -122,6 +123,7 @@ public class NeoInstancedRenderManager {
 
     static {
         NeoForge.EVENT_BUS.addListener(NeoInstancedRenderManager::checkForceMaxLight);
+        NeoForge.EVENT_BUS.addListener(NeoInstancedRenderManager::renderAtLast);
         var eboBuffer = BufferUtils.createByteBuffer(6 * 4);
         eboBuffer.putInt(0);
         eboBuffer.putInt(1);
@@ -131,6 +133,15 @@ public class NeoInstancedRenderManager {
         eboBuffer.putInt(3);
         eboBuffer.flip();
         EBO = ModRenderPipelines.INSTANCED_COMMON_DEPTH.getVertexFormat().uploadImmediateIndexBuffer(eboBuffer);
+    }
+
+    @SubscribeEvent
+    public static void renderAtLast(RenderLevelStageEvent.AfterTranslucentParticles event) {
+        if (cn.ussshenzhou.madparticle.MadParticle.irisOn) {
+            return;
+        }
+        NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED).render();
+        NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED_TERRAIN).render();
     }
 
     @SubscribeEvent

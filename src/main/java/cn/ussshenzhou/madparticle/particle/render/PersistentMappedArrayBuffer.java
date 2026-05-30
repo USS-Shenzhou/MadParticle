@@ -2,6 +2,7 @@ package cn.ussshenzhou.madparticle.particle.render;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.opengl.GlBuffer;
+import com.mojang.blaze3d.opengl.GlDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.lwjgl.system.MemoryUtil;
 
@@ -69,7 +70,7 @@ public class PersistentMappedArrayBuffer {
 
         public long getMappedAddress() {
             if (mappedBuffer == null) {
-                mappedBuffer = RenderSystem.getDevice().createCommandEncoder().mapBuffer(gpuBuffer, false, true);
+                mappedBuffer = RenderSystem.getDevice().backend.createCommandEncoder().mapBuffer(gpuBuffer.slice(), false, true);
             }
             return MemoryUtil.memAddress(mappedBuffer.data());
         }

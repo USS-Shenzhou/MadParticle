@@ -17,45 +17,49 @@ import static org.lwjgl.opengl.GL33.*;
  */
 public class PersistentMappedArrayBuffer {
     private final ArrayList<PersistentMappedBuffer> buffers = new ArrayList<>();
-    protected int byteSize, usingIndex = -1;
+    private PersistentMappedBuffer lastUsing = null;
+    protected int byteSize, usingIndex = 0;
     private static final int N = 4;
-    private boolean trapping = false;
 
     public PersistentMappedArrayBuffer() {
+        ensureCapacity(1024 * 1024);
     }
 
     public void ensureCapacity(int byteSize) {
-        PersistentMappedBuffer using = usingIndex == -1 ? null : buffers.get(usingIndex);
         if (byteSize > this.byteSize) {
-            buffers.forEach(persistentMappedBuffer -> {
-                if (persistentMappedBuffer != using) {
-                    persistentMappedBuffer.free();
+            if (lastUsing != null) {
+                lastUsing.free();
+            }
+            if (!buffers.isEmpty()) {
+                lastUsing = buffers.get(usingIndex);
+            }
+            for (var buffer : buffers) {
+                if (buffer != lastUsing) {
+                    buffer.free();
                 }
-            });
+            }
             buffers.clear();
             this.byteSize = (int) (byteSize * 1.25);
             buffers.addAll(IntStream.range(0, N).mapToObj(i -> new PersistentMappedBuffer(this.byteSize)).toList());
-            if (using != null) {
-                buffers.add(using);
-                trapping = true;
-            }
+            usingIndex = 0;
         }
     }
 
-    @SuppressWarnings("SequencedCollectionMethodCanBeUsed")
     public PersistentMappedBuffer getNext() {
-        return trapping ? buffers.get(0) : buffers.get((usingIndex + 1) % N);
+        return buffers.get((usingIndex + 1) % N);
     }
 
     public PersistentMappedBuffer getCurrent() {
-        return trapping ? buffers.get(N) : buffers.get(usingIndex);
+        if (lastUsing != null) {
+            return lastUsing;
+        }
+        return buffers.get(usingIndex);
     }
 
     public void next() {
-        if (trapping) {
-            trapping = false;
-            usingIndex = 0;
-            return;
+        if (lastUsing != null) {
+            lastUsing.free();
+            lastUsing = null;
         }
         usingIndex = (usingIndex + 1) % N;
     }

@@ -7,6 +7,7 @@ import cn.ussshenzhou.t88.gui.util.ITranslatable;
 import com.google.common.collect.Sets;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.particle.*;
+import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
@@ -88,7 +89,12 @@ public enum TakeOver implements ITranslatable {
             GlowParticle.class,
             FireworkParticles.SparkParticle.class
     );
-    private static final HashSet<Class<? extends Particle>> RENDER_BLACKLIST = new HashSet<>();
+    @SuppressWarnings("unchecked")
+    private static final HashSet<Class<? extends Particle>> RENDER_BLACKLIST = Sets.newHashSet(
+            //TODO support item atlas
+            BlockMarker.class,
+            BreakingItemParticle.class
+    );
     @SuppressWarnings("unchecked")
     private static final HashSet<Class<? extends SingleQuadParticle>> RENDER_VANILLA = Sets.newHashSet(
             SnowflakeParticle.class,

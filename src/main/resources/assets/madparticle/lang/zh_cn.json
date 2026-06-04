@@ -1,5 +1,5 @@
 {
-  "key.categories.madparticle": "疯狂粒子",
+  "key.category.madparticle.madparticle": "疯狂粒子",
   "key.mp.call_de": "打开设计器",
   "key.mp.clear_de": "重新启动设计器",
 
@@ -31,19 +31,12 @@
   "gui.mp.de.helper.false": "否",
   "gui.mp.de.helper.amount": "数量",
   "gui.mp.de.helper.render_type": "渲染模式",
-  "gui.mp.de.helper.render_type.terrain": "§eTerrain",
-  "gui.mp.de.helper.render_type.opaque": "不透明",
-  "gui.mp.de.helper.render_type.lit": "§eLit",
-  "gui.mp.de.helper.render_type.translucent": "半透明",
 
-  "gui.mp.de.helper.render_type.instanced": "§a实例化",
-  "gui.mp.de.helper.render_type.vanilla_terrain": "§e原版terrain",
-  "gui.mp.de.helper.render_type.vanilla_opaque": "原版不透明",
-  "gui.mp.de.helper.render_type.vanilla_lit": "§e原版lit",
-  "gui.mp.de.helper.render_type.vanilla_translucent": "原版半透明",
+  "gui.mp.de.helper.render_type.terrain": "方块材质",
+  "gui.mp.de.helper.render_type.item": "物品材质",
+  "gui.mp.de.helper.render_type.instanced": "粒子材质",
+  "gui.mp.de.helper.render_type.default": "默认/未指定",
 
-  "gui.mp.de.helper.render_type.vanilla_custom": "§c原版自定义",
-  "gui.mp.de.helper.render_type.no_render": "§e不渲染",
   "gui.mp.de.helper.who_see": "可见者",
   "gui.mp.de.helper.x_diffuse": "X误差",
   "gui.mp.de.helper.y_diffuse": "Y误差",

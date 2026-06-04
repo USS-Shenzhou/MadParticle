@@ -14,6 +14,7 @@ import java.util.function.Function;
 public enum TakeOverType implements ITranslatable {
     INSTANCED("gui.mp.de.helper.render_type.instanced"),
     INSTANCED_TERRAIN("gui.mp.de.helper.render_type.terrain"),
+    INSTANCED_ITEM("gui.mp.de.helper.render_type.item"),
     DEFAULT("gui.mp.de.helper.render_type.default");
 
     private final String translateKey;

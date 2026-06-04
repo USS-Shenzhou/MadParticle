@@ -18,8 +18,7 @@ public class IrisFinalPassRendererMixin {
     @Inject(method = "renderFinalPass", at = @At(value = "INVOKE", target = "Lnet/irisshaders/iris/gl/GLDebug;popGroup()V", shift = At.Shift.BEFORE), require = 0)
     private void madparticleRender(CallbackInfo ci) {
         if (MadParticle.irisOn) {
-            NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED).render();
-            NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED_TERRAIN).render();
+            NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::render);
         }
     }
 }

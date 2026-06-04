@@ -7,7 +7,6 @@ import cn.ussshenzhou.t88.gui.util.ITranslatable;
 import com.google.common.collect.Sets;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.particle.*;
-import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
@@ -91,12 +90,14 @@ public enum TakeOver implements ITranslatable {
     );
     @SuppressWarnings("unchecked")
     private static final HashSet<Class<? extends Particle>> RENDER_BLACKLIST = Sets.newHashSet(
-            //TODO support item atlas
+    );
+
+    private static final HashSet<Class<? extends SingleQuadParticle>> ITEM_ATLAS = Sets.newHashSet(
             BlockMarker.class,
             BreakingItemParticle.class
     );
     @SuppressWarnings("unchecked")
-    private static final HashSet<Class<? extends SingleQuadParticle>> RENDER_VANILLA = Sets.newHashSet(
+    private static final HashSet<Class<? extends SingleQuadParticle>> PARTICLE_ATLAS = Sets.newHashSet(
             SnowflakeParticle.class,
             SpitParticle.class,
             SpellParticle.class,
@@ -160,25 +161,34 @@ public enum TakeOver implements ITranslatable {
         if (!(particle instanceof SingleQuadParticle)) {
             return originalType;
         }
-        if (originalType == ModParticleRenderTypes.INSTANCED || originalType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
+        if (originalType == ModParticleRenderTypes.INSTANCED || originalType == ModParticleRenderTypes.INSTANCED_TERRAIN || originalType == ModParticleRenderTypes.INSTANCED_ITEM) {
             return originalType;
         }
         return switch (originalType.name()) {
             case "INSTANCED" -> ModParticleRenderTypes.INSTANCED;
             case "INSTANCED_TERRAIN" -> ModParticleRenderTypes.INSTANCED_TERRAIN;
+            case "INSTANCED_ITEM" -> ModParticleRenderTypes.INSTANCED_ITEM;
             case "SINGLE_QUADS" -> switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering) {
                 case NONE -> originalType;
                 case ALL -> {
-                    if (particle instanceof TerrainParticle) {
+                    if (RENDER_BLACKLIST.contains(particle.getClass())) {
+                        yield ParticleRenderType.SINGLE_QUADS;
+                    } else if (particle instanceof TerrainParticle) {
                         yield ModParticleRenderTypes.INSTANCED_TERRAIN;
+                    } else if (ITEM_ATLAS.contains(particle.getClass())) {
+                        yield ModParticleRenderTypes.INSTANCED_ITEM;
                     }
-                    yield RENDER_BLACKLIST.contains(particle.getClass()) ? ParticleRenderType.SINGLE_QUADS : ModParticleRenderTypes.INSTANCED;
+                    yield ModParticleRenderTypes.INSTANCED;
                 }
                 case VANILLA -> {
                     if (particle instanceof TerrainParticle) {
                         yield ModParticleRenderTypes.INSTANCED_TERRAIN;
+                    } else if (ITEM_ATLAS.contains(particle.getClass())) {
+                        yield ModParticleRenderTypes.INSTANCED_ITEM;
+                    } else if (PARTICLE_ATLAS.contains(particle.getClass())) {
+                        yield ModParticleRenderTypes.INSTANCED;
                     }
-                    yield RENDER_VANILLA.contains(particle.getClass()) ? ModParticleRenderTypes.INSTANCED : originalType;
+                    yield originalType;
                 }
             };
             default -> originalType;

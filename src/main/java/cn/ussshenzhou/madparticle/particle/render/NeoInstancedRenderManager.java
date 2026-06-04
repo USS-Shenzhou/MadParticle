@@ -58,13 +58,16 @@ public class NeoInstancedRenderManager {
     static final NeoInstancedRenderManager[] MANAGER_BY_RENDER_TYPE = new NeoInstancedRenderManager[]{
             new NeoInstancedRenderManager(TextureAtlas.LOCATION_PARTICLES),
             new NeoInstancedRenderManager(TextureAtlas.LOCATION_BLOCKS),
+            new NeoInstancedRenderManager(TextureAtlas.LOCATION_ITEMS),
     };
 
     public static NeoInstancedRenderManager getInstance(ParticleRenderType renderType) {
         if (renderType == ModParticleRenderTypes.INSTANCED) {
             return MANAGER_BY_RENDER_TYPE[0];
+        } else if (renderType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
+            return MANAGER_BY_RENDER_TYPE[1];
         }
-        return MANAGER_BY_RENDER_TYPE[1];
+        return MANAGER_BY_RENDER_TYPE[2];
     }
 
     public static Stream<NeoInstancedRenderManager> getAllInstances() {
@@ -74,6 +77,7 @@ public class NeoInstancedRenderManager {
     public static void forEach(Consumer<? super NeoInstancedRenderManager> consumer) {
         consumer.accept(MANAGER_BY_RENDER_TYPE[0]);
         consumer.accept(MANAGER_BY_RENDER_TYPE[1]);
+        consumer.accept(MANAGER_BY_RENDER_TYPE[2]);
     }
 
     public static void init() {
@@ -140,8 +144,7 @@ public class NeoInstancedRenderManager {
         if (cn.ussshenzhou.madparticle.MadParticle.irisOn) {
             return;
         }
-        NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED).render();
-        NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED_TERRAIN).render();
+        forEach(NeoInstancedRenderManager::render);
     }
 
     @SubscribeEvent

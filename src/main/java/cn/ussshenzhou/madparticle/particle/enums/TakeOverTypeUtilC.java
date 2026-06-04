@@ -10,6 +10,7 @@ public class TakeOverTypeUtilC {
         return switch (t) {
             case INSTANCED, DEFAULT -> SingleQuadParticle.Layer.TRANSLUCENT;
             case INSTANCED_TERRAIN -> SingleQuadParticle.Layer.TRANSLUCENT_TERRAIN;
+            case INSTANCED_ITEM -> SingleQuadParticle.Layer.TRANSLUCENT_ITEMS;
         };
     }
 
@@ -18,6 +19,7 @@ public class TakeOverTypeUtilC {
             case INSTANCED -> ModParticleRenderTypes.INSTANCED;
             case INSTANCED_TERRAIN -> ModParticleRenderTypes.INSTANCED_TERRAIN;
             case DEFAULT -> ParticleRenderType.SINGLE_QUADS;
+            case INSTANCED_ITEM -> ModParticleRenderTypes.INSTANCED_ITEM;
         };
     }
 }

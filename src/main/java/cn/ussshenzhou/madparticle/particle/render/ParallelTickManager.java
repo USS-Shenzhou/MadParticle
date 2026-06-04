@@ -96,11 +96,10 @@ public class ParallelTickManager {
         }
         removeAndAdd(engine);
         if (engine.particles.values().stream().mapToInt(ParticleGroup::size).sum() == 0) {
-            NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED).clear();
-            NeoInstancedRenderManager.getInstance(ModParticleRenderTypes.INSTANCED_TERRAIN).clear();
+            NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::clear);
         }
         engine.particles.forEach((renderType, particles) -> {
-            if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
+            if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN || renderType == ModParticleRenderTypes.INSTANCED_ITEM) {
                 NeoInstancedRenderManager.getInstance(renderType).update((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particles.particles);
             }
         });
@@ -129,7 +128,7 @@ public class ParallelTickManager {
                         failSafe(engine, e);
                     }
                     engine.particles.forEach((renderType, particleGroup) -> {
-                        if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
+                        if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN || renderType == ModParticleRenderTypes.INSTANCED_ITEM) {
                             NeoInstancedRenderManager.getInstance(renderType).postUpdate((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particleGroup.particles);
                         }
                     });

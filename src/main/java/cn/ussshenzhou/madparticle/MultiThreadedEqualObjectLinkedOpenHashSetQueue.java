@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
+import java.lang.ref.Cleaner;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.*;
@@ -25,6 +26,8 @@ import java.util.stream.Stream;
  */
 public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<E> {
     private static final AtomicInteger ID = new AtomicInteger();
+    private static final Cleaner CLEANER = Cleaner.create();
+
     private final ObjectLinkedOpenHashSet<E>[] sets;
     private final int maxSize;
     private final DefaultEventExecutorGroup threadPool;
@@ -42,6 +45,10 @@ public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<
                 .setNameFormat("MadParticle-MultiThreadedEqualObjectLinkedOpenHashSetQueue-" + ID.get() + "-Thread-%d")
                 .build()
         );
+
+        //noinspection UnnecessaryLocalVariable
+        var pool = this.threadPool;
+        CLEANER.register(this, pool::shutdownGracefully);
     }
 
     public MultiThreadedEqualObjectLinkedOpenHashSetQueue(int maxSize) {

@@ -52,7 +52,7 @@ public class SettingPanel extends TOptionsPanel {
                         b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.limitMaxParticleGenerateDistance = false)),
                 e -> e.getContent() == getConfigRead().limitMaxParticleGenerateDistance
         )
-                .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.real_force.tooltip")));
+                .getSecond().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.real_force.tooltip")));
         int amount = getConfigRead().getBufferFillerThreads();
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.threads"),
                 //FIXME
@@ -64,7 +64,7 @@ public class SettingPanel extends TOptionsPanel {
                     MultiThreadHelper.update(a);
                 }, entry -> entry.getContent() instanceof String ? amount == 1 : amount == (Integer) entry.getContent()
         )
-                .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.threads.tooltip")));
+                .getSecond().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.threads.tooltip")));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.universal.translucent"),
                 List.of(TranslucentMethod.values()),
                 method -> b -> {
@@ -79,12 +79,12 @@ public class SettingPanel extends TOptionsPanel {
                 List.of(TakeOver.values()), takeOver -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.takeOverRendering = b.getSelected().getContent()),
                 entry -> entry.getContent() == getConfigRead().takeOverRendering
         )
-                .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.additional.takeover_render.tooltip")));
+                .getSecond().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.additional.takeover_render.tooltip")));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.additional.takeover_tick"),
                 List.of(TakeOver.values()), takeOver -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.takeOverTicking = b.getSelected().getContent()),
                 entry -> entry.getContent() == getConfigRead().takeOverTicking
         )
-                .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.additional.takeover_tick.tooltip")));
+                .getSecond().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.additional.takeover_tick.tooltip")));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.additional.optimize_command_block"),
                 List.of(Boolean.TRUE, Boolean.FALSE),
                 bool -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.optimizeCommandBlockEditScreen = bool),
@@ -105,26 +105,26 @@ public class SettingPanel extends TOptionsPanel {
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.light.hor"),
                 Sets.newLinkedHashSet(List.of(16, 64, 128, 256, 512, getConfigRead().lightCacheXZRange)).stream().toList(),
                 integer -> i -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.lightCacheXZRange = i.getSelected().getContent()),
-                entry -> entry.getContent() == getConfigRead().lightCacheXZRange).getB()
+                entry -> entry.getContent() == getConfigRead().lightCacheXZRange).getSecond()
                 .setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.light.hor.tooltip")));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.light.ver"),
                 Sets.newLinkedHashSet(List.of(16, 64, 128, 256, 512, getConfigRead().lightCacheYRange)).stream().toList(),
                 integer -> i -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.lightCacheYRange = i.getSelected().getContent()),
-                entry -> entry.getContent() == getConfigRead().lightCacheYRange).getB()
+                entry -> entry.getContent() == getConfigRead().lightCacheYRange).getSecond()
                 .setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.light.ver.tooltip")));
-        ramUsage = addOption(Component.translatable("gui.mp.de.setting.light.ram"), new TLabel()).getB()
+        ramUsage = addOption(Component.translatable("gui.mp.de.setting.light.ram"), new TLabel()).getSecond()
                 .setHorizontalAlignment(HorizontalAlignment.LEFT);
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.light.force"),
                 List.of(Boolean.TRUE, Boolean.FALSE),
                 bool -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.forceMaxLight = bool),
-                entry -> entry.getContent() == getConfigRead().forceMaxLight).getB()
+                entry -> entry.getContent() == getConfigRead().forceMaxLight).getSecond()
                 .setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.light.force.tooltip")));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.light.update"),
                 List.of(LightCacheRefreshInterval.values()),
                 interval -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.lightCacheRefreshInterval = interval),
                 entry -> entry.getContent() == getConfigRead().lightCacheRefreshInterval
         )
-                .getB().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.light.update.tooltip")));
+                .getSecond().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.light.update.tooltip")));
 
         addOptionSplitter(Component.translatable("gui.mp.de.setting.debug"));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.debug.non_indexed"),

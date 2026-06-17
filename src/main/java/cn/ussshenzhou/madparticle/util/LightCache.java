@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -70,14 +71,11 @@ public class LightCache {
     }
 
     public byte getOrCompute(int x, int y, int z, SingleQuadParticle particle) {
-        var camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
-        double cameraX = camera.x;
-        double cameraY = camera.y;
-        double cameraZ = camera.z;
-        if (isInRange(x, y, z, cameraX, cameraY, cameraZ)) {
-            int rx = Mth.floor(x - cameraX) + XZ_RANGE;
-            int ry = Mth.floor(y - cameraY) + Y_RANGE;
-            int rz = Mth.floor(z - cameraZ) + XZ_RANGE;
+        if (isInRange(x, y, z)) {
+            var camera = Minecraft.getInstance().gameRenderer.mainCamera().position();
+            int rx = Mth.floor(x - camera.x) + XZ_RANGE;
+            int ry = Mth.floor(y - camera.y) + Y_RANGE;
+            int rz = Mth.floor(z - camera.z) + XZ_RANGE;
             byte value = bright[rx][rz][ry];
             int i = rx * XZ_RANGE * 2 * Y_RANGE * 2 / 8 + rz * Y_RANGE * 2 / 8 + ry / 8;
             byte mod = modifyFlag.get(i);
@@ -108,7 +106,7 @@ public class LightCache {
 
     public static int getLight(SingleQuadParticle particle, int x, int y, int z) {
         var pos = MUTABLE_BLOCK_POS.get().set(x, y, z);
-        return particle.level.hasChunkAt(pos) ? LevelRenderer.getLightCoords(particle.level, pos) : 0;
+        return particle.level.hasChunkAt(pos) ? LightCoordsUtil.getLightCoords(particle.level, pos) : 0;
     }
 
     private byte getMax(int packedLight) {
@@ -117,7 +115,8 @@ public class LightCache {
         return (byte) (Math.max(block, sky));
     }
 
-    private boolean isInRange(int x, int y, int z, double cameraX, double cameraY, double cameraZ) {
-        return Math.abs(x - cameraX) < XZ_RANGE && Math.abs(y - cameraY) < Y_RANGE && Math.abs(z - cameraZ) < XZ_RANGE;
+    private boolean isInRange(int x, int y, int z) {
+        var camera = Minecraft.getInstance().gameRenderer.mainCamera().position();
+        return Math.abs(x - camera.x) < XZ_RANGE && Math.abs(y - camera.y) < Y_RANGE && Math.abs(z - camera.z) < XZ_RANGE;
     }
 }

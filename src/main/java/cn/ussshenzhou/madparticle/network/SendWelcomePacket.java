@@ -36,11 +36,11 @@ public class SendWelcomePacket {
     public void clientHandler(IPayloadContext context) {
         if (!ConfigHelper.getConfigRead(MadParticleConfig.class).noWelcomeScreen) {
             Thread.startVirtualThread(() -> {
-                while (Minecraft.getInstance().screen != null) {
+                while (Minecraft.getInstance().gui.screen() != null) {
                     LockSupport.parkNanos(500_000_000);
                 }
                 Minecraft.getInstance().execute(() -> {
-                    ClientHooks.pushGuiLayer(Minecraft.getInstance(), new WelcomeScreen());
+                    Minecraft.getInstance().gui.pushScreenLayer(new WelcomeScreen());
                 });
             });
         }

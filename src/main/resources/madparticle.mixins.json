@@ -9,8 +9,7 @@
     "CommandsMixin",
     "LocalCoordinatesAccessor",
     "MultiPackResourceManagerMixin",
-    "WorldCoordinatesAccessor",
-    "compat.IrisFinalPassRendererMixin"
+    "WorldCoordinatesAccessor"
   ],
   "client": [
     "AbstractCommandBlockEditScreenMixin",

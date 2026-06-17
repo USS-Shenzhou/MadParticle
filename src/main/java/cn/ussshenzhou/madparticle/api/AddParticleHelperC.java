@@ -125,11 +125,11 @@ public class AddParticleHelperC {
                 double z = fromValueAndDiffuse(option.pz(), option.zDiffuse());
                 if (option.alwaysRender().get()) {
                     if (ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance) {
-                        if (mc.gameRenderer.getMainCamera().position().distanceToSqr(x, y, z) > getMaxParticleGenerateDistanceSqr()) {
+                        if (mc.gameRenderer.mainCamera().position().distanceToSqr(x, y, z) > getMaxParticleGenerateDistanceSqr()) {
                             continue;
                         }
                     }
-                } else if (mc.gameRenderer.getMainCamera().position().distanceToSqr(x, y, z) > getNormalParticleGenerateDistanceSqr()) {
+                } else if (mc.gameRenderer.mainCamera().position().distanceToSqr(x, y, z) > getNormalParticleGenerateDistanceSqr()) {
                     continue;
                 }
                 //noinspection DataFlowIssue
@@ -162,11 +162,11 @@ public class AddParticleHelperC {
                 double z = fromValueAndDiffuse(option.pz(), option.zDiffuse());
                 if (option.alwaysRender().get()) {
                     if (ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance) {
-                        if (mc.gameRenderer.getMainCamera().position().distanceToSqr(x, y, z) > getMaxParticleGenerateDistanceSqr()) {
+                        if (mc.gameRenderer.mainCamera().position().distanceToSqr(x, y, z) > getMaxParticleGenerateDistanceSqr()) {
                             continue;
                         }
                     }
-                } else if (mc.gameRenderer.getMainCamera().position().distanceToSqr(x, y, z) > getNormalParticleGenerateDistanceSqr()) {
+                } else if (mc.gameRenderer.mainCamera().position().distanceToSqr(x, y, z) > getNormalParticleGenerateDistanceSqr()) {
                     continue;
                 }
                 var p = provider.createParticle(option, level, x, y, z,

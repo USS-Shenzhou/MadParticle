@@ -159,8 +159,8 @@ dependencies {
     //    }
     //}
 
-    compileOnly(runtimeOnly "maven.modrinth:sodium:mc26.1.2-0.8.10-neoforge")
-    compileOnly(runtimeOnly "maven.modrinth:iris:1.10.9+26.1-neoforge")
+    //compileOnly(runtimeOnly "maven.modrinth:sodium:mc26.1.2-0.8.10-neoforge")
+    //compileOnly(runtimeOnly "maven.modrinth:iris:1.10.9+26.1-neoforge")
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar

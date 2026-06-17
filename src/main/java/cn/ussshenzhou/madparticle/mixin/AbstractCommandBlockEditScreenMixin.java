@@ -49,7 +49,7 @@ public class AbstractCommandBlockEditScreenMixin extends Screen {
             var button = new TButton(Component.translatable("gui.mp.optimize_command_block.to_designer"), b -> {
                 var s = DesignerScreen.newInstance(Minecraft.getInstance().options.getCameraType());
                 CameraHelper.setCameraType(CameraType.THIRD_PERSON_BACK);
-                Minecraft.getInstance().setScreen(s);
+                Minecraft.getInstance().gui.setScreen(s);
                 s.initFromCommand(this.commandEdit.getValue());
                 s.getTabPageContainer().selectTab(0);
             });

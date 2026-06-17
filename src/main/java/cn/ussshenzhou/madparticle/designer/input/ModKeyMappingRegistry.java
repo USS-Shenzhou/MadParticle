@@ -47,15 +47,15 @@ public class ModKeyMappingRegistry {
         if (CALL_OUT_DESIGNER.consumeClick()) {
             var screen = DesignerScreen.getInstance(cameraType);
             if (screen == null) {
-                minecraft.setScreen(DesignerScreen.newInstance(cameraType));
+                minecraft.gui.setScreen(DesignerScreen.newInstance(cameraType));
             } else {
-                minecraft.setScreen(DesignerScreen.getInstance(cameraType));
+                minecraft.gui.setScreen(DesignerScreen.getInstance(cameraType));
             }
             CameraHelper.setCameraType(CameraType.THIRD_PERSON_BACK);
         } else if (CLEAR_DESIGNER.consumeClick()) {
-            if (minecraft.screen instanceof DesignerScreen) {
-                minecraft.setScreen(null);
-                minecraft.setScreen(DesignerScreen.newInstance(cameraType));
+            if (minecraft.gui.screen() instanceof DesignerScreen) {
+                minecraft.gui.setScreen(null);
+                minecraft.gui.setScreen(DesignerScreen.newInstance(cameraType));
                 CameraHelper.setCameraType(CameraType.THIRD_PERSON_BACK);
             } else {
                 DesignerScreen.newInstance(cameraType);

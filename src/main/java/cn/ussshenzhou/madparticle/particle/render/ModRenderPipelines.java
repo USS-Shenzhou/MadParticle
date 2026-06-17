@@ -1,14 +1,14 @@
 package cn.ussshenzhou.madparticle.particle.render;
 
 import cn.ussshenzhou.madparticle.MadParticle;
-import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.ColorTargetState;
-import com.mojang.blaze3d.pipeline.DepthStencilState;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.GpuFormat;
+import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.blaze3d.pipeline.*;
 import com.mojang.blaze3d.platform.*;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
+import net.minecraft.client.renderer.BindGroupLayouts;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 
@@ -16,16 +16,28 @@ import net.minecraft.resources.Identifier;
  * @author USS_Shenzhou
  */
 public class ModRenderPipelines {
-    public static final VertexFormat INSTANCED_VERTEX_FORMAT = VertexFormat.builder()
-            .add("MadParticle Position", VertexFormatElement.POSITION)
+    public static final VertexFormat INSTANCED_VERTEX_FORMAT = VertexFormat.builder(1)
+            .addAttribute("instanceXYZRoll", GpuFormat.RGBA32_FLOAT)
+            .addAttribute("prevInstanceXYZRoll", GpuFormat.RGBA32_FLOAT)
+            .addAttribute("instanceUV", GpuFormat.RGBA16_FLOAT)
+            .addAttribute("instanceColor", GpuFormat.RGBA16_FLOAT)
+            .addAttribute("sizeExtraLight", GpuFormat.RG16_FLOAT)
+            .addAttribute("instanceUV2", GpuFormat.R32_UINT)
             .build();
 
-    public static final RenderPipeline.Snippet INSTANCED_SNIPPET = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
-            .withVertexFormat(INSTANCED_VERTEX_FORMAT, VertexFormat.Mode.QUADS)
+    public static final BindGroupLayout CAMERA_CORRECTION = BindGroupLayout.builder().withUniform("CameraCorrection", UniformType.UNIFORM_BUFFER).build();
+
+    public static final RenderPipeline.Snippet INSTANCED_SNIPPET = RenderPipeline.builder()
             .withVertexShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle"))
-            .withSampler("Sampler0")
-            .withSampler("Sampler2")
-            .withUniform("CameraCorrection", UniformType.UNIFORM_BUFFER)
+
+            .withBindGroupLayout(BindGroupLayouts.SAMPLER0_SAMPLER2)
+            .withBindGroupLayout(CAMERA_CORRECTION)
+            .withBindGroupLayout(BindGroupLayouts.FOG)
+            .withBindGroupLayout(BindGroupLayouts.MATRICES_PROJECTION)
+
+            .withVertexBinding(0, INSTANCED_VERTEX_FORMAT)
+
+            .withPrimitiveTopology(PrimitiveTopology.QUADS)
             .withPolygonMode(PolygonMode.FILL)
             .withCull(true)
             .buildSnippet();
@@ -35,7 +47,7 @@ public class ModRenderPipelines {
                     .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common"))
                     .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_common"))
                     .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-                    .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
+                    .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, true))
                     .build()
     );
 
@@ -44,7 +56,7 @@ public class ModRenderPipelines {
                     .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_common_blend"))
                     .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_common"))
                     .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-                    .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+                    .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, false))
                     .build()
     );
 
@@ -53,7 +65,7 @@ public class ModRenderPipelines {
                     .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_oit"))
                     .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"))
                     .withColorTargetState(new ColorTargetState(BlendFunction.ADDITIVE))
-                    .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+                    .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, false))
                     .build()
     );
 

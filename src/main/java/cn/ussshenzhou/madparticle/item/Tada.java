@@ -2,7 +2,6 @@ package cn.ussshenzhou.madparticle.item;
 
 import cn.ussshenzhou.madparticle.item.component.ModDataComponent;
 import cn.ussshenzhou.madparticle.item.component.TadaComponent;
-import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.permissions.LevelBasedPermissionSet;
@@ -25,7 +24,6 @@ import java.util.function.Consumer;
  * @author USS_Shenzhou
  */
 @ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class Tada extends Item {
 
     public static final String TAG_COMMAND = "command";

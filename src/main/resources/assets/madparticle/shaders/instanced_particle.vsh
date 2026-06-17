@@ -7,17 +7,17 @@
 
 //-----per tick update-----
 //single float
-layout (location=0) in vec4 instanceXYZRoll;
+layout (location = 0) in vec4 instanceXYZRoll;
 //single float
-layout (location=1) in vec4 prevInstanceXYZRoll;
+layout (location = 1) in vec4 prevInstanceXYZRoll;
 //half float
-layout (location=2) in vec4 instanceUV;
+layout (location = 2) in vec4 instanceUV;
 //half float
-layout (location=3) in vec4 instanceColor;
+layout (location = 3) in vec4 instanceColor;
 //half float
-layout (location=4) in vec2 sizeExtraLight;
+layout (location = 4) in vec2 sizeExtraLight;
 //(4+4 bits) 1 byte + 3 byte padding
-layout (location=5) in uint instanceUV2;
+layout (location = 5) in uint instanceUV2;
 
 uniform sampler2D Sampler2;
 
@@ -32,16 +32,17 @@ out vec2 texCoord0;
 out vec4 vertexColor;
 
 const vec4 UV_CONTROL[4] = vec4[4](
-vec4(0, 1, 0, 1),
-vec4(0, 1, 1, 0),
-vec4(1, 0, 0, 1),
-vec4(1, 0, 1, 0)
+        vec4(0, 1, 0, 1),
+        vec4(0, 1, 1, 0),
+        vec4(1, 0, 1, 0),
+        vec4(1, 0, 0, 1)
+
 );
 const vec4 RELATIVE[4] = vec4[4](
-vec4(1, -1, 0, 1),
-vec4(1, 1, 0, 1),
-vec4(-1, -1, 0, 1),
-vec4(-1, 1, 0, 1)
+        vec4(1, -1, 0, 1),
+        vec4(1, 1, 0, 1),
+        vec4(-1, 1, 0, 1),
+        vec4(-1, -1, 0, 1)
 );
 
 mat4 rotate(vec4 quat, mat4 matrix);
@@ -123,13 +124,13 @@ mat4 rotateZ(float roll, mat4 matrix){
     float nm01 = fma(matrix[0][1], c, matrix[1][1] * s);
     float nm02 = fma(matrix[0][2], c, matrix[1][2] * s);
     float nm03 = fma(matrix[0][3], c, matrix[1][3] * s);
-    matrix[1][0]=fma(matrix[0][0], -s, matrix[1][0] * c);
-    matrix[1][1]=fma(matrix[0][1], -s, matrix[1][1] * c);
-    matrix[1][2]=fma(matrix[0][2], -s, matrix[1][2] * c);
-    matrix[1][3]=fma(matrix[0][3], -s, matrix[1][3] * c);
-    matrix[0][0]=nm00;
-    matrix[0][1]=nm01;
-    matrix[0][2]=nm02;
-    matrix[0][3]=nm03;
+    matrix[1][0] = fma(matrix[0][0], -s, matrix[1][0] * c);
+    matrix[1][1] = fma(matrix[0][1], -s, matrix[1][1] * c);
+    matrix[1][2] = fma(matrix[0][2], -s, matrix[1][2] * c);
+    matrix[1][3] = fma(matrix[0][3], -s, matrix[1][3] * c);
+    matrix[0][0] = nm00;
+    matrix[0][1] = nm01;
+    matrix[0][2] = nm02;
+    matrix[0][3] = nm03;
     return matrix;
 }

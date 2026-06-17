@@ -6,7 +6,6 @@ import cn.ussshenzhou.madparticle.particle.enums.*;
 import cn.ussshenzhou.madparticle.util.AABBHelper;
 import cn.ussshenzhou.madparticle.util.MathHelper;
 import cn.ussshenzhou.madparticle.util.MovementHelper;
-import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
@@ -33,7 +32,6 @@ import static cn.ussshenzhou.madparticle.particle.enums.MetaKeys.*;
  * @author USS_Shenzhou
  */
 @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
-@MethodsReturnNonnullByDefault
 public class MadParticle extends SingleQuadParticle {
     protected final SpriteSet sprites;
     protected final SpriteFrom spriteFrom;

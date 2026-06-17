@@ -1,8 +1,10 @@
 package cn.ussshenzhou.madparticle.particle.render;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.opengl.GlBuffer;
 import com.mojang.blaze3d.opengl.GlDevice;
+import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.lwjgl.system.MemoryUtil;
 
@@ -66,15 +68,15 @@ public class PersistentMappedArrayBuffer {
 
     public static class PersistentMappedBuffer {
         private final GpuBuffer gpuBuffer;
-        private GpuBuffer.MappedView mappedBuffer = null;
+        private GpuBufferSlice.MappedView mappedBuffer = null;
 
         public PersistentMappedBuffer(int byteSize) {
-            gpuBuffer = RenderSystem.getDevice().createBuffer(() -> "MadParticle VBO", GpuBuffer.USAGE_MAP_WRITE, byteSize);
+            gpuBuffer = RenderSystem.getDevice().createBuffer(() -> "MadParticle VBO", GpuBuffer.USAGE_MAP_WRITE | GpuBuffer.USAGE_VERTEX, byteSize);
         }
 
         public long getMappedAddress() {
             if (mappedBuffer == null) {
-                mappedBuffer = RenderSystem.getDevice().backend.createCommandEncoder().mapBuffer(gpuBuffer.slice(), false, true);
+                mappedBuffer = gpuBuffer.map(false, true);
             }
             return MemoryUtil.memAddress(mappedBuffer.data());
         }
@@ -93,8 +95,8 @@ public class PersistentMappedArrayBuffer {
             gpuBuffer.close();
         }
 
-        public void bind() {
-            glBindBuffer(GL_ARRAY_BUFFER, ((GlBuffer) (gpuBuffer)).handle);
+        public void bind(int slot, RenderPass pass) {
+            pass.setVertexBuffer(slot, gpuBuffer.slice());
         }
 
     }

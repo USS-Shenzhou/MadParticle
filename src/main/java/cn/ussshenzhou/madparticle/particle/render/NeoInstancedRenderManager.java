@@ -9,7 +9,6 @@ import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.madparticle.util.MemoryUtil;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
@@ -30,13 +29,11 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
-import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static cn.ussshenzhou.madparticle.particle.render.MultiThreadHelper.*;
-import static org.lwjgl.opengl.GL42.*;
 
 /**
  * @author USS_Shenzhou
@@ -105,8 +102,6 @@ public class NeoInstancedRenderManager {
     static final int TICK_VBO_SIZE = 8 * 4 + 4 * 2 + 4 * 2 + 2 * 2 + 4;
     static final LightCache LIGHT_CACHE = new LightCache();
     static boolean forceMaxLight = false;
-    static final GpuBuffer PROXY_VAO = ModRenderPipelines.INSTANCED_COMMON_DEPTH.getVertexFormat().uploadImmediateVertexBuffer(ByteBuffer.allocateDirect(128));
-    static final GpuBuffer EBO;
     static final short DEFAULT_EXTRA_LIGHT = Float.floatToFloat16(1f);
 
     //-----util-----
@@ -136,7 +131,6 @@ public class NeoInstancedRenderManager {
         eboBuffer.putInt(1);
         eboBuffer.putInt(3);
         eboBuffer.flip();
-        EBO = ModRenderPipelines.INSTANCED_COMMON_DEPTH.getVertexFormat().uploadImmediateIndexBuffer(eboBuffer);
     }
 
     @SubscribeEvent
@@ -158,8 +152,8 @@ public class NeoInstancedRenderManager {
         }
 
         var encoder = RenderSystem.getDevice().createCommandEncoder();
-        var cameraUbo = encoder.mapBuffer(cameraCorrectionUbo.currentBuffer(), false, true);
-        var dynamicUbo = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrix(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F), new Vector3f(), new Matrix4f());
+        var cameraUbo = cameraCorrectionUbo.currentBuffer().map(false, true);
+        var dynamicUbo = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrixCopy(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F), new Vector3f(), new Matrix4f());
 
         normalRenderer.doRender(encoder, cameraUbo, dynamicUbo);
         cleanUp();
@@ -264,10 +258,6 @@ public class NeoInstancedRenderManager {
 
     void cleanUp() {
         cameraCorrectionUbo.rotate();
-        GlStateManager._glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glDepthMask(true);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     public int getAmount() {

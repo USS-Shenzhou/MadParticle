@@ -11,9 +11,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class ModParticleRenderTypes {
 
-    public static final ParticleRenderType INSTANCED = new ParticleRenderType("INSTANCED");
+    public static final ParticleRenderType INSTANCED = new ParticleRenderType("INSTANCED", "MP_IN");
 
-    public static final ParticleRenderType INSTANCED_TERRAIN = new ParticleRenderType("INSTANCED_TERRAIN");
+    public static final ParticleRenderType INSTANCED_TERRAIN = new ParticleRenderType("INSTANCED_TERRAIN", "MP_IN_TE");
 
-    public static final ParticleRenderType INSTANCED_ITEM = new ParticleRenderType("INSTANCED_ITEM");
+    public static final ParticleRenderType INSTANCED_ITEM = new ParticleRenderType("INSTANCED_ITEM", "MP_IN_IT");
 }

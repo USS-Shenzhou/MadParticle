@@ -49,7 +49,7 @@ public abstract class ClientLevelMixin extends Level {
     @Inject(method = "doAddParticle", at = @At("HEAD"), cancellable = true)
     private void madparticleCheckParticleGenerateDistance(ParticleOptions particle, boolean overrideLimiter, boolean alwaysShowParticles, double x, double y, double z, double xd, double yd, double zd, CallbackInfo ci) {
         try {
-            Camera camera = this.minecraft.gameRenderer.getMainCamera();
+            Camera camera = this.minecraft.gameRenderer.mainCamera();
             ParticleStatus particleLevel = this.calculateParticleLevel(alwaysShowParticles);
             if (overrideLimiter) {
                 if (ConfigHelper.getConfigRead(MadParticleConfig.class).limitMaxParticleGenerateDistance && camera.position().distanceToSqr(x, y, z) > AddParticleHelperC.getMaxParticleGenerateDistanceSqr()) {

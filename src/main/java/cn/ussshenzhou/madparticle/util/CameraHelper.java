@@ -15,6 +15,6 @@ public class CameraHelper {
         if (prevCameratype.isFirstPerson() != mc.options.getCameraType().isFirstPerson()) {
             mc.gameRenderer.checkEntityPostEffect(mc.options.getCameraType().isFirstPerson() ? mc.getCameraEntity() : null);
         }
-        mc.levelRenderer.needsUpdate();
+        //mc.levelRenderer.needsUpdate();
     }
 }

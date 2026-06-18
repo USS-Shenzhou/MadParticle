@@ -19,8 +19,10 @@
     "ParticleEngineMixin",
     "ParticleGroupMixin",
     "ParticleMixin",
+    "RenderPipelineBuilderMixin",
     "SuspendedParticleMixin",
-    "TextureManagerAccessor"
+    "TextureManagerAccessor",
+    "GlCommandEncoderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

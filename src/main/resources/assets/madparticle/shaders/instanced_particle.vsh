@@ -73,7 +73,7 @@ void main() {
     vec4 uvControl = UV_CONTROL[gl_VertexID];
     texCoord0 = vec2(dot(instanceUV.xy, uvControl.xy), dot(instanceUV.zw, uvControl.zw));
     ivec2 uv2 = ivec2(instanceUV2 & 0xfu, (instanceUV2 >> 4) & 0xfu);
-    vertexColor = vec4(instanceColor.xyz * sizeExtraLight.y, instanceColor.w) * texelFetch(Sampler2, uv2, 0);
+    vertexColor = vec4(instanceColor.xyz * sizeExtraLight.y, instanceColor.w * smoothstep(0.0, 0.5, length(pos))) * texelFetch(Sampler2, uv2, 0);
 }
 
 mat4 rotate(vec4 quat, mat4 matrix) {

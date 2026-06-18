@@ -9,7 +9,6 @@ import cn.ussshenzhou.madparticle.util.LightCache;
 import cn.ussshenzhou.madparticle.util.MemoryUtil;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.client.Minecraft;
@@ -24,9 +23,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 import java.util.concurrent.CompletableFuture;
@@ -112,7 +108,8 @@ public class NeoInstancedRenderManager {
             GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_MAP_WRITE,
             (4 + 4) * 4);
     //-----translucent methods related-----
-    private final NormalRenderer normalRenderer = new NormalRenderer(this);
+    final SimpleRenderer simpleRenderer = new SimpleRenderer(this);
+    final OitRenderer oitRenderer = new OitRenderer(this);
     //-----oit-----
     //final RenderTarget accum = getDevice().createTexture(
     //        "OIT Accum",
@@ -150,12 +147,18 @@ public class NeoInstancedRenderManager {
         if (amount == 0) {
             return;
         }
-
-        var encoder = RenderSystem.getDevice().createCommandEncoder();
-        var cameraUbo = cameraCorrectionUbo.currentBuffer().map(false, true);
-        var dynamicUbo = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrixCopy(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F), new Vector3f(), new Matrix4f());
-
-        normalRenderer.doRender(encoder, cameraUbo, dynamicUbo);
+        var mainTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+        switch (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod) {
+            case DEPTH_TRUE -> {
+                simpleRenderer.doRender(mainTarget.getColorTextureView(), mainTarget.getDepthTextureView(), ModRenderPipelines.INSTANCED_COMMON_DEPTH);
+            }
+            case DEPTH_FALSE -> {
+                simpleRenderer.doRender(mainTarget.getColorTextureView(), mainTarget.getDepthTextureView(), ModRenderPipelines.INSTANCED_COMMON_BLEND);
+            }
+            case OIT -> {
+                oitRenderer.doRender(mainTarget.getColorTextureView(), mainTarget.getDepthTextureView());
+            }
+        }
         cleanUp();
     }
 

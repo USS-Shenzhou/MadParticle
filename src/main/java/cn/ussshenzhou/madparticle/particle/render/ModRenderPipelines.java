@@ -6,11 +6,14 @@ import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.pipeline.*;
 import com.mojang.blaze3d.platform.*;
 import com.mojang.blaze3d.shaders.UniformType;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.BindGroupLayouts;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
+
+import java.util.Optional;
 
 /**
  * @author USS_Shenzhou
@@ -64,21 +67,34 @@ public class ModRenderPipelines {
             RenderPipeline.builder(INSTANCED_SNIPPET)
                     .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_oit"))
                     .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"))
-                    .withColorTargetState(new ColorTargetState(BlendFunction.ADDITIVE))
+                    .withColorTargetState(0, new ColorTargetState(Optional.of(BlendFunction.ADDITIVE), GpuFormat.RGBA32_FLOAT, ColorTargetState.WRITE_ALL))
+                    .withColorTargetState(1, new ColorTargetState(Optional.of(new BlendFunction(BlendFactor.ZERO, BlendFactor.ONE_MINUS_SRC_COLOR)), GpuFormat.R16_FLOAT, ColorTargetState.WRITE_ALL))
                     .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, false))
                     .build()
     );
 
-    //public static final RenderPipeline INSTANCED_OIT_POST = RenderPipelines.register(
-    //        RenderPipeline.builder()
-    //                .withVertexFormat(, VertexFormat.Mode.QUADS)
-    //                .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_oit_post"))
-    //                .withVertexShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit_post"))
-    //                .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit_post"))
-    //                .withColorWrite(true, true)
-    //                .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
-    //                .withBlend(BlendFunction.TRANSLUCENT)
-    //                .withDepthWrite(true)
-    //                .build()
-    //);
+    public static final VertexFormat OIT_POST_VERTEX_FORMAT = VertexFormat.builder(0)
+            .addAttribute("Position", GpuFormat.RG32_FLOAT)
+            .addAttribute("UV0", GpuFormat.RG32_FLOAT)
+            .build();
+
+    public static final BindGroupLayout ACCUM = BindGroupLayout.builder().withSampler("accum").build();
+    public static final BindGroupLayout REVEAL = BindGroupLayout.builder().withSampler("reveal").build();
+
+    public static final RenderPipeline INSTANCED_OIT_POST = RenderPipelines.register(
+            RenderPipeline.builder()
+                    .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_oit_post"))
+                    .withVertexShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit_post"))
+
+                    .withVertexBinding(0, OIT_POST_VERTEX_FORMAT)
+
+                    .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit_post"))
+                    .withBindGroupLayout(ACCUM)
+                    .withBindGroupLayout(REVEAL)
+                    .withColorTargetState(0, new ColorTargetState(Optional.of(new BlendFunction(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA)), GpuFormat.RGBA8_UNORM, ColorTargetState.WRITE_ALL))
+                    .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, true))
+                    .withPrimitiveTopology(PrimitiveTopology.QUADS)
+                    .withPolygonMode(PolygonMode.FILL)
+                    .build()
+    );
 }

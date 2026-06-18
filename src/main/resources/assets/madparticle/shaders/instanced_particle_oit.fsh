@@ -20,11 +20,11 @@ void main() {
     }
     float weight = clamp(
         pow(
-            min(1.0, color.a * 5) + 0.01,
+            min(1.0, color.a * 2.5) + 0.01,
             3.0
         )
         * pow(
-            1.0 - gl_FragCoord.z * 0.9,
+            0.1 + gl_FragCoord.z * 0.9,
             3.0
         )
         * min(2, gl_FragCoord.w)

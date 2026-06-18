@@ -1,16 +1,18 @@
 package cn.ussshenzhou.madparticle.particle.render;
 
-import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.systems.RenderPassDescriptor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
+import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.client.Minecraft;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -18,25 +20,28 @@ import java.util.OptionalDouble;
 /**
  * @author USS_Shenzhou
  */
-public class NormalRenderer {
+public class SimpleRenderer {
 
-    private final NeoInstancedRenderManager manager;
+    final NeoInstancedRenderManager manager;
 
-    public NormalRenderer(NeoInstancedRenderManager manager) {
+    public SimpleRenderer(NeoInstancedRenderManager manager) {
         this.manager = manager;
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    void doRender(CommandEncoder encoder, GpuBufferSlice.MappedView cameraUbo, GpuBufferSlice dynamicUbo) {
+    void doRender(GpuTextureView color, GpuTextureView depth, RenderPipeline pipeline) {
+        var encoder = RenderSystem.getDevice().createCommandEncoder();
+        var cameraUbo = manager.cameraCorrectionUbo.currentBuffer().map(false, true);
+        var dynamicUbo = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrixCopy(), new Vector4f(1.0F, 1.0F, 1.0F, 1.0F), new Vector3f(), new Matrix4f());
+
         var mc = Minecraft.getInstance();
         var pass = encoder.createRenderPass(
-                () -> "MadParticle render",
-                mc.gameRenderer.mainRenderTarget().getColorTextureView(),
+                () -> "MadParticle SimpleRenderer",
+                color,
                 Optional.empty(),
-                mc.gameRenderer.mainRenderTarget().getDepthTextureView(),
+                depth,
                 OptionalDouble.empty());
         try (pass; cameraUbo) {
-            pass.setPipeline(getRenderPipeline());
+            pass.setPipeline(pipeline);
             prepareUniformSampler(pass, mc, cameraUbo, dynamicUbo);
             manager.tickVBO.getCurrent().bind(0, pass);
             var ebo = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
@@ -58,13 +63,5 @@ public class NormalRenderer {
         var texture = mc.getTextureManager().getTexture(manager.usingAtlas);
         pass.bindTexture("Sampler0", texture.getTextureView(), texture.getSampler());
         pass.bindTexture("Sampler2", mc.gameRenderer.lightmap(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
-    }
-
-    private static RenderPipeline getRenderPipeline() {
-        return switch (ConfigHelper.getConfigRead(MadParticleConfig.class).translucentMethod) {
-            case DEPTH_TRUE -> ModRenderPipelines.INSTANCED_COMMON_DEPTH;
-            case DEPTH_FALSE -> ModRenderPipelines.INSTANCED_COMMON_BLEND;
-            default -> ModRenderPipelines.INSTANCED_COMMON_DEPTH;
-        };
     }
 }

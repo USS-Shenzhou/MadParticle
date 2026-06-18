@@ -70,11 +70,14 @@ public class LightCache {
     }
 
     public byte getOrCompute(int x, int y, int z, SingleQuadParticle particle) {
-        if (isInRange(x, y, z)) {
-            var camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
-            int rx = Mth.floor(x - camera.x) + XZ_RANGE;
-            int ry = Mth.floor(y - camera.y) + Y_RANGE;
-            int rz = Mth.floor(z - camera.z) + XZ_RANGE;
+        var camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+        double cameraX = camera.x;
+        double cameraY = camera.y;
+        double cameraZ = camera.z;
+        if (isInRange(x, y, z, cameraX, cameraY, cameraZ)) {
+            int rx = Mth.floor(x - cameraX) + XZ_RANGE;
+            int ry = Mth.floor(y - cameraY) + Y_RANGE;
+            int rz = Mth.floor(z - cameraZ) + XZ_RANGE;
             byte value = bright[rx][rz][ry];
             int i = rx * XZ_RANGE * 2 * Y_RANGE * 2 / 8 + rz * Y_RANGE * 2 / 8 + ry / 8;
             byte mod = modifyFlag.get(i);
@@ -114,8 +117,7 @@ public class LightCache {
         return (byte) (Math.max(block, sky));
     }
 
-    private boolean isInRange(int x, int y, int z) {
-        var camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
-        return Math.abs(x - camera.x) < XZ_RANGE && Math.abs(y - camera.y) < Y_RANGE && Math.abs(z - camera.z) < XZ_RANGE;
+    private boolean isInRange(int x, int y, int z, double cameraX, double cameraY, double cameraZ) {
+        return Math.abs(x - cameraX) < XZ_RANGE && Math.abs(y - cameraY) < Y_RANGE && Math.abs(z - cameraZ) < XZ_RANGE;
     }
 }

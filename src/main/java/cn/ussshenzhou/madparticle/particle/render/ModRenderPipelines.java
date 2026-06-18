@@ -67,8 +67,8 @@ public class ModRenderPipelines {
             RenderPipeline.builder(INSTANCED_SNIPPET)
                     .withLocation(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_oit"))
                     .withFragmentShader(Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "instanced_particle_oit"))
-                    .withColorTargetState(0, new ColorTargetState(Optional.of(BlendFunction.ADDITIVE), GpuFormat.RGBA32_FLOAT, ColorTargetState.WRITE_ALL))
-                    .withColorTargetState(1, new ColorTargetState(Optional.of(new BlendFunction(BlendFactor.ZERO, BlendFactor.ONE_MINUS_SRC_COLOR)), GpuFormat.R16_FLOAT, ColorTargetState.WRITE_ALL))
+                    .withColorTargetState(0, new ColorTargetState(Optional.of(BlendFunction.ADDITIVE), GpuFormat.RGBA16_FLOAT, ColorTargetState.WRITE_ALL))
+                    .withColorTargetState(1, new ColorTargetState(Optional.of(new BlendFunction(BlendFactor.ZERO, BlendFactor.ONE_MINUS_SRC_COLOR)), GpuFormat.R16_UNORM, ColorTargetState.WRITE_ALL))
                     .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, false))
                     .build()
     );

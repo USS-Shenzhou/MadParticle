@@ -33,8 +33,8 @@ public class OitRenderer {
     public OitRenderer(NeoInstancedRenderManager manager) {
         this.manager = manager;
         var mainTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
-        this.accum = new TextureTarget("MadParticle OIT accum", mainTarget.width, mainTarget.height, false, false, GpuFormat.RGBA32_FLOAT);
-        this.reveal = new TextureTarget("MadParticle OIT reveal", mainTarget.width, mainTarget.height, false, false, GpuFormat.R16_FLOAT);
+        this.accum = new TextureTarget("MadParticle OIT accum", mainTarget.width, mainTarget.height, false, false, GpuFormat.RGBA16_FLOAT);
+        this.reveal = new TextureTarget("MadParticle OIT reveal", mainTarget.width, mainTarget.height, false, false, GpuFormat.R16_UNORM);
         this.vbo = RenderSystem.getDevice().createBuffer(() -> "MadParticle OIT Post VBO", GpuBuffer.USAGE_MAP_WRITE | GpuBuffer.USAGE_VERTEX, 120);
         try (var mappedVbo = vbo.map(false, true)) {
             var buf = mappedVbo.data();

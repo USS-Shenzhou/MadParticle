@@ -165,7 +165,7 @@ public class NeoInstancedRenderManager {
         cleanUp();
     }
 
-    public void preUpdate() {
+    public void finish() {
         if (updateTickVBOTask != null) {
             updateTickVBOTask.join();
             tickVBO.getNext().done();
@@ -177,6 +177,7 @@ public class NeoInstancedRenderManager {
         amount = nextAmount;
         nextAmount = particles.size();
         tickVBO.ensureCapacity(TICK_VBO_SIZE * particles.size());
+        tickVBO.getNext().prepare();
     }
 
     public void clear() {

@@ -9,7 +9,6 @@ import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.mojang.logging.LogUtils;
-import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleGroup;
@@ -20,9 +19,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.LongAdder;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
 import java.util.stream.Collectors;
 
@@ -87,7 +83,7 @@ public class ParallelTickManager {
     @SuppressWarnings("unchecked")
     public static void tick(ParticleEngine engine) {
         checkPreviousTickDone(engine);
-        NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::preUpdate);
+        NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::finish);
         tickSync();
         sum = 0;
         for (int i = 0; i < COUNTER.length / 16; i++) {

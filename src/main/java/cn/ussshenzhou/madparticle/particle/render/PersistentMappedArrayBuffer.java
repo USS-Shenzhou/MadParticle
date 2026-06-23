@@ -67,16 +67,24 @@ public class PersistentMappedArrayBuffer {
     public static class PersistentMappedBuffer {
         private final GpuBuffer gpuBuffer;
         private GpuBuffer.MappedView mappedBuffer = null;
+        private long address = -1;
 
         public PersistentMappedBuffer(int byteSize) {
             gpuBuffer = RenderSystem.getDevice().createBuffer(() -> "MadParticle VBO", GpuBuffer.USAGE_MAP_WRITE, byteSize);
         }
 
-        public long getMappedAddress() {
+        public void prepare() {
             if (mappedBuffer == null) {
                 mappedBuffer = RenderSystem.getDevice().backend.createCommandEncoder().mapBuffer(gpuBuffer.slice(), false, true);
             }
-            return MemoryUtil.memAddress(mappedBuffer.data());
+            address = MemoryUtil.memAddress(mappedBuffer.data());
+        }
+
+        public long getMappedAddress() {
+            if (address == -1) {
+                throw new IllegalStateException("Not prepared");
+            }
+            return address;
         }
 
         public void done() {
@@ -84,6 +92,7 @@ public class PersistentMappedArrayBuffer {
                 mappedBuffer.close();
             }
             mappedBuffer = null;
+            address = -1;
         }
 
         public void free() {
@@ -91,6 +100,7 @@ public class PersistentMappedArrayBuffer {
                 mappedBuffer.close();
             }
             gpuBuffer.close();
+            address = -1;
         }
 
         public void bind() {

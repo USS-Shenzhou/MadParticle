@@ -1,5 +1,5 @@
-//fma require 400
 #version 400
+//fma require 400
 
 #moj_import <minecraft:fog.glsl>
 #moj_import <minecraft:dynamictransforms.glsl>

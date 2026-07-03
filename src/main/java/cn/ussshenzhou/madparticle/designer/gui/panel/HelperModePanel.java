@@ -49,6 +49,7 @@ import static cn.ussshenzhou.madparticle.designer.gui.DesignerScreen.GAP;
 public class HelperModePanel extends TPanel {
     public static final int FOREGROUND = 0x80ffffff;
     public static final int BACKGROUND = 0x80000000;
+    public static final Identifier PARTICLE_PREVIEW_CAMERA_DISTANCE_MODIFIER = Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "particle_preview");
 
     protected final TButton copy = new TButton(Component.translatable("gui.mp.de.helper.copy"));
     protected final TButton unwrap = new TButton(Component.translatable("gui.mp.de.helper.unwrap"));
@@ -359,18 +360,28 @@ public class HelperModePanel extends TPanel {
         if (mc.mouseHandler.isMouseGrabbed() || (!super.mouseScrolled(pMouseX, pMouseY, deltaX, deltaY) && isInWild(pMouseX, pMouseY))) {
             if (Minecraft.getInstance().getCameraEntity() instanceof LivingEntity livingEntity) {
                 var attr = livingEntity.getAttribute(Attributes.CAMERA_DISTANCE);
-                var loc = Identifier.fromNamespaceAndPath(MadParticle.MOD_ID, "particle_preview");
                 if (attr != null) {
-                    var modifier = attr.getModifier(loc);
+                    var modifier = attr.getModifier(PARTICLE_PREVIEW_CAMERA_DISTANCE_MODIFIER);
                     double base = 0;
                     if (modifier != null) {
                         base = modifier.amount();
                     }
-                    attr.addOrReplacePermanentModifier(new AttributeModifier(loc, Mth.clamp(base - 0.3 * deltaY, 0, 16), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+                    attr.addOrReplacePermanentModifier(new AttributeModifier(PARTICLE_PREVIEW_CAMERA_DISTANCE_MODIFIER, Mth.clamp(base - 0.3 * deltaY, 0, 16), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
                 }
             }
         }
         return false;
+    }
+
+    @Override
+    public void onFinalClose() {
+        if (Minecraft.getInstance().getCameraEntity() instanceof LivingEntity livingEntity) {
+            var attr = livingEntity.getAttribute(Attributes.CAMERA_DISTANCE);
+            if (attr != null) {
+                attr.removeModifier(PARTICLE_PREVIEW_CAMERA_DISTANCE_MODIFIER);
+            }
+        }
+        super.onFinalClose();
     }
 
     @Override

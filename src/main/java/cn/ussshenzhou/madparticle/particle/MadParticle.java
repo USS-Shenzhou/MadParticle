@@ -345,10 +345,10 @@ public class MadParticle extends SingleQuadParticle {
         tickAlphaAndSize();
         //interact with Entity
         if (interactWithEntity) {
-            var entity = level.getEntitiesOfClass(Entity.class, AABB.INFINITE)
+            //var entity = level.getentity
+            var entity = level.getEntitiesOfClass(Entity.class, this.bb.inflate(0.4))
                     .parallelStream()
                     .min(Comparator.comparingDouble(e -> e.distanceToSqr(x, y, z)))
-                    .filter(e -> e.distanceToSqr(x, y, z) < 0.4 * 0.4)
                     .orElse(null);
             if (entity != null) {
                 Vec3 v = entity.getDeltaMovement();

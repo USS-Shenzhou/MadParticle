@@ -7,6 +7,7 @@ import cn.ussshenzhou.t88.gui.util.ITranslatable;
 import com.google.common.collect.Sets;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.particle.*;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
@@ -92,8 +93,8 @@ public enum TakeOver implements ITranslatable {
     private static final HashSet<Class<? extends Particle>> RENDER_BLACKLIST = Sets.newHashSet(
     );
 
+    @SuppressWarnings("unchecked")
     private static final HashSet<Class<? extends SingleQuadParticle>> ITEM_ATLAS = Sets.newHashSet(
-            BlockMarker.class,
             BreakingItemParticle.class
     );
     @SuppressWarnings("unchecked")
@@ -156,10 +157,24 @@ public enum TakeOver implements ITranslatable {
         return translateKey;
     }
 
+    @SuppressWarnings("deprecation")
     public static ParticleRenderType map(Particle particle) {
         var originalType = particle.getGroup();
         if (!(particle instanceof SingleQuadParticle)) {
             return originalType;
+        }
+        var takeOverRendering = ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering;
+        if (particle instanceof BlockMarker blockMarker) {
+            var layer = blockMarker.getLayer().textureAtlasLocation();
+            if (layer == TextureAtlas.LOCATION_PARTICLES) {
+                return takeOverRendering == NONE ? originalType : ModParticleRenderTypes.INSTANCED;
+            } else if (layer == TextureAtlas.LOCATION_BLOCKS) {
+                return takeOverRendering == NONE ? originalType : ModParticleRenderTypes.INSTANCED_TERRAIN;
+            } else if (layer == TextureAtlas.LOCATION_ITEMS) {
+                return takeOverRendering == NONE ? originalType : ModParticleRenderTypes.INSTANCED_ITEM;
+            } else {
+                return originalType;
+            }
         }
         if (originalType == ModParticleRenderTypes.INSTANCED || originalType == ModParticleRenderTypes.INSTANCED_TERRAIN || originalType == ModParticleRenderTypes.INSTANCED_ITEM) {
             return originalType;
@@ -168,29 +183,31 @@ public enum TakeOver implements ITranslatable {
             case "INSTANCED" -> ModParticleRenderTypes.INSTANCED;
             case "INSTANCED_TERRAIN" -> ModParticleRenderTypes.INSTANCED_TERRAIN;
             case "INSTANCED_ITEM" -> ModParticleRenderTypes.INSTANCED_ITEM;
-            case "SINGLE_QUADS" -> switch (ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverRendering) {
-                case NONE -> originalType;
-                case ALL -> {
-                    if (RENDER_BLACKLIST.contains(particle.getClass())) {
-                        yield ParticleRenderType.SINGLE_QUADS;
-                    } else if (particle instanceof TerrainParticle) {
-                        yield ModParticleRenderTypes.INSTANCED_TERRAIN;
-                    } else if (ITEM_ATLAS.contains(particle.getClass())) {
-                        yield ModParticleRenderTypes.INSTANCED_ITEM;
-                    }
-                    yield ModParticleRenderTypes.INSTANCED;
-                }
-                case VANILLA -> {
-                    if (particle instanceof TerrainParticle) {
-                        yield ModParticleRenderTypes.INSTANCED_TERRAIN;
-                    } else if (ITEM_ATLAS.contains(particle.getClass())) {
-                        yield ModParticleRenderTypes.INSTANCED_ITEM;
-                    } else if (PARTICLE_ATLAS.contains(particle.getClass())) {
+            case "SINGLE_QUADS" -> {
+                yield switch (takeOverRendering) {
+                    case NONE -> originalType;
+                    case ALL -> {
+                        if (RENDER_BLACKLIST.contains(particle.getClass())) {
+                            yield ParticleRenderType.SINGLE_QUADS;
+                        } else if (particle instanceof TerrainParticle) {
+                            yield ModParticleRenderTypes.INSTANCED_TERRAIN;
+                        } else if (ITEM_ATLAS.contains(particle.getClass())) {
+                            yield ModParticleRenderTypes.INSTANCED_ITEM;
+                        }
                         yield ModParticleRenderTypes.INSTANCED;
                     }
-                    yield originalType;
-                }
-            };
+                    case VANILLA -> {
+                        if (particle instanceof TerrainParticle) {
+                            yield ModParticleRenderTypes.INSTANCED_TERRAIN;
+                        } else if (ITEM_ATLAS.contains(particle.getClass())) {
+                            yield ModParticleRenderTypes.INSTANCED_ITEM;
+                        } else if (PARTICLE_ATLAS.contains(particle.getClass())) {
+                            yield ModParticleRenderTypes.INSTANCED;
+                        }
+                        yield originalType;
+                    }
+                };
+            }
             default -> originalType;
         };
     }

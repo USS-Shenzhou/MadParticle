@@ -14,7 +14,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.ClientCommandHandler;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +27,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * @author USS_Shenzhou
  */
+@EventBusSubscriber(value = Dist.CLIENT)
 public class IndexedCommandManager {
     private static final BiMap<Integer, String> INDEXED_COMMANDS = Maps.synchronizedBiMap(HashBiMap.create());
     private static final ConcurrentHashMap<Integer, IndexedCommandPacket> CLIENT_BUFFER = new ConcurrentHashMap<>();
@@ -90,7 +95,8 @@ public class IndexedCommandManager {
         return INDEXED_COMMANDS.get(index);
     }
 
-    public static void clear() {
+    @SubscribeEvent
+    public static void onPlayerOut(ClientPlayerNetworkEvent.LoggingOut event) {
         INDEXED_COMMANDS.clear();
         CLIENT_BUFFER.clear();
     }

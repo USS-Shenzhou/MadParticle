@@ -82,7 +82,7 @@ public class IndexedCommandManager {
             return;
         }
         CLIENT_BUFFER.remove(packet.index);
-        INDEXED_COMMANDS.put(reply.index, reply.command);
+        INDEXED_COMMANDS.forcePut(reply.index, reply.command);
         preform(packet.x, packet.y, packet.z, reply.command);
     }
 

@@ -93,4 +93,8 @@ public class MemoryUtil {
     public static void memPutDouble(long ptr, double value) {
         UNSAFE.putDouble(null, ptr, value);
     }
+
+    public static void zero(long ptr, int bytes) {
+        UNSAFE.setMemory(ptr, bytes, (byte) 0);
+    }
 }

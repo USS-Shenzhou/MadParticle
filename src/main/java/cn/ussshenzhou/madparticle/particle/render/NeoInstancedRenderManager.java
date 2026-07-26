@@ -191,6 +191,12 @@ public class NeoInstancedRenderManager {
     void updateTickVBOInternal(ObjectLinkedOpenHashSet<SingleQuadParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {
         long start = tickVBOAddress + (long) index * TICK_VBO_SIZE;
         for (SingleQuadParticle particle : particles) {
+            if (particle.removed) {
+                MemoryUtil.zero(start, TICK_VBO_SIZE);
+                index++;
+                start += TICK_VBO_SIZE;
+                continue;
+            }
             //xyz roll
             MemoryUtil.memPutFloat(start, (float) particle.x);
             MemoryUtil.memPutFloat(start + 4, (float) particle.y);

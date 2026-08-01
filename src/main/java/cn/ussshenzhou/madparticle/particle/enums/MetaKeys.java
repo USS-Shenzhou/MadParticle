@@ -65,6 +65,8 @@ public enum MetaKeys {
                 Expression expression = new ExpressionBuilder(text)
                         .variable("t")
                         .variable("T")
+                        .variable("r")
+                        .variable("R")
                         .build();
                 if (expression.validate(false).isValid()) {
                     return text;

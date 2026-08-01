@@ -139,7 +139,7 @@ public class MadParticle extends SingleQuadParticle {
         this.child = child;
         this.rollSpeed = (float) (rollSpeed * (1 + 0.1 * MathHelper.signedRandom(random)));
         if (rollSpeed != 0) {
-            this.roll = (float) (Math.random() * Math.PI * 2);
+            this.roll = random.nextFloat() * Mth.TWO_PI;
         } else {
             this.roll = 0;
         }
@@ -178,39 +178,52 @@ public class MadParticle extends SingleQuadParticle {
     @SuppressWarnings("SpellCheckingInspection")
     private void handleDxyz() {
         int length = Math.min(lifetime, 100);
+        double R = random.nextDouble();
         meta.getString(DX.get()).ifPresent(dx -> {
             Expression e = new ExpressionBuilder(dx)
                     .variable("t")
-                    .variables("T")
+                    .variable("T")
+                    .variable("R")
+                    .variable("r")
                     .build();
             dxComplex = new float[length + 1];
             for (int i = 0; i <= length; i++) {
                 e.setVariable("t", (double) i / length);
                 e.setVariable("T", (double) i / length * lifetime);
+                e.setVariable("R", R);
+                e.setVariable("r", random.nextDouble());
                 dxComplex[i] = (float) e.evaluate();
             }
         });
         meta.getString(DY.get()).ifPresent(dy -> {
             Expression e = new ExpressionBuilder(dy)
                     .variable("t")
-                    .variables("T")
+                    .variable("T")
+                    .variable("R")
+                    .variable("r")
                     .build();
             dyComplex = new float[length + 1];
             for (int i = 0; i <= length; i++) {
                 e.setVariable("t", (double) i / length);
                 e.setVariable("T", (double) i / length * lifetime);
+                e.setVariable("R", R);
+                e.setVariable("r", random.nextDouble());
                 dyComplex[i] = (float) e.evaluate();
             }
         });
         meta.getString(DZ.get()).ifPresent(dz -> {
             Expression e = new ExpressionBuilder(dz)
                     .variable("t")
-                    .variables("T")
+                    .variable("T")
+                    .variable("R")
+                    .variable("r")
                     .build();
             dzComplex = new float[length + 1];
             for (int i = 0; i <= length; i++) {
                 e.setVariable("t", (double) i / length);
                 e.setVariable("T", (double) i / length * lifetime);
+                e.setVariable("R", R);
+                e.setVariable("r", random.nextDouble());
                 dzComplex[i] = (float) e.evaluate();
             }
         });

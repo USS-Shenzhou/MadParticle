@@ -258,7 +258,11 @@ public class MadParticleCommand {
         CommandContext<CommandSourceStack> ctPre = parseResults.getContext().build(commandString);
         Collection<ServerPlayer> playerList;
         try {
-            playerList = ctPre.getArgument("whoCanSee", EntitySelector.class).findPlayers(ctPre.getSource());
+            var ct = CommandHelper.getContextHasArgument(ctPre, "whoCanSee", EntitySelector.class);
+            if (ct == null) {
+                return;
+            }
+            playerList = ct.getArgument("whoCanSee", EntitySelector.class).findPlayers(ctPre.getSource());
         } catch (CommandSyntaxException e) {
             return;
         }

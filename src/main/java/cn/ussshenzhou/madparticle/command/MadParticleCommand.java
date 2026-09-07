@@ -32,6 +32,7 @@ import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.PermissionSet;
 import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -181,6 +182,9 @@ public class MadParticleCommand {
     }
 
     private static MadParticleOption wrap(@Nullable MadParticleOption child, String[] commandStrings, int index, CommandSourceStack sourceStack, CommandDispatcher<CommandSourceStack> dispatcher) {
+        if (FMLEnvironment.getDist().isClient() && !sourceStack.permissions().hasPermission(Permissions.COMMANDS_ENTITY_SELECTORS)) {
+            sourceStack = sourceStack.withPermission(PermissionSet.ALL_PERMISSIONS);
+        }
         String s = commandStrings[index];
         if (s.startsWith("/")) {
             s = s.replaceFirst("/", "");

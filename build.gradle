@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'idea'
-    id 'net.neoforged.moddev' version '2.0.141'
+    id 'net.neoforged.moddev' version '2.0.147'
 }
 
 version = mod_version
@@ -140,7 +140,7 @@ dependencies {
 
     //implementation fg.deobf("curse.maven:shimmer-627824:4676467")
     //if (System.getProperty("idea.active")) {
-    implementation(annotationProcessor("cn.ussshenzhou:t88:26.1+"))
+    implementation(annotationProcessor("cn.ussshenzhou:t88:${minecraft_version}+"))
     //} else {
     //    def t88FileId = '5745052'
     //    implementation('curse.maven:t88-663112:' + t88FileId) {

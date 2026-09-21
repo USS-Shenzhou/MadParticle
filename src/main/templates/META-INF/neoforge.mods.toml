@@ -35,7 +35,7 @@ displayName="${mod_name}" #mandatory
 displayURL="https://holojaneway.uss-shenzhou.cn/madparticle" #optional
 
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile="madparticle.png" #optional
+bannerFile="madparticle.png" #optional
 
 # A text field displayed in the mod UI
 #credits="" #optional
@@ -101,6 +101,6 @@ side="BOTH"
 [[dependencies.${mod_id}]]
 modId="t88"
 type="required"
-versionRange="[0.9,)"
+versionRange="[${minecraft_version},)"
 ordering="NONE"
 side="BOTH"

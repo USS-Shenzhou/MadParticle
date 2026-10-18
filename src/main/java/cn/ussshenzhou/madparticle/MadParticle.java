@@ -52,6 +52,17 @@ public class MadParticle {
         irisApi = irisApi0;
     }
 
+    //TODO vertex pulling
+    //TODO free list slot
+    //TODO USAGE_MAP_WRITE | USAGE_VERTEX -> VRAM
+    //TODO tick 和写记录合并成一次遍历
+    //TODO level.getEntitiesOfClass(Entity.class, this.bb.inflate(0.4))
+    //                    .parallelStream() can be faster
+    //TODO light body
+    //TODO amount>X, share new ExpressionBuilder(...).build()
+    //TODO cull transparent edge
+    //TODO 大粒子用半分辨率画
+    //TODO 26.3 OIT
     public MadParticle(IEventBus modEventBus) {
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::clientSetup);

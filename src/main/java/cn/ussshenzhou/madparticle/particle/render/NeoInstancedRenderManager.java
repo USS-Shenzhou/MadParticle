@@ -181,8 +181,9 @@ public class NeoInstancedRenderManager {
         amount = 0;
     }
 
-    public void postUpdate(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles) {
+    public CompletableFuture<Void> postUpdate(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles) {
         updateTickVBOTask = executeUpdate(particles, this::updateTickVBOInternal, tickVBO);
+        return updateTickVBOTask;
     }
 
     void updateTickVBOInternal(ObjectLinkedOpenHashSet<SingleQuadParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {

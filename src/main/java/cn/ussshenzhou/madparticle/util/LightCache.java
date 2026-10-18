@@ -90,8 +90,7 @@ public class LightCache {
             var pos = new SimpleBlockPos(x, y, z);
             var s = outside.get(pos);
             if (s == null) {
-                int packetLight = compressPackedLight(getLight(particle, x, y, z));
-                byte r = (byte) ((packetLight >>> 4 & 0xf) | (packetLight >>> 16 & 0xf0));
+                byte r = compressPackedLight(getLight(particle, x, y, z));
                 outside.put(pos, r);
                 return r;
             } else {

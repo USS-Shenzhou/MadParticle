@@ -13,6 +13,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleGroup;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -33,6 +34,10 @@ public class ParallelTickManager {
     private static volatile int sum = 0;
     public static AtomicInteger addCounter = new AtomicInteger();
     public static AtomicInteger removeCounter = new AtomicInteger();
+    public static volatile double asyncTimeMs;
+    public static long asyncStartNs;
+    public static volatile double syncTimeMs;
+    public static long syncStartNs;
 
     static {
         NeoInstancedRenderManager.init();
@@ -83,6 +88,7 @@ public class ParallelTickManager {
     @SuppressWarnings("unchecked")
     public static void tick(ParticleEngine engine) {
         checkPreviousTickDone(engine);
+        syncStartNs = System.nanoTime();
         NeoInstancedRenderManager.forEach(NeoInstancedRenderManager::finish);
         tickSync();
         sum = 0;
@@ -99,7 +105,9 @@ public class ParallelTickManager {
                 NeoInstancedRenderManager.getInstance(renderType).update((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particles.particles);
             }
         });
+        syncTimeMs = (System.nanoTime() - syncStartNs) / 1000_000d;
         lastTickJob = CompletableFuture.runAsync(() -> {
+                    asyncStartNs = System.nanoTime();
                     syncTickCache.invalidateAll();
                     removeCache.clear();
                 }, MultiThreadHelper.getForkJoinPool())
@@ -123,11 +131,14 @@ public class ParallelTickManager {
                     if (e != null) {
                         failSafe(engine, e);
                     }
+                    var postUpdates = new ArrayList<CompletableFuture<Void>>();
                     engine.particles.forEach((renderType, particleGroup) -> {
                         if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN || renderType == ModParticleRenderTypes.INSTANCED_ITEM) {
-                            NeoInstancedRenderManager.getInstance(renderType).postUpdate((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particleGroup.particles);
+                            postUpdates.add(NeoInstancedRenderManager.getInstance(renderType).postUpdate((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particleGroup.particles));
                         }
                     });
+                    CompletableFuture.allOf(postUpdates.toArray(CompletableFuture[]::new)).whenComplete((_, _) -> asyncTimeMs = (System.nanoTime() - asyncStartNs) / 1000_000d);
+                    asyncTimeMs = (System.nanoTime() - asyncStartNs) / 1000_000d;
                 }, MultiThreadHelper.getForkJoinPool());
     }
 

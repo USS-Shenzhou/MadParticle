@@ -5,16 +5,14 @@ import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.errorprone.annotations.DoNotCall;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import java.lang.ref.Cleaner;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
 import java.util.stream.Stream;
@@ -24,22 +22,22 @@ import java.util.stream.Stream;
  * @see com.google.common.collect.EvictingQueue
  * @see it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
  */
-public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<E> {
+public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
     private static final AtomicInteger ID = new AtomicInteger();
     private static final Cleaner CLEANER = Cleaner.create();
 
-    private final ObjectLinkedOpenHashSet<E>[] sets;
+    private final ObjectOpenHashSet<E>[] sets;
     private final int maxSize;
     private final DefaultEventExecutorGroup threadPool;
 
-    public MultiThreadedEqualObjectLinkedOpenHashSetQueue(int initialCapacityOfEachThread, int maxSize) {
+    public MultiThreadedEqualObjectOpenHashSetQueue(int initialCapacityOfEachThread, int maxSize) {
         this.maxSize = maxSize;
         ID.getAndIncrement();
         int threads = ConfigHelper.getConfigRead(MadParticleConfig.class).getBufferFillerThreads();
         //noinspection unchecked,rawtypes
-        sets = Stream.generate(() -> new ObjectLinkedOpenHashSet())
+        sets = Stream.generate(() -> new ObjectOpenHashSet())
                 .limit(threads)
-                .toArray(ObjectLinkedOpenHashSet[]::new);
+                .toArray(ObjectOpenHashSet[]::new);
         threadPool = new DefaultEventExecutorGroup(threads, new ThreadFactoryBuilder()
                 .setDaemon(true)
                 .setNameFormat("MadParticle-MultiThreadedEqualObjectLinkedOpenHashSetQueue-" + ID.get() + "-Thread-%d")
@@ -51,7 +49,7 @@ public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<
         CLEANER.register(this, pool::shutdownGracefully);
     }
 
-    public MultiThreadedEqualObjectLinkedOpenHashSetQueue(int maxSize) {
+    public MultiThreadedEqualObjectOpenHashSetQueue(int maxSize) {
         this(128, maxSize);
     }
 
@@ -63,7 +61,7 @@ public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<
         return maxSize - this.size();
     }
 
-    public ObjectLinkedOpenHashSet<E> get(int i) {
+    public ObjectOpenHashSet<E> get(int i) {
         return sets[i];
     }
 
@@ -227,13 +225,7 @@ public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<
 
     @Override
     public E poll() {
-        var target = sets[0];
-        for (var hashset : sets) {
-            if (hashset.size() > target.size()) {
-                target = hashset;
-            }
-        }
-        return target.removeFirst();
+        return null;
     }
 
     @Override
@@ -247,13 +239,7 @@ public class MultiThreadedEqualObjectLinkedOpenHashSetQueue<E> implements Queue<
 
     @Override
     public E peek() {
-        var target = sets[0];
-        for (var hashset : sets) {
-            if (hashset.size() > target.size()) {
-                target = hashset;
-            }
-        }
-        return target.getFirst();
+        return null;
     }
 
     @Override

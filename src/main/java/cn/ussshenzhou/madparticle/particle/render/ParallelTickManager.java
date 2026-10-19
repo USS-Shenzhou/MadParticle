@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.particle.render;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue;
+import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.mixinproxy.ITickType;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
@@ -102,7 +102,7 @@ public class ParallelTickManager {
         }
         engine.particles.forEach((renderType, particles) -> {
             if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN || renderType == ModParticleRenderTypes.INSTANCED_ITEM) {
-                NeoInstancedRenderManager.getInstance(renderType).update((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particles.particles);
+                NeoInstancedRenderManager.getInstance(renderType).update((MultiThreadedEqualObjectOpenHashSetQueue<Particle>) particles.particles);
             }
         });
         syncTimeMs = (System.nanoTime() - syncStartNs) / 1000_000d;
@@ -119,8 +119,8 @@ public class ParallelTickManager {
                         case NONE -> MP_ONLY_TICKER;
                     };
                     engine.particles.values().forEach(particleGroup -> {
-                        if (particleGroup.particles instanceof MultiThreadedEqualObjectLinkedOpenHashSetQueue<? extends Particle> multiThreadedEqualObjectLinkedOpenHashSetQueue) {
-                            multiThreadedEqualObjectLinkedOpenHashSetQueue.forEach(ticker);
+                        if (particleGroup.particles instanceof MultiThreadedEqualObjectOpenHashSetQueue<? extends Particle> multiThreadedEqualObjectOpenHashSetQueue) {
+                            multiThreadedEqualObjectOpenHashSetQueue.forEach(ticker);
                         } else {
                             ForkJoinTask<?> pickAndTick = MultiThreadHelper.getForkJoinPool().submit(() -> particleGroup.particles.parallelStream().forEach(p -> ticker.accept(p, 0)));
                             pickAndTick.join();
@@ -134,7 +134,7 @@ public class ParallelTickManager {
                     var postUpdates = new ArrayList<CompletableFuture<Void>>();
                     engine.particles.forEach((renderType, particleGroup) -> {
                         if (renderType == ModParticleRenderTypes.INSTANCED || renderType == ModParticleRenderTypes.INSTANCED_TERRAIN || renderType == ModParticleRenderTypes.INSTANCED_ITEM) {
-                            postUpdates.add(NeoInstancedRenderManager.getInstance(renderType).postUpdate((MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle>) particleGroup.particles));
+                            postUpdates.add(NeoInstancedRenderManager.getInstance(renderType).postUpdate((MultiThreadedEqualObjectOpenHashSetQueue<Particle>) particleGroup.particles));
                         }
                     });
                     CompletableFuture.allOf(postUpdates.toArray(CompletableFuture[]::new)).whenComplete((_, _) -> asyncTimeMs = (System.nanoTime() - asyncStartNs) / 1000_000d);

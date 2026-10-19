@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.particle.render;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue;
+import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
@@ -10,7 +10,7 @@ import cn.ussshenzhou.madparticle.util.MemoryUtil;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.logging.LogUtils;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
@@ -170,7 +170,7 @@ public class NeoInstancedRenderManager {
         }
     }
 
-    public void update(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles) {
+    public void update(MultiThreadedEqualObjectOpenHashSetQueue<Particle> particles) {
         amount = nextAmount;
         nextAmount = particles.size();
         tickVBO.ensureCapacity(TICK_VBO_SIZE * particles.size());
@@ -181,12 +181,12 @@ public class NeoInstancedRenderManager {
         amount = 0;
     }
 
-    public CompletableFuture<Void> postUpdate(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles) {
+    public CompletableFuture<Void> postUpdate(MultiThreadedEqualObjectOpenHashSetQueue<Particle> particles) {
         updateTickVBOTask = executeUpdate(particles, this::updateTickVBOInternal, tickVBO);
         return updateTickVBOTask;
     }
 
-    void updateTickVBOInternal(ObjectLinkedOpenHashSet<SingleQuadParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {
+    void updateTickVBOInternal(ObjectOpenHashSet<SingleQuadParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {
         long start = tickVBOAddress + (long) index * TICK_VBO_SIZE;
         for (SingleQuadParticle particle : particles) {
             if (particle.removed) {
@@ -249,17 +249,17 @@ public class NeoInstancedRenderManager {
     }
 
     @SuppressWarnings("unchecked")
-    CompletableFuture<Void> executeUpdate(MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> particles, VboUpdater updater, PersistentMappedArrayBuffer vbo) {
+    CompletableFuture<Void> executeUpdate(MultiThreadedEqualObjectOpenHashSetQueue<Particle> particles, VboUpdater updater, PersistentMappedArrayBuffer vbo) {
         var partialTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
         CompletableFuture<Void>[] futures = new CompletableFuture[particles.threads()];
         int index = 0;
         long vboAddress = vbo.getNext().getMappedAddress();
         for (int group = 0; group < futures.length; group++) {
             @SuppressWarnings("rawtypes")
-            ObjectLinkedOpenHashSet set = particles.get(group);
+            ObjectOpenHashSet set = particles.get(group);
             int i = index;
             futures[group] = CompletableFuture.runAsync(
-                    () -> updater.update((ObjectLinkedOpenHashSet<SingleQuadParticle>) set, i, vboAddress, partialTicks),
+                    () -> updater.update((ObjectOpenHashSet<SingleQuadParticle>) set, i, vboAddress, partialTicks),
                     getFixedThreadPool()
             );
             index += set.size();
@@ -277,7 +277,7 @@ public class NeoInstancedRenderManager {
 
     @FunctionalInterface
     public interface VboUpdater {
-        void update(ObjectLinkedOpenHashSet<SingleQuadParticle> particles, int startIndex, long frameVBOAddress, float partialTicks);
+        void update(ObjectOpenHashSet<SingleQuadParticle> particles, int startIndex, long frameVBOAddress, float partialTicks);
     }
 
     static boolean oitOn() {

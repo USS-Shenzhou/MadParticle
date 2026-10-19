@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.mixin;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue;
+import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectOpenHashSetQueue;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleGroup;
@@ -25,6 +25,6 @@ public class ParticleGroupMixin {
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     private void madparticleReplaceParticleQueue(ParticleEngine engine, CallbackInfo ci) {
-        this.particles = new MultiThreadedEqualObjectLinkedOpenHashSetQueue<>(16384, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue);
+        this.particles = new MultiThreadedEqualObjectOpenHashSetQueue<>(16384, ConfigHelper.getConfigRead(MadParticleConfig.class).maxParticleAmountOfSingleQueue);
     }
 }

@@ -1,6 +1,6 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
-import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectLinkedOpenHashSetQueue;
+import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.designer.gui.ParticleCounterHud;
 import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
@@ -42,7 +42,7 @@ public class SettingPanel extends TOptionsPanel {
                     ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.maxParticleAmountOfSingleQueue = newAmount);
                     var particleGroups = Minecraft.getInstance().particleEngine.particles;
                     particleGroups.forEach((_, particleGroup) -> {
-                        MultiThreadedEqualObjectLinkedOpenHashSetQueue<Particle> newQueue = new MultiThreadedEqualObjectLinkedOpenHashSetQueue<>(newAmount);
+                        MultiThreadedEqualObjectOpenHashSetQueue<Particle> newQueue = new MultiThreadedEqualObjectOpenHashSetQueue<>(newAmount);
                         newQueue.addAll(particleGroup.particles);
                         particleGroup.particles = (Queue) newQueue;
                     });

@@ -52,10 +52,7 @@ public class MadParticle {
         irisApi = irisApi0;
     }
 
-    //TODO vertex pulling
     //TODO free list slot
-    //TODO USAGE_MAP_WRITE | USAGE_VERTEX -> VRAM
-    //TODO tick 和写记录合并成一次遍历
     //TODO level.getEntitiesOfClass(Entity.class, this.bb.inflate(0.4))
     //                    .parallelStream() can be faster
     //TODO light body

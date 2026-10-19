@@ -186,6 +186,7 @@ public class NeoInstancedRenderManager {
         return updateTickVBOTask;
     }
 
+    //TODO uProf IBS
     void updateTickVBOInternal(ObjectOpenHashSet<SingleQuadParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {
         long start = tickVBOAddress + (long) index * TICK_VBO_SIZE;
         for (SingleQuadParticle particle : particles) {

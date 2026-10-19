@@ -463,7 +463,7 @@ public class MadParticle extends SingleQuadParticle {
         double r2 = xDelta * xDelta + yDelta * yDelta + zDelta * zDelta;
         boolean c = collision && isNormalTime() && this.hasPhysics && (xDelta != 0.0D || yDelta != 0.0D || zDelta != 0.0D) && r2 < MAXIMUM_COLLISION_VELOCITY_SQUARED;
         if (c) {
-            Vec3 vec3 = MovementHelper.collideBoundingBox(null, xDelta, yDelta, zDelta, this.getBoundingBox(), this.level, List.of());
+            Vec3 vec3 = MovementHelper.collideBoundingBox(xDelta, yDelta, zDelta, this.getBoundingBox(), this.level);
             //Vec3 vec3 = Entity.collideBoundingBox(null, new Vec3(xDelta, yDelta, zDelta), this.getBoundingBox(), this.level, List.of());
             xDeltaCollided = vec3 == null ? xDelta : vec3.x;
             yDeltaCollided = vec3 == null ? yDelta : vec3.y;

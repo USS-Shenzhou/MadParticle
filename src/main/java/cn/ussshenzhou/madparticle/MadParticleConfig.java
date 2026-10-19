@@ -30,6 +30,7 @@ public class MadParticleConfig implements TConfig {
     public LightCacheRefreshInterval lightCacheRefreshInterval = LightCacheRefreshInterval.FRAME;
     public List<String> takeOverRenderBlackList = new ArrayList<>();
     public List<String> takeOverTickBlackList = new ArrayList<>();
+    public boolean priorityFPS = false;
 
     public MadParticleConfig() {
     }

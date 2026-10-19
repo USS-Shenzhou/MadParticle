@@ -42,15 +42,7 @@ public class PositionedCache<T> {
 
     @SubscribeEvent
     public void refresh(ClientTickEvent.Post event) {
-        //TODO still choose-able
-        checkValid();
-    }
-
-    public void checkValid() {
-        var cameraPos = Minecraft.getInstance().gameRenderer.mainCamera().position();
-        if (Math.abs(cameraPos.x - xCenter) > 16 || Math.abs(cameraPos.y - yCenter) > 16 || Math.abs(cameraPos.z - zCenter) > 16) {
-            invalidateAll();
-        }
+        invalidateAll();
     }
 
     public void invalidateAll() {

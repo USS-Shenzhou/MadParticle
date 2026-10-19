@@ -15,6 +15,7 @@
     "AbstractCommandBlockEditScreenMixin",
     "ClientLevelMixin",
     "EditBoxAccessor",
+    "GlCommandEncoderMixin",
     "ParticleEngineAccessor",
     "ParticleEngineMixin",
     "ParticleGroupMixin",
@@ -22,7 +23,7 @@
     "RenderPipelineBuilderMixin",
     "SuspendedParticleMixin",
     "TextureManagerAccessor",
-    "GlCommandEncoderMixin"
+    "MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1

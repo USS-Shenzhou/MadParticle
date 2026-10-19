@@ -100,21 +100,31 @@ public class SettingPanel extends TOptionsPanel {
                         HudManager.getChildren().stream().filter(t -> t instanceof ParticleCounterHud).findFirst().ifPresent(HudManager::remove);
                     }
                 });
+        addOptionSplitter(Component.translatable("gui.mp.de.setting.advance"));
+        addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.advance.tick_chase"),
+                List.of(Boolean.TRUE, Boolean.FALSE),
+                bool -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.priorityFPS = bool),
+                entry -> entry.getContent() == cfg.priorityFPS
+        ).getSecond().setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.advance.tick_chase.tooltip")));
 
-
-        addOptionSplitter(Component.translatable("gui.mp.de.setting.light"));
+        addOptionSplitter(Component.translatable("gui.mp.de.setting.cache"));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.light.hor"),
                 Sets.newLinkedHashSet(List.of(16, 64, 128, 256, 512, cfg.lightCacheXZRange)).stream().toList(),
                 integer -> i -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.lightCacheXZRange = i.getSelected().getContent()),
                 entry -> entry.getContent() == cfg.lightCacheXZRange).getSecond()
                 .setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.light.hor.tooltip")));
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.light.ver"),
-                Sets.newLinkedHashSet(List.of(16, 64, 128, 256, 512, cfg.lightCacheYRange)).stream().toList(),
+                Sets.newLinkedHashSet(List.of(16, 64, 128, 256, cfg.lightCacheYRange)).stream().toList(),
                 integer -> i -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.lightCacheYRange = i.getSelected().getContent()),
                 entry -> entry.getContent() == cfg.lightCacheYRange).getSecond()
                 .setTooltip(Tooltip.create(Component.translatable("gui.mp.de.setting.light.ver.tooltip")));
         ramUsage = addOption(Component.translatable("gui.mp.de.setting.light.ram"), new TLabel()).getSecond()
                 .setHorizontalAlignment(HorizontalAlignment.LEFT);
+
+        addOption(Component.empty(), new TLabel(Component.translatable("gui.mp.de.setting.light")) {{
+            this.setHorizontalAlignment(HorizontalAlignment.LEFT);
+            this.setBackground(0x20ffffff);
+        }});
         addOptionCycleButtonInit(Component.translatable("gui.mp.de.setting.light.force"),
                 List.of(Boolean.TRUE, Boolean.FALSE),
                 bool -> b -> ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.forceMaxLight = bool),
@@ -139,8 +149,10 @@ public class SettingPanel extends TOptionsPanel {
     public void tickT() {
         long xz = getConfigRead().lightCacheXZRange;
         long y = getConfigRead().lightCacheYRange;
-        long bytes = xz * 2 * xz * 2 * y * 2 + xz * xz * y;
-        ramUsage.setText(Component.literal(convertBytes(bytes)));
+        long volume = xz * 2 * xz * 2 * y * 2;
+        long lightCache = volume + volume / 8;
+        long positionedCache = volume * 4 + volume / 8 + 16L * 16384 * Long.BYTES;
+        ramUsage.setText(Component.literal(convertBytes(lightCache + positionedCache)));
         super.tickT();
     }
 

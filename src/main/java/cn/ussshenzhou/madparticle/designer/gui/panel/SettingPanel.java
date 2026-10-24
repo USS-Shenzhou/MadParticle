@@ -1,12 +1,12 @@
 package cn.ussshenzhou.madparticle.designer.gui.panel;
 
-import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.madparticle.designer.gui.ParticleCounterHud;
 import cn.ussshenzhou.madparticle.particle.enums.LightCacheRefreshInterval;
+import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
 import cn.ussshenzhou.madparticle.particle.render.MultiThreadHelper;
-import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
+import cn.ussshenzhou.madparticle.util.MultiThreadedXQueueHelper;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import cn.ussshenzhou.t88.gui.HudManager;
 import cn.ussshenzhou.t88.gui.advanced.TOptionsPanel;
@@ -15,7 +15,6 @@ import cn.ussshenzhou.t88.gui.widegt.TLabel;
 import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
@@ -41,8 +40,8 @@ public class SettingPanel extends TOptionsPanel {
                     int newAmount = (int) s.relToAbsValueLinear(d);
                     ConfigHelper.getConfigWrite(MadParticleConfig.class, madParticleConfig -> madParticleConfig.maxParticleAmountOfSingleQueue = newAmount);
                     var particleGroups = Minecraft.getInstance().particleEngine.particles;
-                    particleGroups.forEach((_, particleGroup) -> {
-                        MultiThreadedEqualObjectOpenHashSetQueue<Particle> newQueue = new MultiThreadedEqualObjectOpenHashSetQueue<>(newAmount);
+                    particleGroups.forEach((particleRenderType, particleGroup) -> {
+                        var newQueue = MultiThreadedXQueueHelper.createByType(particleRenderType, newAmount);
                         newQueue.addAll(particleGroup.particles);
                         particleGroup.particles = (Queue) newQueue;
                     });

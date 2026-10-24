@@ -536,6 +536,7 @@ public class MadParticle extends SingleQuadParticle {
         //generalLoss controls radius of spread circle.
         r2 *= horizontalRelativeCollisionDiffuse;
         float r = (float) Math.sqrt(r2);
+        //FIXME do not use Math.random
         float a = (float) Math.random() * r * (random.nextBoolean() ? -1 : 1);
         float b = (float) Math.sqrt(r2 - a * a) * (random.nextBoolean() ? -1 : 1);
         //lose energy/speed when bouncing to different directions.

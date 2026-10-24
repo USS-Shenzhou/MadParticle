@@ -1,7 +1,7 @@
 package cn.ussshenzhou.madparticle.particle.render;
 
 import cn.ussshenzhou.madparticle.MadParticleConfig;
-import cn.ussshenzhou.madparticle.MultiThreadedEqualObjectOpenHashSetQueue;
+import cn.ussshenzhou.madparticle.util.MultiThreadedEqualObjectOpenHashSetQueue;
 import cn.ussshenzhou.madparticle.particle.MadParticle;
 import cn.ussshenzhou.madparticle.particle.enums.TakeOver;
 import cn.ussshenzhou.madparticle.particle.enums.TranslucentMethod;
@@ -25,6 +25,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.lwjgl.BufferUtils;
 
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -59,8 +60,10 @@ public class NeoInstancedRenderManager {
             return MANAGER_BY_RENDER_TYPE[0];
         } else if (renderType == ModParticleRenderTypes.INSTANCED_TERRAIN) {
             return MANAGER_BY_RENDER_TYPE[1];
+        } else if (renderType == ModParticleRenderTypes.INSTANCED_ITEM) {
+            return MANAGER_BY_RENDER_TYPE[2];
         }
-        return MANAGER_BY_RENDER_TYPE[2];
+        throw new IllegalStateException();
     }
 
     public static Stream<NeoInstancedRenderManager> getAllInstances() {
@@ -107,6 +110,7 @@ public class NeoInstancedRenderManager {
     final MappableRingBuffer cameraCorrectionUbo = new MappableRingBuffer(() -> "MadParticle CameraCorrection Uniform",
             GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_MAP_WRITE,
             (4 + 4) * 4);
+    long vboAddress = -1;
     //-----translucent methods related-----
     final SimpleRenderer simpleRenderer = new SimpleRenderer(this);
     final OitRenderer oitRenderer = new OitRenderer(this);
@@ -163,90 +167,147 @@ public class NeoInstancedRenderManager {
     }
 
     public void finish() {
-        if (updateTickVBOTask != null) {
-            updateTickVBOTask.join();
-            tickVBO.getNext().done();
-            tickVBO.next();
-        }
+        tickVBO.getNext().done();
+        tickVBO.next();
     }
 
-    public void update(MultiThreadedEqualObjectOpenHashSetQueue<Particle> particles) {
+    public void prepare(Collection<Particle> particles) {
+        if (particles.isEmpty()) {
+            amount = 0;
+            nextAmount = 0;
+            return;
+        }
         amount = nextAmount;
         nextAmount = particles.size();
         tickVBO.ensureCapacity(TICK_VBO_SIZE * particles.size());
         tickVBO.getNext().prepare();
+        vboAddress = tickVBO.getNext().getMappedAddress();
     }
 
     public void clear() {
         amount = 0;
     }
 
-    public CompletableFuture<Void> postUpdate(MultiThreadedEqualObjectOpenHashSetQueue<Particle> particles) {
-        updateTickVBOTask = executeUpdate(particles, this::updateTickVBOInternal, tickVBO);
-        return updateTickVBOTask;
-    }
+    //public CompletableFuture<Void> postUpdate(MultiThreadedEqualObjectOpenHashSetQueue<Particle> particles) {
+    //    updateTickVBOTask = executeUpdate(particles, this::updateTickVBOInternal, tickVBO);
+    //    return updateTickVBOTask;
+    //}
 
-    //TODO uProf IBS
-    void updateTickVBOInternal(ObjectOpenHashSet<SingleQuadParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {
-        long start = tickVBOAddress + (long) index * TICK_VBO_SIZE;
-        for (SingleQuadParticle particle : particles) {
-            if (particle.removed) {
-                MemoryUtil.zero(start, TICK_VBO_SIZE);
-                index++;
-                start += TICK_VBO_SIZE;
-                continue;
-            }
-            //xyz roll
-            MemoryUtil.memPutFloat(start, (float) particle.x);
-            MemoryUtil.memPutFloat(start + 4, (float) particle.y);
-            MemoryUtil.memPutFloat(start + 8, (float) particle.z);
-            MemoryUtil.memPutFloat(start + 12, particle.roll);
-            //prev xyz roll
-            MemoryUtil.memPutFloat(start + 16, (float) particle.xo);
-            MemoryUtil.memPutFloat(start + 20, (float) particle.yo);
-            MemoryUtil.memPutFloat(start + 24, (float) particle.zo);
-            MemoryUtil.memPutFloat(start + 28, particle.oRoll);
-            //uv
-            MemoryUtil.memPutShort(start + 32, Float.floatToFloat16(particle.getU0()));
-            MemoryUtil.memPutShort(start + 34, Float.floatToFloat16(particle.getU1()));
-            MemoryUtil.memPutShort(start + 36, Float.floatToFloat16(particle.getV0()));
-            MemoryUtil.memPutShort(start + 38, Float.floatToFloat16(particle.getV1()));
-            //color
-            MemoryUtil.memPutShort(start + 40, Float.floatToFloat16(particle.rCol));
-            MemoryUtil.memPutShort(start + 42, Float.floatToFloat16(particle.gCol));
-            MemoryUtil.memPutShort(start + 44, Float.floatToFloat16(particle.bCol));
-            MemoryUtil.memPutShort(start + 46, Float.floatToFloat16(particle.alpha));
-            //size extraLight, uv2
-            MemoryUtil.memPutShort(start + 48, Float.floatToFloat16(particle.getQuadSize(0.5f)));
-            float x = (float) ((particle.x + particle.xo) * 0.5f);
-            float y = (float) ((particle.y + particle.yo) * 0.5f);
-            float z = (float) ((particle.z + particle.zo) * 0.5f);
-            int xi = Mth.floor(x);
-            int yi = Mth.floor(y);
-            int zi = Mth.floor(z);
-            byte l = (byte) 0xff;
-            if (particle instanceof MadParticle madParticle) {
-                MemoryUtil.memPutShort(start + 50, Float.floatToFloat16(madParticle.getBloomFactor()));
-                if (!forceMaxLight) {
-                    l = LIGHT_CACHE.getOrCompute(xi, yi, zi, particle);
-                    l = madParticle.checkEmit(l);
-                }
-            } else if (TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
-                MemoryUtil.memPutShort(start + 50, DEFAULT_EXTRA_LIGHT);
-                if (!forceMaxLight) {
-                    l = LightCache.compressPackedLight(particle.getLightCoords(partialTicks));
-                }
-            } else {
-                MemoryUtil.memPutShort(start + 50, DEFAULT_EXTRA_LIGHT);
-                if (!forceMaxLight) {
-                    l = LIGHT_CACHE.getOrCompute(xi, yi, zi, particle);
-                }
-            }
-            MemoryUtil.memPutByte(start + 52, l);
+    //void updateTickVBOInternal(ObjectOpenHashSet<SingleQuadParticle> particles, int index, long tickVBOAddress, @Deprecated float partialTicks) {
+    //    long start = tickVBOAddress + (long) index * TICK_VBO_SIZE;
+    //    for (SingleQuadParticle particle : particles) {
+    //        if (particle.removed) {
+    //            MemoryUtil.zero(start, TICK_VBO_SIZE);
+    //            index++;
+    //            start += TICK_VBO_SIZE;
+    //            continue;
+    //        }
+    //        //xyz roll
+    //        MemoryUtil.memPutFloat(start, (float) particle.x);
+    //        MemoryUtil.memPutFloat(start + 4, (float) particle.y);
+    //        MemoryUtil.memPutFloat(start + 8, (float) particle.z);
+    //        MemoryUtil.memPutFloat(start + 12, particle.roll);
+    //        //prev xyz roll
+    //        MemoryUtil.memPutFloat(start + 16, (float) particle.xo);
+    //        MemoryUtil.memPutFloat(start + 20, (float) particle.yo);
+    //        MemoryUtil.memPutFloat(start + 24, (float) particle.zo);
+    //        MemoryUtil.memPutFloat(start + 28, particle.oRoll);
+    //        //uv
+    //        MemoryUtil.memPutShort(start + 32, Float.floatToFloat16(particle.getU0()));
+    //        MemoryUtil.memPutShort(start + 34, Float.floatToFloat16(particle.getU1()));
+    //        MemoryUtil.memPutShort(start + 36, Float.floatToFloat16(particle.getV0()));
+    //        MemoryUtil.memPutShort(start + 38, Float.floatToFloat16(particle.getV1()));
+    //        //color
+    //        MemoryUtil.memPutShort(start + 40, Float.floatToFloat16(particle.rCol));
+    //        MemoryUtil.memPutShort(start + 42, Float.floatToFloat16(particle.gCol));
+    //        MemoryUtil.memPutShort(start + 44, Float.floatToFloat16(particle.bCol));
+    //        MemoryUtil.memPutShort(start + 46, Float.floatToFloat16(particle.alpha));
+    //        //size extraLight, uv2
+    //        MemoryUtil.memPutShort(start + 48, Float.floatToFloat16(particle.getQuadSize(0.5f)));
+    //        float x = (float) ((particle.x + particle.xo) * 0.5f);
+    //        float y = (float) ((particle.y + particle.yo) * 0.5f);
+    //        float z = (float) ((particle.z + particle.zo) * 0.5f);
+    //        int xi = Mth.floor(x);
+    //        int yi = Mth.floor(y);
+    //        int zi = Mth.floor(z);
+    //        byte l = (byte) 0xff;
+    //        if (particle instanceof MadParticle madParticle) {
+    //            MemoryUtil.memPutShort(start + 50, Float.floatToFloat16(madParticle.getBloomFactor()));
+    //            if (!forceMaxLight) {
+    //                l = LIGHT_CACHE.getOrCompute(xi, yi, zi, particle);
+    //                l = madParticle.checkEmit(l);
+    //            }
+    //        } else if (TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
+    //            MemoryUtil.memPutShort(start + 50, DEFAULT_EXTRA_LIGHT);
+    //            if (!forceMaxLight) {
+    //                l = LightCache.compressPackedLight(particle.getLightCoords(partialTicks));
+    //            }
+    //        } else {
+    //            MemoryUtil.memPutShort(start + 50, DEFAULT_EXTRA_LIGHT);
+    //            if (!forceMaxLight) {
+    //                l = LIGHT_CACHE.getOrCompute(xi, yi, zi, particle);
+    //            }
+    //        }
+    //        MemoryUtil.memPutByte(start + 52, l);
+//
+    //        index++;
+    //        start += TICK_VBO_SIZE;
+    //    }
+    //}
 
-            index++;
-            start += TICK_VBO_SIZE;
+    void updateTickVBOSingleParticle(SingleQuadParticle particle, int overallIndex) {
+        long start = vboAddress + (long) overallIndex * TICK_VBO_SIZE;
+        if (particle.removed) {
+            MemoryUtil.zero(start, TICK_VBO_SIZE);
+            return;
         }
+        //xyz roll
+        MemoryUtil.memPutFloat(start, (float) particle.x);
+        MemoryUtil.memPutFloat(start + 4, (float) particle.y);
+        MemoryUtil.memPutFloat(start + 8, (float) particle.z);
+        MemoryUtil.memPutFloat(start + 12, particle.roll);
+        //prev xyz roll
+        MemoryUtil.memPutFloat(start + 16, (float) particle.xo);
+        MemoryUtil.memPutFloat(start + 20, (float) particle.yo);
+        MemoryUtil.memPutFloat(start + 24, (float) particle.zo);
+        MemoryUtil.memPutFloat(start + 28, particle.oRoll);
+        //uv
+        MemoryUtil.memPutShort(start + 32, Float.floatToFloat16(particle.getU0()));
+        MemoryUtil.memPutShort(start + 34, Float.floatToFloat16(particle.getU1()));
+        MemoryUtil.memPutShort(start + 36, Float.floatToFloat16(particle.getV0()));
+        MemoryUtil.memPutShort(start + 38, Float.floatToFloat16(particle.getV1()));
+        //color
+        MemoryUtil.memPutShort(start + 40, Float.floatToFloat16(particle.rCol));
+        MemoryUtil.memPutShort(start + 42, Float.floatToFloat16(particle.gCol));
+        MemoryUtil.memPutShort(start + 44, Float.floatToFloat16(particle.bCol));
+        MemoryUtil.memPutShort(start + 46, Float.floatToFloat16(particle.alpha));
+        //size extraLight, uv2
+        MemoryUtil.memPutShort(start + 48, Float.floatToFloat16(particle.getQuadSize(0.5f)));
+        float x = (float) ((particle.x + particle.xo) * 0.5f);
+        float y = (float) ((particle.y + particle.yo) * 0.5f);
+        float z = (float) ((particle.z + particle.zo) * 0.5f);
+        int xi = Mth.floor(x);
+        int yi = Mth.floor(y);
+        int zi = Mth.floor(z);
+        byte l = (byte) 0xff;
+        if (particle instanceof MadParticle madParticle) {
+            MemoryUtil.memPutShort(start + 50, Float.floatToFloat16(madParticle.getBloomFactor()));
+            if (!forceMaxLight) {
+                l = LIGHT_CACHE.getOrCompute(xi, yi, zi, particle);
+                l = madParticle.checkEmit(l);
+            }
+        } else if (TakeOver.RENDER_CUSTOM_LIGHT.contains(particle.getClass())) {
+            MemoryUtil.memPutShort(start + 50, DEFAULT_EXTRA_LIGHT);
+            if (!forceMaxLight) {
+                l = LightCache.compressPackedLight(particle.getLightCoords(0));
+            }
+        } else {
+            MemoryUtil.memPutShort(start + 50, DEFAULT_EXTRA_LIGHT);
+            if (!forceMaxLight) {
+                l = LIGHT_CACHE.getOrCompute(xi, yi, zi, particle);
+            }
+        }
+        MemoryUtil.memPutByte(start + 52, l);
     }
 
     @SuppressWarnings("unchecked")

@@ -60,6 +60,9 @@ public class MadParticle {
     //TODO cull transparent edge
     //TODO 大粒子用半分辨率画
     //TODO 26.3 OIT
+    //TODO 1. MultiThreadedEqualObjectOpenHashSetQueue内部的ObjectOpenHashSet<E>[]换成对象数组，不进行单独删除，遍历时删除，使用arraycopy往前挪，这样可以改善遍历时的空间局部性
+    //  2. addAll不再一个一个加，而是分一块一块加
+    //  3. 填VBO紧接着tick执行，借用tick已经加载的缓存来改善填VBO的读取速度
     public MadParticle(IEventBus modEventBus) {
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::clientSetup);

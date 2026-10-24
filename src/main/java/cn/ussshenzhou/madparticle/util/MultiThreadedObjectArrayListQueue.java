@@ -1,20 +1,20 @@
-package cn.ussshenzhou.madparticle;
+package cn.ussshenzhou.madparticle.util;
 
+import cn.ussshenzhou.madparticle.MadParticleConfig;
 import cn.ussshenzhou.t88.config.ConfigHelper;
 import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.errorprone.annotations.DoNotCall;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.Cleaner;
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.ObjIntConsumer;
 import java.util.stream.Stream;
 
 /**
@@ -22,25 +22,27 @@ import java.util.stream.Stream;
  * @see com.google.common.collect.EvictingQueue
  * @see it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
  */
-public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
+@SuppressWarnings("unchecked")
+public class MultiThreadedObjectArrayListQueue<E> implements Queue<E> {
+
     private static final AtomicInteger ID = new AtomicInteger();
     private static final Cleaner CLEANER = Cleaner.create();
 
-    private final ObjectOpenHashSet<E>[] sets;
+    private final ObjectArrayList<E>[] arrays;
     private final int maxSize;
     private final DefaultEventExecutorGroup threadPool;
 
-    public MultiThreadedEqualObjectOpenHashSetQueue(int initialCapacityOfEachThread, int maxSize) {
+    public MultiThreadedObjectArrayListQueue(int initialCapacityOfEachThread, int maxSize) {
         this.maxSize = maxSize;
         ID.getAndIncrement();
         int threads = ConfigHelper.getConfigRead(MadParticleConfig.class).getBufferFillerThreads();
         //noinspection unchecked,rawtypes
-        sets = Stream.generate(() -> new ObjectOpenHashSet())
+        arrays = Stream.generate(() -> new ObjectArrayList())
                 .limit(threads)
-                .toArray(ObjectOpenHashSet[]::new);
+                .toArray(ObjectArrayList[]::new);
         threadPool = new DefaultEventExecutorGroup(threads, new ThreadFactoryBuilder()
                 .setDaemon(true)
-                .setNameFormat("MadParticle-MultiThreadedEqualObjectLinkedOpenHashSetQueue-" + ID.get() + "-Thread-%d")
+                .setNameFormat("MadParticle-MultiThreadedObjectArrayQueue-" + ID.get() + "-Thread-%d")
                 .build()
         );
 
@@ -49,20 +51,20 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
         CLEANER.register(this, pool::shutdownGracefully);
     }
 
-    public MultiThreadedEqualObjectOpenHashSetQueue(int maxSize) {
-        this(128, maxSize);
+    public MultiThreadedObjectArrayListQueue(int maxSize) {
+        this(16384, maxSize);
     }
 
     public int threads() {
-        return sets.length;
+        return arrays.length;
     }
 
     public int remainingCapacity() {
         return maxSize - this.size();
     }
 
-    public ObjectOpenHashSet<E> get(int i) {
-        return sets[i];
+    public ObjectArrayList<E> get(int i) {
+        return arrays[i];
     }
 
     public DefaultEventExecutorGroup getThreadPool() {
@@ -72,8 +74,8 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
     @Override
     public int size() {
         int size = 0;
-        for (var hashset : sets) {
-            size += hashset.size();
+        for (var array : arrays) {
+            size += array.size();
         }
         return size;
     }
@@ -83,13 +85,14 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
         return size() == 0;
     }
 
+    @DoNotCall
     @Override
     public boolean contains(Object o) {
         if (o == null) {
             return false;
         }
-        for (var hashset : sets) {
-            if (hashset.contains(o)) {
+        for (var array : arrays) {
+            if (array.contains(o)) {
                 return true;
             }
         }
@@ -99,18 +102,20 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
     @DoNotCall
     @Override
     public @NotNull Iterator<E> iterator() {
-        return Iterators.concat(Arrays.stream(sets)
-                .map(Set::iterator)
+        return Iterators.concat(Arrays.stream(arrays)
+                .map(ObjectArrayList::iterator)
                 .iterator());
     }
 
     @SuppressWarnings("NullableProblems")
+    @DoNotCall
     @Override
     public @NotNull Object[] toArray() {
-        return Arrays.stream(sets).flatMap(Set::stream).toArray();
+        return Arrays.stream(arrays).flatMap(ObjectArrayList::stream).toArray();
     }
 
     @SuppressWarnings("NullableProblems")
+    @DoNotCall
     @Override
     public @NotNull <T> T[] toArray(@NotNull T[] a) {
         if (a.length < this.size()) {
@@ -119,7 +124,7 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
             a = newArray;
         }
         int index = 0;
-        for (var hashset : sets) {
+        for (var hashset : arrays) {
             for (E e : hashset) {
                 //noinspection unchecked
                 a[index] = (T) e;
@@ -134,8 +139,8 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
         if (this.size() >= maxSize) {
             return false;
         }
-        var target = sets[0];
-        for (var hashset : sets) {
+        var target = arrays[0];
+        for (var hashset : arrays) {
             if (hashset.size() < target.size()) {
                 target = hashset;
             }
@@ -143,9 +148,10 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
         return target.add(e);
     }
 
+    @DoNotCall
     @Override
     public boolean remove(Object o) {
-        for (var hashset : sets) {
+        for (var hashset : arrays) {
             if (hashset.remove(o)) {
                 return true;
             }
@@ -153,6 +159,7 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
         return false;
     }
 
+    @DoNotCall
     @Override
     public boolean containsAll(@NotNull Collection<?> c) {
         for (var o : c) {
@@ -165,27 +172,34 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
 
     @Override
     public boolean addAll(@NotNull Collection<? extends E> c) {
-        int index = 0;
-        int max = maxSize - this.size();
-        boolean changed = false;
-        for (var o : c) {
-            if (index >= max) {
-                return changed;
-            }
-            changed |= sets[index % sets.length].add(o);
-            index++;
+        int maxAdd = maxSize - this.size();
+        if (maxAdd == 0 || c.isEmpty()) {
+            return false;
         }
-        return changed;
+        int toAdd = Math.min(maxAdd, c.size());
+        int threads = threads();
+        int eachAdd = toAdd / threads + 1;
+        var cArray = (E[]) c.toArray();
+        for (int i = 0; i < toAdd; ) {
+            var array = arrays[i / eachAdd];
+            array.addElements(array.size(), cArray, i, Math.min(eachAdd, toAdd - i));
+            i += eachAdd;
+        }
+        return true;
     }
 
+    @DoNotCall
     @Override
     public boolean removeAll(@NotNull Collection<?> c) {
-        CompletableFuture<?>[] futures = new CompletableFuture[sets.length];
-        for (int i = 0; i < sets.length; i++) {
+        if (c.isEmpty()) {
+            return false;
+        }
+        CompletableFuture<?>[] futures = new CompletableFuture[arrays.length];
+        for (int i = 0; i < arrays.length; i++) {
             int finalI = i;
             futures[i] = CompletableFuture.runAsync(
                     () -> {
-                        var set = sets[finalI];
+                        var set = arrays[finalI];
                         for (var key : c) {
                             set.remove(key);
                         }
@@ -197,6 +211,7 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
         return true;
     }
 
+    @DoNotCall
     @Override
     public boolean retainAll(@NotNull Collection<?> c) {
         throw new UnsupportedOperationException();
@@ -204,8 +219,8 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
 
     @Override
     public void clear() {
-        for (var hashset : sets) {
-            hashset.clear();
+        for (var array : arrays) {
+            array.clear();
         }
     }
 
@@ -216,16 +231,25 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
 
     @Override
     public E remove() {
-        var r = poll();
-        if (r == null) {
+        var e = poll();
+        if (e == null) {
             throw new NoSuchElementException();
         }
-        return r;
+        return e;
     }
+
 
     @Override
     public E poll() {
-        return null;
+        if (size() == 0) {
+            return null;
+        }
+        for (var array : arrays) {
+            if (!array.isEmpty()) {
+                return array.removeFirst();
+            }
+        }
+        throw new IllegalStateException();
     }
 
     @Override
@@ -239,31 +263,75 @@ public class MultiThreadedEqualObjectOpenHashSetQueue<E> implements Queue<E> {
 
     @Override
     public E peek() {
-        return null;
+        if (size() == 0) {
+            return null;
+        }
+        for (var array : arrays) {
+            if (!array.isEmpty()) {
+                return array.getFirst();
+            }
+        }
+        throw new IllegalStateException();
     }
 
+    @DoNotCall
     @Override
     public void forEach(Consumer<? super E> action) {
-        CompletableFuture<?>[] futures = new CompletableFuture[sets.length];
+        CompletableFuture<?>[] futures = new CompletableFuture[arrays.length];
         for (int i = 0; i < threads(); i++) {
             int finalI = i;
             futures[i] = CompletableFuture.runAsync(
-                    () -> sets[finalI].forEach(action),
+                    () -> arrays[finalI].forEach(action),
                     threadPool
             );
         }
         CompletableFuture.allOf(futures).join();
     }
 
-    public void forEach(ObjIntConsumer<? super E> action) {
-        CompletableFuture<?>[] futures = new CompletableFuture[sets.length];
+    public int forEachAllowRemove(ActionAndPredicate<E> action) {
+        CompletableFuture<?>[] futures = new CompletableFuture[arrays.length];
+        int arrayBaseIndex = 0;
         for (int i = 0; i < threads(); i++) {
             int finalI = i;
-            futures[i] = CompletableFuture.runAsync(
-                    () -> sets[finalI].forEach(e -> action.accept(e, finalI)),
+            int finalBaseIndex = arrayBaseIndex;
+            int sizeBeforeRemove = arrays[i].size();
+            futures[i] = CompletableFuture.supplyAsync(
+                    () -> {
+                        var list = arrays[finalI];
+                        var array = list.elements();
+                        int size = list.size();
+                        int removed = 0;
+                        int lastToRemove = -1;
+                        for (int index = 0; index < size; index++) {
+                            var e = array[index];
+                            if (action.accept(e, finalI, finalBaseIndex + index)) {
+                                if (lastToRemove != -1) {
+                                    System.arraycopy(array, lastToRemove + 1, array, lastToRemove - removed, index - lastToRemove - 1);
+                                    removed++;
+                                }
+                                lastToRemove = index;
+                            }
+                        }
+                        if (lastToRemove != -1) {
+                            System.arraycopy(array, lastToRemove + 1, array, lastToRemove - removed, size - lastToRemove - 1);
+                            removed++;
+                        }
+                        list.size(size - removed);
+                        return removed;
+                    },
                     threadPool
             );
+            arrayBaseIndex += sizeBeforeRemove;
         }
         CompletableFuture.allOf(futures).join();
+        return Stream.of(futures).mapToInt(f -> (int) f.join()).sum();
+    }
+
+    @FunctionalInterface
+    public interface ActionAndPredicate<E> {
+        /**
+         * @return true if removing
+         */
+        boolean accept(E e, int threadId, int overallIndex);
     }
 }

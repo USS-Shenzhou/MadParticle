@@ -35,8 +35,8 @@ public class ParticleCounterHud extends TLabel {
                 .mapToInt(NeoInstancedRenderManager::getAmount)
                 .sum();
         int parallel = ParallelTickManager.count();
-        int add = ParallelTickManager.addCounter.get();
-        int remove = ParallelTickManager.removeCounter.get();
+        int add = ParallelTickManager.ADD_COUNTER.get();
+        int remove = ParallelTickManager.REMOVE_COUNTER.get();
         if ("zh_cn".equals(Minecraft.getInstance().getLanguageManager().getSelected())) {
             this.setText(Component.literal("粒子总数: "
                     + total

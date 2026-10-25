@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -88,144 +89,85 @@ public class ParallelTickManager {
                     OTHER_ASYNC_TICK_COUNTER.set(0);
                     REMOVE_COUNTER.set(0);
                 }, MultiThreadHelper.getFixedThreadPool())
+
                 .whenCompleteAsync((v, e) -> {
                     final var takeoverTicking = ConfigHelper.getConfigRead(MadParticleConfig.class).takeOverTicking;
+                    final Predicate<Particle> condition = switch (takeoverTicking) {
+                        case ALL -> ParallelTickManager::allTakeoverTick;
+                        case VANILLA -> ParallelTickManager::vanillaTakeoverTick;
+                        case NONE -> ParallelTickManager::noneTakeoverTick;
+                    };
                     engine.particles.forEach((particleRenderType, particleGroup) -> {
                         if (particleGroup.particles instanceof MultiThreadedObjectArrayListQueue<? extends Particle> multiThreadedObjectArrayListQueue) {
                             final var neoInstancedRenderManager = NeoInstancedRenderManager.getInstance(particleRenderType);
                             var particles = (MultiThreadedObjectArrayListQueue<SingleQuadParticle>) multiThreadedObjectArrayListQueue;
-                            var removed = switch (takeoverTicking) {
-                                case ALL -> particles.forEachAllowRemove(((particle, threadId, overallIndex) -> {
-                                    if (((ITickType) particle).getTickType() != TakeOver.TickType.SYNC) {
-                                        ASYNC_TICK_COUNTER[16 * threadId]++;
-                                        particle.tick();
-                                        neoInstancedRenderManager.updateTickVBOSingleParticle(particle, overallIndex);
-                                        return particle.removed;
-                                    } else {
-                                        neoInstancedRenderManager.updateTickVBOSingleParticle(particle, overallIndex);
-                                        if (particle.removed) {
-                                            return true;
-                                        }
-                                        syncJustTickCache.put(particle, NULL);
-                                        return false;
-                                    }
-                                }));
-                                case VANILLA -> particles.forEachAllowRemove(((particle, threadId, overallIndex) -> {
-                                    if (getTickType(particle) == TakeOver.TickType.ASYNC) {
-                                        ASYNC_TICK_COUNTER[16 * threadId]++;
-                                        particle.tick();
-                                        neoInstancedRenderManager.updateTickVBOSingleParticle(particle, overallIndex);
-                                        return particle.removed;
-                                    } else {
-                                        neoInstancedRenderManager.updateTickVBOSingleParticle(particle, overallIndex);
-                                        if (particle.removed) {
-                                            return true;
-                                        }
-                                        syncJustTickCache.put(particle, NULL);
-                                        return false;
-                                    }
-                                }));
-                                case NONE -> particles.forEachAllowRemove(((particle, threadId, overallIndex) -> {
-                                    if (particle instanceof MadParticle && getTickType(particle) == TakeOver.TickType.ASYNC) {
-                                        ASYNC_TICK_COUNTER[16 * threadId]++;
-                                        particle.tick();
-                                        neoInstancedRenderManager.updateTickVBOSingleParticle(particle, overallIndex);
-                                        return particle.removed;
-                                    } else {
-                                        neoInstancedRenderManager.updateTickVBOSingleParticle(particle, overallIndex);
-                                        if (particle.removed) {
-                                            return true;
-                                        }
-                                        syncJustTickCache.put(particle, NULL);
-                                        return false;
-                                    }
-                                }));
-                            };
+                            var removed = particles.forEachAllowRemove(((particle, threadId, overallIndex) -> condition.test(particle) ? tickAndWriteVBO(particle, threadId, overallIndex, neoInstancedRenderManager) : delayedTickAndWriteVBO(particle, overallIndex, neoInstancedRenderManager)));
                             REMOVE_COUNTER.addAndGet(removed);
                         } else if (particleGroup.particles instanceof MultiThreadedEqualObjectOpenHashSetQueue<? extends Particle> multiThreadedEqualObjectOpenHashSetQueue) {
-                            switch (takeoverTicking) {
-                                case ALL -> multiThreadedEqualObjectOpenHashSetQueue.forEach(((particle, threadId) -> {
-                                    if (((ITickType) particle).getTickType() != TakeOver.TickType.SYNC) {
-                                        ASYNC_TICK_COUNTER[16 * threadId]++;
-                                        particle.tick();
-                                        if (particle.removed) {
-                                            removeCache.get(particleRenderType).add(particle);
-                                        }
-                                    } else {
-                                        syncTickRemoveCache.put(particle, NULL);
-                                    }
-                                }));
-                                case VANILLA -> multiThreadedEqualObjectOpenHashSetQueue.forEach(((particle, threadId) -> {
-                                    if (getTickType(particle) == TakeOver.TickType.ASYNC) {
-                                        ASYNC_TICK_COUNTER[16 * threadId]++;
-                                        particle.tick();
-                                        if (particle.removed) {
-                                            removeCache.get(particleRenderType).add(particle);
-                                        }
-                                    } else {
-                                        syncTickRemoveCache.put(particle, NULL);
-                                    }
-                                }));
-                                case NONE -> multiThreadedEqualObjectOpenHashSetQueue.forEach(((particle, threadId) -> {
-                                    if (particle instanceof MadParticle && getTickType(particle) == TakeOver.TickType.ASYNC) {
-                                        ASYNC_TICK_COUNTER[16 * threadId]++;
-                                        particle.tick();
-                                        if (particle.removed) {
-                                            removeCache.get(particleRenderType).add(particle);
-                                        }
-                                    } else {
-                                        syncTickRemoveCache.put(particle, NULL);
-                                    }
-                                }));
-                            }
+                            var particles = (MultiThreadedEqualObjectOpenHashSetQueue<SingleQuadParticle>) multiThreadedEqualObjectOpenHashSetQueue;
+                            particles.forEach((particle, threadId)-> {
+                                if (condition.test(particle)) {
+                                    ASYNC_TICK_COUNTER[16 * threadId]++;
+                                    tick(particleRenderType, particle);
+                                } else {
+                                    syncTickRemoveCache.put(particle, NULL);
+                                }
+                            });
                         } else {
                             ForkJoinTask<?> pickAndTick = MultiThreadHelper.getForkJoinPool().submit((() -> particleGroup.particles.parallelStream().forEach(particle -> {
-                                switch (takeoverTicking) {
-                                    case ALL -> {
-                                        if (((ITickType) particle).getTickType() != TakeOver.TickType.SYNC) {
-                                            OTHER_ASYNC_TICK_COUNTER.getAndIncrement();
-                                            particle.tick();
-                                            if (particle.removed) {
-                                                removeCache.get(particleRenderType).add(particle);
-                                            }
-                                        } else {
-                                            syncTickRemoveCache.put(particle, NULL);
-                                        }
-                                    }
-                                    case VANILLA -> {
-                                        if (getTickType(particle) == TakeOver.TickType.ASYNC) {
-                                            OTHER_ASYNC_TICK_COUNTER.getAndIncrement();
-                                            particle.tick();
-                                            if (particle.removed) {
-                                                removeCache.get(particleRenderType).add(particle);
-                                            }
-                                        } else {
-                                            syncTickRemoveCache.put(particle, NULL);
-                                        }
-                                    }
-                                    case NONE -> {
-                                        if (particle instanceof MadParticle && getTickType(particle) == TakeOver.TickType.ASYNC) {
-                                            OTHER_ASYNC_TICK_COUNTER.getAndIncrement();
-                                            particle.tick();
-                                            if (particle.removed) {
-                                                removeCache.get(particleRenderType).add(particle);
-                                            }
-                                        } else {
-                                            syncTickRemoveCache.put(particle, NULL);
-                                        }
-                                    }
+                                if (condition.test(particle)) {
+                                    OTHER_ASYNC_TICK_COUNTER.getAndIncrement();
+                                    tick(particleRenderType, particle);
+                                } else {
+                                    syncTickRemoveCache.put(particle, NULL);
                                 }
                             })));
                             pickAndTick.join();
                         }
                     });
                 }, MultiThreadHelper.getFixedThreadPool())
+
                 .whenCompleteAsync((v, e) -> {
                     if (e != null) {
                         failSafe(engine, e);
                     }
                     asyncTimeMs = (System.nanoTime() - asyncStartNs) / 1000_000d;
                 }, MultiThreadHelper.getFixedThreadPool());
+    }
+
+    private static void tick(ParticleRenderType particleRenderType, Particle particle) {
+        particle.tick();
+        if (particle.removed) {
+            removeCache.get(particleRenderType).add(particle);
+        }
+    }
+
+    private static boolean delayedTickAndWriteVBO(SingleQuadParticle particle, int overallIndex, NeoInstancedRenderManager neoInstancedRenderManager) {
+        neoInstancedRenderManager.updateTickVBOSingleParticle(particle, overallIndex);
+        if (particle.removed) {
+            return true;
+        }
+        syncJustTickCache.put(particle, NULL);
+        return false;
+    }
+
+    private static boolean tickAndWriteVBO(SingleQuadParticle particle, int threadId, int overallIndex, NeoInstancedRenderManager neoInstancedRenderManager) {
+        ASYNC_TICK_COUNTER[16 * threadId]++;
+        particle.tick();
+        neoInstancedRenderManager.updateTickVBOSingleParticle(particle, overallIndex);
+        return particle.removed;
+    }
+
+    private static boolean noneTakeoverTick(Particle particle) {
+        return particle instanceof MadParticle && getTickType(particle) == TakeOver.TickType.ASYNC;
+    }
+
+    private static boolean vanillaTakeoverTick(Particle particle) {
+        return getTickType(particle) == TakeOver.TickType.ASYNC;
+    }
+
+    private static boolean allTakeoverTick(Particle particle) {
+        return getTickType(particle) != TakeOver.TickType.SYNC;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked", "SuspiciousMethodCalls"})

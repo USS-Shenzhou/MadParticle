@@ -57,7 +57,7 @@ public class ParallelTickManager {
 
     private static CompletableFuture<Void> lastTickJob;
 
-    //TODO divide sync caches by takeOverType.
+    //TODO make it elegant
     @SuppressWarnings("unchecked")
     public static void tick(ParticleEngine engine) {
         checkPreviousTickDone(engine);
@@ -179,7 +179,6 @@ public class ParallelTickManager {
                                 }));
                             }
                         } else {
-                            //ForkJoinTask<?> pickAndTick = MultiThreadHelper.getForkJoinPool().submit(() -> particleGroup.particles.parallelStream().forEach(p -> ticker.accept(p, 0)));
                             ForkJoinTask<?> pickAndTick = MultiThreadHelper.getForkJoinPool().submit((() -> particleGroup.particles.parallelStream().forEach(particle -> {
                                 switch (takeoverTicking) {
                                     case ALL -> {
@@ -225,13 +224,6 @@ public class ParallelTickManager {
                     if (e != null) {
                         failSafe(engine, e);
                     }
-                    //var postUpdates = new ArrayList<CompletableFuture<Void>>();
-                    //engine.particles.forEach((renderType, particleGroup) -> {
-                    //    if (MultiThreadedXQueueHelper.instanced(renderType)) {
-                    //        postUpdates.add(NeoInstancedRenderManager.getInstance(renderType).postUpdate((MultiThreadedEqualObjectOpenHashSetQueue<Particle>) particleGroup.particles));
-                    //    }
-                    //});
-                    //CompletableFuture.allOf(postUpdates.toArray(CompletableFuture[]::new)).whenComplete((_, _) -> asyncTimeMs = (System.nanoTime() - asyncStartNs) / 1000_000d);
                     asyncTimeMs = (System.nanoTime() - asyncStartNs) / 1000_000d;
                 }, MultiThreadHelper.getFixedThreadPool());
     }

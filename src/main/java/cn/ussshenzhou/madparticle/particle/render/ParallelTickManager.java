@@ -58,7 +58,6 @@ public class ParallelTickManager {
 
     private static CompletableFuture<Void> lastTickJob;
 
-    //TODO make it elegant
     @SuppressWarnings("unchecked")
     public static void tick(ParticleEngine engine) {
         checkPreviousTickDone(engine);
